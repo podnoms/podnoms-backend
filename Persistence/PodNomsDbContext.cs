@@ -30,6 +30,15 @@ namespace PodNoms.Api.Persistence {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasIndex(p => p.Slug)
+                .IsUnique(true);
+
+            modelBuilder.Entity<Podcast>()
+                .HasIndex(p => p.Slug)
+                .IsUnique(true);
+
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
@@ -46,6 +55,7 @@ namespace PodNoms.Api.Persistence {
                 pb.ValueGeneratedOnAdd()
                   .HasDefaultValueSql("newsequentialid()");
             }
+
 
         }
 

@@ -282,3 +282,4 @@ appsettings.Production.json
 Persistence/TempContextFactory.cs
 appsettings.Production.json
 out/pushsubscription.db
+pushsubscription.db
