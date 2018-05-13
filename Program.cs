@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.KeyVault.Models;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
+
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Providers;
 using PodNoms.Api.Services.Auth;
@@ -34,11 +37,23 @@ namespace PodNoms.Api {
         }
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseUrls("http://0.0.0.0:5000")
-                .UseKestrel(options => {
-                    options.Limits.MaxRequestBodySize = 1073741824;
-                }).Build();
+            .ConfigureAppConfiguration((context, config) => {
+                config.SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", optional: false)
+                    .AddEnvironmentVariables();
+                
+                var builtConfig = config.Build();
+
+                config.AddAzureKeyVault(
+                    $"https://{builtConfig["Vault"]}.vault.azure.net/",
+                    builtConfig["ClientId"],
+                    builtConfig["ClientSecret"]);
+            })
+            .UseStartup<Startup>()
+            .UseUrls("http://0.0.0.0:5000")
+            .UseKestrel(options => {
+                options.Limits.MaxRequestBodySize = 1073741824;
+            }).Build();
 
     }
 }
