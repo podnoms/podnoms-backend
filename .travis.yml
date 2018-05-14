@@ -4,6 +4,10 @@ node_js:
 branches:
     only:
         - master
+
 before_install:
-      docker build -t podnoms.azurecr.io/podnoms.api .
-      docker push podnoms.azurecr.io/podnoms.api
+      - docker login --username=$DOCKER_USER --password=$DOCKER_PASSWORD $DOCKER_REGISTRY
+      
+install:
+      - docker build -t podnoms.azurecr.io/podnoms.web .
+      - docker push podnoms.azurecr.io/podnoms.web
