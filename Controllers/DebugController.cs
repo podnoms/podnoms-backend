@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Persistence;
@@ -27,6 +28,7 @@ namespace PodNoms.Api.Controllers {
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly HelpersSettings _helpersSettings;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
+        private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
@@ -38,6 +40,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<HelpersSettings> helpersSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
+            IOptions<JwtIssuerOptions> jwtIssuerOptions,
             IPushSubscriptionStore subscriptionStore,
             UserManager<ApplicationUser> userManager,
             IPushNotificationService notificationService,
@@ -47,6 +50,7 @@ namespace PodNoms.Api.Controllers {
             this._helpersSettings = helpersSettings.Value;
             this._audioFileStorageSettings = audioFileStorageSettings.Value;
             this._imageFileStorageSettings = imageFileStorageSettings.Value;
+            this._jwtIssuerOptions = jwtIssuerOptions.Value;
             this._hub = hub;
             this._subscriptionStore = subscriptionStore;
             this._notificationService = notificationService;
@@ -66,6 +70,16 @@ namespace PodNoms.Api.Controllers {
                 RssUrl = _appSettings.RssUrl
             };
             return new OkObjectResult(config);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("jwtparams")]
+        public IActionResult GetJwtParameters(){
+            return Ok(JsonConvert.SerializeObject(this._jwtIssuerOptions, Formatting.Indented,
+                        new JsonSerializerSettings() {
+                            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                        })
+                    );
         }
 
         [Authorize]
