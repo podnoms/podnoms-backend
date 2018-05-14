@@ -5,6 +5,7 @@ jobs:
    steps:
      # checkout source code
      - checkout
+     - setup_remote_docker
      - run: |
          docker info
          docker build -t podnoms.api .
