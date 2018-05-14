@@ -23,17 +23,7 @@ namespace PodNoms.Api {
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main(string[] args) {
-            var host = BuildWebHost(args);
-            using (var scope = host.Services.CreateScope()) {
-                var services = scope.ServiceProvider;
-                try {
-                    SeedData.Initialize(services);
-                } catch (Exception ex) {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
-                }
-            }
-            host.Run();
+            BuildWebHost(args).Run();
         }
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
@@ -57,21 +47,3 @@ namespace PodNoms.Api {
 
     }
 }
-
-/*
-
-            using (var scope = host.Services.CreateScope()) {
-                var services = scope.ServiceProvider;
-                try {
-                    var context = services.GetRequiredService<PodNomsDbContext>();
-                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-                    var dbInitializerLogger = services.GetRequiredService<ILogger<DbInitializer>>();
-                    DbInitializer.Initialize(context, userManager, dbInitializerLogger).Wait();
-                } catch (Exception ex) {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
-                }
-                host.MigrateDatabase((isDevelopment || migrate.ToUpper().Equals("TRUE")), drop != null && drop.Equals("TRUE"));
-            }
-            */
