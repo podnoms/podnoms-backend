@@ -80,7 +80,7 @@ namespace PodNoms.Api.Controllers {
         public IActionResult GetOptions() {
             var response = new {
                 AppSettings = _config.GetSection("App").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                StorageSettings = _config.GetSection("Storage").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                StorageSettings = _config.GetSection("StorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 HelpersSettings = _config.GetSection("HelpersSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 EmailSettings = _config.GetSection("EmailSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),

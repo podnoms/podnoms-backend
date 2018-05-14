@@ -105,7 +105,7 @@ namespace PodNoms.Api {
 
             services.AddOptions();
             services.Configure<AppSettings>(Configuration.GetSection("App"));
-            services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
+            services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
             services.Configure<HelpersSettings>(Configuration.GetSection("HelpersSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<FacebookAuthSettings>(Configuration.GetSection("FacebookAuthSettings"));

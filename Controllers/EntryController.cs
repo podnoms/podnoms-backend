@@ -71,7 +71,7 @@ namespace PodNoms.Api.Controllers {
                 var notify = BackgroundJob.ContinueWith<INotifyJobCompleteService>(
                     uploadJobId, service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
                     entry.Podcast.GetThumbnailUrl(
-                        this._options.GetSection("Storage")["CdnUrl"],
+                        this._options.GetSection("StorageSettings")["CdnUrl"],
                         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
                     ));
             } catch (InvalidOperationException ex) {

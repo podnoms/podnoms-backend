@@ -20,18 +20,18 @@ namespace PodNoms.Api.Providers {
                 .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
-                        this._options.GetSection("Storage")["CdnUrl"],
+                        this._options.GetSection("StorageSettings")["CdnUrl"],
                         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
-                        this._options.GetSection("Storage")["CdnUrl"],
+                        this._options.GetSection("StorageSettings")["CdnUrl"],
                         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => $"{this._options.GetSection("Storage")["CdnUrl"]}{m.AudioUrl}"))
+                    e => e.MapFrom(m => $"{this._options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
                     src => src.Uid,
                     e => e.MapFrom(m => m.ExposedUid));
