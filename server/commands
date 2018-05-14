@@ -1,3 +1,0 @@
-get-info
-youtube-dl --flat-playlist -i -J -s <url>
-
