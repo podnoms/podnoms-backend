@@ -1,0 +1,14 @@
+version: 2
+jobs:
+ build:
+   machine: true
+   steps:
+     # checkout source code
+     - checkout
+     - run: |
+         docker info
+         docker build -t podnoms.api .
+     - run: |
+         docker login --username=$DOCKER_USER --password=$DOCKER_PASSWORD $REGISTRY_HOST
+         docker tag podnoms.api $REGISTRY_HOST/podnoms.api
+         docker push $REGISTRY_HOST/podnoms.api
