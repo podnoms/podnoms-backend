@@ -22,7 +22,7 @@ using PodNoms.Api.Services.Realtime;
 using WebPush = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
-    [ApiExplorerSettings(IgnoreApi=true)]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("[controller]")]
     public class DebugController : BaseAuthController {
         private readonly StorageSettings _storageSettings;
@@ -31,13 +31,15 @@ namespace PodNoms.Api.Controllers {
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
+        private readonly IConfiguration _config;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
 
-        public AppSettings _appSettings { get; }
+        public readonly AppSettings _appSettings;
 
         public DebugController(IOptions<StorageSettings> settings, IOptions<AppSettings> appSettings,
             HubLifetimeManager<DebugHub> hub,
+            IConfiguration config,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
@@ -53,6 +55,7 @@ namespace PodNoms.Api.Controllers {
             this._imageFileStorageSettings = imageFileStorageSettings.Value;
             this._jwtIssuerOptions = jwtIssuerOptions.Value;
             this._hub = hub;
+            this._config = config;
             this._subscriptionStore = subscriptionStore;
             this._notificationService = notificationService;
         }
@@ -72,17 +75,22 @@ namespace PodNoms.Api.Controllers {
             };
             return new OkObjectResult(config);
         }
-
         [AllowAnonymous]
-        [HttpGet("jwtparams")]
-        public IActionResult GetJwtParameters(){
-            return Ok(JsonConvert.SerializeObject(this._jwtIssuerOptions, Formatting.Indented,
-                        new JsonSerializerSettings() {
-                            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                        })
-                    );
+        [HttpGet("getoptions")]
+        public IActionResult GetOptions() {
+            var response = new {
+                AppSettings = _config.GetSection("App").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                StorageSettings = _config.GetSection("Storage").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                HelpersSettings = _config.GetSection("HelpersSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                EmailSettings = _config.GetSection("EmailSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                ChatSettings = _config.GetSection("ChatSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                ImageFileStorageSettings = _config.GetSection("ImageFileStorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                AudioFileStorageSettings = _config.GetSection("AudioFileStorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                JwtIssuerOptions = _config.GetSection("JwtIssuerOptions").GetChildren().Select(c => new { Key = c.Key, Value = c.Value })
+            };
+            return Ok(JsonConvert.SerializeObject(response));
         }
-
         [Authorize]
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
