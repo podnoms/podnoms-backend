@@ -74,7 +74,7 @@ namespace PodNoms.Api.Services.Jobs {
                                 BackgroundJob.Enqueue<INotifyJobCompleteService>(
                                     service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
                                         entry.Podcast.GetThumbnailUrl(
-                                            this._options.GetSection("Storage")["CdnUrl"],
+                                            this._options.GetSection("StorageSettings")["CdnUrl"],
                                             this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
                                         ));
                             }
