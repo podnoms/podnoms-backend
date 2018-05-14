@@ -5,10 +5,11 @@ jobs:
    steps:
      # checkout source code
      - checkout
+     - setup_remote_docker
      - run: |
          docker info
          docker build -t podnoms.api .
      - run: |
-         docker login --username=$DOCKER_USER --password=$DOCKER_PASSWORD $REGISTRY_HOST
+         docker login -u $DOCKER_USER -P $DOCKER_PASSWORD $REGISTRY_HOST
          docker tag podnoms.api $REGISTRY_HOST/podnoms.api
          docker push $REGISTRY_HOST/podnoms.api
