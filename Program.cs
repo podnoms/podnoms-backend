@@ -31,9 +31,7 @@ namespace PodNoms.Api {
                 config.SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", optional: false)
                     .AddEnvironmentVariables();
-                
                 var builtConfig = config.Build();
-
                 config.AddAzureKeyVault(
                     $"https://{builtConfig["Vault"]}.vault.azure.net/",
                     builtConfig["ClientId"],

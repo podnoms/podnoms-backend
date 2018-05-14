@@ -22,6 +22,7 @@ using PodNoms.Api.Services.Realtime;
 using WebPush = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
+    [ApiExplorerSettings(IgnoreApi=true)]
     [Route("[controller]")]
     public class DebugController : BaseAuthController {
         private readonly StorageSettings _storageSettings;

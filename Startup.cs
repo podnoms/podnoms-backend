@@ -112,6 +112,7 @@ namespace PodNoms.Api {
             services.Configure<ChatSettings>(Configuration.GetSection("ChatSettings"));
             services.Configure<ImageFileStorageSettings>(Configuration.GetSection("ImageFileStorageSettings"));
             services.Configure<AudioFileStorageSettings>(Configuration.GetSection("AudioFileStorageSettings"));
+            services.Configure<JwtIssuerOptions>(Configuration.GetSection("JwtIssuerOptions"));
             services.Configure<FormOptions>(options => {
                 // options.ValueCountLimit = 10;
                 options.ValueLengthLimit = int.MaxValue;
@@ -132,15 +133,10 @@ namespace PodNoms.Api {
             });
             services.AddHttpClient();
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
-            foreach (var key in jwtAppSettingOptions.AsEnumerable()){
-                Console.WriteLine($"***OPTION {key.Key}: {key.Value}");
-            }
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options => {
                 //TODO: Remove this in production, only for testing
                 options.ValidFor = TimeSpan.FromDays(28);
-                Console.WriteLine($"***OPTION {nameof(JwtIssuerOptions.Issuer)}");
-                Console.WriteLine($"***OPTION {nameof(JwtIssuerOptions.Audience)}");
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
