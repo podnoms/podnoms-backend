@@ -6,7 +6,7 @@ branches:
         - master
 
 before_install:
-      - docker login --username=$DOCKER_USER --password=$DOCKER_PASSWORD $DOCKER_REGISTRY
+      - docker login --username=$DOCKER_REGISTRY_USER --password=$DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
       
 install:
       - docker build -t podnoms.azurecr.io/podnoms.web .
