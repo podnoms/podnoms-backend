@@ -16,7 +16,7 @@ namespace PodNoms.Api.Providers {
             CreateMap<Podcast, PodcastViewModel>()
                 .ForMember(
                     v => v.RssUrl,
-                    e => e.MapFrom(m => $"{this._options.GetSection("App")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
+                    e => e.MapFrom(m => $"{this._options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
                 .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(

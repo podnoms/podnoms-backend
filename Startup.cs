@@ -104,7 +104,7 @@ namespace PodNoms.Api {
             Console.WriteLine($"Configuring services: {Configuration.ToString()}");
 
             services.AddOptions();
-            services.Configure<AppSettings>(Configuration.GetSection("App"));
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
             services.Configure<HelpersSettings>(Configuration.GetSection("HelpersSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));

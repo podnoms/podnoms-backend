@@ -79,7 +79,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("getoptions")]
         public IActionResult GetOptions() {
             var response = new {
-                AppSettings = _config.GetSection("App").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
+                AppSettings = _config.GetSection("AppSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 StorageSettings = _config.GetSection("StorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 HelpersSettings = _config.GetSection("HelpersSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
                 EmailSettings = _config.GetSection("EmailSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
