@@ -1,2 +1,0 @@
-# PodNoms.Web
-Web ui
