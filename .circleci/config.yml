@@ -1,16 +1,18 @@
 version: 2.0
-general:
-  branches:
-    only:
-      - master
+      
 jobs:
+
     login:
         docker:
           - image: circleci/buildpack-deps:18.04-curl-browsers
         steps:
             - setup_remote_docker
             - run: docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
-
+    test:
+        docker:
+          - image: circleci/buildpack-deps:18.04-curl-browsers
+        steps:
+            - run: "echo Tests? What tests..."
     build:
         docker:
           - image: circleci/buildpack-deps:18.04-curl-browsers
@@ -33,12 +35,6 @@ workflows:
     build-test-deploy:
         jobs:
             - login
-            - build:
-                filters:
-                    branches:
-                        only: develop
-                requires:
-                  - login
             - build_and_deploy:
                 filters:
                     branches:
