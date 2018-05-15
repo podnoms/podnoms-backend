@@ -34,7 +34,7 @@ workflows:
     version: 2
     build-test-deploy:
         jobs:
-            - login
+            - login:
                 filters:
                     branches:
                         only: master
