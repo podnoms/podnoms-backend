@@ -52,7 +52,7 @@ namespace PodNoms.Api.Models {
                     var tableName = context.Model.FindEntityType(t).SqlServer().TableName;
                     if (!string.IsNullOrEmpty(tableName)) {
                         var sourceField = (attribute as SlugFieldAttribute).SourceField;
-                        var slugSource = entity.GetType().GetProperty("Title").GetValue(entity, null).ToString();
+                        var slugSource = entity.GetType().GetProperty(sourceField).GetValue(entity, null).ToString();
                         var source = context.ExecSQL<ProxySluggedModel>($"SELECT Slug FROM {tableName}")
                             .Select(m => m.Slug);
                         return slugSource.Slugify(source);

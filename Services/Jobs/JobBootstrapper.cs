@@ -13,6 +13,8 @@ namespace PodNoms.Api.Services.Jobs {
             BackgroundJob.Schedule<ProcessPlaylistsJob>(x => x.Execute(3), TimeSpan.FromSeconds(1));
             RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Daily(2));
 
+            BackgroundJob.Schedule<ProcessMissingPodcasts>(x => x.Execute(), TimeSpan.FromSeconds(1));
+
             BackgroundJob.Schedule<ProcessRemoteAudioFileAttributesJob>(
                 x => x.Execute(), 
                 TimeSpan.FromSeconds(Int16.MaxValue));

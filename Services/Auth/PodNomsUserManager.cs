@@ -34,18 +34,23 @@ namespace PodNoms.Api.Services.Auth {
 
         }
         public override async Task<IdentityResult> CreateAsync(ApplicationUser user) {
-            _slugify(user);
             _checkName(user);
             await _imageify(user);
-            try {
-                await _mailSender.SendEmailAsync("fergal.moran@gmail.com", "New user signup", $"{user.Email}\n{user.FirstName} {user.LastName}");
-            } catch (Exception) {
-
+            var result = await base.CreateAsync(user);
+            if (result.Succeeded) {
+                try {
+                    await _mailSender.SendEmailAsync("fergal.moran@gmail.com", "New user signup", $"{user.Email}\n{user.FirstName} {user.LastName}");
+                } catch (Exception) {
+                }
+            } else {
+                Logger.LogError($"Error signing up user: {user.Email}");
+                foreach (var error in result.Errors) {
+                    Logger.LogError(error.Description);
+                }
             }
-            return await base.CreateAsync(user);
+            return result;
         }
         public override async Task<IdentityResult> UpdateAsync(ApplicationUser user) {
-            _slugify(user);
             _checkName(user);
             await _imageify(user);
             return await base.UpdateAsync(user);

@@ -55,8 +55,6 @@ namespace PodNoms.Api.Persistence {
                 pb.ValueGeneratedOnAdd()
                   .HasDefaultValueSql("newsequentialid()");
             }
-
-
         }
 
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
@@ -68,9 +66,23 @@ namespace PodNoms.Api.Persistence {
         }
 
         public override int SaveChanges() {
+            foreach (var entity in this.ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where(e => e.Entity is ISluggedEntity)
+                    .Select(e => e.Entity as ISluggedEntity)
+                    .Where(e => string.IsNullOrEmpty(e.Slug))) {
+                entity.Slug = entity.GetSlug(this, _logger);
+            }
             return base.SaveChanges();
         }
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(System.Threading.CancellationToken)) {
+            foreach (var entity in this.ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where(e => e.Entity is ISluggedEntity)
+                    .Select(e => e.Entity as ISluggedEntity)
+                    .Where(e => string.IsNullOrEmpty(e.Slug))) {
+                entity.Slug = entity.GetSlug(this, _logger);
+            }
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
         public DbSet<Podcast> Podcasts { get; set; }

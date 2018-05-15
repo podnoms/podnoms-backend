@@ -40,9 +40,6 @@ namespace PodNoms.Api.Persistence {
         }
 
         public TEntity Create(TEntity entity) {
-            if (entity is ISluggedEntity) {
-                (entity as ISluggedEntity).Slug = (entity as ISluggedEntity).GetSlug(_context, _logger);
-            }
             var ret = _context.Set<TEntity>().Add(entity);
             return entity;
         }
@@ -55,7 +52,6 @@ namespace PodNoms.Api.Persistence {
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
             if (entity.Id != 0) {
-                // _context.Entry(entry).State = EntityState.Modified
                 ret = Update(entity);
             } else {
                 ret = Create(entity);

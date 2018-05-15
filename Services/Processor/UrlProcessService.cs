@@ -110,6 +110,7 @@ namespace PodNoms.Api.Services.Processor {
                         new object[] { $"{entry.Title} has succesfully been processed" });
 
                 }
+                return true;
             } catch (Exception ex) {
                 _logger.LogError($"Entry: {entryId}\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
