@@ -37,7 +37,7 @@ namespace PodNoms.Api.Controllers {
 
         public ImageUploadController(IPodcastRepository repository, IUnitOfWork unitOfWork,
                 IFileUploader fileUploader, IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-                ILoggerFactory loggerFactory, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
+                ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
             : base(contextAccessor, userManager) {
 
             this._fileUploader = fileUploader;
@@ -46,7 +46,7 @@ namespace PodNoms.Api.Controllers {
             //this._repository = repository;
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
-            this._logger = loggerFactory.CreateLogger<ImageUploadController>();
+            this._logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> Upload(string slug, IFormFile file) {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +39,9 @@ using PodNoms.Api.Services.Realtime;
 using PodNoms.Api.Services.Storage;
 using PodNoms.Api.Utils;
 using PodNoms.Api.Services.Push.Extensions;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Elasticsearch;
 
 using Swashbuckle.AspNetCore.Swagger;
 using PodNoms.Api.Services.Push.Formatters;
@@ -53,13 +56,25 @@ using System.Threading;
 
 namespace PodNoms.Api {
     public class Startup {
-        private const string SecretKey = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40"; // todo: get this from somewhere secure
+        private const string SecretKey = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
         private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
         private static Mutex mutex = new Mutex();
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
+            Console.WriteLine($"Config value: {Configuration["StorageSettings:ElasticHost"]?.ToString()}");
+            var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
+            if (!string.IsNullOrEmpty(logServer)){
+                Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Debug()
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)){
+                    MinimumLogEventLevel = LogEventLevel.Verbose,
+                    AutoRegisterTemplate = true
+                })
+                .CreateLogger();
+            }
         }
 
         public void ConfigureProductionServices(IServiceCollection services) {
@@ -102,6 +117,7 @@ namespace PodNoms.Api {
         }
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services: {Configuration.ToString()}");
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
             services.AddOptions();
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
@@ -268,6 +284,8 @@ namespace PodNoms.Api {
         }
         public void Configure(IApplicationBuilder app, IHostingEnvironment env,
             ILoggerFactory loggerFactory, IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
 
             lifetime.ApplicationStarted.Register(() => {
                 if (env.IsDevelopment()) {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Models.ViewModels;
