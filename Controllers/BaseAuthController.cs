@@ -16,15 +16,7 @@ public class BaseAuthController : Controller {
     public BaseAuthController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager) {
         _caller = contextAccessor.HttpContext.User;
         _userManager = userManager;
-        try{
-            var claim = _caller.Claims.Single(c => c.Type == "id");
-            if (claim != null){
-                _userId = _caller.Claims.Single(c => c.Type == "id")?.Value;
-                if (_userId != null){
-                    _applicationUser = userManager.FindByIdAsync(_userId).Result;
-                }
-            }
-        }catch(System.InvalidOperationException ex){
-        }
+        _userId = _caller.Claims.Single(c => c.Type == "id")?.Value;
+        _applicationUser = userManager.FindByIdAsync(_userId).Result;
     }
 }

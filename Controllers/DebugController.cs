@@ -75,7 +75,7 @@ namespace PodNoms.Api.Controllers {
             };
             return new OkObjectResult(config);
         }
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("getoptions")]
         public IActionResult GetOptions() {
             var response = new {
