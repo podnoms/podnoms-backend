@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,10 +38,14 @@ namespace PodNoms.Api.Persistence {
             modelBuilder.Entity<Podcast>()
                 .HasIndex(p => p.Slug)
                 .IsUnique(true);
+            modelBuilder.Entity<Podcast>()
+                .Property(p => p.AppUserId)
+                .IsRequired();
 
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
+                
 
             foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
                 pb.ValueGeneratedOnAdd()

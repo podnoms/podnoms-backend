@@ -76,7 +76,7 @@ namespace PodNoms.Api.Controllers {
             };
             return new OkObjectResult(config);
         }
-
+        [AllowAnonymous]
         [HttpGet("generatelogdata")]
         public IActionResult GenerateLogData() {
             for (int i = 0; i < 1000; i++){
@@ -84,6 +84,8 @@ namespace PodNoms.Api.Controllers {
             }
             return Ok();
         }
+        [Authorize]
+        [AllowAnonymous]
         [HttpGet("getoptions")]
         public IActionResult GetOptions() {
             var response = new {
