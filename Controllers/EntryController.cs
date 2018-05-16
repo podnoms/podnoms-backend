@@ -37,7 +37,6 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
         private readonly IUrlProcessService _processor;
         private readonly IHostingEnvironment _hostingEnvironment;
-        private readonly ILogger _logger;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
 
@@ -46,11 +45,10 @@ namespace PodNoms.Api.Controllers {
             IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IConfiguration options,
-            IUrlProcessService processor, ILoggerFactory logger,
+            IUrlProcessService processor, ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
             IHostingEnvironment hostingEnvironment,
-            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager) {
-            this._logger = logger.CreateLogger<EntryController>();
+            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._podcastRepository = podcastRepository;
             this._repository = repository;
             this._options = options;
