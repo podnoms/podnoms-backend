@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Api.Models;
@@ -32,6 +33,7 @@ namespace PodNoms.Api.Controllers {
         private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
         private readonly IConfiguration _config;
+        private readonly ILogger _logger;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
 
@@ -46,6 +48,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<JwtIssuerOptions> jwtIssuerOptions,
             IPushSubscriptionStore subscriptionStore,
             UserManager<ApplicationUser> userManager,
+            ILogger<DebugController> logger,
             IPushNotificationService notificationService,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager) {
             this._appSettings = appSettings.Value;
@@ -54,6 +57,7 @@ namespace PodNoms.Api.Controllers {
             this._audioFileStorageSettings = audioFileStorageSettings.Value;
             this._imageFileStorageSettings = imageFileStorageSettings.Value;
             this._jwtIssuerOptions = jwtIssuerOptions.Value;
+            this._logger = logger;
             this._hub = hub;
             this._config = config;
             this._subscriptionStore = subscriptionStore;
@@ -75,7 +79,16 @@ namespace PodNoms.Api.Controllers {
             };
             return new OkObjectResult(config);
         }
+        [AllowAnonymous]
+        [HttpGet("generatelogdata")]
+        public IActionResult GenerateLogData() {
+            for (int i = 0; i < 1000; i++){
+                _logger.LogError($"Debug error {i}");
+            }
+            return Ok();
+        }
         [Authorize]
+        [AllowAnonymous]
         [HttpGet("getoptions")]
         public IActionResult GetOptions() {
             var response = new {
