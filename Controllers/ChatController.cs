@@ -27,9 +27,9 @@ namespace PodNoms.Api.Controllers {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public ChatController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+        public ChatController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager, ILogger<ChatController> logger,
                             IMapper mapper, IUnitOfWork unitOfWork, IChatRepository chatRepository, ISupportChatService supportChatService) :
-            base(contextAccessor, userManager) {
+            base(contextAccessor, userManager, logger) {
             this._chatRepository = chatRepository;
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;

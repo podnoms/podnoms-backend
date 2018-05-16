@@ -1,25 +1,27 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
+using PodNoms.Api.Services.Auth;
 using PodNoms.Api.Services.Jobs;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
-    public class PlaylistController : Controller {
+    public class PlaylistController : BaseAuthController {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IPodcastRepository _podcastRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
 
         public PlaylistController(IPlaylistRepository playlistRepository, IPodcastRepository podcastRepository,
-                IUnitOfWork unitOfWork, IMapper mapper, ILoggerFactory logger) {
-            this._logger = logger.CreateLogger<EntryController>();
+                IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+                IUnitOfWork unitOfWork, IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor, userManager, logger) {
             this._playlistRepository = playlistRepository;
             this._podcastRepository = podcastRepository;
             this._unitOfWork = unitOfWork;

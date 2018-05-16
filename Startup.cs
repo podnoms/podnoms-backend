@@ -60,23 +60,26 @@ namespace PodNoms.Api {
         private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
         private static Mutex mutex = new Mutex();
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment Env { get; }
 
-        public Startup(IConfiguration configuration) {
+        public Startup(IHostingEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
-            Console.WriteLine($"Config value: {Configuration["StorageSettings:ElasticHost"]?.ToString()}");
-            var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
-            if (!string.IsNullOrEmpty(logServer)){
-                Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .MinimumLevel.Debug()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)){
-                    MinimumLogEventLevel = LogEventLevel.Verbose,
-                    AutoRegisterTemplate = true
-                })
-                .CreateLogger();
+            Env = env;
+
+            if (!Env.IsDevelopment()) {
+                var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
+                if (!string.IsNullOrEmpty(logServer)) {
+                    Log.Logger = new LoggerConfiguration()
+                    .Enrich.FromLogContext()
+                    .MinimumLevel.Debug()
+                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)) {
+                        MinimumLogEventLevel = LogEventLevel.Verbose,
+                        AutoRegisterTemplate = true
+                    })
+                    .CreateLogger();
+                }
             }
         }
-
         public void ConfigureProductionServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -282,13 +285,13 @@ namespace PodNoms.Api {
             Encoding.RegisterProvider(instance);
 
         }
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
-            ILoggerFactory loggerFactory, IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, 
+                IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             lifetime.ApplicationStarted.Register(() => {
-                if (env.IsDevelopment()) {
+                if (Env.IsDevelopment()) {
                     var p = new System.Diagnostics.Process();
                     p.StartInfo.UseShellExecute = false;
                     p.StartInfo.RedirectStandardOutput = true;
@@ -299,7 +302,7 @@ namespace PodNoms.Api {
                 }
             });
 
-            if (env.IsDevelopment()) {
+            if (Env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
                 app.UseExceptionHandler("/Home/Error");
@@ -309,7 +312,7 @@ namespace PodNoms.Api {
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((env.IsProduction() || true)) {
+            if ((Env.IsProduction() || true)) {
                 app.UseHangfireServer();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] { new HangFireAuthorizationFilter() }

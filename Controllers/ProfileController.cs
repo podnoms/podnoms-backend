@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
@@ -22,9 +23,9 @@ namespace PodNoms.Api.Controllers {
         private readonly IEntryRepository _entryRepository;
 
         public ProfileController(IMapper mapper, IUnitOfWork unitOfWork,
-                    IEntryRepository entryRepository,
+                    IEntryRepository entryRepository, ILogger<ProfileController> logger,
                 UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
-            : base(contextAccessor, userManager) {
+            : base(contextAccessor, userManager, logger) {
             this._entryRepository = entryRepository;
             this._mapper = mapper;
             this._unitOfWork = unitOfWork;

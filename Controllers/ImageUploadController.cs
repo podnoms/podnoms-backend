@@ -32,13 +32,12 @@ namespace PodNoms.Api.Controllers {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
-        private readonly ILogger<ImageUploadController> _logger;
         public readonly IFileUploader _fileUploader;
 
         public ImageUploadController(IPodcastRepository repository, IUnitOfWork unitOfWork,
                 IFileUploader fileUploader, IOptions<ImageFileStorageSettings> imageFileStorageSettings,
                 ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
-            : base(contextAccessor, userManager) {
+            : base(contextAccessor, userManager, logger) {
 
             this._fileUploader = fileUploader;
             this._imageFileStorageSettings = imageFileStorageSettings.Value;
@@ -46,7 +45,6 @@ namespace PodNoms.Api.Controllers {
             //this._repository = repository;
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
-            this._logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> Upload(string slug, IFormFile file) {

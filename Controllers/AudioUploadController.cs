@@ -31,22 +31,20 @@ namespace PodNoms.Api.Controllers {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _entryRepository;
         private IUnitOfWork _unitOfWork;
-        private readonly ILogger<ImageUploadController> _logger;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         public IMapper _mapper { get; }
 
         public AudioUploadController(IPodcastRepository podcastRepository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
                         IOptions<AudioFileStorageSettings> settings, IOptions<StorageSettings> storageSettings,
-                        ILoggerFactory loggerFactory, IMapper mapper,
-                        UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager) {
+                        ILogger<AudioUploadController> logger, IMapper mapper,
+                        UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._mapper = mapper;
             this._audioFileStorageSettings = settings.Value;
             this._storageSettings = storageSettings.Value;
             this._podcastRepository = podcastRepository;
             this._entryRepository = entryRepository;
             this._unitOfWork = unitOfWork;
-            this._logger = loggerFactory.CreateLogger<ImageUploadController>();
         }
 
         [HttpPost]
