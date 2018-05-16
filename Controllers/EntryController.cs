@@ -36,7 +36,6 @@ namespace PodNoms.Api.Controllers {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUrlProcessService _processor;
-        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
 
@@ -47,7 +46,6 @@ namespace PodNoms.Api.Controllers {
             IConfiguration options,
             IUrlProcessService processor, ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
-            IHostingEnvironment hostingEnvironment,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._podcastRepository = podcastRepository;
             this._repository = repository;
@@ -57,7 +55,6 @@ namespace PodNoms.Api.Controllers {
             this._audioFileStorageSettings = audioFileStorageSettings.Value;
             this._mapper = mapper;
             this._processor = processor;
-            this._hostingEnvironment = hostingEnvironment;
         }
 
         private void _processEntry(PodcastEntry entry) {
@@ -117,7 +114,7 @@ namespace PodNoms.Api.Controllers {
                     }
                 }
             } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                        || MixcloudParser.ValidateUrl(item.SourceUrl))  {
+                        || MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);

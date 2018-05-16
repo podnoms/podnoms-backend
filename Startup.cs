@@ -63,7 +63,6 @@ namespace PodNoms.Api {
 
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
-            Console.WriteLine($"Config value: {Configuration["StorageSettings:ElasticHost"]?.ToString()}");
             var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
             if (!string.IsNullOrEmpty(logServer)){
                 Log.Logger = new LoggerConfiguration()

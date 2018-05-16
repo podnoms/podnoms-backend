@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services.Auth;
@@ -9,11 +10,11 @@ using PodNoms.Api.Services.Auth;
 namespace PodNoms.Api.Controllers {
 
     [Route("[controller]")]
-    public class AccountsController : Controller {
+    public class AccountsController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public AccountsController(UserManager<ApplicationUser> userManager, IMapper mapper) {
+        public AccountsController(UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<AccountsController> logger) : base(logger) {
             this._userManager = userManager;
             this._mapper = mapper;
         }
@@ -28,7 +29,7 @@ namespace PodNoms.Api.Controllers {
             // var result = await _userRepository.AddOrUpdate(userIdentity, model.Password);
 
             if (!result.Succeeded) return new BadRequestObjectResult(result);
-            return new OkObjectResult(model );
+            return new OkObjectResult(model);
         }
     }
 }

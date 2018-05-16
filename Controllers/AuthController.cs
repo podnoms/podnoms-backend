@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Api.Models;
@@ -16,7 +17,7 @@ using PodNoms.Api.Utils;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
-    public class AuthController : Controller {
+    public class AuthController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
         private readonly IMailSender _emailSender;
@@ -24,7 +25,7 @@ namespace PodNoms.Api.Controllers {
         private readonly JwtIssuerOptions _jwtOptions;
 
         public AuthController(UserManager<ApplicationUser> userManager, IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions,
-                    IOptions<AppSettings> appSettings, IMailSender mailSender) {
+                    IOptions<AppSettings> appSettings, IMailSender mailSender, ILogger<AuthController> logger) : base(logger) {
             _userManager = userManager;
             _jwtFactory = jwtFactory;
             _emailSender = mailSender;

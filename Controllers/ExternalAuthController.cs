@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]/[action]")]
-    public class ExternalAuthController : Controller {
+    public class ExternalAuthController : BaseController {
         //TODO: Refactor these somewhere better
         public static ClientSecrets secrets = new ClientSecrets() {
             ClientSecret = "wPXd9Sw9Z04bnGrobkZoZoGz"
@@ -41,16 +41,14 @@ namespace PodNoms.Api.Controllers {
         private readonly FacebookAuthSettings _fbAuthSettings;
         private readonly IJwtFactory _jwtFactory;
         private readonly JwtIssuerOptions _jwtOptions;
-        private readonly ILogger<ExternalAuthController> _logger;
         private static readonly HttpClient Client = new HttpClient();
 
         public ExternalAuthController(IOptions<FacebookAuthSettings> fbAuthSettingsAccessor, UserManager<ApplicationUser> userManager,
-         IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions, ILogger<ExternalAuthController> logger) {
+         IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions, ILogger<ExternalAuthController> logger) : base(logger) {
             _fbAuthSettings = fbAuthSettingsAccessor.Value;
             _userManager = userManager;
             _jwtFactory = jwtFactory;
             _jwtOptions = jwtOptions.Value;
-            _logger = logger;
         }
         // POST api/externalauth/google
         [HttpPost]
