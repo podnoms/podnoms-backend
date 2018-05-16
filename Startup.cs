@@ -86,7 +86,7 @@ namespace PodNoms.Api {
             });
             ConfigureServices(services);
             services.AddHangfire(config => {
-                config.UseSqlServerStorage(Configuration["ConnectionStrings:DefaultConnection"]);
+                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddPushSubscriptionStore(Configuration)
@@ -100,7 +100,7 @@ namespace PodNoms.Api {
         }
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("PlaygroundConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 options.EnableSensitiveDataLogging(true);
             });
 
