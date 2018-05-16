@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
@@ -26,9 +27,9 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _uow;
 
-        public PodcastController(IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork,
+        public PodcastController(IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork, ILogger<PodcastController> logger,
                     UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
-            : base(contextAccessor, userManager) {
+            : base(contextAccessor, userManager, logger) {
             this._uow = unitOfWork;
             this._repository = repository;
             this._mapper = mapper;

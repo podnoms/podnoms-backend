@@ -8,6 +8,7 @@ using PodNoms.Api.Persistence;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Api.Services.Auth;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Api.Controllers {
 
@@ -18,8 +19,8 @@ namespace PodNoms.Api.Controllers {
         public readonly IPushNotificationService _notificationService;
 
         public WebPushController(IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
-                                    UserManager<ApplicationUser> userManager,
-                                    IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager) {
+                                    UserManager<ApplicationUser> userManager, ILogger<WebPushController> logger,
+                                    IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._subscriptionStore = subscriptionStore;
             this._notificationService = notificationService;
         }

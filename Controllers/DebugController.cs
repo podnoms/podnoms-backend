@@ -33,10 +33,8 @@ namespace PodNoms.Api.Controllers {
         private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
         private readonly IConfiguration _config;
-        private readonly ILogger _logger;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
-
         public readonly AppSettings _appSettings;
 
         public DebugController(IOptions<StorageSettings> settings, IOptions<AppSettings> appSettings,
@@ -50,14 +48,13 @@ namespace PodNoms.Api.Controllers {
             UserManager<ApplicationUser> userManager,
             ILogger<DebugController> logger,
             IPushNotificationService notificationService,
-            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager) {
+            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._appSettings = appSettings.Value;
             this._storageSettings = settings.Value;
             this._helpersSettings = helpersSettings.Value;
             this._audioFileStorageSettings = audioFileStorageSettings.Value;
             this._imageFileStorageSettings = imageFileStorageSettings.Value;
             this._jwtIssuerOptions = jwtIssuerOptions.Value;
-            this._logger = logger;
             this._hub = hub;
             this._config = config;
             this._subscriptionStore = subscriptionStore;
