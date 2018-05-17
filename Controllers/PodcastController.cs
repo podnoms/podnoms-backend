@@ -44,14 +44,10 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("{slug}")]
         public async Task<IActionResult> GetBySlug(string slug) {
-            var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            if (!string.IsNullOrEmpty(email)) {
-                var podcast = await _repository.GetAsync(email, slug);
-                if (podcast == null)
-                    return NotFound();
-                return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(podcast));
-            }
-            throw new Exception("No local user stored!");
+            var podcast = await _repository.GetAsync(_applicationUser.Id, slug);
+            if (podcast == null)
+                return NotFound();
+            return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(podcast));
         }
 
         [HttpPost]

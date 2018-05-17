@@ -14,9 +14,9 @@ namespace PodNoms.Api.Persistence {
     public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
         public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) : base(context, logger) {
         }
-        public async Task<Podcast> GetAsync(string id, string slug) {
+        public async Task<Podcast> GetAsync(string userId, string slug) {
             var ret = await GetAll()
-                .Where(p => p.Slug == slug && p.AppUser.Id == id)
+                .Where(p => p.Slug == slug && p.AppUser.Id == userId)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.AppUser)
                 .FirstOrDefaultAsync();
