@@ -20,11 +20,11 @@ namespace PodNoms.Api.Models {
         }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
-            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.ExposedUid}.png" :
+            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.Id.ToString()}.png" :
                 $"{cdnUrl}static/images/{TemporaryImageUrl}";
         }
         public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.ExposedUid}-32x32.png" :
+            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.Id.ToString()}-32x32.png" :
                 $"{cdnUrl}static/images/{TemporaryImageUrl}";
         }
     }

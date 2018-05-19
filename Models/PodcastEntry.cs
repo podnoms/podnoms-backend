@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace PodNoms.Api.Models {
@@ -24,7 +25,7 @@ namespace PodNoms.Api.Models {
         public ProcessingStatus ProcessingStatus { get; set; } = ProcessingStatus.Accepted;
         public bool Processed { get; set; }
 
-        public int PodcastId { get; set; }
+        public Guid PodcastId { get; set; }
         public Podcast Podcast { get; set; }
     }
 

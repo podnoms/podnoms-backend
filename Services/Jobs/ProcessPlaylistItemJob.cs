@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
@@ -42,7 +43,7 @@ namespace PodNoms.Api.Services.Jobs {
             return true;
         }
         [Mutex("ProcessPlaylistItemJob")]
-        public async Task<bool> ExecuteForItem(string itemId, int playlistId) {
+        public async Task<bool> ExecuteForItem(string itemId, Guid playlistId) {
             var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
             if (item != null && !string.IsNullOrEmpty(item.VideoType) &&
                 (item.VideoType.Equals("youtube") || item.VideoType.Equals("mixcloud"))) {
@@ -55,7 +56,7 @@ namespace PodNoms.Api.Services.Jobs {
                     var info = downloader.GetInfo();
                     if (info == AudioType.Valid) {
                         var podcast = await _podcastRepository.GetAsync(item.Playlist.PodcastId);
-                        var uid = System.Guid.NewGuid().ToString();
+                        var uid = System.Guid.NewGuid();
                         var file = downloader.DownloadAudio(uid);
                         if (System.IO.File.Exists(file)) {
                             //we have the file so lets create the entry and ship to CDN

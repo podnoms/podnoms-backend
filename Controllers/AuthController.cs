@@ -35,7 +35,7 @@ namespace PodNoms.Api.Controllers {
 
         // POST api/auth/login
         [HttpPost("login")]
-        public async Task<IActionResult> Post([FromBody]CredentialsViewModel credentials) {
+        public async Task<ActionResult<string>> Post([FromBody]CredentialsViewModel credentials) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
 
             var jwt = await Tokens.GenerateJwt(identity, _jwtFactory, credentials.UserName, _jwtOptions,
                 new JsonSerializerSettings { Formatting = Formatting.Indented });
-            return new OkObjectResult(jwt);
+            return Ok(jwt);
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {

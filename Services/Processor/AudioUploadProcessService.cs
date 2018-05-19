@@ -27,7 +27,7 @@ namespace PodNoms.Api.Services.Processor {
             this._fileUploader = fileUploader;
             this._audioStorageSettings = audioStorageSettings.Value;
         }
-        public async Task<bool> UploadAudio(int entryId, string localFile) {
+        public async Task<bool> UploadAudio(Guid entryId, string localFile) {
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
                 _logger.LogError($"Unable to find entry with id: {entryId}");
@@ -50,7 +50,7 @@ namespace PodNoms.Api.Services.Processor {
                             if (p % 1 == 0) {
                                 await _sendProgressUpdate(
                                     entry.Podcast.AppUser.Id,
-                                    entry.ExposedUid,
+                                    entry.Id.ToString(),
                                     new ProcessProgressEvent {
                                         Percentage = p,
                                         CurrentSpeed = string.Empty,

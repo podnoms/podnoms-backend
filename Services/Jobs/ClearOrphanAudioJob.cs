@@ -38,7 +38,7 @@ namespace PodNoms.Api.Services.Jobs {
                         Console.WriteLine(blob.StorageUri);
                         var guid = blob.Name.Split('.')[0];
                         if (!string.IsNullOrEmpty(guid)) {
-                            var entry = await _entryRepository.GetByUidAsync(guid);
+                            var entry = await _entryRepository.GetAsync(guid);
                             if (entry == null) {
                                 await blob.DeleteIfExistsAsync();
                                 blobCount++;

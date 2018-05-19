@@ -43,7 +43,7 @@ namespace PodNoms.Api.Services.Processor {
                 uid,
                 e);
         }
-        public async Task<AudioType> GetInformation(int entryId) {
+        public async Task<AudioType> GetInformation(string entryId) {
             var entry = await _repository.GetAsync(entryId);
             if (entry == null || string.IsNullOrEmpty(entry.SourceUrl)) {
                 _logger.LogError("Unable to process item");
@@ -77,7 +77,7 @@ namespace PodNoms.Api.Services.Processor {
             }
             return ret;
         }
-        public async Task<bool> DownloadAudio(int entryId) {
+        public async Task<bool> DownloadAudio(Guid entryId) {
             var entry = await _repository.GetAsync(entryId);
 
             if (entry == null)
@@ -89,7 +89,7 @@ namespace PodNoms.Api.Services.Processor {
 
                 downloader.DownloadProgress += async (s, e) => {
                     try {
-                        await __downloader_progress(entry.Podcast.AppUser.Id, entry.ExposedUid, e);
+                        await __downloader_progress(entry.Podcast.AppUser.Id, entry.Id.ToString(), e);
                     } catch (NullReferenceException nre) {
                         _logger.LogError(nre.Message);
                     }
@@ -98,7 +98,7 @@ namespace PodNoms.Api.Services.Processor {
                 downloader.PostProcessing += (s, e) => {
                     Console.WriteLine(e);
                 };
-                var sourceFile = downloader.DownloadAudio(entry.ExposedUid);
+                var sourceFile = downloader.DownloadAudio(entry.Id);
                 if (!string.IsNullOrEmpty(sourceFile)) {
                     entry.ProcessingStatus = ProcessingStatus.Uploading;
                     entry.AudioUrl = sourceFile;

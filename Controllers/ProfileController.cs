@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ namespace PodNoms.Api.Controllers {
             this._unitOfWork = unitOfWork;
         }
         [HttpGet]
-        public ActionResult<ProfileViewModel> Get() {
+        public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return new OkObjectResult(result);
+            return Ok(new List<ProfileViewModel> { result });
         }
 
         [HttpPost]

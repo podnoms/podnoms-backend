@@ -74,7 +74,7 @@ namespace PodNoms.Api.Controllers {
                 OSVersion = System.Environment.OSVersion,
                 RssUrl = _appSettings.RssUrl
             };
-            return new OkObjectResult(config);
+            return Ok(config);
         }
         [AllowAnonymous]
         [HttpGet("generatelogdata")]

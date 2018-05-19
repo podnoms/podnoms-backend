@@ -11,7 +11,8 @@ using PodNoms.Api.Models.Annotations;
 namespace PodNoms.Api.Persistence {
     public interface IRepository<TEntity> where TEntity : class, IEntity {
         IQueryable<TEntity> GetAll();
-        Task<TEntity> GetAsync(int id);
+        Task<TEntity> GetAsync(string id);
+        Task<TEntity> GetAsync(Guid id);
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
         TEntity AddOrUpdate(TEntity entity);
@@ -34,7 +35,11 @@ namespace PodNoms.Api.Persistence {
         public IQueryable<TEntity> GetAll() {
             return _context.Set<TEntity>();
         }
-        public async Task<TEntity> GetAsync(int id) {
+        public async Task<TEntity> GetAsync(string id) {
+            return await _context.Set<TEntity>()
+                .FirstOrDefaultAsync(e => e.Id.ToString() == id);
+        }
+        public async Task<TEntity> GetAsync(Guid id) {
             return await _context.Set<TEntity>()
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -51,7 +56,8 @@ namespace PodNoms.Api.Persistence {
 
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
-            if (entity.Id != 0) {
+            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
+            if (entity.Id == null) {
                 ret = Update(entity);
             } else {
                 ret = Create(entity);

@@ -75,7 +75,7 @@ namespace PodNoms.Api.Controllers {
             }
         }
 
-        [HttpGet("users")]
+        [HttpGet()]
         public async Task<IActionResult> GetAllForUser() {
             var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
@@ -94,30 +94,40 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost]
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
-
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid podcast entry posted");
             // first check url is valid
             var entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
-            var status = await _processor.GetInformation(entry);
-            if (status == AudioType.Valid) {
-                if (entry.ProcessingStatus == ProcessingStatus.Processing) {
-                    if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                        entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
-                    }
-                    entry.Processed = false;
-                    _repository.AddOrUpdate(entry);
-                    bool succeeded = await _unitOfWork.CompleteAsync();
-                    await _repository.LoadPodcastAsync(entry);
-                    if (succeeded) {
-                        _processEntry(entry);
-                        var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                        return result;
-                    }
-                }
-            } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                        || MixcloudParser.ValidateUrl(item.SourceUrl)) {
-                entry.ProcessingStatus = ProcessingStatus.Deferred;
+            if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
+                entry.ProcessingStatus == ProcessingStatus.Processed) {
+                // file was uploaded, just update repository and bail
+                _repository.AddOrUpdate(entry);
+                await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                return Accepted(result);
+                return Ok(result);
+            } else {
+                var status = await _processor.GetInformation(entry);
+                if (status == AudioType.Valid) {
+                    if (entry.ProcessingStatus == ProcessingStatus.Processing) {
+                        if (string.IsNullOrEmpty(entry.ImageUrl)) {
+                            entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
+                        }
+                        entry.Processed = false;
+                        _repository.AddOrUpdate(entry);
+                        bool succeeded = await _unitOfWork.CompleteAsync();
+                        await _repository.LoadPodcastAsync(entry);
+                        if (succeeded) {
+                            _processEntry(entry);
+                            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                            return result;
+                        }
+                    }
+                } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                            || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                    entry.ProcessingStatus = ProcessingStatus.Deferred;
+                    var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                    return Accepted(result);
+                }
             }
             return BadRequest("Failed to create podcast entry");
         }
