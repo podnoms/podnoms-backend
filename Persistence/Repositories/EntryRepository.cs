@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,14 +11,13 @@ namespace PodNoms.Api.Persistence {
     public interface IEntryRepository : IRepository<PodcastEntry> {
         Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug);
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);
-        Task<PodcastEntry> GetByUidAsync(string uid);
         Task LoadPodcastAsync(PodcastEntry entry);
     }
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
         public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) {
         }
 
-        public new async Task<PodcastEntry> GetAsync(int id) {
+        public new async Task<PodcastEntry> GetAsync(Guid id) {
             var ret = await GetAll()
                 .Where(p => p.Id == id)
                 .Include(p => p.Podcast)
@@ -38,14 +38,6 @@ namespace PodNoms.Api.Persistence {
                 .Include(e => e.Podcast)
                 .ToListAsync();
             return entries;
-        }
-
-        public async Task<PodcastEntry> GetByUidAsync(string uid) {
-            var entry = await GetAll()
-                    .Include(e => e.Podcast)
-                    .SingleOrDefaultAsync(e => e.NewId.ToString().Equals(uid))
-;
-            return entry;
         }
 
         public async Task LoadPodcastAsync(PodcastEntry entry) {

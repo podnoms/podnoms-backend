@@ -58,11 +58,11 @@ namespace PodNoms.Api.Controllers {
                 return NotFound();
 
             var cacheFile = await CachedFormFileStorage.CacheItem(file);
-            (var finishedFile, var extension) = __todo_convert_cache_file(cacheFile, podcast.ExposedUid);
-            var thumbnailFile = __todo_create_thumbnail(cacheFile, podcast.ExposedUid);
+            (var finishedFile, var extension) = __todo_convert_cache_file(cacheFile, podcast.Id.ToString());
+            var thumbnailFile = __todo_create_thumbnail(cacheFile, podcast.Id.ToString());
 
-            var destinationFile = $"{podcast.ExposedUid}.{extension}";
-            var destinationFileThumbnail = $"{podcast.ExposedUid}-32x32.{extension}";
+            var destinationFile = $"{podcast.Id}.{extension}";
+            var destinationFileThumbnail = $"{podcast.Id}-32x32.{extension}";
 
             await _fileUploader.UploadFile(finishedFile, _imageFileStorageSettings.ContainerName,
                 destinationFile, "image/png", (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}"));
@@ -74,7 +74,7 @@ namespace PodNoms.Api.Controllers {
             podcast.TemporaryImageUrl = string.Empty;
             await this._unitOfWork.CompleteAsync();
 
-            return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(podcast));
+            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
         }
 
         //TODO: Refactor this to service

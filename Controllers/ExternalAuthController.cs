@@ -125,7 +125,7 @@ namespace PodNoms.Api.Controllers {
             var jwt = await Tokens.GenerateJwt(_jwtFactory.GenerateClaimsIdentity(localUser.UserName, localUser.Id),
               _jwtFactory, localUser.UserName, _jwtOptions, new JsonSerializerSettings { Formatting = Formatting.Indented });
 
-            return new OkObjectResult(jwt);
+            return Ok(jwt);
         }
     }
 }

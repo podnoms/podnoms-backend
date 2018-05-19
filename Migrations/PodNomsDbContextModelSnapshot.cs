@@ -131,9 +131,8 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Api.Models.ChatMessage", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
@@ -145,13 +144,7 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<DateTime?>("MessageSeen");
 
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
-
                     b.Property<string>("ToUserId");
-
-                    b.Property<string>("Uid");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -168,9 +161,8 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Api.Models.ParsedPlaylistItem", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
@@ -178,13 +170,9 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<bool>("IsProcessed");
 
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
+                    b.Property<string>("PlaylistId");
 
-                    b.Property<int>("PlaylistId");
-
-                    b.Property<string>("Uid");
+                    b.Property<Guid?>("PlaylistId1");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -196,34 +184,27 @@ namespace PodNoms.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlaylistId");
+                    b.HasIndex("PlaylistId1");
 
                     b.HasIndex("VideoId", "PlaylistId")
                         .IsUnique()
-                        .HasFilter("[VideoId] IS NOT NULL");
+                        .HasFilter("[VideoId] IS NOT NULL AND [PlaylistId] IS NOT NULL");
 
                     b.ToTable("ParsedPlaylistItems");
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.Playlist", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
-
-                    b.Property<int>("PodcastId");
+                    b.Property<Guid>("PodcastId");
 
                     b.Property<string>("SourceUrl");
-
-                    b.Property<string>("Uid");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -238,9 +219,8 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Api.Models.Podcast", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("AppUserId")
                         .IsRequired();
@@ -251,17 +231,11 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
-
                     b.Property<string>("Slug");
 
                     b.Property<string>("TemporaryImageUrl");
 
                     b.Property<string>("Title");
-
-                    b.Property<string>("Uid");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -280,9 +254,8 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Api.Models.PodcastEntry", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<long>("AudioFileSize");
 
@@ -300,13 +273,9 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<string>("ImageUrl");
 
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
+                    b.Property<Guid?>("PlaylistId");
 
-                    b.Property<int?>("PlaylistId");
-
-                    b.Property<int>("PodcastId");
+                    b.Property<Guid>("PodcastId");
 
                     b.Property<bool>("Processed");
 
@@ -317,8 +286,6 @@ namespace PodNoms.Api.Migrations
                     b.Property<string>("SourceUrl");
 
                     b.Property<string>("Title");
-
-                    b.Property<string>("Uid");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -335,21 +302,14 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Api.Models.ServerConfig", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Key");
-
-                    b.Property<Guid>("NewId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("newsequentialid()");
-
-                    b.Property<string>("Uid");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -487,8 +447,7 @@ namespace PodNoms.Api.Migrations
                 {
                     b.HasOne("PodNoms.Api.Models.Playlist", "Playlist")
                         .WithMany("ParsedPlaylistItems")
-                        .HasForeignKey("PlaylistId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PlaylistId1");
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.Playlist", b =>

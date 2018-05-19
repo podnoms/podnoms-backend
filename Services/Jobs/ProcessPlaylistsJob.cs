@@ -46,7 +46,7 @@ namespace PodNoms.Api.Services.Jobs {
             }
             return true;
         }
-        public async Task<bool> Execute(int playlistId) {
+        public async Task<bool> Execute(Guid playlistId) {
             try {
                 var playlist = await _playlistRepository.GetAsync(playlistId);
                 if (playlist == null)

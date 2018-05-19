@@ -291,3 +291,4 @@ appsettings.Development.json
 Persistence/TempContextFactory.cs
 out/pushsubscription.db
 pushsubscription.db
+dev_push_subscriptions.db

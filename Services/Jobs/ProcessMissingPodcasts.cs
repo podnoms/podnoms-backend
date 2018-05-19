@@ -31,10 +31,10 @@ namespace PodNoms.Api.Services.Jobs {
                     if (processed) {
                         var uploaded = await this._uploadService.UploadAudio(entry.Id, entry.AudioUrl);
                         if (!uploaded) {
-                            _logger.LogError($"Error uploading audio from {entry.Uid}");
+                            _logger.LogError($"Error uploading audio from {entry.Id}");
                         }
                     } else {
-                        _logger.LogError($"Unable to process podcast entry: {entry.Uid}");
+                        _logger.LogError($"Unable to process podcast entry: {entry.Id}");
                     }
                 }
                 return true;

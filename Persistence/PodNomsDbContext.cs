@@ -55,10 +55,10 @@ namespace PodNoms.Api.Persistence {
                 pb.ValueGeneratedOnAddOrUpdate()
                   .HasDefaultValueSql("getdate()");
             }
-            foreach (var pb in __getColumn(modelBuilder, "NewId")) {
-                pb.ValueGeneratedOnAdd()
-                  .HasDefaultValueSql("newsequentialid()");
-            }
+            // foreach (var pb in __getColumn(modelBuilder, "Id").Where(p => p.)) {
+            //     pb.ValueGeneratedOnAdd()
+            //       .HasDefaultValueSql("newsequentialid()");
+            // }
         }
 
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
