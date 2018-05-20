@@ -66,6 +66,9 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> Put(string id, [FromBody] PodcastViewModel vm) {
             if (ModelState.IsValid) {
                 var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
+                if (podcast.AppUser is null)
+                    podcast.AppUser = _applicationUser;
+
                 _repository.AddOrUpdate(podcast);
                 await _uow.CompleteAsync();
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));

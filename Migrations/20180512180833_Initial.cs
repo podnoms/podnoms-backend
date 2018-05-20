@@ -71,7 +71,7 @@ namespace PodNoms.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServerConfig", x => x.Id);
+                    table.PrimaryKey("PK_ServerConfigPK_ServerConfig", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(

@@ -45,7 +45,6 @@ namespace PodNoms.Api.Persistence {
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
-                
 
             foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
                 pb.ValueGeneratedOnAdd()
@@ -55,10 +54,6 @@ namespace PodNoms.Api.Persistence {
                 pb.ValueGeneratedOnAddOrUpdate()
                   .HasDefaultValueSql("getdate()");
             }
-            // foreach (var pb in __getColumn(modelBuilder, "Id").Where(p => p.)) {
-            //     pb.ValueGeneratedOnAdd()
-            //       .HasDefaultValueSql("newsequentialid()");
-            // }
         }
 
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {

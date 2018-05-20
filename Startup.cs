@@ -100,7 +100,7 @@ namespace PodNoms.Api {
         }
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("LocalSqlDockerConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("SQLDefaultConnection"));
                 options.EnableSensitiveDataLogging(true);
             });
 
@@ -285,7 +285,7 @@ namespace PodNoms.Api {
             Encoding.RegisterProvider(instance);
 
         }
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, 
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
                 IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -312,7 +312,7 @@ namespace PodNoms.Api {
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((Env.IsProduction() || true)) {
+            if ((Env.IsProduction() || false)) {
                 app.UseHangfireServer();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] { new HangFireAuthorizationFilter() }

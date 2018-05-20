@@ -23,6 +23,7 @@ using PodNoms.Api.Services.Jobs;
 using PodNoms.Api.Services.Processor;
 using PodNoms.Api.Services.Storage;
 using PodNoms.Api.Utils.RemoteParsers;
+using Microsoft.EntityFrameworkCore;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -114,12 +115,16 @@ namespace PodNoms.Api.Controllers {
                         }
                         entry.Processed = false;
                         _repository.AddOrUpdate(entry);
-                        bool succeeded = await _unitOfWork.CompleteAsync();
-                        await _repository.LoadPodcastAsync(entry);
-                        if (succeeded) {
-                            _processEntry(entry);
-                            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                            return result;
+                        try {
+                            bool succeeded = await _unitOfWork.CompleteAsync();
+                            await _repository.LoadPodcastAsync(entry);
+                            if (succeeded) {
+                                _processEntry(entry);
+                                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                                return result;
+                            }
+                        } catch (DbUpdateException e) {
+                            return BadRequest(item);
                         }
                     }
                 } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))

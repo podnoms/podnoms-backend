@@ -56,8 +56,8 @@ namespace PodNoms.Api.Persistence {
 
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
-            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
-            if (entity.Id == null) {
+            // TODO: Fix this logic, we can nolonger guarantee blanks IDs for new records
+            if (entity.Id != Guid.Empty) {
                 ret = Update(entity);
             } else {
                 ret = Create(entity);

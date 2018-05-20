@@ -170,9 +170,7 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<bool>("IsProcessed");
 
-                    b.Property<string>("PlaylistId");
-
-                    b.Property<Guid?>("PlaylistId1");
+                    b.Property<Guid>("PlaylistId");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -184,11 +182,11 @@ namespace PodNoms.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlaylistId1");
+                    b.HasIndex("PlaylistId");
 
                     b.HasIndex("VideoId", "PlaylistId")
                         .IsUnique()
-                        .HasFilter("[VideoId] IS NOT NULL AND [PlaylistId] IS NOT NULL");
+                        .HasFilter("[VideoId] IS NOT NULL");
 
                     b.ToTable("ParsedPlaylistItems");
                 });
@@ -447,7 +445,8 @@ namespace PodNoms.Api.Migrations
                 {
                     b.HasOne("PodNoms.Api.Models.Playlist", "Playlist")
                         .WithMany("ParsedPlaylistItems")
-                        .HasForeignKey("PlaylistId1");
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.Playlist", b =>

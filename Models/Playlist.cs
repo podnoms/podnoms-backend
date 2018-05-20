@@ -17,7 +17,7 @@ namespace PodNoms.Api.Models {
         public string VideoId { get; set; }
         public string VideoType { get; set; }
         public bool IsProcessed { get; set; }
-        public string PlaylistId { get; set; }
+        public Guid PlaylistId { get; set; }
         public Playlist Playlist { get; set; }
     }
 }

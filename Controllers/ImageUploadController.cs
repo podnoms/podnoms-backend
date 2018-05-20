@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
             this._mapper = mapper;
         }
         [HttpPost]
-        public async Task<IActionResult> Upload(string slug, IFormFile file) {
+        public async Task<ActionResult<PodcastViewModel>> Upload(string slug, IFormFile file) {
             _logger.LogDebug("Uploading new image");
             if (file == null || file.Length == 0) return BadRequest("No file found in stream");
             if (file.Length > _imageFileStorageSettings.MaxUploadFileSize) return BadRequest("Maximum file size exceeded");
