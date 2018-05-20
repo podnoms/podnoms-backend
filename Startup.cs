@@ -53,6 +53,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using PodNoms.Api.Utils.RemoteParsers;
 using PodNoms.Api.Services.Slack;
 using System.Threading;
+using PodNoms.Api.Services.Middleware;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -302,17 +303,15 @@ namespace PodNoms.Api {
                 }
             });
 
-            if (Env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            } else {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            app.UseExceptionHandler(new ExceptionHandlerOptions {
+                ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
+            });
 
             // app.UseHsts();
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((Env.IsProduction() || false)) {
+            if ((Env.IsProduction() || true)) {
                 app.UseHangfireServer();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] { new HangFireAuthorizationFilter() }

@@ -60,10 +60,8 @@ namespace PodNoms.Api.Providers {
             CreateMap<ChatMessage, ChatViewModel>();
 
             //API Resource to Domain
-            CreateMap<PodcastViewModel, Podcast>()
-                .Ignore(r => r.Id);
+            CreateMap<PodcastViewModel, Podcast>();
             CreateMap<PodcastEntryViewModel, PodcastEntry>()
-                .Ignore(r => r.Id)
                 .ForMember(
                     e => e.ImageUrl,
                     map => map.MapFrom(vm => vm.ImageUrl));

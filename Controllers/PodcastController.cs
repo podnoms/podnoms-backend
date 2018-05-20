@@ -77,10 +77,16 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) {
-            await this._repository.DeleteAsync(id);
-            await _uow.CompleteAsync();
-            return Ok();
+        public async Task<IActionResult> Delete(string id) {
+            try {
+                await this._repository.DeleteAsync(new Guid(id));
+                await _uow.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting podcast");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entry");
         }
     }
 }

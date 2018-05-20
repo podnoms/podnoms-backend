@@ -124,6 +124,7 @@ namespace PodNoms.Api.Controllers {
                                 return result;
                             }
                         } catch (DbUpdateException e) {
+                            _logger.LogError(e.Message);
                             return BadRequest(item);
                         }
                     }
@@ -138,10 +139,16 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) {
-            await this._repository.DeleteAsync(id);
-            await _unitOfWork.CompleteAsync();
-            return Ok();
+        public async Task<IActionResult> Delete(string id) {
+            try {
+                await this._repository.DeleteAsync(new Guid(id));
+                await _unitOfWork.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting entry");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entry");
         }
         [HttpPost("/preprocess")]
         public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {
