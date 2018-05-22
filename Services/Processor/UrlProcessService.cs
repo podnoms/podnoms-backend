@@ -105,10 +105,10 @@ namespace PodNoms.Api.Services.Processor {
 
                     await _sendProcessCompleteMessage(entry);
                     await _unitOfWork.CompleteAsync();
-                    await _hub.SendAllAsync(
+                    await _hub.SendUserAsync(
                         entry.Podcast.AppUser.Id,
+                        "site-notices",
                         new object[] { $"{entry.Title} has succesfully been processed" });
-
                 }
                 return true;
             } catch (Exception ex) {

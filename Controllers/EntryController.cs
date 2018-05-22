@@ -23,6 +23,7 @@ using PodNoms.Api.Services.Jobs;
 using PodNoms.Api.Services.Processor;
 using PodNoms.Api.Services.Storage;
 using PodNoms.Api.Utils.RemoteParsers;
+using Microsoft.EntityFrameworkCore;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -114,12 +115,17 @@ namespace PodNoms.Api.Controllers {
                         }
                         entry.Processed = false;
                         _repository.AddOrUpdate(entry);
-                        bool succeeded = await _unitOfWork.CompleteAsync();
-                        await _repository.LoadPodcastAsync(entry);
-                        if (succeeded) {
-                            _processEntry(entry);
-                            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                            return result;
+                        try {
+                            bool succeeded = await _unitOfWork.CompleteAsync();
+                            await _repository.LoadPodcastAsync(entry);
+                            if (succeeded) {
+                                _processEntry(entry);
+                                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                                return result;
+                            }
+                        } catch (DbUpdateException e) {
+                            _logger.LogError(e.Message);
+                            return BadRequest(item);
                         }
                     }
                 } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
@@ -133,10 +139,16 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) {
-            await this._repository.DeleteAsync(id);
-            await _unitOfWork.CompleteAsync();
-            return Ok();
+        public async Task<IActionResult> Delete(string id) {
+            try {
+                await this._repository.DeleteAsync(new Guid(id));
+                await _unitOfWork.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting entry");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entry");
         }
         [HttpPost("/preprocess")]
         public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {

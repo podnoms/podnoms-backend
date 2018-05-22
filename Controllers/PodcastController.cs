@@ -66,6 +66,9 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> Put(string id, [FromBody] PodcastViewModel vm) {
             if (ModelState.IsValid) {
                 var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
+                if (podcast.AppUser is null)
+                    podcast.AppUser = _applicationUser;
+
                 _repository.AddOrUpdate(podcast);
                 await _uow.CompleteAsync();
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
@@ -74,10 +77,16 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) {
-            await this._repository.DeleteAsync(id);
-            await _uow.CompleteAsync();
-            return Ok();
+        public async Task<IActionResult> Delete(string id) {
+            try {
+                await this._repository.DeleteAsync(new Guid(id));
+                await _uow.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting podcast");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entry");
         }
     }
 }

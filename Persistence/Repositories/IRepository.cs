@@ -16,7 +16,7 @@ namespace PodNoms.Api.Persistence {
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
         TEntity AddOrUpdate(TEntity entity);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(Guid id);
     }
 
     public abstract class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
@@ -56,8 +56,8 @@ namespace PodNoms.Api.Persistence {
 
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
-            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
-            if (entity.Id == null) {
+            // TODO: Fix this logic, we can nolonger guarantee blanks IDs for new records
+            if (entity.Id != Guid.Empty) {
                 ret = Update(entity);
             } else {
                 ret = Create(entity);
@@ -65,7 +65,7 @@ namespace PodNoms.Api.Persistence {
             return ret;
         }
 
-        public async Task DeleteAsync(int id) {
+        public async Task DeleteAsync(Guid id) {
             var entity = await _context.Set<TEntity>().FindAsync(id);
             _context.Set<TEntity>().Remove(entity);
         }
