@@ -54,6 +54,7 @@ using PodNoms.Api.Utils.RemoteParsers;
 using PodNoms.Api.Services.Slack;
 using System.Threading;
 using PodNoms.Api.Services.Middleware;
+using Zxcvbn;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -102,7 +103,7 @@ namespace PodNoms.Api {
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("SQLDefaultConnection"));
-                options.EnableSensitiveDataLogging(true);
+                // options.EnableSensitiveDataLogging(true);
             });
 
             ConfigureServices(services);

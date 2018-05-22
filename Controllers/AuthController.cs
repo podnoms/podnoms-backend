@@ -75,10 +75,11 @@ namespace PodNoms.Api.Controllers {
             if (ModelState.IsValid) {
                 var user = await _userManager.FindByNameAsync(model.Email);
                 if (user == null) {
-                    return BadRequest(model);
+                    _logger.LogWarning($"Password reset requested for {model.Email}");
+                    return Ok(model);
                 }
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = $"{_appSettings.SiteUrl}/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
+                var callbackUrl = $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                             new { resetLink = callbackUrl }, "forgot_password.html");
                 return Ok(model);
