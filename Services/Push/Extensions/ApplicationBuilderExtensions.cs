@@ -9,7 +9,6 @@ namespace PodNoms.Api.Services.Push.Extensions {
                 PushSubscriptionContext context = serviceScope.ServiceProvider.GetService<PushSubscriptionContext>();
                 context.Database.EnsureCreated();
             }
-
             return app;
         }
     }

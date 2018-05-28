@@ -1,3 +1,5 @@
+using System;
+using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -6,6 +8,14 @@ using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Api.Providers {
+    public static class MappingExtensions {
+        public static IMappingExpression<TSource, TDestination> Ignore<TSource, TDestination>(
+                    this IMappingExpression<TSource, TDestination> map,
+                    Expression<Func<TDestination, object>> selector) {
+            map.ForMember(selector, config => config.Ignore());
+            return map;
+        }
+    }
     public class MappingProvider : Profile {
         private readonly IConfiguration _options;
         public MappingProvider() { }
@@ -33,8 +43,14 @@ namespace PodNoms.Api.Providers {
                     src => src.AudioUrl,
                     e => e.MapFrom(m => $"{this._options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
-                    src => src.Uid,
-                    e => e.MapFrom(m => m.ExposedUid));
+                    src => src.PodcastId,
+                    e => e.MapFrom(m => m.Podcast.Id))
+                .ForMember(
+                    src => src.PodcastSlug,
+                    e => e.MapFrom(m => m.Podcast.Slug))
+                .ForMember(
+                    src => src.PodcastTitle,
+                    e => e.MapFrom(m => m.Podcast.Title));
 
             CreateMap<ApplicationUser, ProfileViewModel>()
                 .ForMember(
@@ -48,10 +64,10 @@ namespace PodNoms.Api.Providers {
             CreateMap<PodcastEntryViewModel, PodcastEntry>()
                 .ForMember(
                     e => e.ImageUrl,
-                    map => map.MapFrom(vm => vm.ImageUrl))
-                .ForMember(
-                    e => e.Podcast,
-                    opt => opt.ResolveUsing<PodcastForeignKeyResolver>());
+                    map => map.MapFrom(vm => vm.ImageUrl));
+            // .ForMember(
+            //     e => e.Podcast,
+            //     opt => opt.ResolveUsing<PodcastForeignKeyResolver>());
 
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(

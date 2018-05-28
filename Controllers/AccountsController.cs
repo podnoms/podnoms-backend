@@ -26,10 +26,9 @@ namespace PodNoms.Api.Controllers {
             }
             var userIdentity = _mapper.Map<RegistrationViewModel, ApplicationUser>(model);
             var result = await _userManager.CreateAsync(userIdentity, model.Password);
-            // var result = await _userRepository.AddOrUpdate(userIdentity, model.Password);
 
             if (!result.Succeeded) return new BadRequestObjectResult(result);
-            return new OkObjectResult(model);
+            return Ok(model);
         }
     }
 }

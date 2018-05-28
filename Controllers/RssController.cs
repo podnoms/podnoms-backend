@@ -70,7 +70,7 @@ namespace PodNoms.Api.Controllers {
                             from e in podcast.PodcastEntries
                             select new PodcastEnclosureItemViewModel {
                                 Title = e.Title.StripNonXMLChars(),
-                                Uid = e.ExposedUid,
+                                Uid = e.Id.ToString(),
                                 Description = e.Description.StripNonXMLChars(),
                                 Author = e.Author.StripNonXMLChars(),
                                 UpdateDate = e.CreateDate.ToRFC822String(),

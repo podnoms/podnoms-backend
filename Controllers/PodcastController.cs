@@ -36,10 +36,10 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        public async Task<IEnumerable<PodcastViewModel>> Get() {
+        public async Task<ActionResult<PodcastViewModel>> Get() {
             var podcasts = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());
-            return ret;
+            return Ok(ret);
         }
 
         [HttpGet("{slug}")]
@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
             var podcast = await _repository.GetAsync(_applicationUser.Id, slug);
             if (podcast == null)
                 return NotFound();
-            return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(podcast));
+            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
         }
 
         [HttpPost]
@@ -57,27 +57,36 @@ namespace PodNoms.Api.Controllers {
                 item.AppUser = _applicationUser;
                 var ret = _repository.AddOrUpdate(item);
                 await _uow.CompleteAsync();
-                return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(ret));
+                return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
             }
             return BadRequest("Invalid podcast model");
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] PodcastViewModel vm) {
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(string id, [FromBody] PodcastViewModel vm) {
             if (ModelState.IsValid) {
                 var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
+                if (podcast.AppUser is null)
+                    podcast.AppUser = _applicationUser;
+
                 _repository.AddOrUpdate(podcast);
                 await _uow.CompleteAsync();
-                return new OkObjectResult(_mapper.Map<Podcast, PodcastViewModel>(podcast));
+                return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
             }
             return BadRequest("Invalid request data");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) {
-            await this._repository.DeleteAsync(id);
-            await _uow.CompleteAsync();
-            return Ok();
+        public async Task<IActionResult> Delete(string id) {
+            try {
+                await this._repository.DeleteAsync(new Guid(id));
+                await _uow.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting podcast");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entry");
         }
     }
 }

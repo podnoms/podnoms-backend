@@ -11,11 +11,12 @@ using PodNoms.Api.Models.Annotations;
 namespace PodNoms.Api.Persistence {
     public interface IRepository<TEntity> where TEntity : class, IEntity {
         IQueryable<TEntity> GetAll();
-        Task<TEntity> GetAsync(int id);
+        Task<TEntity> GetAsync(string id);
+        Task<TEntity> GetAsync(Guid id);
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
         TEntity AddOrUpdate(TEntity entity);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(Guid id);
     }
 
     public abstract class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
@@ -34,7 +35,11 @@ namespace PodNoms.Api.Persistence {
         public IQueryable<TEntity> GetAll() {
             return _context.Set<TEntity>();
         }
-        public async Task<TEntity> GetAsync(int id) {
+        public async Task<TEntity> GetAsync(string id) {
+            return await _context.Set<TEntity>()
+                .FirstOrDefaultAsync(e => e.Id.ToString() == id);
+        }
+        public async Task<TEntity> GetAsync(Guid id) {
             return await _context.Set<TEntity>()
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -51,7 +56,8 @@ namespace PodNoms.Api.Persistence {
 
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
-            if (entity.Id != 0) {
+            // TODO: Fix this logic, we can nolonger guarantee blanks IDs for new records
+            if (entity.Id != Guid.Empty) {
                 ret = Update(entity);
             } else {
                 ret = Create(entity);
@@ -59,7 +65,7 @@ namespace PodNoms.Api.Persistence {
             return ret;
         }
 
-        public async Task DeleteAsync(int id) {
+        public async Task DeleteAsync(Guid id) {
             var entity = await _context.Set<TEntity>().FindAsync(id);
             _context.Set<TEntity>().Remove(entity);
         }

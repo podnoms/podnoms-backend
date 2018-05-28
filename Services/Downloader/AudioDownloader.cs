@@ -73,9 +73,9 @@ namespace PodNoms.Api.Services.Downloader {
             return ret;
         }
 
-        public string DownloadAudio(string uid) {
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{uid}.mp3");
-            var templateFile = Path.Combine(Path.GetTempPath(), $"{uid}.%(ext)s");
+        public string DownloadAudio(Guid id) {
+            var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
+            var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;

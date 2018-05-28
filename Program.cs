@@ -23,19 +23,23 @@ namespace PodNoms.Api {
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main(string[] args) {
-            BuildWebHost(args).Run();
+            var host = BuildWebHost(args);
+            host.MigrateDatabase(true, false);
+            host.Run();
         }
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((context, config) => {
-                config.SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false)
-                    .AddEnvironmentVariables();
-                var builtConfig = config.Build();
-                config.AddAzureKeyVault(
-                    $"https://{builtConfig["Vault"]}.vault.azure.net/",
-                    builtConfig["ClientId"],
-                    builtConfig["ClientSecret"]);
+                if (!isDevelopment) {
+                    config.SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: false)
+                        .AddEnvironmentVariables();
+                    var builtConfig = config.Build();
+                    config.AddAzureKeyVault(
+                        $"https://{builtConfig["Vault"]}.vault.azure.net/",
+                        builtConfig["ClientId"],
+                        builtConfig["ClientSecret"]);
+                }
             })
             .UseStartup<Startup>()
             .UseUrls("http://0.0.0.0:5000")

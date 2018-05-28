@@ -71,7 +71,7 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
 
             BackgroundJob.Enqueue<IAudioUploadProcessService>(service => service.UploadAudio(entry.Id, localFile));
-            return new OkObjectResult(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
+            return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
         }
     }
 }
