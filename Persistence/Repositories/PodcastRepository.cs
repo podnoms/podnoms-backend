@@ -42,7 +42,7 @@ namespace PodNoms.Api.Persistence {
         }
         public new Podcast AddOrUpdate(Podcast podcast) {
             if (string.IsNullOrEmpty(podcast.TemporaryImageUrl)) {
-                podcast.TemporaryImageUrl = $"standard/podcast-image-{Randomisers.RandomInteger(1, 16)}.png";
+                podcast.TemporaryImageUrl = ImageUtils.GetTemporaryImage();
             }
             return base.AddOrUpdate(podcast);
         }

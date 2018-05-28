@@ -8,16 +8,21 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PodNoms.Api.Services.Auth;
+using PodNoms.Api.Utils;
 using Zxcvbn;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [Authorize]
     public class UtilityController : BaseAuthController {
+        private readonly IConfiguration _config;
+
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                    ILogger<UtilityController> logger) : base(contextAccessor, userManager, logger) {
+                    ILogger<UtilityController> logger, IConfiguration config) : base(contextAccessor, userManager, logger) {
+            this._config = config;
         }
 
         [AllowAnonymous]
@@ -47,6 +52,12 @@ namespace PodNoms.Api.Controllers {
             var z = new Zxcvbn.Zxcvbn();
             var r = z.EvaluatePassword(pwd);
             return await Task.FromResult<int>(new Zxcvbn.Zxcvbn().EvaluatePassword(pwd).Score);
+        }
+
+        [HttpGet("temppodcastimage")]
+        public ActionResult<string> GetTemporaryPodcastImage(){
+            var image = ImageUtils.GetTemporaryImage();
+            return $"\"{this._config.GetSection("StorageSettings")["CdnUrl"]}/{this._config.GetSection("ImageFileStorageSettings")["ContainerName"]}/{image}\"";
         }
     }
 }
