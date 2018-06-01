@@ -29,9 +29,12 @@ workflows:
     build-test-deploy:
         jobs:
             - login:
+            - build:
                 filters:
                     branches:
-                        only: master
+                        only: develop
+                requires:
+                    - login
             - build_and_deploy:
                 filters:
                     branches:
