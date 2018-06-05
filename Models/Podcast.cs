@@ -13,19 +13,16 @@ namespace PodNoms.Api.Models {
 
         [SlugField(sourceField: "Title")]
         public string Slug { get; set; }
-        public string TemporaryImageUrl { get; set; }
         public List<PodcastEntry> PodcastEntries { get; set; }
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();
         }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
-            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.Id.ToString()}.png" :
-                $"{cdnUrl}static/images/{TemporaryImageUrl}";
+            return $"{cdnUrl}{containerName}/{this.Id.ToString()}.png";
         }
         public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return string.IsNullOrEmpty(TemporaryImageUrl) ? $"{cdnUrl}{containerName}/{this.Id.ToString()}-32x32.png" :
-                $"{cdnUrl}static/images/{TemporaryImageUrl}";
+            return $"{cdnUrl}{containerName}/{this.Id.ToString()}-32x32.png";
         }
     }
 }

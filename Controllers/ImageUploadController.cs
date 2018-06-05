@@ -46,67 +46,49 @@ namespace PodNoms.Api.Controllers {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
         }
-        [HttpPost]
-        public async Task<ActionResult<PodcastViewModel>> Upload(string slug, IFormFile file) {
+        [HttpPost("/podcast/{id}/imageupload")]
+        public async Task<ActionResult<string>> UploadPodcastImage(string id, IFormFile image) {
             _logger.LogDebug("Uploading new image");
-            if (file == null || file.Length == 0) return BadRequest("No file found in stream");
-            if (file.Length > _imageFileStorageSettings.MaxUploadFileSize) return BadRequest("Maximum file size exceeded");
-            if (!_imageFileStorageSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type");
 
-            var podcast = await _podcastRepository.GetAsync(_applicationUser.Id, slug);
+            var podcast = await _podcastRepository.GetAsync(_applicationUser.Id, Guid.Parse(id));
             if (podcast == null)
                 return NotFound();
+            try {
+                var result = await _commitImage(id, image);
+                _podcastRepository.AddOrUpdate(podcast);
+                await this._unitOfWork.CompleteAsync();
 
-            var cacheFile = await CachedFormFileStorage.CacheItem(file);
-            (var finishedFile, var extension) = __todo_convert_cache_file(cacheFile, podcast.Id.ToString());
-            var thumbnailFile = __todo_create_thumbnail(cacheFile, podcast.Id.ToString());
+                return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
+            } catch (InvalidOperationException ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("/profile/{id}/imageupload")]
+        public async Task<ActionResult<string>> UploadProfileImage(string id, IFormFile image) {
+            var imageUrl = await _commitImage(id, image);
+            _applicationUser.PictureUrl = imageUrl;
+            await _userManager.UpdateAsync(_applicationUser);
+            return Ok(_applicationUser.PictureUrl);
+        }
+        private async Task<string> _commitImage(string id, IFormFile image) {
 
-            var destinationFile = $"{podcast.Id}.{extension}";
-            var destinationFileThumbnail = $"{podcast.Id}-32x32.{extension}";
+            if (image == null || image.Length == 0) throw new InvalidOperationException("No file found in stream");
+            if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException("Maximum file size exceeded");
+            if (!_imageFileStorageSettings.IsSupported(image.FileName)) throw new InvalidOperationException("Invalid file type");
+
+            var cacheFile = await CachedFormFileStorage.CacheItem(image);
+            (var finishedFile, var extension) = ImageUtils.ConvertFile(cacheFile, id);
+            var thumbnailFile = ImageUtils.CreateThumbnail(cacheFile, id, 32, 32);
+
+            var destinationFile = $"{id}.{extension}";
+            var destinationFileThumbnail = $"{id}-32x32.{extension}";
 
             await _fileUploader.UploadFile(finishedFile, _imageFileStorageSettings.ContainerName,
                 destinationFile, "image/png", (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}"));
 
             await _fileUploader.UploadFile(thumbnailFile, _imageFileStorageSettings.ContainerName,
                            destinationFileThumbnail, "image/png", (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}"));
-
-            _podcastRepository.AddOrUpdate(podcast);
-            podcast.TemporaryImageUrl = string.Empty;
-            await this._unitOfWork.CompleteAsync();
-
-            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
-        }
-
-        //TODO: Refactor this to service
-        private (string, string) __todo_convert_cache_file(string cacheFile, string prefix) {
-            // return (cacheFile, "jpg");
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}.png");
-            if (System.IO.File.Exists(outputFile))
-                System.IO.File.Delete(outputFile);
-
-            using (Image<Rgba32> image = Image.Load(cacheFile)) {
-                image.Mutate(x => x
-                    .Resize(1400, 1400));
-                using (var outputStream = new FileStream(outputFile, FileMode.CreateNew)) {
-                    image.SaveAsPng(outputStream);
-                }
-            }
-            return (outputFile, "png");
-        }
-        private string __todo_create_thumbnail(string cacheFile, string prefix) {
-            // return (cacheFile, "jpg");
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}-32x32.png");
-            if (System.IO.File.Exists(outputFile))
-                System.IO.File.Delete(outputFile);
-
-            using (Image<Rgba32> image = Image.Load(cacheFile)) {
-                image.Mutate(x => x
-                    .Resize(32, 32));
-                using (var outputStream = new FileStream(outputFile, FileMode.CreateNew)) {
-                    image.SaveAsPng(outputStream);
-                }
-            }
-            return outputFile;
+            return destinationFile;
         }
     }
 }

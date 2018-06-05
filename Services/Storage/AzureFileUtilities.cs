@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,23 +9,46 @@ using PodNoms.Api.Models.Settings;
 namespace PodNoms.Api.Services.Storage {
     internal class AzureFileUtilities : IFileUtilities {
         private readonly StorageSettings _settings;
-        public AzureFileUtilities(IOptions<StorageSettings> settings, ILoggerFactory logger) {
+        public AzureFileUtilities(IOptions<StorageSettings> settings) {
             this._settings = settings.Value;
         }
-        public async Task<long> GetRemoteFileSize(string containerName, string fileName) {
+        private async Task<CloudBlobContainer> _getContainer(string containerName, bool create = false) {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_settings.ConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(containerName);
             var exists = await container.ExistsAsync();
-            if (exists) {
-                CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
-                exists = await blob.ExistsAsync();
-                if (exists) {
-                    await blob.FetchAttributesAsync();
-                    return blob.Properties.Length;
-                }
+            if (!exists && !create) {
+                throw new InvalidOperationException($"Container ${container} does not exist");
             }
-            return -1;
+
+            return container;
+        }
+        public async Task<long> GetRemoteFileSize(string containerName, string fileName) {
+            try {
+                var container = await _getContainer(containerName);
+                CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
+                await blob.FetchAttributesAsync();
+                return blob.Properties.Length;
+            } catch (InvalidOperationException ex) {
+                throw ex;
+            }
+        }
+        public async Task<bool> CopyRemoteFile(string sourceContainerName, string sourceFile,
+                string destinationContainerName, string destinationFile) {
+            try {
+                var sourceContainer = await _getContainer(sourceContainerName);
+                var destinationContainer = await _getContainer(destinationContainerName, true);
+                var sourceBlob = sourceContainer.GetBlockBlobReference(sourceFile);
+                var destBlob = destinationContainer.GetBlockBlobReference(destinationFile);
+                if (await sourceBlob.ExistsAsync()) {
+                    await destBlob.StartCopyAsync(sourceBlob);
+
+                    return true;
+                }
+                return false;
+            } catch (InvalidOperationException ex) {
+                throw ex;
+            }
         }
     }
 }
