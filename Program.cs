@@ -24,7 +24,7 @@ namespace PodNoms.Api {
 
         public static void Main(string[] args) {
             var host = BuildWebHost(args);
-            host.MigrateDatabase(true, false);
+            //  host.MigrateDatabase(true, false);
             host.Run();
         }
         public static IWebHost BuildWebHost(string[] args) =>
