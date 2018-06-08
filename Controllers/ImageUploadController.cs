@@ -57,7 +57,7 @@ namespace PodNoms.Api.Controllers {
             if (podcast == null)
                 return NotFound();
             try {
-                var result = await _commitImage(id, image);
+                var result = await _commitImage(id, image, "podcast");
                 _podcastRepository.AddOrUpdate(podcast);
                 await this._unitOfWork.CompleteAsync();
 
@@ -73,7 +73,7 @@ namespace PodNoms.Api.Controllers {
             await _userManager.UpdateAsync(_applicationUser);
             return Ok($"\"{_applicationUser.PictureUrl}\"");
         }
-        private async Task<string> _commitImage(string id, IFormFile image, string subDirectory = "") {
+        private async Task<string> _commitImage(string id, IFormFile image, string subDirectory) {
 
             if (image == null || image.Length == 0) throw new InvalidOperationException("No file found in stream");
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException("Maximum file size exceeded");

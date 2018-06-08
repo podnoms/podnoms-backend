@@ -74,10 +74,10 @@ namespace PodNoms.Api.Controllers {
                     if (parts.Length == 2) {
                         var result = await _fileUtilities.CopyRemoteFile(
                             parts[0], parts[1],
-                            _fileStorageSettings.ContainerName, $"{ret.Id.ToString()}.png");
+                            _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}.png");
                         result = await _fileUtilities.CopyRemoteFile(
                             parts[0], parts[1].Replace(".png", "-32x32.png"),
-                            _fileStorageSettings.ContainerName, $"{ret.Id.ToString()}-32x32.png");
+                            _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}-32x32.png");
                     }
                 }
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));

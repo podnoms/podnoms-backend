@@ -19,10 +19,10 @@ namespace PodNoms.Api.Models {
         }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/{this.Id.ToString()}.png";
+            return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}.png";
         }
         public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/{this.Id.ToString()}-32x32.png";
+            return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}-32x32.png";
         }
     }
 }
