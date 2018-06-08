@@ -13,6 +13,7 @@ namespace PodNoms.Api.Persistence {
         Task<Podcast> GetAsync(string userId, Guid id);
         new Task<Podcast> GetAsync(Guid id);
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
+        Task<Podcast> GetForUserAndSlugAsync(string userId, string slug);
     }
     public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
         public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) : base(context, logger) {
@@ -36,12 +37,19 @@ namespace PodNoms.Api.Persistence {
                 .FirstOrDefaultAsync();
             return ret;
         }
+        public async Task<Podcast> GetForUserAndSlugAsync(string userId, string slug) {
+            return await GetAll()
+                .Where(r => r.AppUser.Id == userId && r.Slug == slug)
+                    .Include(p => p.AppUser)
+                    .Include(p => p.PodcastEntries)
+                    .FirstOrDefaultAsync();
+        }
         public async Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId) {
             var ret = GetAll()
                 .Where(u => u.AppUser.Id == userId)
                 .Include(p => p.AppUser)
                 .Include(p => p.PodcastEntries)
-                .OrderByDescending(p => p.Id);
+                .OrderByDescending(p => p.CreateDate);
             return await ret.ToListAsync();
         }
         public new Podcast AddOrUpdate(Podcast podcast) {
