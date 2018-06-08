@@ -13,10 +13,13 @@ using PodNoms.Api.Services.Gravatar;
 using PodNoms.Api.Models;
 using PodNoms.Api.Utils;
 using PodNoms.Api.Models.Settings;
+using PodNoms.Api.Services.Storage;
 
 namespace PodNoms.Api.Services.Auth {
     public class PodNomsUserManager : UserManager<ApplicationUser> {
         private readonly GravatarHttpClient _gravatarClient;
+        private readonly IFileUtilities _fileUtilities;
+        private ImageFileStorageSettings _fileStorageSettings;
         private readonly IMailSender _mailSender;
         private readonly StorageSettings _storageSettings;
 
@@ -26,12 +29,15 @@ namespace PodNoms.Api.Services.Auth {
                     IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger,
                     [FromServices]GravatarHttpClient gravatarClient,
                     IOptions<StorageSettings> storageSettings,
+                    IOptions<ImageFileStorageSettings> fileStorageSettings,
+                    IFileUtilities fileUtilities,
                     IMailSender mailSender) :
             base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
             this._gravatarClient = gravatarClient;
+            this._fileUtilities = fileUtilities;
+            this._fileStorageSettings = fileStorageSettings.Value;
             this._mailSender = mailSender;
             this._storageSettings = storageSettings.Value;
-
         }
         public override async Task<IdentityResult> CreateAsync(ApplicationUser user) {
             _checkName(user);
@@ -68,8 +74,12 @@ namespace PodNoms.Api.Services.Auth {
                 if (!string.IsNullOrEmpty(gravatar)) {
                     user.PictureUrl = gravatar;
                 } else {
-                    int index = Randomisers.RandomInteger(1, 6);
-                    user.PictureUrl = $"{_storageSettings.CdnUrl}static/images/avatars/avatar-{index}.svg";
+                    var image = ImageUtils.GetTemporaryImage("profile", 6, "svg");
+                    var destImage = $"profile/{user.Id.ToString()}.svg";
+                    var result = await _fileUtilities.CopyRemoteFile(
+                        "static", $"images/{image}",
+                        _fileStorageSettings.ContainerName, destImage);
+                    user.PictureUrl = $"{_storageSettings.CdnUrl}{_fileStorageSettings.ContainerName}/{destImage}";
                 }
             }
         }

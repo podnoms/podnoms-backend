@@ -9,16 +9,20 @@ using PodNoms.Api.Utils;
 
 namespace PodNoms.Api.Persistence {
     public interface IPodcastRepository : IRepository<Podcast> {
-        Task<Podcast> GetAsync(string userId, string slug);
+        Task<Podcast> GetAsync(string userId, string id);
+        Task<Podcast> GetAsync(string userId, Guid id);
         new Task<Podcast> GetAsync(Guid id);
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
     }
     public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
         public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) : base(context, logger) {
         }
-        public async Task<Podcast> GetAsync(string userId, string slug) {
+        public async Task<Podcast> GetAsync(string userId, string id) {
+            return await GetAsync(userId, Guid.Parse(id));
+        }
+        public async Task<Podcast> GetAsync(string userId, Guid id) {
             var ret = await GetAll()
-                .Where(p => p.Slug == slug && p.AppUser.Id == userId)
+                .Where(p => p.Id == id && p.AppUser.Id == userId)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.AppUser)
                 .FirstOrDefaultAsync();
@@ -41,9 +45,6 @@ namespace PodNoms.Api.Persistence {
             return await ret.ToListAsync();
         }
         public new Podcast AddOrUpdate(Podcast podcast) {
-            if (string.IsNullOrEmpty(podcast.TemporaryImageUrl)) {
-                podcast.TemporaryImageUrl = ImageUtils.GetTemporaryImage();
-            }
             return base.AddOrUpdate(podcast);
         }
     }

@@ -25,24 +25,23 @@ namespace PodNoms.Api.Controllers {
             this._config = config;
         }
 
-        [AllowAnonymous]
-        [HttpPost("checkdomain")]
-        public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
-            // ClientRequest request = new ClientRequest("8.8.8.8");
-            // request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
-            // request.RecursionDesired = true;
+        // [AllowAnonymous]
+        // [HttpPost("checkdomain")]
+        // public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
+        //     ClientRequest request = new ClientRequest("8.8.8.8");
+        //     request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
+        //     request.RecursionDesired = true;
 
-            // var response = await request.Resolve();
+        //     var response = await request.Resolve();
 
-            // var ips = response.AnswerRecords
-            //     .OfType<CanonicalNameResourceRecord>()
-            //     .Where(r => r.Type == RecordType.CNAME)
-            //     .Where(r => r.CanonicalDomainName.ToString().Equals("rss.podnoms.com"))
-            //     .ToList();
+        //     var ips = response.AnswerRecords
+        //         .OfType<CanonicalNameResourceRecord>()
+        //         .Where(r => r.Type == RecordType.CNAME)
+        //         .Where(r => r.CanonicalDomainName.ToString().Equals("rss.podnoms.com"))
+        //         .ToList();
 
-            // return Ok(ips.Count != 0);
-            return Ok();
-        }
+        //     return Ok(ips.Count != 0);
+        // }
         [AllowAnonymous]
         [HttpPost("checkpassword")]
         public async Task<ActionResult<int>> CheckPasswordStrength([FromBody]string pwd) {
@@ -56,8 +55,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("temppodcastimage")]
         public ActionResult<string> GetTemporaryPodcastImage(){
-            var image = ImageUtils.GetTemporaryImage();
-            return $"\"{this._config.GetSection("StorageSettings")["CdnUrl"]}/{this._config.GetSection("ImageFileStorageSettings")["ContainerName"]}/{image}\"";
+            var image = ImageUtils.GetTemporaryImage("podcast", 16);
+            return $"\"{this._config.GetSection("StorageSettings")["CdnUrl"]}static/images/{image}\"";
         }
     }
 }
