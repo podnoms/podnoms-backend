@@ -61,21 +61,12 @@ namespace PodNoms.Api.Providers {
 
             //API Resource to Domain
             CreateMap<PodcastViewModel, Podcast>();
-            CreateMap<PodcastEntryViewModel, PodcastEntry>()
-                .ForMember(
-                    e => e.ImageUrl,
-                    map => map.MapFrom(vm => vm.ImageUrl));
-            // .ForMember(
-            //     e => e.Podcast,
-            //     opt => opt.ResolveUsing<PodcastForeignKeyResolver>());
-
+            CreateMap<PodcastEntryViewModel, PodcastEntry>();
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
-
             CreateMap<ChatViewModel, ChatMessage>();
-
         }
     }
 }
