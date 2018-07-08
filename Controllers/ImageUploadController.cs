@@ -20,8 +20,6 @@ using PodNoms.Api.Services.Auth;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Transforms;
-using SixLabors.ImageSharp.Processing.Filters;
 using PodNoms.Api.Models.Settings;
 
 namespace PodNoms.Api.Controllers {

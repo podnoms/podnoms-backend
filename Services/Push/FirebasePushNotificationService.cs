@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 namespace PodNoms.Api.Services.Push {
     public class FirebasePushNotificationService : IPushNotificationService {
         private readonly PushNotificationServiceOptions _options;
-        private readonly ILogger<PushServicePushNotificationService> _logger;
+        private readonly ILogger<FirebasePushNotificationService> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         public string PublicKey => _options.PublicKey;
         public FirebasePushNotificationService(IOptions<PushNotificationServiceOptions> pushOptions,
                 IHttpClientFactory httpClientFactory,
-                ILogger<PushServicePushNotificationService> logger) {
+                ILogger<FirebasePushNotificationService> logger) {
             _options = pushOptions.Value;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
