@@ -14,8 +14,8 @@ namespace PodNoms.Api.Services.Push.Data {
             _context = context;
         }
 
-        public Task StoreSubscriptionAsync(PushSubscription subscription) {
-            PushSubscriptionContext.PushSubscription entity = new PushSubscriptionContext.PushSubscription(subscription);
+        public Task StoreSubscriptionAsync(string uid, PushSubscription subscription) {
+            PushSubscriptionContext.PushSubscription entity = new PushSubscriptionContext.PushSubscription(uid, subscription);
             if (_context.Subscriptions.Where(s => s.Endpoint == subscription.Endpoint).Count() > 0) {
                 // _context.Entry(entry).State = EntityState.Modified
                 _context.Subscriptions.Attach(entity);
@@ -34,7 +34,7 @@ namespace PodNoms.Api.Services.Push.Data {
             await _context.SaveChangesAsync();
         }
         public Task ForEachSubscriptionAsync(string uid, Action<PushSubscription> action) {
-            return _context.Subscriptions.Where(e => e.Auth == uid).AsNoTracking().ForEachAsync(action);
+            return _context.Subscriptions.Where(e => e.Id == uid).AsNoTracking().ForEachAsync(action);
         }
         public Task ForEachSubscriptionAsync(Action<PushSubscription> action) {
             return _context.Subscriptions.AsNoTracking().ForEachAsync(action);
