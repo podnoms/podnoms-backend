@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using PodNoms.Api.Services.Push;
-using WebPush = Lib.Net.Http.WebPush;
+using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Services.Jobs {
     public class NotifyJobCompleteService : INotifyJobCompleteService {
@@ -14,11 +14,11 @@ namespace PodNoms.Api.Services.Jobs {
             this._subscriptionStore = subscriptionStore;
         }
         public async Task NotifyUser(string userId, string title, string body, string image) {
-            WebPush.PushMessage pushMessage = new WebPush.PushMessage(body) {
+            WP.PushMessage pushMessage = new WP.PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
-            await _subscriptionStore.ForEachSubscriptionAsync(userId, (WebPush.PushSubscription subscription) => {
+            await _subscriptionStore.ForEachSubscriptionAsync(userId, (WP.PushSubscription subscription) => {
                 _notificationService.SendNotificationAsync(subscription, pushMessage);
             });
         }

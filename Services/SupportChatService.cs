@@ -10,7 +10,7 @@ using PodNoms.Api.Services.Auth;
 using PodNoms.Api.Services.Hubs;
 using PodNoms.Api.Services.Push;
 using PodNoms.Api.Services.Slack;
-using WebPush = Lib.Net.Http.WebPush;
+using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Services {
     public class SupportChatService : ISupportChatService {
@@ -38,11 +38,11 @@ namespace PodNoms.Api.Services {
                     message.ToUserId = user.Id;
                     message.ToUserName = user.FullName;
                     //send firebase message to notify via web worker
-                    WebPush.PushMessage pushMessage = new WebPush.PushMessage(message.Message) {
+                    WP.PushMessage pushMessage = new WP.PushMessage(message.Message) {
                         Topic = "New support chat message",
                         Urgency = PushMessageUrgency.Normal
                     };
-                    await _subscriptionStore.ForEachSubscriptionAsync(user.Id, (WebPush.PushSubscription subscription) => {
+                    await _subscriptionStore.ForEachSubscriptionAsync(user.Id, (WP.PushSubscription subscription) => {
                         _notificationService.SendNotificationAsync(subscription, pushMessage);
                     });
 
