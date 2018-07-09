@@ -21,23 +21,23 @@ namespace PodNoms.Api.Services.Push {
             _httpClientFactory = httpClientFactory;
         }
         public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message) {
-            var fb_message = new {
-                notification = new {
-                    title = message.Topic,
-                    body = message.Content,
-                    icon = _options.ImageUrl,
-                    click_action = _options.ClickUrl,
-                },
-                to = subscription.Endpoint
-            };
-            var data = JsonConvert.SerializeObject(fb_message);
-            var content = new StringContent(data, Encoding.UTF8, "application/json");
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                "key",
-                $"={_options.PrivateKey}");
-            var result = await client.PostAsync(_options.PushUrl, content);
-            _logger.LogInformation("FCM: ", result.Content);
+             var fb_message = new {
+                 notification = new {
+                     title = message.Topic,
+                     body = message.Content,
+                     icon = _options.ImageUrl,
+                     click_action = _options.ClickUrl,
+                 },
+                 to = subscription.Endpoint
+             };
+             var data = JsonConvert.SerializeObject(fb_message);
+             var content = new StringContent(data, Encoding.UTF8, "application/json");
+             var client = _httpClientFactory.CreateClient();
+             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                 "key",
+                 $"={_options.PrivateKey}");
+             var result = await client.PostAsync(subscription.Endpoint, /*_options.PushUrl, */content);
+             _logger.LogInformation("FCM: ", result.Content);
         }
     }
 }

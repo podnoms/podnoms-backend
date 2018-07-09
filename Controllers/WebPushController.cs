@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using WebPush = Lib.Net.Http.WebPush;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PodNoms.Api.Services.Push;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using PodNoms.Api.Services.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
 
@@ -26,22 +26,21 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost("subscribe")]
-        public async Task<IActionResult> StoreSubscription([FromBody]WebPush.PushSubscription subscription) {
-            subscription.Keys["auth"] = _applicationUser.Id;
-            await _subscriptionStore.StoreSubscriptionAsync(subscription);
+        public async Task<IActionResult> StoreSubscription([FromBody]WP.PushSubscription subscription) {
+            await _subscriptionStore.StoreSubscriptionAsync(_applicationUser.Id, subscription);
             return NoContent();
         }
 
         // POST push-notifications-api/notifications
         [HttpPost("message")]
         public async Task<IActionResult> SendNotification([FromBody]PushMessageViewModel message) {
-            WebPush.PushMessage pushMessage = new WebPush.PushMessage(message.Notification) {
+            WP.PushMessage pushMessage = new WP.PushMessage(message.Notification) {
                 Topic = message.Topic,
                 Urgency = message.Urgency
             };
 
             // TODO: This should be scheduled in background
-            await _subscriptionStore.ForEachSubscriptionAsync((WebPush.PushSubscription subscription) => {
+            await _subscriptionStore.ForEachSubscriptionAsync((WP.PushSubscription subscription) => {
                 // Fire-and-forget 
                 _notificationService.SendNotificationAsync(subscription, pushMessage);
             });

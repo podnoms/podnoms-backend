@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ using PodNoms.Api.Services.Hubs;
 using PodNoms.Api.Services.Jobs;
 using PodNoms.Api.Services.Push;
 using PodNoms.Api.Services.Realtime;
-using WebPush = Lib.Net.Http.WebPush;
+using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -110,15 +111,17 @@ namespace PodNoms.Api.Controllers {
         }
         [Authorize]
         [HttpGet("serverpush")]
-        public async Task<string> ServerPush() {
-            WebPush.PushMessage pushMessage = new WebPush.PushMessage("Argle Bargle, Foo Ferra") {
+        public async Task<string> ServerPush(string message) {
+            var response = new StringBuilder();
+            WP.PushMessage pushMessage = new WP.PushMessage(message) {
                 Topic = "Debug",
-                Urgency = WebPush.PushMessageUrgency.Normal
+                Urgency = WP.PushMessageUrgency.Normal
             };
             await _subscriptionStore.ForEachSubscriptionAsync(_applicationUser.Id, (subscription) => {
                 _notificationService.SendNotificationAsync(subscription, pushMessage);
+                response.Append($"Sent: {subscription.Endpoint}");
             });
-            return "Hello Sailor!";
+            return response.ToString();
         }
     }
 }

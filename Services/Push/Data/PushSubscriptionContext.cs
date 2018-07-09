@@ -1,27 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using WebPush = Lib.Net.Http.WebPush;
+using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Services.Push.Data {
     internal class PushSubscriptionContext : DbContext {
-        public class PushSubscription : WebPush.PushSubscription {
-            public string P256DH {
-                get { return GetKey(WebPush.PushEncryptionKeyName.P256DH); }
-
-                set { SetKey(WebPush.PushEncryptionKeyName.P256DH, value); }
-            }
-
-            public string Auth {
-                get { return GetKey(WebPush.PushEncryptionKeyName.Auth); }
-
-                set { SetKey(WebPush.PushEncryptionKeyName.Auth, value); }
-            }
-
+        public class PushSubscription : WP.PushSubscription {
             public PushSubscription() { }
-
-            public PushSubscription(WebPush.PushSubscription subscription) {
+            public PushSubscription(string id, WP.PushSubscription subscription) {
+                Id = id;
                 Endpoint = subscription.Endpoint;
                 Keys = subscription.Keys;
+            }
+
+            public string Id { get; set; }
+            public string P256DH {
+                get { return GetKey(WP.PushEncryptionKeyName.P256DH); }
+                set { SetKey(WP.PushEncryptionKeyName.P256DH, value); }
+            }
+            public string Auth {
+                get { return GetKey(WP.PushEncryptionKeyName.Auth); }
+                set { SetKey(WP.PushEncryptionKeyName.Auth, value); }
             }
         }
 
