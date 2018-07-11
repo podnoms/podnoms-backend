@@ -64,7 +64,8 @@ namespace PodNoms.Api.Services.Jobs {
                                 Title = downloader.Properties?.Title,
                                 Description = downloader.Properties?.Description,
                                 ProcessingStatus = ProcessingStatus.Uploading,
-                                ImageUrl = downloader.Properties?.Thumbnail
+                                ImageUrl = downloader.Properties?.Thumbnail,
+                                SourceUrl = url
                             };
                             podcast.PodcastEntries.Add(entry);
                             await _unitOfWork.CompleteAsync();
