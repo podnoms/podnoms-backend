@@ -12,11 +12,16 @@ namespace PodNoms.Api.Services.Jobs {
             RecurringJob.AddOrUpdate<UpdateYouTubeDlJob>(x => x.Execute(), Cron.Daily(1, 30));
             RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Daily(2));
 
-            BackgroundJob.Schedule<ProcessMissingPodcasts>(x => x.Execute(), TimeSpan.FromSeconds(1));
+            BackgroundJob.Schedule<ProcessFailedPodcastsJob>(x => x.Execute(), TimeSpan.FromSeconds(1));
 
             BackgroundJob.Schedule<ProcessRemoteAudioFileAttributesJob>(
-                x => x.Execute(), 
+                x => x.Execute(),
                 TimeSpan.FromSeconds(Int16.MaxValue));
+
+            BackgroundJob.Schedule<ProcessMissingPodcastsJob>(
+                x => x.Execute(),
+                TimeSpan.FromSeconds(Int16.MaxValue)
+            );
         }
     }
 }

@@ -33,6 +33,16 @@ namespace PodNoms.Api.Services.Storage {
                 throw ex;
             }
         }
+        public async Task<bool> CheckFileExists(string containerName, string fileName) {
+            try {
+                var container = await _getContainer(containerName);
+                CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
+                await blob.FetchAttributesAsync();
+                return true;
+            } catch (Exception) {
+                return false;
+            }
+        }
         public async Task<bool> CopyRemoteFile(string sourceContainerName, string sourceFile,
                 string destinationContainerName, string destinationFile) {
             try {

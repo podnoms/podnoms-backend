@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -7,12 +7,12 @@ using PodNoms.Api.Persistence;
 using PodNoms.Api.Services.Processor;
 
 namespace PodNoms.Api.Services.Jobs {
-    public class ProcessMissingPodcasts : IJob {
+    public class ProcessFailedPodcastsJob : IJob {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
         private readonly IAudioUploadProcessService _uploadService;
-        private readonly ILogger<ProcessMissingPodcasts> _logger;
-        public ProcessMissingPodcasts(ILogger<ProcessMissingPodcasts> logger, IUrlProcessService processor, IEntryRepository entryRepository, IAudioUploadProcessService uploadService) {
+        private readonly ILogger<ProcessFailedPodcastsJob> _logger;
+        public ProcessFailedPodcastsJob(ILogger<ProcessFailedPodcastsJob> logger, IUrlProcessService processor, IEntryRepository entryRepository, IAudioUploadProcessService uploadService) {
             this._logger = logger;
             this._uploadService = uploadService;
             this._entryRepository = entryRepository;
@@ -39,7 +39,7 @@ namespace PodNoms.Api.Services.Jobs {
                 }
                 return true;
             } catch (Exception ex) {
-                _logger.LogError($"Fatal error in ProcessMissingPodcasts");
+                _logger.LogError($"Fatal error in ProcessFailedPodcastsJob");
                 _logger.LogError(ex.Message);
             }
             return false;

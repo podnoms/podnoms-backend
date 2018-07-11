@@ -8,6 +8,7 @@ using PodNoms.Api.Models;
 
 namespace PodNoms.Api.Persistence {
     public interface IPlaylistRepository : IRepository<Playlist> {
+        IEnumerable<ParsedPlaylistItem> GetParsedItems();
         Task<ParsedPlaylistItem> GetParsedItem(string itemId, Guid playlistId);
         Task<List<ParsedPlaylistItem>> GetUnprocessedItems();
     }
@@ -18,6 +19,12 @@ namespace PodNoms.Api.Persistence {
             return await GetContext().Playlists
                 .Include(i => i.ParsedPlaylistItems)
                 .SingleOrDefaultAsync(i => i.Id == id);
+        }
+        public IEnumerable<ParsedPlaylistItem> GetParsedItems() {
+            return GetContext().ParsedPlaylistItems
+                .Include(i => i.Playlist)
+                .Include(i => i.Playlist.Podcast)
+                .Include(i => i.Playlist.Podcast.AppUser);
         }
         public async Task<ParsedPlaylistItem> GetParsedItem(string itemId, Guid playlistId) {
             return await GetContext().ParsedPlaylistItems
