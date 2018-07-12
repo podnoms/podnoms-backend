@@ -13,9 +13,9 @@ namespace PodNoms.Api.Controllers {
         public JobController(ILogger<JobController> logger) : base(logger) {
         }
 
-        [HttpGet("processorphans")]
-        public IActionResult ProcessOrphans() {
-            var infoJobId = BackgroundJob.Enqueue<ClearOrphanAudioJob>(service => service.Execute());
+        [HttpGet("deleteorphans")]
+        public IActionResult DeleteOrphans() {
+            var infoJobId = BackgroundJob.Enqueue<DeleteOrphanAudioJob>(service => service.Execute());
             return Ok();
         }
         [HttpGet("processplaylists")]
