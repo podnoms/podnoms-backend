@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,21 +10,21 @@ using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Services.Jobs {
-    public class ClearOrphanAudioJob : IJob {
+    public class DeleteOrphanAudioJob : IJob {
         public readonly IEntryRepository _entryRepository;
         public readonly StorageSettings _storageSettings;
         public readonly AudioFileStorageSettings _audioStorageSettings;
-        private readonly ILogger<ClearOrphanAudioJob> _logger;
+        private readonly ILogger<DeleteOrphanAudioJob> _logger;
         private readonly IMailSender _mailSender;
 
-        public ClearOrphanAudioJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
+        public DeleteOrphanAudioJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioStorageSettings, ILoggerFactory logger, IMailSender mailSender) {
             this._mailSender = mailSender;
             this._storageSettings = storageSettings.Value;
             this._audioStorageSettings = audioStorageSettings.Value;
             this._entryRepository = entryRepository;
 
-            this._logger = logger.CreateLogger<ClearOrphanAudioJob>();
+            this._logger = logger.CreateLogger<DeleteOrphanAudioJob>();
         }
 
         public async Task<bool> Execute() {
@@ -36,19 +37,18 @@ namespace PodNoms.Api.Services.Jobs {
                 foreach (CloudBlockBlob blob in blobs.Results) {
                     try {
                         Console.WriteLine(blob.StorageUri);
-                        var guid = blob.Name.Split('.')[0];
-                        if (!string.IsNullOrEmpty(guid)) {
-                            var entry = await _entryRepository.GetAsync(guid);
-                            if (entry == null) {
-                                await blob.DeleteIfExistsAsync();
-                                blobCount++;
-                            }
+                        var url = $"{_audioStorageSettings.ContainerName}/{blob.Name}";
+                        var entry = _entryRepository.GetAll()
+                            .Where(r => r.AudioUrl == url);
+                        if (entry == null) {
+                            await blob.DeleteIfExistsAsync();
+                            blobCount++;
                         }
                     } catch (Exception e) {
                         _logger.LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
                     }
                 }
-                await this._mailSender.SendEmailAsync("fergal.moran@gmail.com", $"ClearOrphanAudioJob: Complete {blobCount}", string.Empty);
+                await this._mailSender.SendEmailAsync("fergal.moran@gmail.com", $"DeleteOrphanAudioJob: Complete {blobCount}", string.Empty);
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Error clearing orphans\n{ex.Message}");
