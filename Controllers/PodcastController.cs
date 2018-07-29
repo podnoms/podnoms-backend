@@ -1,7 +1,7 @@
-#region imports
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -21,7 +21,6 @@ using PodNoms.Api.Services.Processor;
 using PodNoms.Api.Services.Storage;
 using PodNoms.Api.Utils;
 using PodNoms.Api.Utils.Extensions;
-#endregion
 namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("[controller]")]
@@ -108,6 +107,17 @@ namespace PodNoms.Api.Controllers {
                 _logger.LogError(ex.Message);
             }
             return BadRequest("Unable to delete entry");
+        }
+
+        [HttpGet("checkslug/{slug}")]
+        public async Task<ActionResult<string>> CheckSlug(string slug) {
+            var slugValid = (await _repository.GetAllForUserAsync(this._applicationUser.Id))
+                .Where(r => r.Slug == slug);
+            string content = slugValid.Count() == 0 ? string.Empty : slugValid.First().Title;
+            return base.Content(
+                $"\"{content}\"",
+                "text/plain"
+            );
         }
     }
 }
