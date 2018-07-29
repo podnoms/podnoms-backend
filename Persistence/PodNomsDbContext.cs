@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,7 +56,6 @@ namespace PodNoms.Api.Persistence {
                   .HasDefaultValueSql("getdate()");
             }
         }
-
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
                 .GetEntityTypes()
