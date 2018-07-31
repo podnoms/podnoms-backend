@@ -5,6 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using DNS.Client;
+using DNS.Protocol;
+using DNS.Protocol.ResourceRecords;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -58,23 +61,29 @@ namespace PodNoms.Api.Controllers {
                 });
             });
         }
-        // [AllowAnonymous]
-        // [HttpPost("checkdomain")]
-        // public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
-        //     ClientRequest request = new ClientRequest("8.8.8.8");
-        //     request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
-        //     request.RecursionDesired = true;
+        [AllowAnonymous]
+        [HttpPost("checkdomain")]
+        public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
+            try {
+                ClientRequest request = new ClientRequest("8.8.8.8");
+                request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
+                request.RecursionDesired = true;
 
-        //     var response = await request.Resolve();
+                var response = await request.Resolve();
 
-        //     var ips = response.AnswerRecords
-        //         .OfType<CanonicalNameResourceRecord>()
-        //         .Where(r => r.Type == RecordType.CNAME)
-        //         .Where(r => r.CanonicalDomainName.ToString().Equals("rss.podnoms.com"))
-        //         .ToList();
-
-        //     return Ok(ips.Count != 0);
-        // }
+                var result = response.AnswerRecords
+                    .Where(r => r.Type == RecordType.CNAME)
+                    .Cast<CanonicalNameResourceRecord>()
+                    .Select(r => r.CanonicalDomainName)
+                    .FirstOrDefault();
+                if (result != null) {
+                    return Ok(true);
+                }
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+            }
+            return Ok(false);
+        }
         [AllowAnonymous]
         [HttpPost("checkpassword")]
         public async Task<ActionResult<int>> CheckPasswordStrength([FromBody]string pwd) {
