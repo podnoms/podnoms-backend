@@ -6,6 +6,9 @@ using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Api.Models {
     public class Podcast : BaseEntity, ISluggedEntity {
+        public Podcast() {
+            PodcastEntries = new List<PodcastEntry>();
+        }
         public string AppUserId { get; set; }
         public ApplicationUser AppUser { get; set; }
         public string Title { get; set; }
@@ -13,10 +16,9 @@ namespace PodNoms.Api.Models {
 
         [SlugField(sourceField: "Title")]
         public string Slug { get; set; }
+
+        public string CustomDomain { get; set; }
         public List<PodcastEntry> PodcastEntries { get; set; }
-        public Podcast() {
-            PodcastEntries = new List<PodcastEntry>();
-        }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
             return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}.png";

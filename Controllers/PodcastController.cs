@@ -78,7 +78,7 @@ namespace PodNoms.Api.Controllers {
                             parts[0], parts[1].Replace(".png", "-32x32.png"),
                             _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}-32x32.png");
                     }
-                }
+                } 
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
             }
             return BadRequest("Invalid podcast model");

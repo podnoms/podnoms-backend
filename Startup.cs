@@ -349,7 +349,7 @@ namespace PodNoms.Api {
             });
 
             //start hangfire jobs
-            JobBootstrapper.BootstrapJobs();
+            JobBootstrapper.BootstrapJobs(Env.IsDevelopment());
         }
     }
 }

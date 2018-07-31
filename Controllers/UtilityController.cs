@@ -5,6 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using DNS.Client;
+using DNS.Protocol;
+using DNS.Protocol.ResourceRecords;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Persistence.Extensions;
@@ -23,12 +28,15 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [Authorize]
     public class UtilityController : BaseAuthController {
+        private readonly AppSettings _appSettings;
         private readonly IConfiguration _config;
         private readonly PodNomsDbContext _context;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                                 PodNomsDbContext context, ILogger<UtilityController> logger, IConfiguration config)
+                        IOptions<AppSettings> appSettings, PodNomsDbContext context,
+                        ILogger<UtilityController> logger, IConfiguration config)
                                     : base(contextAccessor, userManager, logger) {
+            this._appSettings = appSettings.Value;
             this._config = config;
             this._context = context;
         }
@@ -58,23 +66,30 @@ namespace PodNoms.Api.Controllers {
                 });
             });
         }
-        // [AllowAnonymous]
-        // [HttpPost("checkdomain")]
-        // public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
-        //     ClientRequest request = new ClientRequest("8.8.8.8");
-        //     request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
-        //     request.RecursionDesired = true;
+        [AllowAnonymous]
+        [HttpPost("checkdomain")]
+        public async Task<ActionResult<bool>> CheckHostName([FromBody]CheckHostNameViewModel request) {
+            try {
+                _logger.LogInformation($"Checking domain: {request.HostName}");
 
-        //     var response = await request.Resolve();
+                ClientRequest dnsRequest = new ClientRequest("8.8.8.8");
+                dnsRequest.Questions.Add(new Question(Domain.FromString(request.HostName), RecordType.CNAME));
+                dnsRequest.RecursionDesired = true;
 
-        //     var ips = response.AnswerRecords
-        //         .OfType<CanonicalNameResourceRecord>()
-        //         .Where(r => r.Type == RecordType.CNAME)
-        //         .Where(r => r.CanonicalDomainName.ToString().Equals("rss.podnoms.com"))
-        //         .ToList();
+                var response = await dnsRequest.Resolve();
 
-        //     return Ok(ips.Count != 0);
-        // }
+                Domain result = response.AnswerRecords
+                   .Where(r => r.Type == RecordType.CNAME)
+                   .Cast<CanonicalNameResourceRecord>()
+                   .Select(r => r.CanonicalDomainName)
+                   .FirstOrDefault();
+                return Ok(result?.CompareTo(new Domain(new Uri(_appSettings.RssUrl).Host)) == 0);
+            } catch (Exception ex) {
+                _logger.LogError($"Error checking domain {request}");
+                _logger.LogError(ex.Message);
+            }
+            return Ok(false);
+        }
         [AllowAnonymous]
         [HttpPost("checkpassword")]
         public async Task<ActionResult<int>> CheckPasswordStrength([FromBody]string pwd) {
