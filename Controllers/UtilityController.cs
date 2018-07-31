@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Persistence.Extensions;
@@ -26,12 +28,15 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [Authorize]
     public class UtilityController : BaseAuthController {
+        private readonly AppSettings _appSettings;
         private readonly IConfiguration _config;
         private readonly PodNomsDbContext _context;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                                 PodNomsDbContext context, ILogger<UtilityController> logger, IConfiguration config)
+                        IOptions<AppSettings> appSettings, PodNomsDbContext context,
+                        ILogger<UtilityController> logger, IConfiguration config)
                                     : base(contextAccessor, userManager, logger) {
+            this._appSettings = appSettings.Value;
             this._config = config;
             this._context = context;
         }
@@ -63,24 +68,25 @@ namespace PodNoms.Api.Controllers {
         }
         [AllowAnonymous]
         [HttpPost("checkdomain")]
-        public async Task<ActionResult<bool>> CheckHostName([FromBody]string hostname) {
+        public async Task<ActionResult<bool>> CheckHostName([FromBody]CheckHostNameViewModel request) {
             try {
-                ClientRequest request = new ClientRequest("8.8.8.8");
-                request.Questions.Add(new Question(Domain.FromString(hostname), RecordType.CNAME));
-                request.RecursionDesired = true;
+                _logger.LogInformation($"Checking domain: {request.HostName}");
 
-                var response = await request.Resolve();
+                ClientRequest dnsRequest = new ClientRequest("8.8.8.8");
+                dnsRequest.Questions.Add(new Question(Domain.FromString(request.HostName), RecordType.CNAME));
+                dnsRequest.RecursionDesired = true;
 
-                var result = response.AnswerRecords
-                    .Where(r => r.Type == RecordType.CNAME)
-                    .Cast<CanonicalNameResourceRecord>()
-                    .Select(r => r.CanonicalDomainName)
-                    .FirstOrDefault();
-                if (result != null) {
-                    return Ok(true);
-                }
+                var response = await dnsRequest.Resolve();
+
+                Domain result = response.AnswerRecords
+                   .Where(r => r.Type == RecordType.CNAME)
+                   .Cast<CanonicalNameResourceRecord>()
+                   .Select(r => r.CanonicalDomainName)
+                   .FirstOrDefault();
+                return Ok(result?.CompareTo(new Domain(new Uri(_appSettings.RssUrl).Host)) == 0);
             } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
+                _logger.LogError($"Error checking domain {request}");
+                _logger.LogError(ex.Message);
             }
             return Ok(false);
         }
