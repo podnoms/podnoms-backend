@@ -80,7 +80,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> GetAllForUser() {
             var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(e => e.Id).ToList()
+                entries.OrderByDescending(e => e.CreateDate).ToList()
             );
             return Ok(results);
         }
