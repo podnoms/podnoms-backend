@@ -45,12 +45,11 @@ namespace PodNoms.Api.Persistence {
                     .FirstOrDefaultAsync();
         }
         public async Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId) {
-            var ret = GetAll()
+            return await GetAll()
                 .Where(u => u.AppUser.Id == userId)
                 .Include(p => p.AppUser)
                 .Include(p => p.PodcastEntries)
-                .OrderByDescending(p => p.CreateDate);
-            return await ret.ToListAsync();
+                .ToListAsync();
         }
         public new Podcast AddOrUpdate(Podcast podcast) {
             return base.AddOrUpdate(podcast);
