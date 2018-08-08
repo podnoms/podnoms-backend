@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180803182752_RefactorCategories")]
+    partial class RefactorCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,6 +257,8 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<string>("Slug");
 
+                    b.Property<Guid?>("SubcategoryId");
+
                     b.Property<string>("Title");
 
                     b.Property<DateTime>("UpdateDate")
@@ -270,6 +274,8 @@ namespace PodNoms.Api.Migrations
                     b.HasIndex("Slug")
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
+
+                    b.HasIndex("SubcategoryId");
 
                     b.ToTable("Podcasts");
                 });
@@ -357,8 +363,6 @@ namespace PodNoms.Api.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<Guid?>("PodcastId");
-
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasDefaultValueSql("getdate()");
@@ -366,8 +370,6 @@ namespace PodNoms.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("PodcastId");
 
                     b.ToTable("Subcategories");
                 });
@@ -519,6 +521,10 @@ namespace PodNoms.Api.Migrations
                     b.HasOne("PodNoms.Api.Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
+
+                    b.HasOne("PodNoms.Api.Models.Subcategory", "Subcategory")
+                        .WithMany()
+                        .HasForeignKey("SubcategoryId");
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.PodcastEntry", b =>
@@ -539,10 +545,6 @@ namespace PodNoms.Api.Migrations
                         .WithMany("Subcategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("PodNoms.Api.Models.Podcast")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("PodcastId");
                 });
 #pragma warning restore 612, 618
         }
