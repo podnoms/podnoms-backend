@@ -14,5 +14,7 @@ namespace PodNoms.Api.Models.ViewModels {
         public string RssUrl { get; set; }
         public DateTime CreateDate { get; set; }
         public ICollection<PodcastEntryViewModel> PodcastEntries { get; set; }
+        public CategoryViewModel Category { get; set; }
+        public ICollection<SubcategoryViewModel> Subcategories { get; set; }
     }
 }

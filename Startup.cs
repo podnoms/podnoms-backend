@@ -269,6 +269,7 @@ namespace PodNoms.Api {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPodcastRepository, PodcastRepository>();
             services.AddScoped<IEntryRepository, EntryRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IPlaylistRepository, PlaylistRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
             services.AddScoped<IUrlProcessService, UrlProcessService>();
@@ -312,7 +313,7 @@ namespace PodNoms.Api {
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((Env.IsProduction() || true)) {
+            if ((Env.IsProduction() || false)) {
                 app.UseHangfireServer();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] { new HangFireAuthorizationFilter() }

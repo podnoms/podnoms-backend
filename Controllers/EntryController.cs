@@ -77,7 +77,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetAllForUser() {
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
             var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
                 entries.OrderByDescending(e => e.CreateDate).ToList()
@@ -86,7 +86,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("all/{podcastSlug}")]
-        public async Task<IActionResult> GetAllForSlug(string podcastSlug) {
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
             var entries = await _repository.GetAllForSlugAsync(podcastSlug);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(entries.ToList());
 

@@ -8,6 +8,7 @@ using PodNoms.Api.Models;
 using PodNoms.Api.Utils;
 
 namespace PodNoms.Api.Persistence {
+
     public interface IPodcastRepository : IRepository<Podcast> {
         Task<Podcast> GetAsync(string userId, string id);
         Task<Podcast> GetAsync(string userId, Guid id);
@@ -26,6 +27,8 @@ namespace PodNoms.Api.Persistence {
                 .Where(p => p.Id == id && p.AppUser.Id == userId)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.AppUser)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategories)
                 .FirstOrDefaultAsync();
             return ret;
         }
@@ -34,6 +37,8 @@ namespace PodNoms.Api.Persistence {
                 .Where(p => p.Id == podcastId)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.AppUser)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategories)
                 .FirstOrDefaultAsync();
             return ret;
         }
@@ -42,6 +47,8 @@ namespace PodNoms.Api.Persistence {
                 .Where(r => r.AppUser.Id == userId && r.Slug == slug)
                     .Include(p => p.AppUser)
                     .Include(p => p.PodcastEntries)
+                    .Include(p => p.Category)
+                    .Include(p => p.Subcategories)
                     .FirstOrDefaultAsync();
         }
         public async Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId) {
@@ -49,6 +56,8 @@ namespace PodNoms.Api.Persistence {
                 .Where(u => u.AppUser.Id == userId)
                 .Include(p => p.AppUser)
                 .Include(p => p.PodcastEntries)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategories)
                 .ToListAsync();
         }
         public new Podcast AddOrUpdate(Podcast podcast) {

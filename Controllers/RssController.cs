@@ -60,6 +60,7 @@ namespace PodNoms.Api.Controllers {
                         Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageOptions.ContainerName).Replace("https://", "http://"),
                         Link = $"{_appOptions.RssUrl}{user.Slug}/{podcast.Slug}",
                         PublishDate = podcast.CreateDate.ToRFC822String(),
+                        Category = podcast.Category.Description,
                         Language = "en-IE",
                         Copyright = $"© {DateTime.Now.Year} PodNoms",
                         Owner = $"{user.FirstName} {user.LastName}",

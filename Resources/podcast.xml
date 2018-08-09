@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss
-    xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" 
     xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title> {{title}} </title>
         <description>Podcast {{title}} from PodNoms</description>
         <itunes:author>{{author}} </itunes:author>
         <itunes:summary>Podcast {{title}} from PodNoms</itunes:summary>
-        <category>Technology</category>
-        <category>Software How-To</category>
-		<itunes:category text="Technology"><itunes:category text="Software How-To"/></itunes:category><itunes:category text="Technology"><itunes:category text="Gadgets"/></itunes:category><itunes:category text="Technology"><itunes:category text="Software How-To"/></itunes:category>
+        <category>{{category}}</category>
+        <itunes:category text="{{category}}">
+        </itunes:category>
         <link>{{link}}</link>
         <itunes:image href="{{image}}" />
         <itunes:explicit>no</itunes:explicit>
