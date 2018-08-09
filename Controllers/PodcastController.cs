@@ -68,17 +68,19 @@ namespace PodNoms.Api.Controllers {
 
                 // TODO: Revisit this at some stage, horribly hacky & brittle
                 if (isNew) {
-                    var rawImageFileName = vm.ImageUrl.Replace(_storageSettings.CdnUrl, string.Empty).TrimStart('/');
-                    var parts = rawImageFileName.Split('/', 2);
-                    if (parts.Length == 2) {
-                        var result = await _fileUtilities.CopyRemoteFile(
-                            parts[0], parts[1],
-                            _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}.png");
-                        result = await _fileUtilities.CopyRemoteFile(
-                            parts[0], parts[1].Replace(".png", "-32x32.png"),
-                            _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}-32x32.png");
+                    var rawImageFileName = vm.ImageUrl?.Replace(_storageSettings.CdnUrl, string.Empty).TrimStart('/');
+                    if (!string.IsNullOrEmpty(rawImageFileName)) {
+                        var parts = rawImageFileName.Split('/', 2);
+                        if (parts.Length == 2) {
+                            var result = await _fileUtilities.CopyRemoteFile(
+                                parts[0], parts[1],
+                                _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}.png");
+                            result = await _fileUtilities.CopyRemoteFile(
+                                parts[0], parts[1].Replace(".png", "-32x32.png"),
+                                _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}-32x32.png");
+                        }
                     }
-                } 
+                }
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
             }
             return BadRequest("Invalid podcast model");

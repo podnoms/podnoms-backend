@@ -6,16 +6,8 @@
         <description>Podcast {{title}} from PodNoms</description>
         <itunes:author>{{author}} </itunes:author>
         <itunes:summary>Podcast {{title}} from PodNoms</itunes:summary>
-        <category>Technology</category>
-        <category>Software How-To</category>
-        <itunes:category text="Technology">
-            <itunes:category text="Software How-To"/>
-        </itunes:category>
-        <itunes:category text="Technology">
-            <itunes:category text="Gadgets"/>
-        </itunes:category>
-        <itunes:category text="Technology">
-            <itunes:category text="Software How-To"/>
+        <category>{{category}}</category>
+        <itunes:category text="{{category}}">
         </itunes:category>
         <link>{{link}}</link>
         <itunes:image href="{{image}}" />
