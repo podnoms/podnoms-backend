@@ -286,7 +286,7 @@ __pycache__/
 
 .vscode/
 .idea/
-krud/
+.krud/
 appsettings.Development.json
 Persistence/TempContextFactory.cs
 out/pushsubscription.db

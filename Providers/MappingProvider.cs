@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
+using PodNoms.Api.Persistence;
 using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Api.Providers {
@@ -18,6 +21,7 @@ namespace PodNoms.Api.Providers {
     }
     public class MappingProvider : Profile {
         private readonly IConfiguration _options;
+
         public MappingProvider() { }
         public MappingProvider(IConfiguration options) {
             this._options = options;
@@ -52,6 +56,14 @@ namespace PodNoms.Api.Providers {
                     src => src.PodcastTitle,
                     e => e.MapFrom(m => m.Podcast.Title));
 
+            CreateMap<Category, CategoryViewModel>()
+                .ForMember(
+                    src => src.Children,
+                    e => e.MapFrom(m => m.Subcategories)
+                );
+
+            CreateMap<Subcategory, SubcategoryViewModel>();
+
             CreateMap<ApplicationUser, ProfileViewModel>()
                 .ForMember(
                     src => src.ProfileImage,
@@ -60,7 +72,15 @@ namespace PodNoms.Api.Providers {
             CreateMap<ChatMessage, ChatViewModel>();
 
             //API Resource to Domain
-            CreateMap<PodcastViewModel, Podcast>();
+            CreateMap<PodcastViewModel, Podcast>()
+                .ForMember(
+                    dest => dest.Category,
+                    src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString())
+                );
+                // .ForMember(
+                //     dest => dest.Subcategories,
+                //     src => src.ResolveUsing<PodcastSubcategoryResolver, List<SubcategoryViewModel>>(s => s.Subcategories.ToList())
+                // );
             CreateMap<PodcastEntryViewModel, PodcastEntry>();
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(

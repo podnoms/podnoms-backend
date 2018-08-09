@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180802221312_Add PK to PodcastCategory")]
+    partial class AddPKtoPodcastCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,8 +245,6 @@ namespace PodNoms.Api.Migrations
                     b.Property<string>("AppUserId")
                         .IsRequired();
 
-                    b.Property<Guid?>("CategoryId");
-
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
@@ -265,13 +265,37 @@ namespace PodNoms.Api.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("Slug")
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
                     b.ToTable("Podcasts");
+                });
+
+            modelBuilder.Entity("PodNoms.Api.Models.PodcastCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("CategoryId");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<Guid>("PodcastId");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("PodcastId");
+
+                    b.ToTable("PodcastCategory");
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.PodcastEntry", b =>
@@ -342,34 +366,6 @@ namespace PodNoms.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServerConfig","admin");
-                });
-
-            modelBuilder.Entity("PodNoms.Api.Models.Subcategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("CategoryId");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Description");
-
-                    b.Property<Guid?>("PodcastId");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasDefaultValueSql("getdate()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("PodcastId");
-
-                    b.ToTable("Subcategories");
                 });
 
             modelBuilder.Entity("PodNoms.Api.Services.Auth.ApplicationUser", b =>
@@ -515,10 +511,19 @@ namespace PodNoms.Api.Migrations
                         .WithMany()
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
 
+            modelBuilder.Entity("PodNoms.Api.Models.PodcastCategory", b =>
+                {
                     b.HasOne("PodNoms.Api.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("PodNoms.Api.Models.Podcast", "Podcast")
+                        .WithMany("Categories")
+                        .HasForeignKey("PodcastId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("PodNoms.Api.Models.PodcastEntry", b =>
@@ -531,18 +536,6 @@ namespace PodNoms.Api.Migrations
                         .WithMany("PodcastEntries")
                         .HasForeignKey("PodcastId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("PodNoms.Api.Models.Subcategory", b =>
-                {
-                    b.HasOne("PodNoms.Api.Models.Category", "Category")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("PodNoms.Api.Models.Podcast")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("PodcastId");
                 });
 #pragma warning restore 612, 618
         }
