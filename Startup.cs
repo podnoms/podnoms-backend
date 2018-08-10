@@ -309,6 +309,8 @@ namespace PodNoms.Api {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
+            app.UseCustomDomainRedirect();
+            
             // app.UseHsts();
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
