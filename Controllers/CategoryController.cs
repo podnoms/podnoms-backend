@@ -28,6 +28,7 @@ namespace PodNoms.Api.Controllers {
             this._mapper = mapper;
         }
 
+        [HttpGet]
         public async Task<ActionResult<List<CategoryViewModel>>> Get() {
             var response = await this._categoryRepository.GetAll()
                 .Include(c => c.Subcategories)
