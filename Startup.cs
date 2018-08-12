@@ -55,6 +55,7 @@ using PodNoms.Api.Services.Slack;
 using System.Threading;
 using PodNoms.Api.Services.Middleware;
 using Zxcvbn;
+using PodNoms.Api.Services.Logging;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -309,6 +310,11 @@ namespace PodNoms.Api {
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
+
+            app.UsePodNomsApplicationInsights(
+                Env.IsProduction(),
+                Configuration.GetSection("ApplicationInsights")
+            );
 
             app.UseCustomDomainRedirect();
             
