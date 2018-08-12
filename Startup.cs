@@ -305,6 +305,7 @@ namespace PodNoms.Api {
                 }
             });
 
+            app.UseHttpStatusCodeExceptionMiddleware();
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });

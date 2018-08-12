@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Api.Models.ViewModels;
-
 namespace PodNoms.Api.Services.Middleware {
-    public sealed class JsonExceptionMiddleware {
+    public class JsonExceptionMiddleware {
         public const string DefaultErrorMessage = "A server error occurred.";
         private readonly IHostingEnvironment _env;
         private readonly JsonSerializer _serializer;
