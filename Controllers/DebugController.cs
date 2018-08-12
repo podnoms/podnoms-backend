@@ -19,6 +19,7 @@ using PodNoms.Api.Services.Auth;
 using PodNoms.Api.Services.Downloader;
 using PodNoms.Api.Services.Hubs;
 using PodNoms.Api.Services.Jobs;
+using PodNoms.Api.Services.Middleware;
 using PodNoms.Api.Services.Push;
 using PodNoms.Api.Services.Realtime;
 using WP = Lib.Net.Http.WebPush;
@@ -80,7 +81,7 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [HttpGet("generatelogdata")]
         public IActionResult GenerateLogData() {
-            for (int i = 0; i < 1000; i++){
+            for (int i = 0; i < 1000; i++) {
                 _logger.LogError($"Debug error {i}");
             }
             return Ok();
@@ -122,6 +123,12 @@ namespace PodNoms.Api.Controllers {
                 response.Append($"Sent: {subscription.Endpoint}");
             });
             return response.ToString();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("exception")]
+        public void ThrowException(string text) {
+            throw new HttpStatusCodeException(500, text);
         }
     }
 }

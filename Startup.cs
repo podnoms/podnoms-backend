@@ -305,10 +305,16 @@ namespace PodNoms.Api {
                 }
             });
 
+            app.UseHttpStatusCodeExceptionMiddleware();
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
+<<<<<<< Updated upstream
+=======
+            app.UseCustomDomainRedirect();
+
+>>>>>>> Stashed changes
             // app.UseHsts();
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
