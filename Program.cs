@@ -43,7 +43,6 @@ namespace PodNoms.Api {
             })
             .UseApplicationInsights()
             .UseStartup<Startup>()
-            .UseUrls("http://0.0.0.0:5000")
             .UseKestrel(options => {
                 options.Limits.MaxRequestBodySize = 1073741824;
             }).Build();

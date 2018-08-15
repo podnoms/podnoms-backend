@@ -21,5 +21,7 @@ RUN dotnet publish -c Release -o out
 
 FROM fergalmoran/podnoms.alpine.base AS runtime
 COPY --from=publish /app/out ./
+ENV ASPNETCORE_URLS=http://+:80
+
 
 ENTRYPOINT ["dotnet", "PodNoms.Api.dll"]
