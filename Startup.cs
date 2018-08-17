@@ -317,12 +317,11 @@ namespace PodNoms.Api {
             );
 
             app.UseCustomDomainRedirect();
-            
             // app.UseHsts();
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((Env.IsProduction() || false)) {
+            if ((Env.IsProduction() || true)) {
                 app.UseHangfireServer();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] { new HangFireAuthorizationFilter() }
