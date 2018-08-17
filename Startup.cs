@@ -317,7 +317,6 @@ namespace PodNoms.Api {
             );
 
             app.UseCustomDomainRedirect();
-            
             // app.UseHsts();
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
