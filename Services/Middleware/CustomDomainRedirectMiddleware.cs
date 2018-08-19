@@ -30,14 +30,8 @@ namespace PodNoms.Api.Services.Middleware {
             var cleaned = new System.Uri(_appSettings.RssUrl).GetComponents(
                     UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme, UriFormat.UriEscaped)
                     .TrimEnd('/');
-
-            _logger.LogDebug($"Host: {requestHost} - RSS: {_appSettings.RssUrl} - Cleaned: {cleaned}");
             if (requestHost.Equals(cleaned)) {
                 var redirectUrl = $"{_appSettings.CanonicalRssUrl}{context.Request.Path}";
-                
-                _logger.LogDebug($"SiteUrl: {siteHost}\nRssUrl: {_appSettings.RssUrl}");
-                _logger.LogDebug($"\n\nPath: {context.Request.Path}\nRedirectUrl: {redirectUrl}");
-
                 context.Response.Redirect(redirectUrl, false);
                 return;
             } else if (!requestHost.Equals(siteHost)) {
