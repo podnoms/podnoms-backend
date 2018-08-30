@@ -7,9 +7,9 @@ namespace PodNoms.Api.Models.ViewModels {
         public string Description { get; set; }
         public List<SubcategoryViewModel> Children { get; set; }
     }
+
     public class SubcategoryViewModel {
         public Guid Id { get; set; }
         public string Description { get; set; }
     }
-
 }

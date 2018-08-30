@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
@@ -13,8 +14,8 @@ using PodNoms.Api.Services.Auth;
 namespace PodNoms.Api.Providers {
     public static class MappingExtensions {
         public static IMappingExpression<TSource, TDestination> Ignore<TSource, TDestination>(
-                    this IMappingExpression<TSource, TDestination> map,
-                    Expression<Func<TDestination, object>> selector) {
+            this IMappingExpression<TSource, TDestination> map,
+            Expression<Func<TDestination, object>> selector) {
             map.ForMember(selector, config => config.Ignore());
             return map;
         }
@@ -69,6 +70,24 @@ namespace PodNoms.Api.Providers {
                     src => src.ProfileImage,
                     map => map.MapFrom(s => s.PictureUrl));
 
+            CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
+                .ForMember(
+                    src => src.Configs,
+                    map => map.MapFrom(r => r.Configs.Select(v => new NotificationConfigViewItem<string>(
+                                v.Value,
+                                v.Key,
+                                v.Key,
+                                true,
+                                1,
+                                "textbox"
+                    )))
+                );
+            CreateMap<Notification, NotificationViewModel>()
+                .ForMember(
+                    dest => dest.Options,
+                    map => map.MapFrom(r => JsonConvert.DeserializeObject<IList<NotificationOptionViewModel>>(r.Config))
+                );
+
             CreateMap<ChatMessage, ChatViewModel>();
 
             //API Resource to Domain
@@ -77,16 +96,17 @@ namespace PodNoms.Api.Providers {
                     dest => dest.Category,
                     src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString())
                 );
-                // .ForMember(
-                //     dest => dest.Subcategories,
-                //     src => src.ResolveUsing<PodcastSubcategoryResolver, List<SubcategoryViewModel>>(s => s.Subcategories.ToList())
-                // );
             CreateMap<PodcastEntryViewModel, PodcastEntry>();
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
             CreateMap<ChatViewModel, ChatMessage>();
+            CreateMap<NotificationViewModel, Notification>()
+                .ForMember(
+                    dest => dest.Config,
+                    map => map.MapFrom(r => JsonConvert.SerializeObject(r.Options))
+                );
         }
     }
 }

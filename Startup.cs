@@ -273,6 +273,7 @@ namespace PodNoms.Api {
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IPlaylistRepository, PlaylistRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IUrlProcessService, UrlProcessService>();
             services.AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>();
             services.AddScoped<IAudioUploadProcessService, AudioUploadProcessService>();
@@ -311,10 +312,10 @@ namespace PodNoms.Api {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
-            app.UsePodNomsApplicationInsights(
-                Env.IsProduction(),
-                Configuration.GetSection("ApplicationInsights")
-            );
+            // app.UsePodNomsApplicationInsights(
+            //     Env.IsProduction(),
+            //     Configuration.GetSection("ApplicationInsights")
+            // );
 
             app.UseCustomDomainRedirect();
             // app.UseHsts();

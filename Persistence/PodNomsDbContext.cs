@@ -92,5 +92,6 @@ namespace PodNoms.Api.Persistence {
         public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }

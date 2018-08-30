@@ -21,6 +21,7 @@ namespace PodNoms.Api.Models {
         public List<PodcastEntry> PodcastEntries { get; set; }
         public Category Category { get; set; }
         public List<Subcategory> Subcategories { get; set; }
+        public List<Notification> Notifications { get; set; }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
             return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}.png";
