@@ -33,17 +33,12 @@ namespace PodNoms.Api.Controllers {
             this._supportChatService = supportChatService;
         }
         [HttpGet]
-        public async Task<ActionResult<List<NotificationViewModel>>> Get(string podcastId, string type) {
-            if (Enum.TryParse(type, out NotificationType parsedType)) {
-                var notifications = await _notificationRepository
-                    .GetAll()
-                    .Where(n => n.PodcastId.ToString() == podcastId)
-                    .Where(n => n.Type.Equals(parsedType))
-                    .ToListAsync();
-                return Ok(_mapper.Map<List<Notification>, List<NotificationViewModel>>(notifications));
-            } else {
-                return NotFound();
-            }
+        public async Task<ActionResult<List<NotificationViewModel>>> Get(string podcastId) {
+            var notifications = await _notificationRepository
+                .GetAll()
+                .Where(n => n.PodcastId.ToString() == podcastId)
+                .ToListAsync();
+            return Ok(_mapper.Map<List<Notification>, List<NotificationViewModel>>(notifications));
         }
         [HttpPost]
         public async Task<ActionResult<NotificationViewModel>> Post([FromBody]NotificationViewModel notification) {
