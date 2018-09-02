@@ -5,7 +5,7 @@ namespace PodNoms.Api.Models.ViewModels {
     public class NotificationConfigViewModel {
         public string Type { get; set; }
         public string ValueType { get; set; }
-        public List<NotificationConfigViewItem<string>> Configs;
+        public List<NotificationConfigViewItem<string>> Options;
     }
 
     public class NotificationConfigViewItem<T> {

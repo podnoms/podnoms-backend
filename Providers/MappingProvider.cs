@@ -72,8 +72,8 @@ namespace PodNoms.Api.Providers {
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
-                    src => src.Configs,
-                    map => map.MapFrom(r => r.Configs.Select(v => new NotificationConfigViewItem<string>(
+                    src => src.Options,
+                    map => map.MapFrom(r => r.Options.Select(v => new NotificationConfigViewItem<string>(
                                 v.Value,
                                 v.Key,
                                 v.Key,
