@@ -73,7 +73,7 @@ namespace PodNoms.Api.Providers {
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
-                    map => map.MapFrom(r => r.Options.Select(v => new NotificationConfigViewItem<string>(
+                    map => map.MapFrom(r => r.Options.Select(v => new NotificationOptionViewModel<string>(
                                 v.Value,
                                 v.Key,
                                 v.Key,
@@ -85,7 +85,17 @@ namespace PodNoms.Api.Providers {
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,
-                    map => map.MapFrom(r => JsonConvert.DeserializeObject<IList<NotificationOptionViewModel>>(r.Config))
+                    map => map.MapFrom(r =>
+                        JsonConvert.DeserializeObject<IList<NotificationOptionViewModel<string>>>(r.Config)
+                            .Select(v => new NotificationOptionViewModel<string>(
+                                v.Value,
+                                v.Key,
+                                v.Key,
+                                true,
+                                1,
+                                "textbox")
+                        )
+                    )
                 );
 
             CreateMap<ChatMessage, ChatViewModel>();
