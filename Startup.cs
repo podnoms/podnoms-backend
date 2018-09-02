@@ -75,7 +75,8 @@ namespace PodNoms.Api {
                     Log.Logger = new LoggerConfiguration()
                     .Enrich.FromLogContext()
                     .MinimumLevel.Debug()
-                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)) {
+                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer))
+                    {
                         MinimumLogEventLevel = LogEventLevel.Verbose,
                         AutoRegisterTemplate = true
                     })
@@ -163,7 +164,8 @@ namespace PodNoms.Api {
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            var tokenValidationParameters = new TokenValidationParameters {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
@@ -184,7 +186,8 @@ namespace PodNoms.Api {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents() {
+                configureOptions.Events = new JwtBearerEvents()
+                {
                     //Don't need this now we've removed Auth0
                     // OnTokenValidated = AuthenticationMiddleware.OnTokenValidated
                 };
@@ -238,8 +241,10 @@ namespace PodNoms.Api {
             });
 
             services.AddSignalR()
-                .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver() {
-                    NamingStrategy = new CamelCaseNamingStrategy() {
+                .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver()
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                    {
                         ProcessDictionaryKeys = true
                     }
                 });
@@ -307,13 +312,15 @@ namespace PodNoms.Api {
             });
 
             app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseExceptionHandler(new ExceptionHandlerOptions {
+            app.UseExceptionHandler(new ExceptionHandlerOptions
+            {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
+            var section = Configuration.GetSection("ApplicationInsights");
             app.UsePodNomsApplicationInsights(
                 Env.IsProduction(),
-                Configuration.GetSection("ApplicationInsights")
+                section
             );
 
             app.UseCustomDomainRedirect();
@@ -323,13 +330,15 @@ namespace PodNoms.Api {
 
             if ((Env.IsProduction() || true)) {
                 app.UseHangfireServer();
-                app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
                     Authorization = new[] { new HangFireAuthorizationFilter() }
                 });
                 GlobalConfiguration.Configuration.UseActivator(new HangfireActivator(serviceProvider));
             }
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseAuthentication();
