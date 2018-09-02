@@ -86,7 +86,7 @@ namespace PodNoms.Api.Controllers {
                         var result = template(compiled);
                         return Content(result, "application/xml", Encoding.UTF8);
                     } catch (NullReferenceException ex) {
-                        _logger.LogError(ex, "Error getting RSS", user, slug);
+                        _logger.LogError(ex, "Error getting RSS", user, slug);  
                     }
                 }
             } else {
