@@ -19,7 +19,7 @@ using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Api {
     public class Program {
-        static bool isDevelopment =
+        private static readonly bool _isDevelopment =
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main(string[] args) {
@@ -27,10 +27,11 @@ namespace PodNoms.Api {
             //  host.MigrateDatabase(true, false);
             host.Run();
         }
-        public static IWebHost BuildWebHost(string[] args) =>
+
+        private static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((context, config) => {
-                if (!isDevelopment) {
+                    if (_isDevelopment) return;
                     config.SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", optional: false)
                         .AddEnvironmentVariables();
@@ -39,8 +40,7 @@ namespace PodNoms.Api {
                         $"https://{builtConfig["Vault"]}.vault.azure.net/",
                         builtConfig["ClientId"],
                         builtConfig["ClientSecret"]);
-                }
-            })
+                })
             .UseApplicationInsights()
             .UseStartup<Startup>()
             .UseKestrel(options => {

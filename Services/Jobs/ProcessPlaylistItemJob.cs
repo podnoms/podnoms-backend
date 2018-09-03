@@ -21,10 +21,11 @@ namespace PodNoms.Api.Services.Jobs {
         private readonly HelpersSettings _helpersSettings;
         private readonly ILogger<ProcessPlaylistItemJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
+
         public ProcessPlaylistItemJob(IPlaylistRepository playlistRepository, IEntryRepository entryRepository,
-                        IAudioUploadProcessService uploadService, IConfiguration options,
-                        IPodcastRepository podcastRepository, IOptions<HelpersSettings> _helpersSettings,
-                        IUnitOfWork unitOfWork, ILogger<ProcessPlaylistItemJob> logger) {
+            IAudioUploadProcessService uploadService, IConfiguration options,
+            IPodcastRepository podcastRepository, IOptions<HelpersSettings> _helpersSettings,
+            IUnitOfWork unitOfWork, ILogger<ProcessPlaylistItemJob> logger) {
             this._unitOfWork = unitOfWork;
             this._playlistRepository = playlistRepository;
             this._entryRepository = entryRepository;
@@ -34,14 +35,17 @@ namespace PodNoms.Api.Services.Jobs {
             this._helpersSettings = _helpersSettings.Value;
             this._logger = logger;
         }
+
         [Mutex("ProcessPlaylistItemJob")]
         public async Task<bool> Execute() {
             var items = await _playlistRepository.GetUnprocessedItems();
             foreach (var item in items) {
                 await ExecuteForItem(item.VideoId, item.Playlist.Id);
             }
+
             return true;
         }
+
         [Mutex("ProcessPlaylistItemJob")]
         public async Task<bool> ExecuteForItem(string itemId, Guid playlistId) {
             var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
@@ -51,7 +55,8 @@ namespace PodNoms.Api.Services.Jobs {
                     : item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.VideoId}" : string.Empty;
                 if (string.IsNullOrEmpty(url)) {
                     _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
-                } else {
+                }
+                else {
                     var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
                     var info = downloader.GetInfo();
                     if (info == AudioType.Valid) {
@@ -74,19 +79,26 @@ namespace PodNoms.Api.Services.Jobs {
                                 item.IsProcessed = true;
                                 await _unitOfWork.CompleteAsync();
                                 BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                                    service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
+                                    service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                                        $"{entry.Title} has finished processing",
                                         entry.Podcast.GetThumbnailUrl(
                                             this._options.GetSection("StorageSettings")["CdnUrl"],
                                             this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                                        ));
+                                    ));
+                                BackgroundJob.Enqueue<INotifyJobCompleteService>(
+                                    service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                                        $"{entry.Title} has finished processing"
+                                    ));
                             }
                         }
-                    } else {
+                    }
+                    else {
                         _logger.LogError($"Processing playlist item {itemId} failed");
                         return false;
                     }
                 }
             }
+
             return true;
         }
     }

@@ -56,6 +56,7 @@ using System.Threading;
 using PodNoms.Api.Services.Middleware;
 using Zxcvbn;
 using PodNoms.Api.Services.Logging;
+using PodNoms.Api.Services.Notifications;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -280,6 +281,8 @@ namespace PodNoms.Api {
             services.AddScoped<ISupportChatService, SupportChatService>();
             services.AddScoped<IMailSender, MailgunSender>();
             services.AddScoped<IFileUtilities, AzureFileUtilities>();
+            services.AddScoped<INotificationHandler, SlackNotificationHandler>();
+            services.AddScoped<INotificationHandler, IFTTNotificationHandler>();
             services.AddScoped<YouTubeParser>();
             services.AddScoped<MixcloudParser>();
             services.AddScoped<SlackSupportClient>();

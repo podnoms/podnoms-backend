@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
+using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services;
 using PodNoms.Api.Services.Auth;

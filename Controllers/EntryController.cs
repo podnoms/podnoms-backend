@@ -64,12 +64,17 @@ namespace PodNoms.Api.Controllers {
                     service => service.DownloadAudio(entry.Id));
                 var uploadJobId = BackgroundJob.ContinueWith<IAudioUploadProcessService>(
                     extractJobId, service => service.UploadAudio(entry.Id, entry.AudioUrl));
-                var notify = BackgroundJob.ContinueWith<INotifyJobCompleteService>(
-                    uploadJobId, service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
-                    entry.Podcast.GetThumbnailUrl(
-                        this._options.GetSection("StorageSettings")["CdnUrl"],
-                        this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                    ));
+                #region Notifications
+                // BackgroundJob.ContinueWith<INotifyJobCompleteService>(
+                //     uploadJobId, service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
+                //     entry.Podcast.GetThumbnailUrl(
+                //         this._options.GetSection("StorageSettings")["CdnUrl"],
+                //         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
+                //     ));
+                BackgroundJob.ContinueWith<INotifyJobCompleteService>(
+                    uploadJobId, r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms", $"{entry.Title} has finished processing")
+                );
+                #endregion
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;

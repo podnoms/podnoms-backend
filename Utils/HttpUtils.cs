@@ -1,8 +1,10 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace PodNoms.Api.Utils {
-    public class HttpUtils {
+    public static class HttpUtils {
         public static async Task<string> DownloadFile(string url, string file = "") {
             if (string.IsNullOrEmpty(file))
                 file = System.IO.Path.GetTempFileName();
@@ -17,6 +19,15 @@ namespace PodNoms.Api.Utils {
             }
             return file;
         }
+
+        internal static HttpClientHandler GetFiddlerProxy() {
+            var handler = new HttpClientHandler {
+                Proxy = new WebProxy("localhost", 8888),
+                UseProxy = true
+            };
+            return handler;
+        }
+
         public static string UrlCombine(string url1, string url2) {
             if (url1.Length == 0) {
                 return url2;

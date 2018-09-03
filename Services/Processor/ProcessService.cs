@@ -24,7 +24,6 @@ namespace PodNoms.Api.Services.Processor {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
         }
-
         protected async Task<bool> _sendProcessCompleteMessage(PodcastEntry entry) {
             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return await _sendProcessUpdate(entry.Podcast.AppUser.Id, entry.Id.ToString(), "info_processed", result);

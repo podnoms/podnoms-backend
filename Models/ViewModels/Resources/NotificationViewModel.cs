@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace PodNoms.Api.Models.ViewModels {
+namespace PodNoms.Api.Models.ViewModels.Resources {
     public class NotificationViewModel {
         public string Id { get; set; }
         public Guid PodcastId { get; set; }
