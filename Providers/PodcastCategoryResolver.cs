@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.ViewModels;
+using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Providers {

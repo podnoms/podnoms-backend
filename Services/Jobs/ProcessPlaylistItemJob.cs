@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
@@ -9,82 +10,94 @@ using PodNoms.Api.Models.Settings;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services.Downloader;
 using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Utils.RemoteParsers;
 
 namespace PodNoms.Api.Services.Jobs {
     public class ProcessPlaylistItemJob : IJob {
-        public readonly IPlaylistRepository _playlistRepository;
-        public readonly IEntryRepository _entryRepository;
+        private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly IConfiguration _options;
         private readonly IPodcastRepository _podcastRepository;
         private readonly HelpersSettings _helpersSettings;
         private readonly ILogger<ProcessPlaylistItemJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        public ProcessPlaylistItemJob(IPlaylistRepository playlistRepository, IEntryRepository entryRepository,
-                        IAudioUploadProcessService uploadService, IConfiguration options,
-                        IPodcastRepository podcastRepository, IOptions<HelpersSettings> _helpersSettings,
-                        IUnitOfWork unitOfWork, ILogger<ProcessPlaylistItemJob> logger) {
-            this._unitOfWork = unitOfWork;
-            this._playlistRepository = playlistRepository;
-            this._entryRepository = entryRepository;
-            this._uploadService = uploadService;
-            this._options = options;
-            this._podcastRepository = podcastRepository;
-            this._helpersSettings = _helpersSettings.Value;
-            this._logger = logger;
+
+        protected ProcessPlaylistItemJob(IPlaylistRepository playlistRepository,
+            IAudioUploadProcessService uploadService, IConfiguration options,
+            IPodcastRepository podcastRepository, IOptions<HelpersSettings> helpersSettings,
+            IUnitOfWork unitOfWork, ILogger<ProcessPlaylistItemJob> logger) {
+            _unitOfWork = unitOfWork;
+            _playlistRepository = playlistRepository;
+            _uploadService = uploadService;
+            _options = options;
+            _podcastRepository = podcastRepository;
+            _helpersSettings = helpersSettings.Value;
+            _logger = logger;
         }
+
         [Mutex("ProcessPlaylistItemJob")]
         public async Task<bool> Execute() {
             var items = await _playlistRepository.GetUnprocessedItems();
             foreach (var item in items) {
                 await ExecuteForItem(item.VideoId, item.Playlist.Id);
             }
+
             return true;
         }
+
         [Mutex("ProcessPlaylistItemJob")]
         public async Task<bool> ExecuteForItem(string itemId, Guid playlistId) {
             var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
-            if (item != null && !string.IsNullOrEmpty(item.VideoType) &&
-                (item.VideoType.Equals("youtube") || item.VideoType.Equals("mixcloud"))) {
-                var url = item.VideoType.Equals("youtube") ? $"https://www.youtube.com/watch?v={item.VideoId}"
-                    : item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.VideoId}" : string.Empty;
-                if (string.IsNullOrEmpty(url)) {
-                    _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
-                } else {
-                    var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
-                    var info = downloader.GetInfo();
-                    if (info == AudioType.Valid) {
-                        var podcast = await _podcastRepository.GetAsync(item.Playlist.PodcastId);
-                        var uid = System.Guid.NewGuid();
-                        var file = downloader.DownloadAudio(uid);
-                        if (System.IO.File.Exists(file)) {
-                            //we have the file so lets create the entry and ship to CDN
-                            var entry = new PodcastEntry {
-                                Title = downloader.Properties?.Title,
-                                Description = downloader.Properties?.Description,
-                                ProcessingStatus = ProcessingStatus.Uploading,
-                                ImageUrl = downloader.Properties?.Thumbnail,
-                                SourceUrl = url
-                            };
-                            podcast.PodcastEntries.Add(entry);
-                            await _unitOfWork.CompleteAsync();
-                            var uploaded = await _uploadService.UploadAudio(entry.Id, file);
-                            if (uploaded) {
-                                item.IsProcessed = true;
-                                await _unitOfWork.CompleteAsync();
-                                BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                                    service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
-                                        entry.Podcast.GetThumbnailUrl(
-                                            this._options.GetSection("StorageSettings")["CdnUrl"],
-                                            this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                                        ));
-                            }
-                        }
-                    } else {
-                        _logger.LogError($"Processing playlist item {itemId} failed");
-                        return false;
-                    }
+            if (item == null || string.IsNullOrEmpty(item.VideoType) ||
+                (!item.VideoType.Equals("youtube") && !item.VideoType.Equals("mixcloud"))) return true;
+
+            var url = item.VideoType.Equals("youtube") ? $"https://www.youtube.com/watch?v={item.VideoId}"
+                : item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.VideoId}" : string.Empty;
+            if (string.IsNullOrEmpty(url)) {
+                _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
+            }
+            else {
+                var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
+                var info = downloader.GetInfo();
+                if (info == AudioType.Valid) {
+                    var podcast = await _podcastRepository.GetAsync(item.Playlist.PodcastId);
+                    var uid = Guid.NewGuid();
+                    var file = downloader.DownloadAudio(uid);
+
+                    if (!File.Exists(file)) return true;
+
+                    //we have the file so lets create the entry and ship to CDN
+                    var entry = new PodcastEntry {
+                        Title = downloader.Properties?.Title,
+                        Description = downloader.Properties?.Description,
+                        ProcessingStatus = ProcessingStatus.Uploading,
+                        ImageUrl = downloader.Properties?.Thumbnail,
+                        SourceUrl = url
+                    };
+                    podcast.PodcastEntries.Add(entry);
+                    await _unitOfWork.CompleteAsync();
+
+                    var uploaded = await _uploadService.UploadAudio(entry.Id, file);
+                    if (!uploaded) return true;
+
+                    item.IsProcessed = true;
+                    await _unitOfWork.CompleteAsync();
+
+                    BackgroundJob.Enqueue<INotifyJobCompleteService>(
+                        service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                            $"{entry.Title} has finished processing",
+                            entry.Podcast.GetThumbnailUrl(
+                                _options.GetSection("StorageSettings")["CdnUrl"],
+                                _options.GetSection("ImageFileStorageSettings")["ContainerName"])
+                        ));
+
+                    BackgroundJob.Enqueue<INotifyJobCompleteService>(
+                        service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                            $"{entry.Title} has finished processing"
+                        ));
+                }
+                else {
+                    _logger.LogError($"Processing playlist item {itemId} failed");
+                    return false;
                 }
             }
             return true;

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using PodNoms.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using PodNoms.Api.Models.ViewModels.Resources;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
