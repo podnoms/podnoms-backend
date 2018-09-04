@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PodNoms.Api.Models;
@@ -12,10 +13,11 @@ namespace PodNoms.Api.Services.Notifications {
             : base(notificationRepository, httpClient) { }
         
         public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
-            // curl -X POST -H 'Content-type: application/json' \
-            //      --data '{"text":"Hello, World!"}' \
-            //      https://hooks.slack.com/services/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
-            return true;
+            var config = await _getConfiguration(notificationId);
+            if (config == null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event")) return false;
+            var url = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
+            var response = await httpClient.GetAsync(url);
+            return response.StatusCode == HttpStatusCode.OK;
         }
     }
 }

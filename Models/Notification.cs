@@ -12,7 +12,7 @@ namespace PodNoms.Api.Models {
     public interface INotificationConfig { }
 
     public class BaseNotificationConfig : INotificationConfig {
-        public NotificationType Type { get; set; }
+        protected NotificationType Type { get; set; }
         public Dictionary<string, string> Options;
     }
 
@@ -30,7 +30,7 @@ namespace PodNoms.Api.Models {
         public WebhookNotificationConfig() {
             Type = NotificationType.Webhook;
             Options = new Dictionary<string, string> {
-                {"WebHookUrl", ""}
+                {"WebHookUrl (not currently enabled)", ""}
             };
         }
     }
@@ -39,7 +39,8 @@ namespace PodNoms.Api.Models {
         public IFTTNotificationConfig() {
             Type = NotificationType.IFTT;
             Options = new Dictionary<string, string> {
-                {"WebHookUrl", ""}
+                {"WebHookKey", ""},
+                {"Event", ""},
             };
         }
     }
@@ -48,8 +49,7 @@ namespace PodNoms.Api.Models {
         public GithubNotificationConfig() {
             Type = NotificationType.Slack;
             Options = new Dictionary<string, string> {
-                {"WebHookUrl", ""},
-                {"Channel", ""}
+                {"WebHookUrl (not currently enabled)", ""},
             };
         }
     }
