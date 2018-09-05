@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace PodNoms.Api.Models {
     public enum NotificationType {
@@ -59,6 +60,7 @@ namespace PodNoms.Api.Models {
         public string Config { get; set; }
 
         public Guid PodcastId { get; set; }
+        [JsonIgnore]
         public Podcast Podcast { get; set; }
     }
 }

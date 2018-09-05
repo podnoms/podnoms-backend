@@ -39,6 +39,10 @@ namespace PodNoms.Api.Providers {
                         this._options.GetSection("StorageSettings")["CdnUrl"],
                         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
+                    v => v.Notifications,
+                    e => e.MapFrom(m => m.Notifications)
+                )
+                .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
                         this._options.GetSection("StorageSettings")["CdnUrl"],

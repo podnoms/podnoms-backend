@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace PodNoms.Api.Models {
     public enum ProcessingStatus {
@@ -25,6 +26,7 @@ namespace PodNoms.Api.Models {
         public ProcessingStatus ProcessingStatus { get; set; } = ProcessingStatus.Accepted;
         public bool Processed { get; set; }
         public Guid PodcastId { get; set; }
+        [JsonIgnore]
         public Podcast Podcast { get; set; }
     }
 

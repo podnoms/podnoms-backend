@@ -1,19 +1,24 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.Settings;
+using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services.Auth;
 using PodNoms.Api.Services.Downloader;
@@ -35,8 +40,10 @@ namespace PodNoms.Api.Controllers {
         private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
+        private readonly IPodcastRepository _podcastRepository;
         public readonly AppSettings _appSettings;
 
         public DebugController(IOptions<StorageSettings> settings, IOptions<AppSettings> appSettings,
@@ -49,7 +56,9 @@ namespace PodNoms.Api.Controllers {
             IPushSubscriptionStore subscriptionStore,
             UserManager<ApplicationUser> userManager,
             ILogger<DebugController> logger,
+            IMapper mapper,
             IPushNotificationService notificationService,
+            IPodcastRepository podcastRepository,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             this._appSettings = appSettings.Value;
             this._storageSettings = settings.Value;
@@ -59,8 +68,10 @@ namespace PodNoms.Api.Controllers {
             this._jwtIssuerOptions = jwtIssuerOptions.Value;
             this._hub = hub;
             this._config = config;
+            this._mapper = mapper;
             this._subscriptionStore = subscriptionStore;
             this._notificationService = notificationService;
+            this._podcastRepository = podcastRepository;
         }
 
         [HttpGet]
@@ -114,7 +125,8 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("serverpush")]
         public async Task<string> ServerPush(string message) {
             var response = new StringBuilder();
-            WP.PushMessage pushMessage = new WP.PushMessage(message) {
+            WP.PushMessage pushMessage = new WP.PushMessage(message)
+            {
                 Topic = "Debug",
                 Urgency = WP.PushMessageUrgency.Normal
             };
@@ -129,6 +141,16 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("exception")]
         public void ThrowException(string text) {
             throw new HttpStatusCodeException(500, text);
+        }
+        [AllowAnonymous]
+        [HttpGet("qry")]
+        public async Task<ActionResult<PodcastViewModel>> Query() {
+            var podcast = await this._podcastRepository.GetAll()
+                .Where(p => p.Id == Guid.Parse("54f5ea27-9dff-41cf-9944-08d600a180a2"))
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync();
+            var response = _mapper.Map<Podcast, PodcastViewModel>(podcast);
+            return response;
         }
     }
 }
