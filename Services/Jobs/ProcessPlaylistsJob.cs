@@ -21,9 +21,13 @@ namespace PodNoms.Api.Services.Jobs {
         private readonly MixcloudParser _mixcloudParser;
         private readonly IUnitOfWork _unitOfWork;
 
-        protected ProcessPlaylistsJob(IPlaylistRepository playlistRepository,
-                                IUnitOfWork unitOfWork, IOptions<HelpersSettings> helpersSettings,
-                                ILoggerFactory logger, YouTubeParser youTubeParser, MixcloudParser mixcloudParser) {
+        public ProcessPlaylistsJob(
+                IPlaylistRepository playlistRepository,
+                IUnitOfWork unitOfWork,
+                IOptions<HelpersSettings> helpersSettings,
+                ILoggerFactory logger,
+                YouTubeParser youTubeParser,
+                MixcloudParser mixcloudParser) {
             _unitOfWork = unitOfWork;
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
@@ -51,9 +55,9 @@ namespace PodNoms.Api.Services.Jobs {
                 var downloader = new AudioDownloader(playlist.SourceUrl, _helpersSettings.Downloader);
                 var info = downloader.GetInfo();
                 var id = ((PlaylistDownloadInfo)downloader.RawProperties)?.Id;
-                
+
                 if (string.IsNullOrEmpty(id)) return true;
-                
+
                 if (YouTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     var searchTerm = (playlist.SourceUrl.Contains("/user/")) ? "forUsername" : "id";
                     resultList = await _youTubeParser.GetPlaylistEntriesForId(id);
@@ -67,7 +71,8 @@ namespace PodNoms.Api.Services.Jobs {
                 //order in reverse so the newest item is added first
                 foreach (var item in resultList?.OrderBy(r => r.UploadDate)) {
                     if (playlist.ParsedPlaylistItems.Any(p => p.VideoId == item.Id)) continue;
-                    playlist.ParsedPlaylistItems.Add(new ParsedPlaylistItem {
+                    playlist.ParsedPlaylistItems.Add(new ParsedPlaylistItem
+                    {
                         VideoId = item.Id,
                         VideoType = item.VideoType
                     });
