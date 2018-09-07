@@ -78,14 +78,18 @@ namespace PodNoms.Api.Providers {
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
-                    map => map.MapFrom(r => r.Options.Select(v => new NotificationOptionViewModel<string>(
+                    map => map.MapFrom(r =>
+                        r.Options.Select(v =>
+                            new NotificationOptionViewModel<string>(
                                 v.Value,
                                 v.Key,
                                 v.Key,
                                 true,
                                 1,
                                 "textbox"
-                    )))
+                            )
+                        )
+                    )
                 );
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(

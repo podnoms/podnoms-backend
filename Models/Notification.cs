@@ -13,7 +13,7 @@ namespace PodNoms.Api.Models {
     public interface INotificationConfig { }
 
     public class BaseNotificationConfig : INotificationConfig {
-        protected NotificationType Type { get; set; }
+        public NotificationType Type { get; set; }
         public Dictionary<string, string> Options;
     }
 

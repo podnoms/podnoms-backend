@@ -64,6 +64,7 @@ namespace PodNoms.Api.Controllers {
             return Ok(types);
         }
 
+        [AllowAnonymous]
         [HttpGet("config")]
         public ActionResult<NotificationConfigViewModel> GetConfig(string type) {
             BaseNotificationConfig config;
@@ -71,7 +72,7 @@ namespace PodNoms.Api.Controllers {
                 case "Slack":
                     config = new SlackNotificationConfig();
                     break;
-                case "IFTT":
+                case "IFTT": 
                     config = new IFTTNotificationConfig();
                     break;
                 default:
