@@ -64,7 +64,6 @@ namespace PodNoms.Api.Controllers {
             return Ok(types);
         }
 
-        [AllowAnonymous]
         [HttpGet("config")]
         public ActionResult<NotificationConfigViewModel> GetConfig(string type) {
             BaseNotificationConfig config;

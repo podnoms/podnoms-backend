@@ -66,7 +66,6 @@ namespace PodNoms.Api.Controllers {
                 });
             });
         }
-        [AllowAnonymous]
         [HttpPost("checkdomain")]
         public async Task<ActionResult<bool>> CheckHostName([FromBody]CheckHostNameViewModel request) {
             try {

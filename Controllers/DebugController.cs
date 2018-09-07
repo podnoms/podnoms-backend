@@ -142,7 +142,6 @@ namespace PodNoms.Api.Controllers {
         public void ThrowException(string text) {
             throw new HttpStatusCodeException(500, text);
         }
-        [AllowAnonymous]
         [HttpGet("qry")]
         public async Task<ActionResult<PodcastViewModel>> Query() {
             var podcast = await this._podcastRepository.GetAll()
