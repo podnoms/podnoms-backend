@@ -10,6 +10,7 @@ namespace PodNoms.Api.Services.Jobs {
         public static void BootstrapJobs(bool isDevelopment) {
 //            if (isDevelopment)
 //                return;
+
             RecurringJob.AddOrUpdate<DeleteOrphanAudioJob>(x => x.Execute(), Cron.Daily(1));
             RecurringJob.AddOrUpdate<UpdateYouTubeDlJob>(x => x.Execute(), Cron.Daily(1, 30));
             RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Daily(2));
@@ -18,7 +19,7 @@ namespace PodNoms.Api.Services.Jobs {
 
             BackgroundJob.Schedule<ProcessRemoteAudioFileAttributesJob>(
                 x => x.Execute(),
-                TimeSpan.FromDays(Int16.MaxValue));
+                TimeSpan.FromDays(short.MaxValue));
         }
     }
 }
