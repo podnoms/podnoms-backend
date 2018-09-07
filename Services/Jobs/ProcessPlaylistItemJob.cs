@@ -21,7 +21,7 @@ namespace PodNoms.Api.Services.Jobs {
         private readonly ILogger<ProcessPlaylistItemJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        protected ProcessPlaylistItemJob(IPlaylistRepository playlistRepository,
+        public ProcessPlaylistItemJob(IPlaylistRepository playlistRepository,
             IAudioUploadProcessService uploadService, IConfiguration options,
             IPodcastRepository podcastRepository, IOptions<HelpersSettings> helpersSettings,
             IUnitOfWork unitOfWork, ILogger<ProcessPlaylistItemJob> logger) {
