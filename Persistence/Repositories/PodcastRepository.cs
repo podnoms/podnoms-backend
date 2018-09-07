@@ -25,20 +25,22 @@ namespace PodNoms.Api.Persistence {
         public async Task<Podcast> GetAsync(string userId, Guid id) {
             var ret = await GetAll()
                 .Where(p => p.Id == id && p.AppUser.Id == userId)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.AppUser)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
+                    .Include(p => p.PodcastEntries)
+                    .Include(p => p.AppUser)
+                    .Include(p => p.Category)
+                    .Include(p => p.Subcategories)
+                    .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
             return ret;
         }
         public new async Task<Podcast> GetAsync(Guid podcastId) {
             var ret = await GetAll()
                 .Where(p => p.Id == podcastId)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.AppUser)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
+                    .Include(p => p.PodcastEntries)
+                    .Include(p => p.AppUser)
+                    .Include(p => p.Category)
+                    .Include(p => p.Subcategories)
+                    .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
             return ret;
         }
@@ -49,15 +51,17 @@ namespace PodNoms.Api.Persistence {
                     .Include(p => p.PodcastEntries)
                     .Include(p => p.Category)
                     .Include(p => p.Subcategories)
-                    .FirstOrDefaultAsync();
+                    .Include(p => p.Notifications)
+                .FirstOrDefaultAsync();
         }
         public async Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId) {
             return await GetAll()
                 .Where(u => u.AppUser.Id == userId)
-                .Include(p => p.AppUser)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
+                    .Include(p => p.AppUser)
+                    .Include(p => p.PodcastEntries)
+                    .Include(p => p.Category)
+                    .Include(p => p.Subcategories)
+                    .Include(p => p.Notifications)
                 .ToListAsync();
         }
         public new Podcast AddOrUpdate(Podcast podcast) {

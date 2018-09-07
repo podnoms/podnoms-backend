@@ -39,6 +39,10 @@ namespace PodNoms.Api.Providers {
                         this._options.GetSection("StorageSettings")["CdnUrl"],
                         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
+                    v => v.Notifications,
+                    e => e.MapFrom(m => m.Notifications)
+                )
+                .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
                         this._options.GetSection("StorageSettings")["CdnUrl"],
@@ -74,14 +78,18 @@ namespace PodNoms.Api.Providers {
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
-                    map => map.MapFrom(r => r.Options.Select(v => new NotificationOptionViewModel<string>(
+                    map => map.MapFrom(r =>
+                        r.Options.Select(v =>
+                            new NotificationOptionViewModel<string>(
                                 v.Value,
                                 v.Key,
                                 v.Key,
                                 true,
                                 1,
                                 "textbox"
-                    )))
+                            )
+                        )
+                    )
                 );
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
