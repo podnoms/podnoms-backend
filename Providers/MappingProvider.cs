@@ -110,11 +110,18 @@ namespace PodNoms.Api.Providers {
             CreateMap<ChatMessage, ChatViewModel>();
 
             //API Resource to Domain
+
             CreateMap<PodcastViewModel, Podcast>()
                 .ForMember(
                     dest => dest.Category,
-                    src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString())
-                );
+                    src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString()))
+                .ForMember(
+                    dest => dest.Slug, 
+                    opt => opt.Condition(src => (!string.IsNullOrEmpty(src.Slug))))
+                .ForMember(
+                    dest => dest.Slug,
+                    map => map.MapFrom(vm => vm.Slug));
+
             CreateMap<PodcastEntryViewModel, PodcastEntry>();
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
