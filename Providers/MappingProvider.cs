@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Api.Models;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;

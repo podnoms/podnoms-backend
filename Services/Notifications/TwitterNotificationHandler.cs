@@ -2,14 +2,15 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using PodNoms.Api.Models;
 using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Services.Notifications {
-    public class IFTTNotificationHandler : BaseNotificationHandler, INotificationHandler {
-        public override Notification.NotificationType Type => Notification.NotificationType.IFTT;
+    public class TwitterNotificationHandler : BaseNotificationHandler, INotificationHandler {
+        public override Notification.NotificationType Type => Notification.NotificationType.Twitter;
 
-        public IFTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
+        public TwitterNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
         
         public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {

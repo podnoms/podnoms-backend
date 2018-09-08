@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using PodNoms.Api.Models;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
@@ -57,8 +58,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("types")]
         public ActionResult<IList<string>> GetTypes(string type) {
-            var types = Enum.GetValues(typeof(NotificationType))
-                .Cast<NotificationType>()
+            var types = Enum.GetValues(typeof(Notification.NotificationType))
+                .Cast<Notification.NotificationType>()
                 .Select(t => t.ToString())
                 .ToList();
             return Ok(types);
