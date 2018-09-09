@@ -1,8 +1,6 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PodNoms.Api.Models;
 using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Persistence;
 
@@ -12,16 +10,22 @@ namespace PodNoms.Api.Services.Notifications {
 
         public TwitterNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
-        
+
         public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
             var config = await _getConfiguration(notificationId);
-            if (config != null  && (config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret")
-            ){
-            var url = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
-            var response = await _httpClient.GetAsync(url);
-            return response.StatusCode == HttpStatusCode.OK;
-        }
-            return false;
+            if (config == null || !(config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret") &&
+                                    config.ContainsKey("AccessToken") && config.ContainsKey("AccessTokenSecret")))
+                return false;
+
+            var auth = Tweetinvi.Auth.CreateCredentials(
+                config["ConsumerKey"],
+                config["ConsumerSecret"],
+                config["AccessToken"],
+                config["AccessTokenSecret"]);
+            var user = Tweetinvi.User.GetAuthenticatedUser(auth);
+            var tweet = user.PublishTweet($"New podcast episide - {title}\n{message}");
+
+            return !string.IsNullOrEmpty(tweet.Id.ToString());
         }
     }
 }

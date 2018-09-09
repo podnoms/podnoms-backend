@@ -9,7 +9,7 @@ namespace PodNoms.Api.Services.Notifications {
 
     public class IFTTNotificationHandler : BaseNotificationHandler, INotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.IFTT;
-
+        
         public IFTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
         

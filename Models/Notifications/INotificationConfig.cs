@@ -1,3 +1,5 @@
 namespace PodNoms.Api.Models.Notifications {
-    public interface INotificationConfig { }
+    public interface INotificationConfig {
+        Notification.NotificationType Type { get; set; }
+    }
 }
