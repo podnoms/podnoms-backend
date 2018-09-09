@@ -73,13 +73,13 @@ namespace PodNoms.Api.Controllers {
                 case "Slack":
                     config = new SlackNotificationConfig();
                     break;
-                case "IFTT": 
+                case "IFTT":
                     config = new IFTTNotificationConfig();
                     break;
-                case "Email": 
+                case "Email":
                     config = new EmailNotificationConfig();
                     break;
-                case "Twitter": 
+                case "Twitter":
                     config = new TwitterNotificationConfig();
                     break;
                 default:

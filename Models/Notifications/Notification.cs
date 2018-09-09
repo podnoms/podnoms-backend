@@ -8,7 +8,7 @@ namespace PodNoms.Api.Models.Notifications {
             IFTT,
             Email,
             Twitter,
-            Facebook,
+            Facebook,        
             WebHook
         }
         
