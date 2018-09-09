@@ -76,6 +76,9 @@ namespace PodNoms.Api.Controllers {
                 case "IFTT": 
                     config = new IFTTNotificationConfig();
                     break;
+                case "Email": 
+                    config = new EmailNotificationConfig();
+                    break;
                 case "Twitter": 
                     config = new TwitterNotificationConfig();
                     break;

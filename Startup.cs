@@ -283,6 +283,7 @@ namespace PodNoms.Api {
             services.AddScoped<INotificationHandler, SlackNotificationHandler>();
             services.AddScoped<INotificationHandler, IFTTNotificationHandler>();
             services.AddScoped<INotificationHandler, TwitterNotificationHandler>();
+            services.AddScoped<INotificationHandler, EmailNotificationHandler>();
             services.AddScoped<YouTubeParser>();
             services.AddScoped<MixcloudParser>();
             services.AddScoped<SlackSupportClient>();
