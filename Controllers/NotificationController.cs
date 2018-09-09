@@ -18,6 +18,7 @@ using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services;
 using PodNoms.Api.Services.Auth;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -29,7 +30,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
 
         public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger<ChatController> logger,
+            ILogger<NotificationController> logger,
             IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
             ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
@@ -74,6 +75,9 @@ namespace PodNoms.Api.Controllers {
                     break;
                 case "IFTT": 
                     config = new IFTTNotificationConfig();
+                    break;
+                case "Twitter": 
+                    config = new TwitterNotificationConfig();
                     break;
                 default:
                     config = null;

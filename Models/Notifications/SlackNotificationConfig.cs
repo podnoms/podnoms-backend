@@ -9,5 +9,5 @@ namespace PodNoms.Api.Models.Notifications {
                 {"Channel", ""}
             };
         }
-    }
+    }    
 }

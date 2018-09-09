@@ -15,10 +15,13 @@ namespace PodNoms.Api.Services.Notifications {
         
         public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
             var config = await _getConfiguration(notificationId);
-            if (config == null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event")) return false;
+            if (config != null  && (config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret")
+            ){
             var url = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
             var response = await _httpClient.GetAsync(url);
             return response.StatusCode == HttpStatusCode.OK;
+        }
+            return false;
         }
     }
 }

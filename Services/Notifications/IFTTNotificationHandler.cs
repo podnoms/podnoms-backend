@@ -6,6 +6,7 @@ using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Services.Notifications {
+
     public class IFTTNotificationHandler : BaseNotificationHandler, INotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.IFTT;
 
