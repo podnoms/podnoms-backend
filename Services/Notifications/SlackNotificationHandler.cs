@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PodNoms.Api.Models;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Services.Notifications {
     public class SlackNotificationHandler : BaseNotificationHandler {
-        public override NotificationType Type => NotificationType.Slack;
+        public override Notification.NotificationType Type => Notification.NotificationType.Slack;
 
         public SlackNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
@@ -22,7 +23,7 @@ namespace PodNoms.Api.Services.Notifications {
             var config = await _getConfiguration(notificationId);
             if (config == null || !config.ContainsKey("WebHookUrl")) return false;
             var url = config["WebHookUrl"];
-            var response = await httpClient.PostAsync(
+            var response = await _httpClient.PostAsync(
                 url,
                 content
             );

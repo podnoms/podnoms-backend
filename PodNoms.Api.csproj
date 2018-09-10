@@ -44,6 +44,7 @@
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.5.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
+    <PackageReference Include="TweetinviAPI" Version="4.0.0" />
     <PackageReference Include="WebPush" Version="1.0.11" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
     <PackageReference Include="zxcvbn-core" Version="2.1.44" />

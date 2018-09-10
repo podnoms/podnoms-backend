@@ -12,11 +12,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using PodNoms.Api.Models;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Models.ViewModels;
 using PodNoms.Api.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services;
 using PodNoms.Api.Services.Auth;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -28,7 +30,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
 
         public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger<ChatController> logger,
+            ILogger<NotificationController> logger,
             IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
             ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
@@ -57,8 +59,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("types")]
         public ActionResult<IList<string>> GetTypes(string type) {
-            var types = Enum.GetValues(typeof(NotificationType))
-                .Cast<NotificationType>()
+            var types = Enum.GetValues(typeof(Notification.NotificationType))
+                .Cast<Notification.NotificationType>()
                 .Select(t => t.ToString())
                 .ToList();
             return Ok(types);
@@ -71,8 +73,14 @@ namespace PodNoms.Api.Controllers {
                 case "Slack":
                     config = new SlackNotificationConfig();
                     break;
-                case "IFTT": 
+                case "IFTT":
                     config = new IFTTNotificationConfig();
+                    break;
+                case "Email":
+                    config = new EmailNotificationConfig();
+                    break;
+                case "Twitter":
+                    config = new TwitterNotificationConfig();
                     break;
                 default:
                     config = null;
