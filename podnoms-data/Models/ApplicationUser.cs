@@ -12,6 +12,6 @@ namespace PodNoms.Api.Services.Auth {
         
         [SlugField(sourceField: "FullName")]
         public string Slug { get; set; }
-        public string FullName { get => $"{FirstName} {LastName}"; }
+        public string FullName => $"{FirstName} {LastName}";
     }
 }
