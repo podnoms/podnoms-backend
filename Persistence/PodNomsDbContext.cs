@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
 using PodNoms.Api.Models.Annotations;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Services.Auth;
 using PodNoms.Api.Utils.Extensions;
 

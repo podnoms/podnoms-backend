@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PodNoms.Api.Models;
+using PodNoms.Api.Models.Notifications;
 
 namespace PodNoms.Api.Persistence {
     public interface INotificationRepository : IRepository<Notification> {

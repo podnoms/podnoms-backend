@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Options;
 using PodNoms.Api.Models.Annotations;
+using PodNoms.Api.Models.Notifications;
 using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Api.Models {
