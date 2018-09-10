@@ -7,6 +7,8 @@ namespace PodNoms.Data.Models.ViewModels {
         public int Order;
         public string ControlType;
 
+        public NotificationOptionViewModel() {
+        }
         public NotificationOptionViewModel(T value, string key, string label, bool required, int order, string controlType) {
             this.Value = value;
             this.Key = key;

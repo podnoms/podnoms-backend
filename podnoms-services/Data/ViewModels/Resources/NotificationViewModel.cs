@@ -6,6 +6,6 @@ namespace PodNoms.Data.Models.ViewModels.Resources {
         public string Id { get; set; }
         public Guid PodcastId { get; set; }
         public string Type { get; set; }
-        public IList<NotificationOptionViewModel<string>> Options { get; set; }
+        public List<NotificationOptionViewModel<string>> Options { get; set; }
     }
 }

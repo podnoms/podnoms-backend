@@ -51,6 +51,7 @@ using System.Threading;
 using PodNoms.Api.Services.Middleware;
 using PodNoms.Api.Services.Logging;
 using PodNoms.Api.Services.Notifications;
+using System.IO;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -300,7 +301,7 @@ namespace PodNoms.Api {
             loggerFactory.AddDebug();
 
             lifetime.ApplicationStarted.Register(() => {
-                if (Env.IsDevelopment()) {
+                if (Env.IsDevelopment() && File.Exists("/home/fergalm/dev/podnoms/server/.working/tada.mp3")) {
                     var p = new System.Diagnostics.Process();
                     p.StartInfo.UseShellExecute = false;
                     p.StartInfo.RedirectStandardOutput = true;
