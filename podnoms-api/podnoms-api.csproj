@@ -1,36 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <UserSecretsId>aspnet-PodNoms.Api-1E27B6DE-BA4B-4F75-BBF8-CA34FB4D260A</UserSecretsId>
-    <LangVersion>latest</LangVersion>
-    <RootNamespace>PodNoms.Api</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources/*.xml" />
-    <EmbeddedResource Include="Resources/*.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="wwwroot\**" />
-    <Content Remove="wwwroot\**" />
-    <EmbeddedResource Remove="wwwroot\**" />
-    <None Remove="wwwroot\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.4.0" />
-    <PackageReference Include="Hangfire" Version="1.6.19" />
-    <PackageReference Include="Hangfire.MemoryStorage" Version="1.5.2" />
-    <PackageReference Include="AutoMapper" Version="7.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="4.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <UserSecretsId>aspnet-PodNoms.Api-1E27B6DE-BA4B-4F75-BBF8-CA34FB4D260A</UserSecretsId>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>PodNoms.Api</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="wwwroot\**" />
+        <Content Remove="wwwroot\**" />
+        <EmbeddedResource Remove="wwwroot\**" />
+        <None Remove="wwwroot\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.0-beta2" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.1" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.4.0" />
+        <PackageReference Include="Hangfire.Core" Version="1.7.0-beta2" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.7.0-beta2" />
+        <PackageReference Include="AutoMapper" Version="7.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="4.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+        <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
 
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
-    <ProjectReference Include="..\podnoms-services\podnoms-services.csproj" />
-  </ItemGroup>
+    </ItemGroup>
+    <ItemGroup>
+        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
+        <ProjectReference Include="..\podnoms-services\podnoms-services.csproj" />
+    </ItemGroup>
 </Project>

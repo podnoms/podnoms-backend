@@ -10,9 +10,9 @@ namespace PodNoms.Api.Utils {
     public static class ResourceReader {
         public static async Task<string> ReadResource(string resourceName) {
             string ret = string.Empty;
-            var assembly = Assembly.GetEntryAssembly();
+            var assembly = Assembly.GetExecutingAssembly();
             if (assembly != null) {
-                var resourceStream = assembly.GetManifestResourceStream($"PodNoms.Api.Resources.{resourceName}");
+                var resourceStream = assembly.GetManifestResourceStream($"PodNoms.Services.Resources.{resourceName}");
                 if (resourceStream != null) {
                     using (var reader = new StreamReader(resourceStream, Encoding.UTF8)) {
                         ret = reader.ReadToEnd();

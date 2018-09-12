@@ -4,14 +4,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
-using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,43 +18,32 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using FluentValidation.AspNetCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Settings;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Providers;
-using PodNoms.Api.Services;
 using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Hubs;
-using PodNoms.Api.Services.Jobs;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Realtime;
-using PodNoms.Api.Services.Storage;
 using PodNoms.Api.Utils;
-using PodNoms.Api.Services.Push.Extensions;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
-
 using Swashbuckle.AspNetCore.Swagger;
-using PodNoms.Api.Services.Push.Formatters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using PodNoms.Api.Utils.RemoteParsers;
-using PodNoms.Api.Services.Slack;
 using System.Threading;
 using PodNoms.Api.Services.Middleware;
 using PodNoms.Api.Services.Logging;
-using PodNoms.Api.Services.Notifications;
-using System.IO;
+using PodNoms.Api.Services.Push.Extensions;
+using PodNoms.Services.Services.Startup;
 
 namespace PodNoms.Api {
     public class Startup {
         private const string SecretKey = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
-        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+
+        private readonly SymmetricSecurityKey
+            _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+
         private static Mutex mutex = new Mutex();
         public IConfiguration Configuration { get; }
         public IHostingEnvironment Env { get; }
@@ -69,17 +56,17 @@ namespace PodNoms.Api {
                 var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
                 if (!string.IsNullOrEmpty(logServer)) {
                     Log.Logger = new LoggerConfiguration()
-                    .Enrich.FromLogContext()
-                    .MinimumLevel.Debug()
-                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer))
-                    {
-                        MinimumLogEventLevel = LogEventLevel.Verbose,
-                        AutoRegisterTemplate = true
-                    })
-                    .CreateLogger();
+                        .Enrich.FromLogContext()
+                        .MinimumLevel.Debug()
+                        .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)) {
+                            MinimumLogEventLevel = LogEventLevel.Verbose,
+                            AutoRegisterTemplate = true
+                        })
+                        .CreateLogger();
                 }
             }
         }
+
         public void ConfigureProductionServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -88,16 +75,8 @@ namespace PodNoms.Api {
             services.AddHangfire(config => {
                 config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
             });
-
-            services.AddPushSubscriptionStore(Configuration)
-                .AddPushNotificationService(Configuration)
-                .AddMvc(options => {
-                    options.InputFormatters.Add(new TextPlainInputFormatter());
-                })
-                .AddJsonOptions(options => {
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                });
         }
+
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("SQLDefaultConnection"));
@@ -106,18 +85,11 @@ namespace PodNoms.Api {
 
             ConfigureServices(services);
             services.AddHangfire(config => {
-                config.UseMemoryStorage();
+                // config.UseMemoryStorage();
+                config.UseSqlServerStorage(Configuration.GetConnectionString("SQLDefaultConnection"));
             });
-
-            services.AddPushSubscriptionStore(Configuration)
-                .AddPushNotificationService(Configuration)
-                .AddMvc(options => {
-                    options.InputFormatters.Add(new TextPlainInputFormatter());
-                })
-                .AddJsonOptions(options => {
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                });
         }
+
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services: {Configuration.ToString()}");
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
@@ -126,7 +98,6 @@ namespace PodNoms.Api {
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
             services.Configure<HelpersSettings>(Configuration.GetSection("HelpersSettings"));
-            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<FacebookAuthSettings>(Configuration.GetSection("FacebookAuthSettings"));
             services.Configure<ChatSettings>(Configuration.GetSection("ChatSettings"));
             services.Configure<ImageFileStorageSettings>(Configuration.GetSection("ImageFileStorageSettings"));
@@ -135,15 +106,13 @@ namespace PodNoms.Api {
             services.Configure<FormOptions>(options => {
                 // options.ValueCountLimit = 10;
                 options.ValueLengthLimit = int.MaxValue;
-                options.MemoryBufferThreshold = Int32.MaxValue;
+                options.MemoryBufferThreshold = int.MaxValue;
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
             mutex.WaitOne();
             Mapper.Reset();
-            services.AddAutoMapper(e => {
-                e.AddProfile(new MappingProvider(Configuration));
-            });
+            services.AddAutoMapper(e => { e.AddProfile(new MappingProvider(Configuration)); });
             mutex.ReleaseMutex();
 
             services.AddHttpClient("mixcloud", c => {
@@ -160,8 +129,7 @@ namespace PodNoms.Api {
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            var tokenValidationParameters = new TokenValidationParameters
-            {
+            var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
@@ -182,16 +150,17 @@ namespace PodNoms.Api {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents()
-                {
+                configureOptions.Events = new JwtBearerEvents() {
                     //Don't need this now we've removed Auth0
                     // OnTokenValidated = AuthenticationMiddleware.OnTokenValidated
                 };
                 configureOptions.Events.OnMessageReceived = context => {
                     StringValues token;
-                    if (context.Request.Path.Value.StartsWith("/hubs/") && context.Request.Query.TryGetValue("token", out token)) {
+                    if (context.Request.Path.Value.StartsWith("/hubs/") &&
+                        context.Request.Query.TryGetValue("token", out token)) {
                         context.Token = token;
                     }
+
                     return Task.CompletedTask;
                 };
             });
@@ -208,16 +177,17 @@ namespace PodNoms.Api {
                 o.Password.RequireUppercase = false;
                 o.Password.RequireNonAlphanumeric = false;
             });
-            identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
+            identityBuilder =
+                new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
             identityBuilder.AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders();
             identityBuilder.AddUserManager<PodNomsUserManager>();
 
             services.AddMvc(options => {
-                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
-                options.OutputFormatters
-                    .OfType<StringOutputFormatter>()
-                    .Single().SupportedMediaTypes.Add("text/html");
-            })
+                    options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
+                    options.OutputFormatters
+                        .OfType<StringOutputFormatter>()
+                        .Single().SupportedMediaTypes.Add("text/html");
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -227,7 +197,7 @@ namespace PodNoms.Api {
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Info { Title = "PodNoms.API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info {Title = "PodNoms.API", Version = "v1"});
                 c.DocumentFilter<LowercaseDocumentFilter>();
             });
 
@@ -236,85 +206,56 @@ namespace PodNoms.Api {
                 x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
             });
 
-            services.AddSignalR()
-                .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                    {
-                        ProcessDictionaryKeys = true
-                    }
-                });
-
             services.AddCors(options => {
                 options.AddPolicy("PodNomsClientPolicy",
                     builder => builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .WithOrigins("http://localhost:4200", "https://*.podnoms.com")
-                    .AllowCredentials());
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .WithOrigins("http://localhost:4200", "https://*.podnoms.com")
+                        .AllowCredentials());
             });
+
+            services.AddPushSubscriptionStore(Configuration);
+            services.AddPushNotificationService(Configuration);
+
             services.AddCors(options => {
                 options.AddPolicy("AllowAllPolicy",
                     builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
             });
-
-
-            services.AddTransient<IFileUploader, AzureFileUploader>();
-            services.AddTransient<IRealTimeUpdater, SignalRUpdater>();
-            services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IJwtFactory, JwtFactory>();
-            services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IPodcastRepository, PodcastRepository>();
-            services.AddScoped<IEntryRepository, EntryRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IPlaylistRepository, PlaylistRepository>();
-            services.AddScoped<IChatRepository, ChatRepository>();
-            services.AddScoped<INotificationRepository, NotificationRepository>();
-            services.AddScoped<IUrlProcessService, UrlProcessService>();
-            services.AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>();
-            services.AddScoped<IAudioUploadProcessService, AudioUploadProcessService>();
-            services.AddScoped<ISupportChatService, SupportChatService>();
-            services.AddScoped<IMailSender, MailgunSender>();
-            services.AddScoped<IFileUtilities, AzureFileUtilities>();
-            services.AddScoped<INotificationHandler, SlackNotificationHandler>();
-            services.AddScoped<INotificationHandler, IFTTNotificationHandler>();
-            services.AddScoped<INotificationHandler, TwitterNotificationHandler>();
-            services.AddScoped<INotificationHandler, EmailNotificationHandler>();
-            services.AddScoped<YouTubeParser>();
-            services.AddScoped<MixcloudParser>();
-            services.AddScoped<SlackSupportClient>();
-            services.AddHttpClient<Services.Gravatar.GravatarHttpClient>();
-
+            services.AddPodNomsSignalR();
+            services.AddDependencies();
+            services.AddPodNomsHangfire(Configuration);
+            
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(instance);
-
         }
+
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-                IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+            IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             lifetime.ApplicationStarted.Register(() => {
-                if (Env.IsDevelopment() && File.Exists("/home/fergalm/dev/podnoms/server/.working/tada.mp3")) {
-                    var p = new System.Diagnostics.Process();
-                    p.StartInfo.UseShellExecute = false;
-                    p.StartInfo.RedirectStandardOutput = true;
-                    p.StartInfo.RedirectStandardError = true;
-                    p.StartInfo.FileName = "/usr/bin/play";
-                    p.StartInfo.Arguments = "-v 0.1 /home/fergalm/dev/podnoms/server/.working/tada.mp3";
-                    p.Start();
-                }
+                var p = new System.Diagnostics.Process {
+                    StartInfo = {
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        FileName = "/usr/bin/play",
+                        Arguments =
+                            "-n synth -j 3 sin %3 sin %-2 sin %-5 sin %-9 sin %-14 sin %-21 fade h .01 2 1.5 delay 1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1"
+                    }
+                };
+                p.Start();
             });
 
             app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseExceptionHandler(new ExceptionHandlerOptions
-            {
+            app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
@@ -324,50 +265,28 @@ namespace PodNoms.Api {
             );
 
             app.UseCustomDomainRedirect();
-            // app.UseHsts();
-            // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            if ((Env.IsProduction() || true)) {
-                app.UseHangfireServer();
-                app.UseHangfireDashboard("/hangfire", new DashboardOptions
-                {
-                    Authorization = new[] { new HangFireAuthorizationFilter() }
-                });
-                GlobalConfiguration.Configuration.UseActivator(new HangfireActivator(serviceProvider));
-            }
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseAuthentication();
 
             app.UseCors("AllowAllPolicy");
 
-            app.UseSignalR(routes => {
-                routes.MapHub<AudioProcessingHub>("/hubs/audioprocessing");
-                routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
-                routes.MapHub<DebugHub>("/hubs/debug");
-                routes.MapHub<ChatHub>("/hubs/chat");
-            });
-
             app.UseSwagger();
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
-
-            app.UseSqlitePushSubscriptionStore();
-
+            app.UsePodNomsHangfire(serviceProvider, Configuration);
+            app.UsePodNomsSignalRRoutes();
+            
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            //start hangfire jobs
-            JobBootstrapper.BootstrapJobs(Env.IsDevelopment());
         }
     }
 }

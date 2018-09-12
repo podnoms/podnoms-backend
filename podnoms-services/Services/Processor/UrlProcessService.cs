@@ -1,15 +1,10 @@
 using System;
-using System.ComponentModel;
-using System.Dynamic;
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Settings;
 using PodNoms.Data.Models.ViewModels;
@@ -30,7 +25,7 @@ namespace PodNoms.Api.Services.Processor {
         public UrlProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<HelpersSettings> helpersSettings,
             HubLifetimeManager<UserUpdatesHub> hub,
-            ILoggerFactory logger, IMapper mapper, IRealTimeUpdater realtimeUpdater) : base(logger, mapper, realtimeUpdater) {
+            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater) : base(logger, realtimeUpdater) {
             this._helpersSettings = helpersSettings.Value;
             this._repository = repository;
             this._unitOfWork = unitOfWork;

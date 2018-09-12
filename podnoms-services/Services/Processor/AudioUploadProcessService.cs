@@ -21,18 +21,20 @@ namespace PodNoms.Api.Services.Processor {
 
         public AudioUploadProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<AudioFileStorageSettings> audioStorageSettings,
-            ILoggerFactory logger, IMapper mapper, IRealTimeUpdater realtimeUpdater) : base(logger, mapper, realtimeUpdater) {
+            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater) : base(logger, realtimeUpdater) {
             this._repository = repository;
             this._unitOfWork = unitOfWork;
             this._fileUploader = fileUploader;
             this._audioStorageSettings = audioStorageSettings.Value;
         }
+
         public async Task<bool> UploadAudio(Guid entryId, string localFile) {
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
                 _logger.LogError($"Unable to find entry with id: {entryId}");
                 return false;
             }
+
             entry.ProcessingStatus = ProcessingStatus.Uploading;
             await _unitOfWork.CompleteAsync();
             try {
@@ -65,20 +67,23 @@ namespace PodNoms.Api.Services.Processor {
                     await _unitOfWork.CompleteAsync();
                     await _sendProcessCompleteMessage(entry);
                     return true;
-                } else {
+                }
+                else {
                     _logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
                     entry.ProcessingStatus = ProcessingStatus.Failed;
                     entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
                     await _unitOfWork.CompleteAsync();
                     await _sendProcessCompleteMessage(entry);
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 _logger.LogError($"Error uploading audio file: {ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();
                 await _sendProcessCompleteMessage(entry);
             }
+
             return false;
         }
     }
