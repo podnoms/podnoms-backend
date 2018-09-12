@@ -10,7 +10,9 @@ using PodNoms.Data.Models;
 using System.Net;
 using PodNoms.Api.Utils;
 using HandlebarsDotNet;
+using PodNoms.Common.Services;
 using PodNoms.Data.Models.Settings;
+using PodNoms.Services.Services;
 
 namespace PodNoms.Api.Services {
     public class MailgunSender : IMailSender {

@@ -27,7 +27,8 @@
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
-        <ProjectReference Include="..\podnoms-services\podnoms-services.csproj" />
+        <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
     </ItemGroup>
 </Project>

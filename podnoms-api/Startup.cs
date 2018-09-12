@@ -79,14 +79,14 @@ namespace PodNoms.Api {
 
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("SQLDefaultConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 // options.EnableSensitiveDataLogging(true);
             });
 
             ConfigureServices(services);
             services.AddHangfire(config => {
                 // config.UseMemoryStorage();
-                config.UseSqlServerStorage(Configuration.GetConnectionString("SQLDefaultConnection"));
+                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
             });
         }
 

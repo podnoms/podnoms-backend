@@ -10,7 +10,7 @@ using PodNoms.Api.Services.Jobs;
 using PodNoms.Api.Services.Processor;
 using PodNoms.Api.Services.Realtime;
 using PodNoms.Api.Services.Storage;
-using PodNoms.Services.Services.Realtime;
+using PodNoms.Common.Services;
 
 namespace PodNoms.Services.Services.Startup {
     public static class Dependencies {

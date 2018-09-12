@@ -15,6 +15,8 @@ using PodNoms.Data.Extensions;
 using PodNoms.Api.Utils;
 using PodNoms.Data.Models.Settings;
 using PodNoms.Api.Services.Storage;
+using PodNoms.Common.Services;
+using PodNoms.Services.Services;
 
 namespace PodNoms.Api.Services.Auth {
     public class PodNomsUserManager : UserManager<ApplicationUser> {

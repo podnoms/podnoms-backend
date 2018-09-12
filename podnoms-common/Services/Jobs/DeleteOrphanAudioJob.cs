@@ -8,6 +8,8 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Settings;
 using PodNoms.Api.Persistence;
+using PodNoms.Common.Services;
+using PodNoms.Services.Services;
 
 namespace PodNoms.Api.Services.Jobs {
     public class DeleteOrphanAudioJob : IJob {

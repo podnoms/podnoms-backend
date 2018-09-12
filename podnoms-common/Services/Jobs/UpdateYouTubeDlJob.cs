@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 
 using PodNoms.Api.Services.Jobs;
 using PodNoms.Api.Services;
+using PodNoms.Common.Services;
+using PodNoms.Services.Services;
 
 namespace PodNoms.Api.Services.Jobs {
     public class UpdateYouTubeDlJob : IJob {

@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using PodNoms.Data.Models.Notifications;
 using PodNoms.Api.Persistence;
+using PodNoms.Common.Services;
+using PodNoms.Services.Services;
 
 namespace PodNoms.Api.Services.Notifications {
     public class EmailNotificationHandler : BaseNotificationHandler, INotificationHandler {

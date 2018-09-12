@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <RootNamespace>PodNoms.Services</RootNamespace>
+        <RootNamespace>PodNoms.Common</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <EmbeddedResource Include="Resources/*.xml"/>

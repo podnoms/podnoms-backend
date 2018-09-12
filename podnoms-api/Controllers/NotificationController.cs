@@ -18,6 +18,7 @@ using PodNoms.Data.Models.ViewModels.Resources;
 using PodNoms.Api.Persistence;
 using PodNoms.Api.Services;
 using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Services;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace PodNoms.Api.Controllers {
