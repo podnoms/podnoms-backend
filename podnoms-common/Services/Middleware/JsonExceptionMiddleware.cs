@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using PodNoms.Data.Models.ViewModels;
-namespace PodNoms.Api.Services.Middleware {
+using PodNoms.Common.Data.ViewModels;
+
+namespace PodNoms.Common.Services.Middleware {
     public class JsonExceptionMiddleware {
         public const string DefaultErrorMessage = "A server error occurred.";
         private readonly IHostingEnvironment _env;
@@ -16,7 +17,7 @@ namespace PodNoms.Api.Services.Middleware {
 
 
         public JsonExceptionMiddleware(IHostingEnvironment env) {
-            this._env = env;
+            _env = env;
             _serializer = new JsonSerializer();
             _serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }

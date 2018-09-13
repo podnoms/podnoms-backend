@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
-using PodNoms.Api.Utils;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
 
     public interface IPodcastRepository : IRepository<Podcast> {
         Task<Podcast> GetAsync(string userId, string id);

@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace PodNoms.Common.Services.NYT.Models
 {
     #region Using
-
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     #endregion
 
@@ -42,14 +42,14 @@ namespace NYoutubeDL.Models
 
         public MultiDownloadInfo(IEnumerable<DownloadInfo> infos)
         {
-            foreach (DownloadInfo info in infos)
+            foreach (var info in infos)
             {
                 if (info is VideoDownloadInfo videoInfo)
                 {
-                    if (!this.videos.ContainsKey(videoInfo.Id))
+                    if (!videos.ContainsKey(videoInfo.Id))
                     {
-                        this.Videos.Add(videoInfo);
-                        this.videos.Add(videoInfo.Id, videoInfo);
+                        Videos.Add(videoInfo);
+                        videos.Add(videoInfo.Id, videoInfo);
                     }
 
                     continue;
@@ -57,12 +57,12 @@ namespace NYoutubeDL.Models
 
                 if (info is PlaylistDownloadInfo playlistInfo)
                 {
-                    this.Playlists.Add(playlistInfo);
-                    foreach (VideoDownloadInfo vInfo in playlistInfo.Videos)
+                    Playlists.Add(playlistInfo);
+                    foreach (var vInfo in playlistInfo.Videos)
                     {
-                        if (!this.videos.ContainsKey(vInfo.Id))
+                        if (!videos.ContainsKey(vInfo.Id))
                         {
-                            this.videos.Add(vInfo.Id, vInfo);
+                            videos.Add(vInfo.Id, vInfo);
                         }
                     }
                 }
@@ -82,7 +82,7 @@ namespace NYoutubeDL.Models
 
         internal override void ParseError(object sender, string error)
         {
-            this.currentVideo?.ParseError(sender, error);
+            currentVideo?.ParseError(sender, error);
             base.ParseError(sender, error);
         }
 
@@ -95,18 +95,18 @@ namespace NYoutubeDL.Models
 
             if (output.Contains(Webpage))
             {
-                int startIndex = output.IndexOf(' ') + 1;
-                int length = output.IndexOf(':') - startIndex;
-                string id = output.Substring(startIndex, length);
+                var startIndex = output.IndexOf(' ') + 1;
+                var length = output.IndexOf(':') - startIndex;
+                var id = output.Substring(startIndex, length);
 
-                if (this.videos.ContainsKey(id))
+                if (videos.ContainsKey(id))
                 {
-                    this.currentVideo = this.videos[id];
+                    currentVideo = videos[id];
                 }
             }
             else
             {
-                this.currentVideo?.ParseOutput(sender, output);
+                currentVideo?.ParseOutput(sender, output);
             }
         }
     }

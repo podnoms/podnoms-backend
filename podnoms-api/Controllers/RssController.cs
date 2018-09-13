@@ -1,21 +1,19 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
 using HandlebarsDotNet;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.RssViewModels;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Utils;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels.RssViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils;
-using PodNoms.Api.Utils.Extensions;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -50,48 +48,49 @@ namespace PodNoms.Api.Controllers {
             var user = await _userManager.FindBySlugAsync(slug);
             if (user != null) {
                 var podcast = await _podcastRepository.GetForUserAndSlugAsync(user.Id, entry);
-                if (podcast != null) {
-                    try {
-                        string xml = await ResourceReader.ReadResource("podcast.xml");
-                        var template = Handlebars.Compile(xml);
-                        var compiled = new PodcastEnclosureViewModel
-                        {
-                            Title = podcast.Title,
-                            Description = podcast.Description,
-                            Author = "PodNoms Podcasts",
-                            Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageOptions.ContainerName).Replace("https://", "http://"),
-                            Link = $"{_appOptions.RssUrl}{user.Slug}/{podcast.Slug}",
-                            PublishDate = podcast.CreateDate.ToRFC822String(),
-                            Category = podcast.Category?.Description,
-                            Language = "en-IE",
-                            Copyright = $"© {DateTime.Now.Year} PodNoms",
-                            Owner = $"{user.FirstName} {user.LastName}",
-                            OwnerEmail = user.Email,
-                            ShowUrl = $"http://dev.podnoms.com:5000/rss/{user.Slug}/{podcast.Slug}",
+                if (podcast == null) return NotFound();
+                try {
+                    var xml = await ResourceReader.ReadResource("podcast.xml");
+                    var template = Handlebars.Compile(xml);
+                    var compiled = new PodcastEnclosureViewModel {
+                        Title = podcast.Title,
+                        Description = podcast.Description,
+                        Author = "PodNoms Podcasts",
+                        Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageOptions.ContainerName)
+                            .Replace("https://", "http://"),
+                        Link = $"{_appOptions.RssUrl}{user.Slug}/{podcast.Slug}",
+                        PublishDate = podcast.CreateDate.ToRFC822String(),
+                        Category = podcast.Category?.Description,
+                        Language = "en-IE",
+                        Copyright = $"© {DateTime.Now.Year} PodNoms",
+                        Owner = $"{user.FirstName} {user.LastName}",
+                        OwnerEmail = user.Email,
+                        ShowUrl = $"http://dev.podnoms.com:5000/rss/{user.Slug}/{podcast.Slug}",
 
-                            Items = (
-                                from e in podcast.PodcastEntries
-                                select new PodcastEnclosureItemViewModel
-                                {
-                                    Title = e.Title.StripNonXMLChars(),
-                                    Uid = e.Id.ToString(),
-                                    Description = e.Description.StripNonXMLChars(),
-                                    Author = e.Author.StripNonXMLChars(),
-                                    UpdateDate = e.CreateDate.ToRFC822String(),
-                                    AudioUrl = $"{_storageOptions.CdnUrl}{e.AudioUrl}".Replace("https://", "http://"),
-                                    AudioFileSize = e.AudioFileSize
-                                }
-                            ).ToList()
-                        };
-                        var result = template(compiled);
-                        return Content(result, "application/xml", Encoding.UTF8);
-                    } catch (NullReferenceException ex) {
-                        _logger.LogError(ex, "Error getting RSS", user, slug);  
-                    }
+                        Items = (
+                            from e in podcast.PodcastEntries
+                            select new PodcastEnclosureItemViewModel {
+                                Title = e.Title.StripNonXmlChars(),
+                                Uid = e.Id.ToString(),
+                                Description = e.Description.StripNonXmlChars(),
+                                Author = e.Author.StripNonXmlChars(),
+                                UpdateDate = e.CreateDate.ToRFC822String(),
+                                AudioUrl = $"{_storageOptions.CdnUrl}{e.AudioUrl}".Replace("https://", "http://"),
+                                AudioFileSize = e.AudioFileSize
+                            }
+                        ).ToList()
+                    };
+                    var result = template(compiled);
+                    return Content(result, "application/xml", Encoding.UTF8);
                 }
-            } else {
+                catch (NullReferenceException ex) {
+                    _logger.LogError(ex, "Error getting RSS", user, slug);
+                }
+            }
+            else {
                 _logger.LogError($"Unable to find user {slug}");
             }
+
             return NotFound();
         }
     }

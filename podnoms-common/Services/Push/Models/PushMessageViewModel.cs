@@ -1,6 +1,6 @@
 using Lib.Net.Http.WebPush;
 
-namespace PodNoms.Api.Services.Push.Models {
+namespace PodNoms.Common.Services.Push.Models {
     public class PushMessageViewModel {
         public string Topic { get; set; }
 

@@ -18,15 +18,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     #region Using
-
-    using System;
-    using System.IO;
-    using System.Runtime.InteropServices;
-    using Newtonsoft.Json;
-    using Options;
 
     #endregion
 
@@ -55,19 +53,19 @@ namespace NYoutubeDL.Helpers
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string filePath = fileInfo.Name + ".exe";
+                var filePath = fileInfo.Name + ".exe";
                 if (File.Exists(filePath))
                 {
                     return Path.GetFullPath(filePath);
                 }
             }
 
-            string environmentVariable = Environment.GetEnvironmentVariable("PATH");
+            var environmentVariable = Environment.GetEnvironmentVariable("PATH");
             if (environmentVariable != null)
             {
-                foreach (string path in environmentVariable.Split(Path.PathSeparator))
+                foreach (var path in environmentVariable.Split(Path.PathSeparator))
                 {
-                    string fullPath = Path.Combine(path, fileInfo.Name);
+                    var fullPath = Path.Combine(path, fileInfo.Name);
                     if (File.Exists(fullPath))
                     {
                         return fullPath;

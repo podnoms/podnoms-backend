@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 
-namespace PodNoms.Api.Services.Auth {
+namespace PodNoms.Common.Auth {
     public class SignalRUserIdProvider : IUserIdProvider {
         // private readonly UserManager<ApplicationUser> _userManager;
 

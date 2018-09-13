@@ -1,18 +1,17 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Realtime;
+using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Realtime;
-using PodNoms.Api.Services.Storage;
 
-namespace PodNoms.Api.Services.Processor {
+namespace PodNoms.Common.Services.Processor {
     public class AudioUploadProcessService : ProcessService, IAudioUploadProcessService {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEntryRepository _repository;
@@ -22,16 +21,16 @@ namespace PodNoms.Api.Services.Processor {
         public AudioUploadProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<AudioFileStorageSettings> audioStorageSettings,
             ILoggerFactory logger, IRealTimeUpdater realtimeUpdater) : base(logger, realtimeUpdater) {
-            this._repository = repository;
-            this._unitOfWork = unitOfWork;
-            this._fileUploader = fileUploader;
-            this._audioStorageSettings = audioStorageSettings.Value;
+            _repository = repository;
+            _unitOfWork = unitOfWork;
+            _fileUploader = fileUploader;
+            _audioStorageSettings = audioStorageSettings.Value;
         }
 
         public async Task<bool> UploadAudio(Guid entryId, string localFile) {
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
-                _logger.LogError($"Unable to find entry with id: {entryId}");
+                Logger.LogError($"Unable to find entry with id: {entryId}");
                 return false;
             }
 
@@ -44,7 +43,7 @@ namespace PodNoms.Api.Services.Processor {
                     localFile = entry.AudioUrl;
 
                 if (File.Exists(localFile)) {
-                    FileInfo fileInfo = new FileInfo(localFile);
+                    var fileInfo = new FileInfo(localFile);
                     var fileName = fileInfo.Name;
                     await _fileUploader.UploadFile(localFile, _audioStorageSettings.ContainerName, fileName,
                         "application/mpeg",
@@ -69,7 +68,7 @@ namespace PodNoms.Api.Services.Processor {
                     return true;
                 }
                 else {
-                    _logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
+                    Logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
                     entry.ProcessingStatus = ProcessingStatus.Failed;
                     entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
                     await _unitOfWork.CompleteAsync();
@@ -77,7 +76,7 @@ namespace PodNoms.Api.Services.Processor {
                 }
             }
             catch (Exception ex) {
-                _logger.LogError($"Error uploading audio file: {ex.Message}");
+                Logger.LogError($"Error uploading audio file: {ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();

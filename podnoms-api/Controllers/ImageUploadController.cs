@@ -10,17 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Storage;
-using PodNoms.Api.Utils;
+using PodNoms.Common;
 using Microsoft.AspNetCore.Identity;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Storage;
+using PodNoms.Common.Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using PodNoms.Data.Models.Settings;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -39,13 +40,13 @@ namespace PodNoms.Api.Controllers {
                 ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
             : base(contextAccessor, userManager, logger) {
 
-            this._fileUploader = fileUploader;
-            this._storageSettings = storageSettings.Value;
-            this._imageFileStorageSettings = imageFileStorageSettings.Value;
-            this._podcastRepository = repository;
+            _fileUploader = fileUploader;
+            _storageSettings = storageSettings.Value;
+            _imageFileStorageSettings = imageFileStorageSettings.Value;
+            _podcastRepository = repository;
             //this._repository = repository;
-            this._unitOfWork = unitOfWork;
-            this._mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         [HttpPost("/podcast/{id}/imageupload")]
         public async Task<ActionResult<string>> UploadPodcastImage(string id, IFormFile image) {
@@ -57,7 +58,7 @@ namespace PodNoms.Api.Controllers {
             try {
                 var result = await _commitImage(id, image, "podcast");
                 _podcastRepository.AddOrUpdate(podcast);
-                await this._unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync();
 
                 return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
             } catch (InvalidOperationException ex) {

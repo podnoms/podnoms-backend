@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -41,8 +41,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string GeoVerificationProxy
         {
-            get => this.geoVerificationProxy.Value;
-            set => this.SetField(ref this.geoVerificationProxy.Value, value);
+            get => geoVerificationProxy.Value;
+            set => SetField(ref geoVerificationProxy.Value, value);
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GeoBypass
         {
-            get => this.geoBypass.Value ?? false;
-            set => this.SetField(ref this.geoBypass.Value, value);
+            get => geoBypass.Value ?? false;
+            set => SetField(ref geoBypass.Value, value);
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoGeoBypass
         {
-            get => this.noGeoBypass.Value ?? false;
-            set => this.SetField(ref this.noGeoBypass.Value, value);
+            get => noGeoBypass.Value ?? false;
+            set => SetField(ref noGeoBypass.Value, value);
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string GeoBypassCountry
         {
-            get => this.geoBypassCountry.Value;
-            set => this.SetField(ref this.geoBypassCountry.Value, value);
+            get => geoBypassCountry.Value;
+            set => SetField(ref geoBypassCountry.Value, value);
         }
     }
 }

@@ -1,12 +1,10 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Persistence;
-using PodNoms.Common.Services;
-using PodNoms.Services.Services;
 
-namespace PodNoms.Api.Services.Notifications {
+namespace PodNoms.Common.Services.Notifications {
     public class EmailNotificationHandler : BaseNotificationHandler, INotificationHandler {
         private readonly IMailSender _emailSender;
         public override Notification.NotificationType Type => Notification.NotificationType.Email;
@@ -22,7 +20,7 @@ namespace PodNoms.Api.Services.Notifications {
             if (config == null || !(config.ContainsKey("To")))
                 return false;
 
-            var response = await this._emailSender.SendEmailAsync(
+            var response = await _emailSender.SendEmailAsync(
                 config["To"], 
                 config["Subject"] ?? "New Podcast",
                 $"Title: {title}\n\n{message}"

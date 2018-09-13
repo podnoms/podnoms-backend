@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
     public interface IChatRepository : IRepository<ChatMessage> {
         Task<IEnumerable<ChatMessage>> GetSentChats(string fromUserId);
         Task<IEnumerable<ChatMessage>> GetReceivedChats(string fromUserId);

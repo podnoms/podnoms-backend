@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels {
     public sealed class ApiError {
         public const string ModelBindingErrorMessage = "Invalid parameters.";
 

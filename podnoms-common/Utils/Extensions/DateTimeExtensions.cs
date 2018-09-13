@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PodNoms.Api.Utils.Extensions {
+namespace PodNoms.Common.Utils.Extensions {
     public static class DateTimeExtensions {
         public static string ToRFC822String(this DateTime datetime) {
             return datetime.ToString("ddd',' d MMM yyyy HH':'mm':'ss") +

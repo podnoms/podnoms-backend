@@ -18,14 +18,14 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+namespace PodNoms.Common.Services.NYT.Models
 {
     public class ThumbnailDownloadInfo
     {
         public ThumbnailDownloadInfo(ThumbnailInfo info)
         {
-            this.Id = info.id;
-            this.Url = info.url;
+            Id = info.id;
+            Url = info.url;
         }
 
         public string Id { get; }

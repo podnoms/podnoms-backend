@@ -1,14 +1,12 @@
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.Security.Policy;
+using Newtonsoft.Json;
 
-namespace PodNoms.Api.Utils.RemoteParsers {
+namespace PodNoms.Common.Utils.RemoteParsers {
     public class MixcloudParser {
         static string[] VALID_PATHS = new string[] {
             "stream", "uploads", "favorites", "listens", "playlists"
@@ -18,8 +16,8 @@ namespace PodNoms.Api.Utils.RemoteParsers {
         private readonly ILogger<MixcloudParser> _logger;
 
         public MixcloudParser(IHttpClientFactory httpClientFactory, ILogger<MixcloudParser> logger) {
-            this._logger = logger;
-            this._httpClientFactory = httpClientFactory;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
         public static bool ValidateUrl(string url) {
             try {

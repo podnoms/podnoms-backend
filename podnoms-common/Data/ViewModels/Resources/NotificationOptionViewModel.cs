@@ -1,4 +1,4 @@
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels.Resources {
     public class NotificationOptionViewModel<T> {
         public T Value;
         public string Key;
@@ -10,12 +10,12 @@ namespace PodNoms.Data.Models.ViewModels {
         public NotificationOptionViewModel() {
         }
         public NotificationOptionViewModel(T value, string key, string label, bool required, int order, string controlType) {
-            this.Value = value;
-            this.Key = key;
-            this.Label = label;
-            this.Required = required;
-            this.Order = order;
-            this.ControlType = controlType;
+            Value = value;
+            Key = key;
+            Label = label;
+            Required = required;
+            Order = order;
+            ControlType = controlType;
         }
     }
 }

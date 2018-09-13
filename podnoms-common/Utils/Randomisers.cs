@@ -2,14 +2,12 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace PodNoms.Api.Utils {
+namespace PodNoms.Common.Utils {
 
     public static class Randomisers {
-        static Random _randomiser = new Random();
+        static readonly Random _randomiser = new Random();
         public static string RandomName() {
-            var myTI = new System.Globalization.CultureInfo("en-IE").TextInfo;
-
-            string[] maleNames = new string[100] {
+            var maleNames = new string[100] {
                 "Columbus",
                 "Chi",
                 "Vito",
@@ -111,7 +109,7 @@ namespace PodNoms.Api.Utils {
                 "Odis",
                 "Antwan",
             };
-            string[] femaleNames = new string[100] {
+            var femaleNames = new string[100] {
                 "Juliane",
                 "Dreama",
                 "Teisha",
@@ -213,7 +211,7 @@ namespace PodNoms.Api.Utils {
                 "Candra",
                 "Emogene"
             };
-            string[] lastNames = new string[100] {
+            var lastNames = new string[100] {
                 "Fernandez",
                 "Wilson",
                 "Calderon",
@@ -316,7 +314,7 @@ namespace PodNoms.Api.Utils {
                 "Massey"
             };
 
-            bool male = _randomiser.Next(2) < 2;
+            var male = _randomiser.Next(2) < 2;
             var firstName = male ? maleNames[_randomiser.Next(0, maleNames.Length - 1)] : femaleNames[_randomiser.Next(0, femaleNames.Length - 1)];
             var secondName = lastNames[_randomiser.Next(0, lastNames.Length - 1)];
             return $"{firstName} {secondName}";
@@ -359,16 +357,16 @@ namespace PodNoms.Api.Utils {
                 "erat"
             };
 
-            int numSentences = _randomiser.Next(maxSentences - minSentences) +
+            var numSentences = _randomiser.Next(maxSentences - minSentences) +
                 minSentences + 1;
-            int numWords = _randomiser.Next(maxWords - minWords) + minWords + 1;
+            var numWords = _randomiser.Next(maxWords - minWords) + minWords + 1;
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
-            for (int p = 0; p < numParagraphs; p++) {
+            for (var p = 0; p < numParagraphs; p++) {
                 result.Append("<p>");
-                for (int s = 0; s < numSentences; s++) {
-                    for (int w = 0; w < numWords; w++) {
+                for (var s = 0; s < numSentences; s++) {
+                    for (var w = 0; w < numWords; w++) {
                         if (w > 0) { result.Append(" "); }
                         result.Append(words[_randomiser.Next(words.Length)]);
                     }

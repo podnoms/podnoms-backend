@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -64,8 +64,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool AbortOnError
         {
-            get => this.abortOnError.Value ?? false;
-            set => this.SetField(ref this.abortOnError.Value, value);
+            get => abortOnError.Value ?? false;
+            set => SetField(ref abortOnError.Value, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string ConfigLocation
         {
-            get => this.configLocation.Value;
-            set => this.SetField(ref this.configLocation.Value, value);
+            get => configLocation.Value;
+            set => SetField(ref configLocation.Value, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string DefaultSearch
         {
-            get => this.defaultSearch.Value;
-            set => this.SetField(ref this.defaultSearch.Value, value);
+            get => defaultSearch.Value;
+            set => SetField(ref defaultSearch.Value, value);
         }
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool DumpUserAgent
         {
-            get => this.dumpUserAgent.Value ?? false;
-            set => this.SetField(ref this.dumpUserAgent.Value, value);
+            get => dumpUserAgent.Value ?? false;
+            set => SetField(ref dumpUserAgent.Value, value);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ExtractorDescriptions
         {
-            get => this.extractorDescriptions.Value ?? false;
-            set => this.SetField(ref this.extractorDescriptions.Value, value);
+            get => extractorDescriptions.Value ?? false;
+            set => SetField(ref extractorDescriptions.Value, value);
         }
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool FlatPlaylist
         {
-            get => this.flatPlaylist.Value ?? false;
-            set => this.SetField(ref this.flatPlaylist.Value, value);
+            get => flatPlaylist.Value ?? false;
+            set => SetField(ref flatPlaylist.Value, value);
         }
 
         /// <summary>
@@ -118,8 +118,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ForceGenericExtractor
         {
-            get => this.forceGenericExtractor.Value ?? false;
-            set => this.SetField(ref this.forceGenericExtractor.Value, value);
+            get => forceGenericExtractor.Value ?? false;
+            set => SetField(ref forceGenericExtractor.Value, value);
         }
 
         /// <summary>
@@ -127,8 +127,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool IgnoreConfig
         {
-            get => this.ignoreConfig.Value ?? false;
-            set => this.SetField(ref this.ignoreConfig.Value, value);
+            get => ignoreConfig.Value ?? false;
+            set => SetField(ref ignoreConfig.Value, value);
         }
 
         /// <summary>
@@ -136,8 +136,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool IgnoreErrors
         {
-            get => this.ignoreErrors.Value ?? false;
-            set => this.SetField(ref this.ignoreErrors.Value, value);
+            get => ignoreErrors.Value ?? false;
+            set => SetField(ref ignoreErrors.Value, value);
         }
 
         /// <summary>
@@ -145,8 +145,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ListExtractors
         {
-            get => this.listExtractors.Value ?? false;
-            set => this.SetField(ref this.listExtractors.Value, value);
+            get => listExtractors.Value ?? false;
+            set => SetField(ref listExtractors.Value, value);
         }
 
         /// <summary>
@@ -154,8 +154,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool MarkWatched
         {
-            get => this.markWatched.Value ?? false;
-            set => this.SetField(ref this.markWatched.Value, value);
+            get => markWatched.Value ?? false;
+            set => SetField(ref markWatched.Value, value);
         }
 
         /// <summary>
@@ -163,8 +163,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoColor
         {
-            get => this.noColor.Value ?? false;
-            set => this.SetField(ref this.noColor.Value, value);
+            get => noColor.Value ?? false;
+            set => SetField(ref noColor.Value, value);
         }
 
         /// <summary>
@@ -172,8 +172,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoMarkWatched
         {
-            get => this.noMarkWatched.Value ?? false;
-            set => this.SetField(ref this.noMarkWatched.Value, value);
+            get => noMarkWatched.Value ?? false;
+            set => SetField(ref noMarkWatched.Value, value);
         }
 
         /// <summary>
@@ -181,8 +181,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Update
         {
-            get => this.update.Value ?? false;
-            set => this.SetField(ref this.update.Value, value);
+            get => update.Value ?? false;
+            set => SetField(ref update.Value, value);
         }
     }
 }

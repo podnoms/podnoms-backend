@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -44,8 +44,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ListMso
         {
-            get => this.listMso.Value ?? false;
-            set => this.SetField(ref this.listMso.Value, value);
+            get => listMso.Value ?? false;
+            set => SetField(ref listMso.Value, value);
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Mso
         {
-            get => this.mso.Value;
-            set => this.SetField(ref this.mso.Value, value);
+            get => mso.Value;
+            set => SetField(ref mso.Value, value);
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Password
         {
-            get => this.password.Value;
-            set => this.SetField(ref this.password.Value, value);
+            get => password.Value;
+            set => SetField(ref password.Value, value);
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Username
         {
-            get => this.username.Value;
-            set => this.SetField(ref this.username.Value, value);
+            get => username.Value;
+            set => SetField(ref username.Value, value);
         }
     }
 }

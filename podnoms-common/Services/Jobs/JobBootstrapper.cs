@@ -1,11 +1,7 @@
 using System;
 using Hangfire;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Data.Models;
-using PodNoms.Api.Persistence;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public static class JobBootstrapper {
         public static void BootstrapJobs(bool isDevelopment) {
 

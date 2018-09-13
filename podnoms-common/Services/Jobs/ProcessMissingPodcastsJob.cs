@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Storage;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Services.Storage;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class ProcessMissingPodcastsJob : IJob {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
@@ -26,13 +26,13 @@ namespace PodNoms.Api.Services.Jobs {
             IPlaylistRepository playlistRepository,
             IFileUtilities fileUtils,
             IAudioUploadProcessService uploadService) {
-            this._audioStorageSettings = audioStorageSettings.Value;
-            this._logger = logger;
-            this._uploadService = uploadService;
-            this._entryRepository = entryRepository;
-            this._playlistRepository = playlistRepository;
-            this._fileUtils = fileUtils;
-            this._processor = processor;
+            _audioStorageSettings = audioStorageSettings.Value;
+            _logger = logger;
+            _uploadService = uploadService;
+            _entryRepository = entryRepository;
+            _playlistRepository = playlistRepository;
+            _fileUtils = fileUtils;
+            _processor = processor;
         }
         public async Task<bool> Execute() {
             try {
@@ -58,7 +58,7 @@ namespace PodNoms.Api.Services.Jobs {
             if (!audioExists) {
                 var processed = await _processor.DownloadAudio(id);
                 if (processed) {
-                    var uploaded = await this._uploadService.UploadAudio(id, audioUrl);
+                    var uploaded = await _uploadService.UploadAudio(id, audioUrl);
                     if (!uploaded) {
                         _logger.LogError($"Error uploading audio from {id}");
                     }

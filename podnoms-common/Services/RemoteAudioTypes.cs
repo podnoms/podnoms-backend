@@ -1,4 +1,4 @@
-namespace PodNoms.Api.Services {
+namespace PodNoms.Common.Services {
     public enum AudioType {
         Invalid,
         Valid,

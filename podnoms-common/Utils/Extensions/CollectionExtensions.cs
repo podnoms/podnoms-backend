@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PodNoms.Api.Utils.Extensions {
+namespace PodNoms.Common.Utils.Extensions {
     public static class CollectionExtensions {
         public static string ToJson(this Dictionary<string, string> dict) {
             var entries = dict.Select(d =>

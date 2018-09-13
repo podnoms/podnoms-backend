@@ -5,22 +5,21 @@ using System.Threading.Tasks;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
+using PodNoms.Common.Data.Settings;
 
-namespace PodNoms.Api.Utils.RemoteParsers {
+namespace PodNoms.Common.Utils.RemoteParsers {
     public partial class YouTubeParser {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
         private readonly AppSettings _settings;
         private YouTubeService youtube;
         public YouTubeParser(IOptions<AppSettings> options) {
-            this._settings = options.Value;
-            this.youtube = _getYouTubeService();
+            _settings = options.Value;
+            youtube = _getYouTubeService();
         }
         private YouTubeService _getYouTubeService() {
             return new YouTubeService(new BaseClientService.Initializer() {
                 ApiKey = _settings.GoogleApiKey,
-                ApplicationName = this.GetType().ToString()
+                ApplicationName = GetType().ToString()
             });
         }
 

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Api.Utils;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]

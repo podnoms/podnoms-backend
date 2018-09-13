@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 
-namespace PodNoms.Data.Models.Settings {
+namespace PodNoms.Common.Data.Settings {
 
     public class FileStorageSettings {
         public string ContainerName { get; set; }

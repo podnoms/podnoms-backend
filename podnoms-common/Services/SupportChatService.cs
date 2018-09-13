@@ -3,17 +3,15 @@ using Lib.Net.Http.WebPush;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Hubs;
-using PodNoms.Api.Services.Push;
-using PodNoms.Api.Services.Slack;
-using PodNoms.Common.Services;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Services.Hubs;
+using PodNoms.Common.Services.Push;
+using PodNoms.Common.Services.Slack;
+using PodNoms.Data.Models;
 using WP = Lib.Net.Http.WebPush;
 
-namespace PodNoms.Api.Services {
+namespace PodNoms.Common.Services {
     public class SupportChatService : ISupportChatService {
         private readonly ChatSettings _chatSettings;
         private readonly IPushNotificationService _notificationService;
@@ -24,12 +22,12 @@ namespace PodNoms.Api.Services {
         public SupportChatService(UserManager<ApplicationUser> userManager, IOptions<ChatSettings> chatSettings,
                          IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
                          HubLifetimeManager<ChatHub> hub, SlackSupportClient slackSupport) {
-            this._chatSettings = chatSettings.Value;
-            this._notificationService = notificationService;
-            this._hub = hub;
-            this._userManager = userManager;
-            this._subscriptionStore = subscriptionStore;
-            this._slackSupport = slackSupport;
+            _chatSettings = chatSettings.Value;
+            _notificationService = notificationService;
+            _hub = hub;
+            _userManager = userManager;
+            _subscriptionStore = subscriptionStore;
+            _slackSupport = slackSupport;
 
         }
         public async Task<bool> InitiateSupportRequest(string fromUser, ChatViewModel message) {
@@ -39,11 +37,11 @@ namespace PodNoms.Api.Services {
                     message.ToUserId = user.Id;
                     message.ToUserName = user.FullName;
                     //send firebase message to notify via web worker
-                    WP.PushMessage pushMessage = new WP.PushMessage(message.Message) {
+                    var pushMessage = new PushMessage(message.Message) {
                         Topic = "New support chat message",
                         Urgency = PushMessageUrgency.Normal
                     };
-                    await _subscriptionStore.ForEachSubscriptionAsync(user.Id, (WP.PushSubscription subscription) => {
+                    await _subscriptionStore.ForEachSubscriptionAsync(user.Id, (PushSubscription subscription) => {
                         _notificationService.SendNotificationAsync(subscription, pushMessage);
                     });
 

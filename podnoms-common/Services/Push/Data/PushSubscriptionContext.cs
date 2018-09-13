@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WP = Lib.Net.Http.WebPush;
 
-namespace PodNoms.Api.Services.Push.Data {
+namespace PodNoms.Common.Services.Push.Data {
     internal class PushSubscriptionContext : DbContext {
         public class PushSubscription : WP.PushSubscription {
             public PushSubscription() { }
@@ -29,7 +29,7 @@ namespace PodNoms.Api.Services.Push.Data {
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            EntityTypeBuilder<PushSubscription> pushSubscriptionEntityTypeBuilder = modelBuilder.Entity<PushSubscription>();
+            var pushSubscriptionEntityTypeBuilder = modelBuilder.Entity<PushSubscription>();
             pushSubscriptionEntityTypeBuilder.HasKey(e => e.Endpoint);
             pushSubscriptionEntityTypeBuilder.Ignore(p => p.Keys);
         }

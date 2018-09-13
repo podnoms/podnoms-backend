@@ -1,7 +1,7 @@
 ﻿using System;
 using Hangfire;
 
-namespace PodNoms.Api.Services.Processor {
+namespace PodNoms.Common.Services.Processor {
     public class HangfireActivator : JobActivator {
         private readonly IServiceProvider _serviceProvider;
 

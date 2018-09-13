@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
+using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models;
-using System.Net;
-using PodNoms.Api.Utils;
-using HandlebarsDotNet;
-using PodNoms.Common.Services;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Services.Services;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Utils;
 
-namespace PodNoms.Api.Services {
+namespace PodNoms.Common.Services {
     public class MailgunSender : IMailSender {
         private readonly EmailSettings _emailSettings;
         private readonly ILogger _logger;

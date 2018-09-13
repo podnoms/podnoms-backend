@@ -1,14 +1,12 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Services.Hubs;
+using PodNoms.Common.Services.Hubs;
 
-namespace PodNoms.Api.Services.Realtime {
+namespace PodNoms.Common.Services.Realtime {
     public class SignalRUpdater : IRealTimeUpdater {
         private readonly HubLifetimeManager<AudioProcessingHub> _hub;
         public SignalRUpdater(HubLifetimeManager<AudioProcessingHub> hub) {
-            this._hub = hub;
+            _hub = hub;
 
         }
         public async Task<bool> SendProcessUpdate(string userId, string channelName, string eventName, object data) {

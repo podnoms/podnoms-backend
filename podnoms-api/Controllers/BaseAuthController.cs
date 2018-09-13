@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Auth;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]

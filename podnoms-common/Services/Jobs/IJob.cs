@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public interface IJob {
         Task<bool> Execute();
     }

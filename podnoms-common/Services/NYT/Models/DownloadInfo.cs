@@ -18,13 +18,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models {
-    #region Using
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using PodNoms.Common.Services.NYT.Helpers;
 
-    using System;
-    using System.Collections.Generic;
-    using Helpers;
-    using Newtonsoft.Json;
+namespace PodNoms.Common.Services.NYT.Models {
+    #region Using
 
     #endregion
 
@@ -60,8 +60,8 @@ namespace NYoutubeDL.Models {
         ///     The current download rate
         /// </summary>
         public string DownloadRate {
-            get => this.downloadRate;
-            set => this.SetField(ref this.downloadRate, value);
+            get => downloadRate;
+            set => SetField(ref downloadRate, value);
         }
 
         /// <summary>
@@ -73,22 +73,22 @@ namespace NYoutubeDL.Models {
         ///     The current download's estimated time remaining
         /// </summary>
         public string Eta {
-            get => this.eta;
-            set => this.SetField(ref this.eta, value);
+            get => eta;
+            set => SetField(ref eta, value);
         }
 
         /// <summary>
         ///     The status of the video currently downloading
         /// </summary>
         public string Status {
-            get => this.status;
+            get => status;
             set {
-                if (!this.status.Equals(Enums.DownloadStatus.ERROR.ToString()) &&
-                    !this.status.Equals(Enums.DownloadStatus.WARNING.ToString())) {
-                    this.SetField(ref this.status, value);
+                if (!status.Equals(Enums.DownloadStatus.ERROR.ToString()) &&
+                    !status.Equals(Enums.DownloadStatus.WARNING.ToString())) {
+                    SetField(ref status, value);
                 } else if (value.Equals(Enums.DownloadStatus.ERROR.ToString()) &&
-                           this.status.Equals(Enums.DownloadStatus.WARNING.ToString())) {
-                    this.SetField(ref this.status, value);
+                           status.Equals(Enums.DownloadStatus.WARNING.ToString())) {
+                    SetField(ref status, value);
                 }
             }
         }
@@ -97,31 +97,31 @@ namespace NYoutubeDL.Models {
         ///     The id of the playlist
         /// </summary>
         public string Id {
-            get => this.id;
-            set => this.SetField(ref this.id, value);
+            get => id;
+            set => SetField(ref id, value);
         }
         /// <summary>
         ///     The title of the video currently downloading
         /// </summary>
         public string Title {
-            get => this.title;
-            set => this.SetField(ref this.title, value);
+            get => title;
+            set => SetField(ref title, value);
         }
 
         /// <summary>
         ///     The current download progresss
         /// </summary>
         public int VideoProgress {
-            get => this.videoProgress;
+            get => videoProgress;
             set {
-                this.SetField(ref this.videoProgress, value);
+                SetField(ref videoProgress, value);
 
                 if (value == 0) {
-                    this.Status = Enums.DownloadStatus.WAITING.ToString();
+                    Status = Enums.DownloadStatus.WAITING.ToString();
                 } else if (value == 100) {
-                    this.Status = Enums.DownloadStatus.DONE.ToString();
+                    Status = Enums.DownloadStatus.DONE.ToString();
                 } else {
-                    this.Status = Enums.DownloadStatus.DOWNLOADING.ToString();
+                    Status = Enums.DownloadStatus.DOWNLOADING.ToString();
                 }
             }
         }
@@ -130,8 +130,8 @@ namespace NYoutubeDL.Models {
         ///     The current download's total size
         /// </summary>
         public string VideoSize {
-            get => this.videoSize;
-            set => this.SetField(ref this.videoSize, value);
+            get => videoSize;
+            set => SetField(ref videoSize, value);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace NYoutubeDL.Models {
                 return null;
 
             try {
-                PlaylistInfo info = JsonConvert.DeserializeObject<PlaylistInfo>(output);
+                var info = JsonConvert.DeserializeObject<PlaylistInfo>(output);
                 if (!string.IsNullOrEmpty(info._type) && info._type.Equals("playlist")) {
                     return new PlaylistDownloadInfo(info);
                 }
@@ -153,7 +153,7 @@ namespace NYoutubeDL.Models {
             }
 
             try {
-                VideoInfo info = JsonConvert.DeserializeObject<VideoInfo>(output);
+                var info = JsonConvert.DeserializeObject<VideoInfo>(output);
                 if (!string.IsNullOrEmpty(info.title)) {
                     return new VideoDownloadInfo(info);
                 }
@@ -170,42 +170,42 @@ namespace NYoutubeDL.Models {
         public event EventHandler<string> ErrorEvent;
 
         internal virtual void ParseError(object sender, string error) {
-            this.ErrorEvent?.Invoke(this, error);
+            ErrorEvent?.Invoke(this, error);
             if (error.Contains("WARNING")) {
-                this.Warnings.Add(error);
-                this.Status = Enums.DownloadStatus.WARNING.ToString();
+                Warnings.Add(error);
+                Status = Enums.DownloadStatus.WARNING.ToString();
             } else if (error.Contains("ERROR")) {
-                this.Errors.Add(error);
-                this.Status = Enums.DownloadStatus.ERROR.ToString();
+                Errors.Add(error);
+                Status = Enums.DownloadStatus.ERROR.ToString();
             }
         }
 
         internal virtual void ParseOutput(object sender, string output) {
             try {
                 if (output.Contains("%")) {
-                    int progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
-                    string progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
-                    this.VideoProgress = (int)Math.Round(double.Parse(progressString));
+                    var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
+                    var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
+                    VideoProgress = (int)Math.Round(double.Parse(progressString));
 
-                    int sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING)) + 1;
-                    string sizeString = output.Substring(sizeIndex, output.IndexOf(DOWNLOADSIZESTRING) - sizeIndex + 2);
-                    this.VideoSize = sizeString;
+                    var sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING)) + 1;
+                    var sizeString = output.Substring(sizeIndex, output.IndexOf(DOWNLOADSIZESTRING) - sizeIndex + 2);
+                    VideoSize = sizeString;
                 }
 
                 if (output.Contains(DOWNLOADRATESTRING)) {
-                    int rateIndex = output.LastIndexOf(' ', output.LastIndexOf(DOWNLOADRATESTRING)) + 1;
-                    string rateString =
+                    var rateIndex = output.LastIndexOf(' ', output.LastIndexOf(DOWNLOADRATESTRING)) + 1;
+                    var rateString =
                         output.Substring(rateIndex, output.LastIndexOf(DOWNLOADRATESTRING) - rateIndex + 4);
-                    this.DownloadRate = rateString;
+                    DownloadRate = rateString;
                 }
 
                 if (output.Contains(ETASTRING)) {
-                    this.Eta = output.Substring(output.LastIndexOf(' ') + 1);
+                    Eta = output.Substring(output.LastIndexOf(' ') + 1);
                 }
 
                 if (output.Contains(ALREADY)) {
-                    this.Status = Enums.DownloadStatus.DONE.ToString();
-                    this.VideoProgress = 100;
+                    Status = Enums.DownloadStatus.DONE.ToString();
+                    VideoProgress = 100;
                 }
             } catch (Exception) {
             }

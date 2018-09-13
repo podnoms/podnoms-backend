@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+using System;
+using System.Globalization;
+
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     #region Using
-
-    using System;
-    using System.Globalization;
 
     #endregion
 
@@ -43,8 +43,8 @@ namespace NYoutubeDL.Helpers
         /// </param>
         public FileSizeRate(double sizeRate, Enums.ByteUnit unit)
         {
-            this.SizeRate = sizeRate;
-            this.Unit = unit;
+            SizeRate = sizeRate;
+            Unit = unit;
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace NYoutubeDL.Helpers
         /// </param>
         public FileSizeRate(string sizeRate)
         {
-            this.SizeRate = double.Parse(sizeRate.Substring(0, sizeRate.Length - 1));
-            this.Unit =
+            SizeRate = double.Parse(sizeRate.Substring(0, sizeRate.Length - 1));
+            Unit =
                 (Enums.ByteUnit) Enum.Parse(typeof(Enums.ByteUnit), sizeRate[sizeRate.Length - 1].ToString().ToUpper(), true);
         }
 
@@ -72,7 +72,7 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            return this.SizeRate.ToString(CultureInfo.InvariantCulture) + this.Unit;
+            return SizeRate.ToString(CultureInfo.InvariantCulture) + Unit;
         }
     }
 }

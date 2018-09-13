@@ -1,4 +1,4 @@
-﻿namespace PodNoms.Data.Models.ViewModels {
+﻿namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {
         public string Id { get; set; }
         public string Slug { get; set; }

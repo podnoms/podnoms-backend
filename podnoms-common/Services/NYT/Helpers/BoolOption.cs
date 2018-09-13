@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     [Option]
     internal class BoolOption : BaseOption<bool?>
@@ -29,9 +29,9 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            if (this.Value != null && this.Value == true)
+            if (Value != null && Value == true)
             {
-                return this.ParamString;
+                return ParamString;
             }
 
             return string.Empty;

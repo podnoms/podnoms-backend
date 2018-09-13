@@ -4,9 +4,8 @@ using Lib.Net.Http.WebPush;
 using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Api.Services.Push.Extensions;
 
-namespace PodNoms.Api.Services.Push {
+namespace PodNoms.Common.Services.Push {
     public class PushServicePushNotificationService : IPushNotificationService {
         private readonly PushNotificationServiceOptions _options;
         private readonly PushServiceClient _pushClient;

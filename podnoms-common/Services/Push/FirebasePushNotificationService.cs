@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using Newtonsoft.Json;
 
-namespace PodNoms.Api.Services.Push {
+namespace PodNoms.Common.Services.Push {
     public class FirebasePushNotificationService : IPushNotificationService {
         private readonly PushNotificationServiceOptions _options;
         private readonly ILogger<FirebasePushNotificationService> _logger;

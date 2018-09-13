@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using PodNoms.Api.Services.Hubs;
+using PodNoms.Common.Services.Hubs;
 
-namespace PodNoms.Services.Services.Startup {
+namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {
         public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
             services.AddSignalR()

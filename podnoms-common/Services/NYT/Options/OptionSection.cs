@@ -18,14 +18,14 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Helpers;
 
     #endregion
 
@@ -44,11 +44,11 @@ namespace NYoutubeDL.Options
         /// </returns>
         public virtual string ToCliParameters()
         {
-            List<string> parameterList = new List<string>();
+            var parameterList = new List<string>();
 
             // Use reflection to loop over all Option fields and add the parameters to the list.
             // This prevents code duplication, since this method is inherited by all children classes.
-            foreach (FieldInfo fieldInfo in this.GetType().GetRuntimeFields())
+            foreach (var fieldInfo in GetType().GetRuntimeFields())
             {
                 // Make sure the field has the [Option] attribute
                 if (!fieldInfo.GetCustomAttributes(typeof(OptionAttribute), true).Any())
@@ -56,7 +56,7 @@ namespace NYoutubeDL.Options
                     continue;
                 }
 
-                object field = fieldInfo.GetValue(this);
+                var field = fieldInfo.GetValue(this);
                 if (!string.IsNullOrWhiteSpace(field.ToString()))
                 {
                     parameterList.Add(field.ToString());
@@ -64,7 +64,7 @@ namespace NYoutubeDL.Options
             }
 
             return string.Join(" ", parameterList) + " " +
-                   string.Join(" ", this.CustomParameters).RemoveExtraWhitespace();
+                   string.Join(" ", CustomParameters).RemoveExtraWhitespace();
         }
     }
 }

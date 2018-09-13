@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace PodNoms.Data.Extensions {
     public static class StringExtensions {
         public static string Slugify(this string phrase, IEnumerable<string> source) {
-            string str = phrase.RemoveAccent().ToLower().RemoveInvalidUrlChars().RemoveNonAlphaChars();
+            var str = phrase.RemoveAccent().ToLower().RemoveInvalidUrlChars().RemoveNonAlphaChars();
             // invalid chars           
             str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
             // convert multiple spaces into one space   
@@ -29,17 +29,17 @@ namespace PodNoms.Data.Extensions {
         }
 
         public static string RemoveNonAlphaChars(this string str) {
-            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            var rgx = new Regex("[^a-zA-Z0-9 -]");
             return rgx.Replace(str, "");
         }
         public static string RemoveInvalidUrlChars(this string str) {
-            string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+            var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
             return r.Replace(str, "");
         }
         public static string RemoveAccent(this string txt) {
-            byte[] bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
-            return System.Text.Encoding.ASCII.GetString(bytes);
+            var bytes = Encoding.GetEncoding("Cyrillic").GetBytes(txt);
+            return Encoding.ASCII.GetString(bytes);
         }
 
     }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace PodNoms.Api.Services.Realtime
+namespace PodNoms.Common.Services.Realtime
 {
     public class EntityUpdateHub : Hub
     {

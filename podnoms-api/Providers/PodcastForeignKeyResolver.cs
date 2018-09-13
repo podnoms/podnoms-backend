@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
 
 namespace PodNoms.Api.Providers {
     internal class PodcastForeignKeyResolver : IValueResolver<PodcastEntryViewModel, PodcastEntry, Podcast> {
         private IPodcastRepository _sourceRepository;
 
         public PodcastForeignKeyResolver(IPodcastRepository sourceRepository) {
-            this._sourceRepository = sourceRepository;
+            _sourceRepository = sourceRepository;
         }
 
         public Podcast Resolve(PodcastEntryViewModel source, PodcastEntry destination, Podcast destMember, ResolutionContext context) {

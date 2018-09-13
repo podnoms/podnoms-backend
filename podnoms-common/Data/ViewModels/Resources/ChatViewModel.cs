@@ -1,4 +1,4 @@
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels.Resources {
 public class ChatViewModel {
         public string Message { get; set; }
         public string FromUserId { get; set; }

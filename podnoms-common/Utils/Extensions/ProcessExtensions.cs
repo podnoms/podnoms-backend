@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PodNoms.Api.Utils.Extensions {
+namespace PodNoms.Common.Utils.Extensions {
     public static class ProcessExtensions {
         /// <summary>
         /// Waits asynchronously for the process to exit.

@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+using System.Collections.Generic;
+
+namespace PodNoms.Common.Services.NYT.Models
 {
     #region Using
-
-    using System.Collections.Generic;
 
     #endregion
 

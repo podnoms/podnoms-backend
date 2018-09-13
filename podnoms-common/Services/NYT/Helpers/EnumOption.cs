@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+using System;
+
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     #region Using
-
-    using System;
 
     #endregion
 
@@ -35,13 +35,13 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            if (this.Value == null)
+            if (Value == null)
             {
                 return string.Empty;
             }
 
-            T enumObj = (T) Enum.ToObject(typeof(T), this.Value);
-            return this.ParamString + " " + enumObj;
+            var enumObj = (T) Enum.ToObject(typeof(T), Value);
+            return ParamString + " " + enumObj;
         }
     }
 }

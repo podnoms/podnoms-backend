@@ -1,4 +1,4 @@
-namespace PodNoms.Data.Models.Settings {
+namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
         public string Version { get; set; }
         public string SiteUrl { get; set; }

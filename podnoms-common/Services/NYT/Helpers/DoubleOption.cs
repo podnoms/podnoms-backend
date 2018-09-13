@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     [Option]
     internal class DoubleOption : BaseOption<double?>
@@ -29,12 +29,12 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            if (this.Value == null)
+            if (Value == null)
             {
                 return string.Empty;
             }
 
-            return this.ParamString + " " + this.Value;
+            return ParamString + " " + Value;
         }
     }
 }

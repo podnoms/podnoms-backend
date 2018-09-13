@@ -1,4 +1,4 @@
-namespace PodNoms.Api.Utils
+namespace PodNoms.Common.Utils
 {
     public static class HumanFriendlyInteger
     {
@@ -14,7 +14,7 @@ namespace PodNoms.Api.Utils
                 return leftDigits;
             }
 
-            string friendlyInt = leftDigits;
+            var friendlyInt = leftDigits;
 
             if (friendlyInt.Length > 0)
             {

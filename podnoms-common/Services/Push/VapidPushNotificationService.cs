@@ -1,16 +1,13 @@
-
+using System.Net.Http;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using Newtonsoft.Json;
-using WP = Lib.Net.Http.WebPush;
 using WebPush;
+using WP = Lib.Net.Http.WebPush;
 
-namespace PodNoms.Api.Services.Push {
+namespace PodNoms.Common.Services.Push {
     public class VapidPushNotificationService : IPushNotificationService {
         private readonly PushNotificationServiceOptions _options;
         private readonly ILogger<VapidPushNotificationService> _logger;
@@ -30,7 +27,7 @@ namespace PodNoms.Api.Services.Push {
                     subscription.Keys["auth"]
             );
 
-            var vapid = new WebPush.VapidDetails("mailto: support@podnoms.com", _options.PublicKey, _options.PrivateKey);
+            var vapid = new VapidDetails("mailto: support@podnoms.com", _options.PublicKey, _options.PrivateKey);
             var payload = JsonConvert.SerializeObject(new {
                 notification = new {
                     title = message.Topic,
@@ -40,7 +37,7 @@ namespace PodNoms.Api.Services.Push {
                 }
             });
 
-            var client = new WebPush.WebPushClient();
+            var client = new WebPushClient();
             try {
                 await client.SendNotificationAsync(sub, payload, vapid);
                 _logger.LogDebug($"VAPID: Push to {subscription.Endpoint}");

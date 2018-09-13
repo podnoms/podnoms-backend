@@ -5,13 +5,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
-using PodNoms.Common.Services;
-using PodNoms.Services.Services;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence.Repositories;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class DeleteOrphanAudioJob : IJob {
         public readonly IEntryRepository _entryRepository;
         public readonly StorageSettings _storageSettings;
@@ -21,19 +18,19 @@ namespace PodNoms.Api.Services.Jobs {
 
         public DeleteOrphanAudioJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioStorageSettings, ILoggerFactory logger, IMailSender mailSender) {
-            this._mailSender = mailSender;
-            this._storageSettings = storageSettings.Value;
-            this._audioStorageSettings = audioStorageSettings.Value;
-            this._entryRepository = entryRepository;
+            _mailSender = mailSender;
+            _storageSettings = storageSettings.Value;
+            _audioStorageSettings = audioStorageSettings.Value;
+            _entryRepository = entryRepository;
 
-            this._logger = logger.CreateLogger<DeleteOrphanAudioJob>();
+            _logger = logger.CreateLogger<DeleteOrphanAudioJob>();
         }
 
         public async Task<bool> Execute() {
             try {
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_storageSettings.ConnectionString);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference(_audioStorageSettings.ContainerName);
+                var storageAccount = CloudStorageAccount.Parse(_storageSettings.ConnectionString);
+                var blobClient = storageAccount.CreateCloudBlobClient();
+                var container = blobClient.GetContainerReference(_audioStorageSettings.ContainerName);
                 short blobCount = 0;
                 var blobs = await container.ListBlobsSegmentedAsync(null);
                 foreach (CloudBlockBlob blob in blobs.Results) {
@@ -50,7 +47,7 @@ namespace PodNoms.Api.Services.Jobs {
                         _logger.LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
                     }
                 }
-                await this._mailSender.SendEmailAsync("fergal.moran@gmail.com", $"DeleteOrphanAudioJob: Complete {blobCount}", string.Empty);
+                await _mailSender.SendEmailAsync("fergal.moran@gmail.com", $"DeleteOrphanAudioJob: Complete {blobCount}", string.Empty);
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Error clearing orphans\n{ex.Message}");

@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+namespace PodNoms.Common.Services.NYT.Models
 {
     // ReSharper disable InconsistentNaming
     // due to following youtube-dl

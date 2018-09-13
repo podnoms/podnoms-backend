@@ -13,14 +13,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Storage;
-using PodNoms.Api.Utils;
-using PodNoms.Api.Utils.Extensions;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Storage;
+
 namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("[controller]")]
@@ -36,12 +35,12 @@ namespace PodNoms.Api.Controllers {
                     IOptions<StorageSettings> storageSettings, IOptions<ImageFileStorageSettings> fileStorageSettings,
                     IFileUtilities fileUtilities)
             : base(contextAccessor, userManager, logger) {
-            this._uow = unitOfWork;
-            this._storageSettings = storageSettings.Value;
-            this._fileStorageSettings = fileStorageSettings.Value;
-            this._fileUtilities = fileUtilities;
-            this._repository = repository;
-            this._mapper = mapper;
+            _uow = unitOfWork;
+            _storageSettings = storageSettings.Value;
+            _fileStorageSettings = fileStorageSettings.Value;
+            _fileUtilities = fileUtilities;
+            _repository = repository;
+            _mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<PodcastViewModel>> Get() {
@@ -101,7 +100,7 @@ namespace PodNoms.Api.Controllers {
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
-                await this._repository.DeleteAsync(new Guid(id));
+                await _repository.DeleteAsync(new Guid(id));
                 await _uow.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
@@ -113,9 +112,9 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("checkslug/{slug}")]
         public async Task<ActionResult<string>> CheckSlug(string slug) {
-            var slugValid = (await _repository.GetAllForUserAsync(this._applicationUser.Id))
+            var slugValid = (await _repository.GetAllForUserAsync(_applicationUser.Id))
                 .Where(r => r.Slug == slug);
-            string content = slugValid.Count() == 0 ? string.Empty : slugValid.First().Title;
+            var content = slugValid.Count() == 0 ? string.Empty : slugValid.First().Title;
             return base.Content(
                 $"\"{content}\"",
                 "text/plain"

@@ -2,10 +2,10 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Persistence;
 
-namespace PodNoms.Api.Services.Notifications {
+namespace PodNoms.Common.Services.Notifications {
 
     public class IFTTNotificationHandler : BaseNotificationHandler, INotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.IFTT;

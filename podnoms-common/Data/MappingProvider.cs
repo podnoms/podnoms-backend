@@ -4,16 +4,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Data.Models.ViewModels.Resources;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
 
-namespace PodNoms.Api.Providers {
+namespace PodNoms.Common.Data {
     public static class MappingExtensions {
         public static IMappingExpression<TSource, TDestination> Ignore<TSource, TDestination>(
             this IMappingExpression<TSource, TDestination> map,
@@ -27,18 +24,18 @@ namespace PodNoms.Api.Providers {
 
         public MappingProvider() { }
         public MappingProvider(IConfiguration options) {
-            this._options = options;
+            _options = options;
 
             //Domain to API Resource
             CreateMap<Podcast, PodcastViewModel>()
                 .ForMember(
                     v => v.RssUrl,
-                    e => e.MapFrom(m => $"{this._options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
+                    e => e.MapFrom(m => $"{_options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
                 .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
-                        this._options.GetSection("StorageSettings")["CdnUrl"],
-                        this._options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["CdnUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     v => v.Notifications,
                     e => e.MapFrom(m => m.Notifications)
@@ -46,13 +43,13 @@ namespace PodNoms.Api.Providers {
                 .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
-                        this._options.GetSection("StorageSettings")["CdnUrl"],
-                        this._options.GetSection("ImageFileStorageSettings")["ContainerName"])));
+                        _options.GetSection("StorageSettings")["CdnUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => $"{this._options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                    e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))

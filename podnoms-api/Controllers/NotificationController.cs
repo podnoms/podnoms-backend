@@ -13,11 +13,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Data.Models.ViewModels.Resources;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -35,10 +35,10 @@ namespace PodNoms.Api.Controllers {
             IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
             ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
-            this._notificationRepository = notificationRepository;
-            this._unitOfWork = unitOfWork;
-            this._mapper = mapper;
-            this._supportChatService = supportChatService;
+            _notificationRepository = notificationRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _supportChatService = supportChatService;
         }
 
         [HttpGet]

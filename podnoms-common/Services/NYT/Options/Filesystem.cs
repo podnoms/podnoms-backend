@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using System.Linq;
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using System.Linq;
-    using Helpers;
 
     #endregion
 
@@ -75,8 +75,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int AutoNumberSize
         {
-            get => this.autoNumberSize.Value ?? 5;
-            set => this.SetField(ref this.autoNumberSize.Value, value);
+            get => autoNumberSize.Value ?? 5;
+            set => SetField(ref autoNumberSize.Value, value);
         }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int AutoNumberStart
         {
-            get => this.autoNumberStart.Value ?? 1;
-            set => this.SetField(ref this.autoNumberStart.Value, value);
+            get => autoNumberStart.Value ?? 1;
+            set => SetField(ref autoNumberStart.Value, value);
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string BatchFile
         {
-            get => this.batchFile.Value;
-            set => this.SetField(ref this.batchFile.Value, value);
+            get => batchFile.Value;
+            set => SetField(ref batchFile.Value, value);
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string CacheDir
         {
-            get => this.cacheDir.Value;
-            set => this.SetField(ref this.cacheDir.Value, value);
+            get => cacheDir.Value;
+            set => SetField(ref cacheDir.Value, value);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Continue
         {
-            get => this.continueOpt.Value ?? false;
-            set => this.SetField(ref this.continueOpt.Value, value);
+            get => continueOpt.Value ?? false;
+            set => SetField(ref continueOpt.Value, value);
         }
 
         /// <summary>
@@ -120,8 +120,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Cookies
         {
-            get => this.cookies.Value;
-            set => this.SetField(ref this.cookies.Value, value);
+            get => cookies.Value;
+            set => SetField(ref cookies.Value, value);
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Id
         {
-            get => this.id.Value ?? false;
-            set => this.SetField(ref this.id.Value, value);
+            get => id.Value ?? false;
+            set => SetField(ref id.Value, value);
         }
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string LoadInfoJson
         {
-            get => this.loadInfoJson.Value;
-            set => this.SetField(ref this.loadInfoJson.Value, value);
+            get => loadInfoJson.Value;
+            set => SetField(ref loadInfoJson.Value, value);
         }
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoCacheDir
         {
-            get => this.noCacheDir.Value ?? false;
-            set => this.SetField(ref this.noCacheDir.Value, value);
+            get => noCacheDir.Value ?? false;
+            set => SetField(ref noCacheDir.Value, value);
         }
 
         /// <summary>
@@ -156,8 +156,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoContinue
         {
-            get => this.noContinue.Value ?? false;
-            set => this.SetField(ref this.noContinue.Value, value);
+            get => noContinue.Value ?? false;
+            set => SetField(ref noContinue.Value, value);
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoMtime
         {
-            get => this.noMtime.Value ?? false;
-            set => this.SetField(ref this.noMtime.Value, value);
+            get => noMtime.Value ?? false;
+            set => SetField(ref noMtime.Value, value);
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoOverwrites
         {
-            get => this.noOverwrites.Value ?? false;
-            set => this.SetField(ref this.noOverwrites.Value, value);
+            get => noOverwrites.Value ?? false;
+            set => SetField(ref noOverwrites.Value, value);
         }
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoPart
         {
-            get => this.noPart.Value ?? false;
-            set => this.SetField(ref this.noPart.Value, value);
+            get => noPart.Value ?? false;
+            set => SetField(ref noPart.Value, value);
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Output
         {
-            get => this.output.Value;
-            set => this.SetField(ref this.output.Value, value);
+            get => output.Value;
+            set => SetField(ref output.Value, value);
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool RestrictFilenames
         {
-            get => this.restrictFilenames.Value ?? false;
-            set => this.SetField(ref this.restrictFilenames.Value, value);
+            get => restrictFilenames.Value ?? false;
+            set => SetField(ref restrictFilenames.Value, value);
         }
 
         /// <summary>
@@ -210,8 +210,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool RmCacheDir
         {
-            get => this.rmCacheDir.Value ?? false;
-            set => this.SetField(ref this.rmCacheDir.Value, value);
+            get => rmCacheDir.Value ?? false;
+            set => SetField(ref rmCacheDir.Value, value);
         }
 
         /// <summary>
@@ -219,8 +219,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteAnnotations
         {
-            get => this.writeAnnotations.Value ?? false;
-            set => this.SetField(ref this.writeAnnotations.Value, value);
+            get => writeAnnotations.Value ?? false;
+            set => SetField(ref writeAnnotations.Value, value);
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteDescription
         {
-            get => this.writeDescription.Value ?? false;
-            set => this.SetField(ref this.writeDescription.Value, value);
+            get => writeDescription.Value ?? false;
+            set => SetField(ref writeDescription.Value, value);
         }
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteInfoJson
         {
-            get => this.writeInfoJson.Value ?? false;
-            set => this.SetField(ref this.writeInfoJson.Value, value);
+            get => writeInfoJson.Value ?? false;
+            set => SetField(ref writeInfoJson.Value, value);
         }
 
         /// <summary>
@@ -249,9 +249,9 @@ namespace NYoutubeDL.Options
         /// </returns>
         public override string ToCliParameters()
         {
-            if (this.output?.Value != null && this.output.Value.Any(char.IsWhiteSpace))
+            if (output?.Value != null && output.Value.Any(char.IsWhiteSpace))
             {
-                this.output.Value = $"\"{this.output.Value}\"";
+                output.Value = $"\"{output.Value}\"";
             }
 
             return base.ToCliParameters();

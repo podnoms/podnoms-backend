@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace PodNoms.Api.Utils.Crypt
+namespace PodNoms.Common.Utils.Crypt
 {
 
     public class HMACGenerator

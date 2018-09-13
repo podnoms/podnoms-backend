@@ -20,11 +20,8 @@ using FluentValidation.AspNetCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
 using PodNoms.Api.Providers;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils;
+using PodNoms.Common.Auth;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
@@ -32,10 +29,14 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
-using PodNoms.Api.Services.Middleware;
-using PodNoms.Api.Services.Logging;
-using PodNoms.Api.Services.Push.Extensions;
-using PodNoms.Services.Services.Startup;
+using PodNoms.Common.Data;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Services.Logging;
+using PodNoms.Common.Services.Middleware;
+using PodNoms.Common.Services.Push.Extensions;
+using PodNoms.Common.Services.Startup;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Api {
     public class Startup {

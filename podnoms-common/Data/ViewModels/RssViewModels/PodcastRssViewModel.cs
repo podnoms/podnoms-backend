@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PodNoms.Data.Models.ViewModels.RssViewModels {
+namespace PodNoms.Common.Data.ViewModels.RssViewModels {
     public class PodcastEnclosureViewModel {
         public string Title { get; set; }
         public string Description { get; set; }

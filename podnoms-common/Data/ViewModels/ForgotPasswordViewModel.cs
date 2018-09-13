@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels {
     public class ForgotPasswordViewModel {
         [Required]
         [EmailAddress]

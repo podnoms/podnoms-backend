@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using PodNoms.Data.Models.ViewModels;
+using PodNoms.Common.Data.ViewModels.Resources;
 
 namespace PodNoms.Common.Services {
     public interface ISupportChatService {

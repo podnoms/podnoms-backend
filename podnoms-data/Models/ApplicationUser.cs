@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
-using PodNoms.Data.Models;
-using PodNoms.Data.Models.Annotations;
+using PodNoms.Data.Annotations;
+using PodNoms.Data.Interfaces;
 
-namespace PodNoms.Api.Services.Auth {
+namespace PodNoms.Data.Models {
     public class ApplicationUser : IdentityUser, ISluggedEntity {
         // Extended Properties
         public string FirstName { get; set; }

@@ -1,4 +1,3 @@
-
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Services.Auth {
+namespace PodNoms.Common.Auth {
     public class JwtFactory : IJwtFactory {
         private readonly JwtIssuerOptions _jwtOptions;
 

@@ -7,7 +7,7 @@ using System.Dynamic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace PodNoms.Api.Persistence.Extensions {
+namespace PodNoms.Common.Persistence.Extensions {
     public static class DbContextExtensions {
         public static async Task<int> CountByRawSql(this DbContext dbContext, string sql, params KeyValuePair<string, object>[] parameters) {
             var reader = await GetReader(dbContext, sql, parameters);
@@ -22,10 +22,10 @@ namespace PodNoms.Api.Persistence.Extensions {
                 try {
                     connection.Open();
 
-                    using (SqlCommand command = connection.CreateCommand()) {
+                    using (var command = connection.CreateCommand()) {
                         command.CommandText = sql;
 
-                        foreach (KeyValuePair<string, object> parameter in parameters)
+                        foreach (var parameter in parameters)
                             command.Parameters.AddWithValue(parameter.Key, parameter.Value);
 
                         using (DbDataReader dataReader = await command.ExecuteReaderAsync()) {
@@ -36,7 +36,7 @@ namespace PodNoms.Api.Persistence.Extensions {
                 }
                 // We should have better error handling here
                 // Narrator: yes we should but what ya gonna do eh?
-                catch (System.Exception) { } finally { connection.Close(); }
+                catch (Exception) { } finally { connection.Close(); }
             }
             return null;
         }
@@ -46,8 +46,8 @@ namespace PodNoms.Api.Persistence.Extensions {
                 if (cmd.Connection.State != ConnectionState.Open)
                     cmd.Connection.Open();
 
-                foreach (KeyValuePair<string, object> param in Parameters) {
-                    DbParameter dbParameter = cmd.CreateParameter();
+                foreach (var param in Parameters) {
+                    var dbParameter = cmd.CreateParameter();
                     dbParameter.ParameterName = param.Key;
                     dbParameter.Value = param.Value;
                     cmd.Parameters.Add(dbParameter);

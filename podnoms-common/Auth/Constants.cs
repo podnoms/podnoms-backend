@@ -1,4 +1,4 @@
-namespace PodNoms.Api.Services.Auth {
+namespace PodNoms.Common.Auth {
     public static class Constants {
         public static class Strings {
             public static class JwtClaimIdentifiers {

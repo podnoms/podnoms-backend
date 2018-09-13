@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -84,8 +84,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool CallHome
         {
-            get => this.callHome.Value ?? false;
-            set => this.SetField(ref this.callHome.Value, value);
+            get => callHome.Value ?? false;
+            set => SetField(ref callHome.Value, value);
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ConsoleTitle
         {
-            get => this.consoleTitle.Value ?? false;
-            set => this.SetField(ref this.consoleTitle.Value, value);
+            get => consoleTitle.Value ?? false;
+            set => SetField(ref consoleTitle.Value, value);
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool DumpJson
         {
-            get => this.dumpJson.Value ?? false;
-            set => this.SetField(ref this.dumpJson.Value, value);
+            get => dumpJson.Value ?? false;
+            set => SetField(ref dumpJson.Value, value);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool DumpPages
         {
-            get => this.dumpPages.Value ?? false;
-            set => this.SetField(ref this.dumpPages.Value, value);
+            get => dumpPages.Value ?? false;
+            set => SetField(ref dumpPages.Value, value);
         }
 
         /// <summary>
@@ -120,8 +120,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool DumpSingleJson
         {
-            get => this.dumpSingleJson.Value ?? false;
-            set => this.SetField(ref this.dumpSingleJson.Value, value);
+            get => dumpSingleJson.Value ?? false;
+            set => SetField(ref dumpSingleJson.Value, value);
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetDescription
         {
-            get => this.getDescription.Value ?? false;
-            set => this.SetField(ref this.getDescription.Value, value);
+            get => getDescription.Value ?? false;
+            set => SetField(ref getDescription.Value, value);
         }
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetDuration
         {
-            get => this.getDuration.Value ?? false;
-            set => this.SetField(ref this.getDuration.Value, value);
+            get => getDuration.Value ?? false;
+            set => SetField(ref getDuration.Value, value);
         }
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetFilename
         {
-            get => this.getFilename.Value ?? false;
-            set => this.SetField(ref this.getFilename.Value, value);
+            get => getFilename.Value ?? false;
+            set => SetField(ref getFilename.Value, value);
         }
 
         /// <summary>
@@ -156,8 +156,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetFormat
         {
-            get => this.getFormat.Value ?? false;
-            set => this.SetField(ref this.getFormat.Value, value);
+            get => getFormat.Value ?? false;
+            set => SetField(ref getFormat.Value, value);
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetId
         {
-            get => this.getId.Value ?? false;
-            set => this.SetField(ref this.getId.Value, value);
+            get => getId.Value ?? false;
+            set => SetField(ref getId.Value, value);
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetThumbnail
         {
-            get => this.getThumbnail.Value ?? false;
-            set => this.SetField(ref this.getThumbnail.Value, value);
+            get => getThumbnail.Value ?? false;
+            set => SetField(ref getThumbnail.Value, value);
         }
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetTitle
         {
-            get => this.getTitle.Value ?? false;
-            set => this.SetField(ref this.getTitle.Value, value);
+            get => getTitle.Value ?? false;
+            set => SetField(ref getTitle.Value, value);
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool GetUrl
         {
-            get => this.getUrl.Value ?? false;
-            set => this.SetField(ref this.getUrl.Value, value);
+            get => getUrl.Value ?? false;
+            set => SetField(ref getUrl.Value, value);
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Newline
         {
-            get => this.newline.Value ?? false;
-            set => this.SetField(ref this.newline.Value, value);
+            get => newline.Value ?? false;
+            set => SetField(ref newline.Value, value);
         }
 
         /// <summary>
@@ -210,8 +210,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoCallHome
         {
-            get => this.noCallHome.Value ?? false;
-            set => this.SetField(ref this.noCallHome.Value, value);
+            get => noCallHome.Value ?? false;
+            set => SetField(ref noCallHome.Value, value);
         }
 
         /// <summary>
@@ -219,8 +219,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoProgress
         {
-            get => this.noProgress.Value ?? false;
-            set => this.SetField(ref this.noProgress.Value, value);
+            get => noProgress.Value ?? false;
+            set => SetField(ref noProgress.Value, value);
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoWarnings
         {
-            get => this.noWarnings.Value ?? false;
-            set => this.SetField(ref this.noWarnings.Value, value);
+            get => noWarnings.Value ?? false;
+            set => SetField(ref noWarnings.Value, value);
         }
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool PrintJson
         {
-            get => this.printJson.Value ?? false;
-            set => this.SetField(ref this.printJson.Value, value);
+            get => printJson.Value ?? false;
+            set => SetField(ref printJson.Value, value);
         }
 
         /// <summary>
@@ -246,8 +246,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool PrintTraffic
         {
-            get => this.printTraffic.Value ?? false;
-            set => this.SetField(ref this.printTraffic.Value, value);
+            get => printTraffic.Value ?? false;
+            set => SetField(ref printTraffic.Value, value);
         }
 
         /// <summary>
@@ -255,8 +255,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Quiet
         {
-            get => this.quiet.Value ?? false;
-            set => this.SetField(ref this.quiet.Value, value);
+            get => quiet.Value ?? false;
+            set => SetField(ref quiet.Value, value);
         }
 
         /// <summary>
@@ -264,8 +264,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Simulate
         {
-            get => this.simulate.Value ?? false;
-            set => this.SetField(ref this.simulate.Value, value);
+            get => simulate.Value ?? false;
+            set => SetField(ref simulate.Value, value);
         }
 
         /// <summary>
@@ -273,8 +273,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool SkipDownload
         {
-            get => this.skipDownload.Value ?? false;
-            set => this.SetField(ref this.skipDownload.Value, value);
+            get => skipDownload.Value ?? false;
+            set => SetField(ref skipDownload.Value, value);
         }
 
         /// <summary>
@@ -282,8 +282,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool Verbose
         {
-            get => this.verbose.Value ?? false;
-            set => this.SetField(ref this.verbose.Value, value);
+            get => verbose.Value ?? false;
+            set => SetField(ref verbose.Value, value);
         }
 
         /// <summary>
@@ -291,8 +291,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WritePages
         {
-            get => this.writePages.Value ?? false;
-            set => this.SetField(ref this.writePages.Value, value);
+            get => writePages.Value ?? false;
+            set => SetField(ref writePages.Value, value);
         }
     }
 }

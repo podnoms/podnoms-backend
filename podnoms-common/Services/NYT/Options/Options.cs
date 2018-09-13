@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using Newtonsoft.Json;
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
-    using Newtonsoft.Json;
 
     #endregion
 
@@ -63,20 +63,20 @@ namespace NYoutubeDL.Options
 
         public void Clear()
         {
-            this.AdobePassOptions = new AdobePass();
-            this.AuthenticationOptions = new Authentication();
-            this.DownloadOptions = new Download();
-            this.FilesystemOptions = new Filesystem();
-            this.GeneralOptions = new General();
-            this.GeoRestrictionOptions = new GeoRestriction();
-            this.NetworkOptions = new Network();
-            this.PostProcessingOptions = new PostProcessing();
-            this.SubtitleOptions = new Subtitle();
-            this.ThumbnailImagesOptions = new ThumbnailImages();
-            this.VerbositySimulationOptions = new VerbositySimulation();
-            this.VideoFormatOptions = new VideoFormat();
-            this.VideoSelectionOptions = new VideoSelection();
-            this.WorkaroundsOptions = new Workarounds();
+            AdobePassOptions = new AdobePass();
+            AuthenticationOptions = new Authentication();
+            DownloadOptions = new Download();
+            FilesystemOptions = new Filesystem();
+            GeneralOptions = new General();
+            GeoRestrictionOptions = new GeoRestriction();
+            NetworkOptions = new Network();
+            PostProcessingOptions = new PostProcessing();
+            SubtitleOptions = new Subtitle();
+            ThumbnailImagesOptions = new ThumbnailImages();
+            VerbositySimulationOptions = new VerbositySimulation();
+            VideoFormatOptions = new VideoFormat();
+            VideoSelectionOptions = new VideoSelection();
+            WorkaroundsOptions = new Workarounds();
         }
 
         public static Options Deserialize(string json)
@@ -97,20 +97,20 @@ namespace NYoutubeDL.Options
         /// </returns>
         public string ToCliParameters()
         {
-            string parameters = this.AdobePassOptions.ToCliParameters() +
-                                this.AuthenticationOptions.ToCliParameters() +
-                                this.DownloadOptions.ToCliParameters() +
-                                this.FilesystemOptions.ToCliParameters() +
-                                this.GeneralOptions.ToCliParameters() +
-                                this.GeoRestrictionOptions.ToCliParameters() +
-                                this.NetworkOptions.ToCliParameters() +
-                                this.PostProcessingOptions.ToCliParameters() +
-                                this.SubtitleOptions.ToCliParameters() +
-                                this.ThumbnailImagesOptions.ToCliParameters() +
-                                this.VerbositySimulationOptions.ToCliParameters() +
-                                this.VideoFormatOptions.ToCliParameters() +
-                                this.VideoSelectionOptions.ToCliParameters() +
-                                this.WorkaroundsOptions.ToCliParameters();
+            var parameters = AdobePassOptions.ToCliParameters() +
+                                AuthenticationOptions.ToCliParameters() +
+                                DownloadOptions.ToCliParameters() +
+                                FilesystemOptions.ToCliParameters() +
+                                GeneralOptions.ToCliParameters() +
+                                GeoRestrictionOptions.ToCliParameters() +
+                                NetworkOptions.ToCliParameters() +
+                                PostProcessingOptions.ToCliParameters() +
+                                SubtitleOptions.ToCliParameters() +
+                                ThumbnailImagesOptions.ToCliParameters() +
+                                VerbositySimulationOptions.ToCliParameters() +
+                                VideoFormatOptions.ToCliParameters() +
+                                VideoSelectionOptions.ToCliParameters() +
+                                WorkaroundsOptions.ToCliParameters();
 
             // Remove extra spaces
             return parameters.RemoveExtraWhitespace();

@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     /// <summary>
     ///     Abstract class that any Option type field inherits
@@ -34,7 +34,7 @@ namespace NYoutubeDL.Helpers
 
         internal BaseOption(string paramString)
         {
-            this.ParamString = paramString;
+            ParamString = paramString;
         }
     }
 }

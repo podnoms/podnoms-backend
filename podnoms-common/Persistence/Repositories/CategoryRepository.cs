@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
     public interface ICategoryRepository : IRepository<Category> {
         List<Subcategory> GetAllSubcategories();
     }

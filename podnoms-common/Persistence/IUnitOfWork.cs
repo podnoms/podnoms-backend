@@ -1,7 +1,6 @@
-using System;
 using System.Threading.Tasks;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence {
     public interface IUnitOfWork {
         Task<bool> CompleteAsync();
     }

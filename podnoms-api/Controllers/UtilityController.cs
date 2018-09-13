@@ -16,12 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Persistence.Extensions;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Extensions;
+using PodNoms.Common.Utils;
+using PodNoms.Data.Models;
 using Zxcvbn;
 
 namespace PodNoms.Api.Controllers {
@@ -36,9 +37,9 @@ namespace PodNoms.Api.Controllers {
                         IOptions<AppSettings> appSettings, PodNomsDbContext context,
                         ILogger<UtilityController> logger, IConfiguration config)
                                     : base(contextAccessor, userManager, logger) {
-            this._appSettings = appSettings.Value;
-            this._config = config;
-            this._context = context;
+            _appSettings = appSettings.Value;
+            _config = config;
+            _context = context;
         }
 
         [HttpGet("checkdupes")]
@@ -48,7 +49,7 @@ namespace PodNoms.Api.Controllers {
                     var p = new Dictionary<string, object>();
                     p.Add("field", value);
                     var sql = $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
-                    var result = this._context.CollectionFromSql(sql, p).FirstOrDefault();
+                    var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
                     if (result != null) {
                         return Ok(new CheckValueResult {
                             IsValid = false,
@@ -71,13 +72,13 @@ namespace PodNoms.Api.Controllers {
             try {
                 _logger.LogInformation($"Checking domain: {request.HostName}");
 
-                ClientRequest dnsRequest = new ClientRequest("8.8.8.8");
+                var dnsRequest = new ClientRequest("8.8.8.8");
                 dnsRequest.Questions.Add(new Question(Domain.FromString(request.HostName), RecordType.CNAME));
                 dnsRequest.RecursionDesired = true;
 
                 var response = await dnsRequest.Resolve();
 
-                Domain result = response.AnswerRecords
+                var result = response.AnswerRecords
                    .Where(r => r.Type == RecordType.CNAME)
                    .Cast<CanonicalNameResourceRecord>()
                    .Select(r => r.CanonicalDomainName)
@@ -103,7 +104,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("temppodcastimage")]
         public ActionResult<string> GetTemporaryPodcastImage() {
             var image = ImageUtils.GetTemporaryImage("podcast", 16);
-            return $"\"{this._config.GetSection("StorageSettings")["CdnUrl"]}static/images/{image}\"";
+            return $"\"{_config.GetSection("StorageSettings")["CdnUrl"]}static/images/{image}\"";
         }
     }
 }

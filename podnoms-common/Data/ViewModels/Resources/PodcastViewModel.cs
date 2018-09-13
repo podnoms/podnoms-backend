@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using PodNoms.Data.Models.ViewModels.Resources;
 
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PodcastViewModel {
         public string Id { get; set; }
         public string Title { get; set; }

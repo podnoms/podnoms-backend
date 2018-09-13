@@ -4,11 +4,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using PodNoms.Data.Models;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Persistence;
 
-namespace PodNoms.Api.Services.Notifications {
+namespace PodNoms.Common.Services.Notifications {
     public class SlackNotificationHandler : BaseNotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.Slack;
 

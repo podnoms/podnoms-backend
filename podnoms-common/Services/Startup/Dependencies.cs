@@ -2,17 +2,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Gravatar;
-using PodNoms.Api.Services.Jobs;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Realtime;
-using PodNoms.Api.Services.Storage;
-using PodNoms.Common.Services;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Gravatar;
+using PodNoms.Common.Services.Jobs;
+using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Services.Realtime;
+using PodNoms.Common.Services.Storage;
 
-namespace PodNoms.Services.Services.Startup {
+namespace PodNoms.Common.Services.Startup {
     public static class Dependencies {
         public static IServiceCollection AddDependencies(this IServiceCollection services) {
             services.AddTransient<IFileUploader, AzureFileUploader>()

@@ -10,9 +10,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -27,9 +28,9 @@ namespace PodNoms.Api.Controllers {
                     IEntryRepository entryRepository, ILogger<ProfileController> logger,
                 UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
             : base(contextAccessor, userManager, logger) {
-            this._entryRepository = entryRepository;
-            this._mapper = mapper;
-            this._unitOfWork = unitOfWork;
+            _entryRepository = entryRepository;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {

@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     [Option]
     internal class FileSizeRateOption : BaseOption<FileSizeRate>
@@ -29,7 +29,7 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            return this.Value == null ? string.Empty : this.ParamString + " " + this.Value;
+            return Value == null ? string.Empty : ParamString + " " + Value;
         }
     }
 }

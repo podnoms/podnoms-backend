@@ -17,16 +17,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Downloader;
-using PodNoms.Api.Services.Hubs;
-using PodNoms.Api.Services.Jobs;
-using PodNoms.Api.Services.Middleware;
-using PodNoms.Api.Services.Push;
-using PodNoms.Api.Services.Realtime;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Downloader;
+using PodNoms.Common.Services.Hubs;
+using PodNoms.Common.Services.Middleware;
+using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
@@ -60,18 +58,18 @@ namespace PodNoms.Api.Controllers {
             IPushNotificationService notificationService,
             IPodcastRepository podcastRepository,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-            this._appSettings = appSettings.Value;
-            this._storageSettings = settings.Value;
-            this._helpersSettings = helpersSettings.Value;
-            this._audioFileStorageSettings = audioFileStorageSettings.Value;
-            this._imageFileStorageSettings = imageFileStorageSettings.Value;
-            this._jwtIssuerOptions = jwtIssuerOptions.Value;
-            this._hub = hub;
-            this._config = config;
-            this._mapper = mapper;
-            this._subscriptionStore = subscriptionStore;
-            this._notificationService = notificationService;
-            this._podcastRepository = podcastRepository;
+            _appSettings = appSettings.Value;
+            _storageSettings = settings.Value;
+            _helpersSettings = helpersSettings.Value;
+            _audioFileStorageSettings = audioFileStorageSettings.Value;
+            _imageFileStorageSettings = imageFileStorageSettings.Value;
+            _jwtIssuerOptions = jwtIssuerOptions.Value;
+            _hub = hub;
+            _config = config;
+            _mapper = mapper;
+            _subscriptionStore = subscriptionStore;
+            _notificationService = notificationService;
+            _podcastRepository = podcastRepository;
         }
 
         [HttpGet]
@@ -84,7 +82,7 @@ namespace PodNoms.Api.Controllers {
                 ImageContainer = _imageFileStorageSettings.ContainerName,
                 YouTubeDlPath = _helpersSettings.Downloader,
                 YouTubeDlVersion = AudioDownloader.GetVersion(_helpersSettings.Downloader),
-                OSVersion = System.Environment.OSVersion,
+                OSVersion = Environment.OSVersion,
                 RssUrl = _appSettings.RssUrl
             };
             return Ok(config);
@@ -92,7 +90,7 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [HttpGet("generatelogdata")]
         public IActionResult GenerateLogData() {
-            for (int i = 0; i < 1000; i++) {
+            for (var i = 0; i < 1000; i++) {
                 _logger.LogError($"Debug error {i}");
             }
             return Ok();
@@ -125,7 +123,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("serverpush")]
         public async Task<string> ServerPush(string message) {
             var response = new StringBuilder();
-            WP.PushMessage pushMessage = new WP.PushMessage(message)
+            var pushMessage = new WP.PushMessage(message)
             {
                 Topic = "Debug",
                 Urgency = WP.PushMessageUrgency.Normal
@@ -144,7 +142,7 @@ namespace PodNoms.Api.Controllers {
         }
         [HttpGet("qry")]
         public async Task<ActionResult<PodcastViewModel>> Query() {
-            var podcast = await this._podcastRepository.GetAll()
+            var podcast = await _podcastRepository.GetAll()
                 .Where(p => p.Id == Guid.Parse("54f5ea27-9dff-41cf-9944-08d600a180a2"))
                 .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();

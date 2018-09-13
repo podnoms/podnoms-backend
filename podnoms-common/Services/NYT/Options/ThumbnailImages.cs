@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -42,8 +42,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ListThumbnails
         {
-            get => this.listThumbnails.Value ?? false;
-            set => this.SetField(ref this.listThumbnails.Value, value);
+            get => listThumbnails.Value ?? false;
+            set => SetField(ref listThumbnails.Value, value);
         }
 
         /// <summary>
@@ -51,8 +51,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteAllThumbnails
         {
-            get => this.writeAllThumbnails.Value ?? false;
-            set => this.SetField(ref this.writeAllThumbnails.Value, value);
+            get => writeAllThumbnails.Value ?? false;
+            set => SetField(ref writeAllThumbnails.Value, value);
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteThumbnail
         {
-            get => this.writeThumbnail.Value ?? false;
-            set => this.SetField(ref this.writeThumbnail.Value, value);
+            get => writeThumbnail.Value ?? false;
+            set => SetField(ref writeThumbnail.Value, value);
         }
     }
 }

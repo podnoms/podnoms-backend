@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Jobs;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Jobs;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -22,10 +23,10 @@ namespace PodNoms.Api.Controllers {
         public PlaylistController(IPlaylistRepository playlistRepository, IPodcastRepository podcastRepository,
                 IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                 IUnitOfWork unitOfWork, IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor, userManager, logger) {
-            this._playlistRepository = playlistRepository;
-            this._podcastRepository = podcastRepository;
-            this._unitOfWork = unitOfWork;
-            this._mapper = mapper;
+            _playlistRepository = playlistRepository;
+            _podcastRepository = podcastRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         [HttpPost]

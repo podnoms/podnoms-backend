@@ -1,21 +1,20 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using PodNoms.Data.Models.Settings;
+using PodNoms.Common.Data.Settings;
 
-namespace PodNoms.Api.Services.Storage {
+namespace PodNoms.Common.Services.Storage {
     public class AzureFileUtilities : IFileUtilities {
         private readonly StorageSettings _settings;
         public AzureFileUtilities(IOptions<StorageSettings> settings) {
-            this._settings = settings.Value;
+            _settings = settings.Value;
         }
         private async Task<CloudBlobContainer> _getContainer(string containerName, bool create = false) {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_settings.ConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+            var storageAccount = CloudStorageAccount.Parse(_settings.ConnectionString);
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference(containerName);
             var exists = await container.ExistsAsync();
             if (!exists && !create) {
                 throw new InvalidOperationException($"Container ${container} does not exist");
@@ -26,7 +25,7 @@ namespace PodNoms.Api.Services.Storage {
         public async Task<long> GetRemoteFileSize(string containerName, string fileName) {
             try {
                 var container = await _getContainer(containerName);
-                CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
+                var blob = container.GetBlockBlobReference(fileName);
                 await blob.FetchAttributesAsync();
                 return blob.Properties.Length;
             } catch (InvalidOperationException ex) {
@@ -36,7 +35,7 @@ namespace PodNoms.Api.Services.Storage {
         public async Task<bool> CheckFileExists(string containerName, string fileName) {
             try {
                 var container = await _getContainer(containerName);
-                CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
+                var blob = container.GetBlockBlobReference(fileName);
                 await blob.FetchAttributesAsync();
                 return true;
             } catch (Exception) {

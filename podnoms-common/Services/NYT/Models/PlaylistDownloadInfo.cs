@@ -18,13 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
+
+namespace PodNoms.Common.Services.NYT.Models
 {
     #region Using
-
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text.RegularExpressions;
 
     #endregion
 
@@ -39,11 +38,11 @@ namespace NYoutubeDL.Models
 
         public PlaylistDownloadInfo(PlaylistInfo info)
         {
-            this.Id = info.id;
-            this.Title = info.title;
-            foreach (VideoInfo videoInfo in info.entries)
+            Id = info.id;
+            Title = info.title;
+            foreach (var videoInfo in info.entries)
             {
-                this.Videos.Add(new VideoDownloadInfo(videoInfo));
+                Videos.Add(new VideoDownloadInfo(videoInfo));
             }
         }
 
@@ -52,8 +51,8 @@ namespace NYoutubeDL.Models
         /// </summary>
         public VideoDownloadInfo CurrentVideo
         {
-            get => this.currentVideo;
-            set => this.SetField(ref this.currentVideo, value);
+            get => currentVideo;
+            set => SetField(ref currentVideo, value);
         }
 
         /// <summary>
@@ -61,8 +60,8 @@ namespace NYoutubeDL.Models
         /// </summary>
         public int VideoIndex
         {
-            get => this.videoIndex;
-            set => this.SetField(ref this.videoIndex, value);
+            get => videoIndex;
+            set => SetField(ref videoIndex, value);
         }
 
         /// <summary>
@@ -72,7 +71,7 @@ namespace NYoutubeDL.Models
 
         internal override void ParseError(object sender, string error)
         {
-            this.currentVideo?.ParseError(sender, error);
+            currentVideo?.ParseError(sender, error);
             base.ParseError(sender, error);
         }
 
@@ -80,16 +79,16 @@ namespace NYoutubeDL.Models
         {
             if (output.Contains(VIDEOSTRING) && output.Contains(OFSTRING))
             {
-                Regex regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                Match match = regex.Match(output);
+                var regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                var match = regex.Match(output);
                 if (match.Success)
                 {
-                    this.VideoIndex = int.Parse(match.Groups[1].ToString());
-                    this.CurrentVideo = this.Videos[this.videoIndex - 1];
+                    VideoIndex = int.Parse(match.Groups[1].ToString());
+                    CurrentVideo = Videos[videoIndex - 1];
                 }
             }
 
-            this.CurrentVideo?.ParseOutput(sender, output);
+            CurrentVideo?.ParseOutput(sender, output);
             base.ParseOutput(sender, output);
         }
     }

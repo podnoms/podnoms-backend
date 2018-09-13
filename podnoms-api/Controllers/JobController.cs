@@ -3,7 +3,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Api.Services.Jobs;
+using PodNoms.Common.Services.Jobs;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]

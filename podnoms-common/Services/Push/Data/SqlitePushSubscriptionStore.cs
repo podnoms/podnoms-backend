@@ -3,10 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.EntityFrameworkCore;
-using PodNoms.Api.Services.Push;
-using PodNoms.Api.Services.Push.Data;
 
-namespace PodNoms.Api.Services.Push.Data {
+namespace PodNoms.Common.Services.Push.Data {
     internal class SqlitePushSubscriptionStore : IPushSubscriptionStore {
         private readonly PushSubscriptionContext _context;
 
@@ -15,7 +13,7 @@ namespace PodNoms.Api.Services.Push.Data {
         }
 
         public Task StoreSubscriptionAsync(string uid, PushSubscription subscription) {
-            PushSubscriptionContext.PushSubscription entity = new PushSubscriptionContext.PushSubscription(uid, subscription);
+            var entity = new PushSubscriptionContext.PushSubscription(uid, subscription);
             if (_context.Subscriptions.Where(s => s.Endpoint == subscription.Endpoint).Count() > 0) {
                 // _context.Entry(entry).State = EntityState.Modified
                 _context.Subscriptions.Attach(entity);
@@ -27,7 +25,7 @@ namespace PodNoms.Api.Services.Push.Data {
         }
 
         public async Task DiscardSubscriptionAsync(string endpoint) {
-            PushSubscriptionContext.PushSubscription subscription = await _context.Subscriptions.FindAsync(endpoint);
+            var subscription = await _context.Subscriptions.FindAsync(endpoint);
 
             _context.Subscriptions.Remove(subscription);
 

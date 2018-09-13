@@ -9,13 +9,11 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Hubs;
-using PodNoms.Api.Services.Push;
+using PodNoms.Common;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services;
 using WebPush = Lib.Net.Http.WebPush;
 
@@ -31,10 +29,10 @@ namespace PodNoms.Api.Controllers {
         public ChatController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager, ILogger<ChatController> logger,
                             IMapper mapper, IUnitOfWork unitOfWork, IChatRepository chatRepository, ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
-            this._chatRepository = chatRepository;
-            this._unitOfWork = unitOfWork;
-            this._mapper = mapper;
-            this._supportChatService = supportChatService;
+            _chatRepository = chatRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _supportChatService = supportChatService;
         }
 
         [HttpGet]
@@ -50,7 +48,7 @@ namespace PodNoms.Api.Controllers {
             message.FromUserId = _applicationUser.Id;
             var chat = _mapper.Map<ChatMessage>(message);
             _chatRepository.AddOrUpdate(chat);
-            await this._unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
 
             if (await _supportChatService.InitiateSupportRequest(_userId, message)) {
                 return Ok(message);

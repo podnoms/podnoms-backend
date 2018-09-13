@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
-namespace PodNoms.Api.Utils {
+namespace PodNoms.Common.Utils {
     public static class HttpUtils {
         public static async Task<string> DownloadFile(string url, string file = "") {
             if (string.IsNullOrEmpty(file))
@@ -12,7 +11,7 @@ namespace PodNoms.Api.Utils {
             using (var client = new HttpClient()) {
                 using (var response = await client.GetAsync(url)) {
                     using (var content = response.Content) {
-                        byte[] result = await content.ReadAsByteArrayAsync();
+                        var result = await content.ReadAsByteArrayAsync();
                         System.IO.File.WriteAllBytes(file, result);
                     }
                 }

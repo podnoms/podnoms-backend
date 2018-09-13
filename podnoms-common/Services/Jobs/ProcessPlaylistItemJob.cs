@@ -5,13 +5,14 @@ using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Downloader;
+using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Downloader;
-using PodNoms.Api.Services.Processor;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistItemJob : IJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;

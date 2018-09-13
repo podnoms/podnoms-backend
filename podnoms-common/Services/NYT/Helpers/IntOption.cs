@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     [Option]
     internal class IntOption : BaseOption<int?>
@@ -32,22 +32,22 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            if (this.Value == null)
+            if (Value == null)
             {
                 return string.Empty;
             }
 
-            if (this.Value < 0)
+            if (Value < 0)
             {
-                if (this.negativeIsInfinite)
+                if (negativeIsInfinite)
                 {
-                    return this.ParamString + " infinite";
+                    return ParamString + " infinite";
                 }
 
                 return string.Empty;
             }
 
-            return this.ParamString + " " + this.Value;
+            return ParamString + " " + Value;
         }
     }
 }

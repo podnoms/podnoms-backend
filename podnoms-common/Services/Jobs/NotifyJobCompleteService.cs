@@ -1,17 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PodNoms.Data.Models;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Notifications;
-using PodNoms.Api.Services.Push;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Notifications;
+using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class NotifyJobCompleteService : INotifyJobCompleteService {
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
@@ -25,20 +23,20 @@ namespace PodNoms.Api.Services.Jobs {
             INotificationRepository notificationRepository,
             ILogger<NotifyJobCompleteService> logger,
             IServiceProvider serviceProvider) {
-            this._notificationService = notificationService;
-            this._subscriptionStore = subscriptionStore;
-            this._notificationRepository = notificationRepository;
-            this._logger = logger;
-            this._handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
+            _notificationService = notificationService;
+            _subscriptionStore = subscriptionStore;
+            _notificationRepository = notificationRepository;
+            _logger = logger;
+            _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
 
         public async Task NotifyUser(string userId, string title, string body, string image) {
-            var pushMessage = new WP.PushMessage(body) {
+            var pushMessage = new PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
             await _subscriptionStore.ForEachSubscriptionAsync(userId,
-                (WP.PushSubscription subscription) => {
+                (PushSubscription subscription) => {
                     _notificationService.SendNotificationAsync(subscription, pushMessage);
                 });
         }

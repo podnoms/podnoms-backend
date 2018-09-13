@@ -15,14 +15,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
 using PodNoms.Api.Providers;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Storage;
-using PodNoms.Api.Utils;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -39,12 +39,12 @@ namespace PodNoms.Api.Controllers {
                         IOptions<AudioFileStorageSettings> settings, IOptions<StorageSettings> storageSettings,
                         ILogger<AudioUploadController> logger, IMapper mapper,
                         UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-            this._mapper = mapper;
-            this._audioFileStorageSettings = settings.Value;
-            this._storageSettings = storageSettings.Value;
-            this._podcastRepository = podcastRepository;
-            this._entryRepository = entryRepository;
-            this._unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _audioFileStorageSettings = settings.Value;
+            _storageSettings = storageSettings.Value;
+            _podcastRepository = podcastRepository;
+            _entryRepository = entryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost]

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models.Annotations;
+using PodNoms.Data.Annotations;
+using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Services.Auth;
 
 namespace PodNoms.Data.Models {
     public class Podcast : BaseEntity, ISluggedEntity {
@@ -25,10 +25,10 @@ namespace PodNoms.Data.Models {
         public List<Notification> Notifications { get; set; }
 
         public string GetImageUrl(string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}.png";
+            return $"{cdnUrl}{containerName}/podcast/{Id.ToString()}.png";
         }
         public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/podcast/{this.Id.ToString()}-32x32.png";
+            return $"{cdnUrl}{containerName}/podcast/{Id.ToString()}-32x32.png";
         }
     }
 }

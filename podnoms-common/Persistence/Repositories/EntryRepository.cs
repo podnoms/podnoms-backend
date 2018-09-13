@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
-
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
     public interface IEntryRepository : IRepository<PodcastEntry> {
         Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug);
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);

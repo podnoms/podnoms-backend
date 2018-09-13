@@ -3,14 +3,14 @@ using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPuls
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
-namespace PodNoms.Api.Services.Logging {
+namespace PodNoms.Common.Services.Logging {
     public static class ApplicationInsightsProvider {
         public static IApplicationBuilder UsePodNomsApplicationInsights(
             this IApplicationBuilder builder, bool isProduction, IConfigurationSection config) {
 
-            string telemetryKey = config.GetValue<string>("InstrumentationKey");
+            var telemetryKey = config.GetValue<string>("InstrumentationKey");
             if (!string.IsNullOrEmpty(telemetryKey)) {
-                TelemetryConfiguration configuration = new TelemetryConfiguration();
+                var configuration = new TelemetryConfiguration();
                 configuration.InstrumentationKey = telemetryKey;
 
                 QuickPulseTelemetryProcessor processor = null;

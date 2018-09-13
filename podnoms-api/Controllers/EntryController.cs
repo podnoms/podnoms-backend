@@ -14,16 +14,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Services.Jobs;
-using PodNoms.Api.Services.Processor;
-using PodNoms.Api.Services.Storage;
-using PodNoms.Api.Utils.RemoteParsers;
+using PodNoms.Common;
+using PodNoms.Common.Auth;
 using Microsoft.EntityFrameworkCore;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services;
+using PodNoms.Common.Services.Jobs;
+using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -32,7 +33,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _repository;
 
-        public IConfiguration _options { get; }
+        private IConfiguration _options;
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -45,37 +46,46 @@ namespace PodNoms.Api.Controllers {
             IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IConfiguration options,
-            IUrlProcessService processor, ILogger<EntryController> logger,
+            IUrlProcessService processor,
+            ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-            this._podcastRepository = podcastRepository;
-            this._repository = repository;
-            this._options = options;
-            this._storageSettings = storageSettings.Value;
-            this._unitOfWork = unitOfWork;
-            this._audioFileStorageSettings = audioFileStorageSettings.Value;
-            this._mapper = mapper;
-            this._processor = processor;
+            _podcastRepository = podcastRepository;
+            _repository = repository;
+            _options = options;
+            _storageSettings = storageSettings.Value;
+            _unitOfWork = unitOfWork;
+            _audioFileStorageSettings = audioFileStorageSettings.Value;
+            _mapper = mapper;
+            _processor = processor;
         }
 
         private void _processEntry(PodcastEntry entry) {
             try {
+                
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
-                    service => service.DownloadAudio(entry.Id));
+                    r => r.DownloadAudio(entry.Id));
+                
                 var uploadJobId = BackgroundJob.ContinueWith<IAudioUploadProcessService>(
-                    extractJobId, service => service.UploadAudio(entry.Id, entry.AudioUrl));
-                #region Notifications
-                // BackgroundJob.ContinueWith<INotifyJobCompleteService>(
-                //     uploadJobId, service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms", $"{entry.Title} has finished processing",
-                //     entry.Podcast.GetThumbnailUrl(
-                //         this._options.GetSection("StorageSettings")["CdnUrl"],
-                //         this._options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                //     ));
+                    extractJobId, r => r.UploadAudio(entry.Id, entry.AudioUrl));
+
+                var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
+                var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
+
                 BackgroundJob.ContinueWith<INotifyJobCompleteService>(
-                    uploadJobId, r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms", $"{entry.Title} has finished processing")
+                    uploadJobId, 
+                    r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                    ));
+                
+                BackgroundJob.ContinueWith<INotifyJobCompleteService>(
+                    uploadJobId,
+                    r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                        $"{entry.Title} has finished processing")
                 );
-                #endregion
-            } catch (InvalidOperationException ex) {
+            }
+            catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
             }
@@ -111,50 +121,59 @@ namespace PodNoms.Api.Controllers {
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
-            } else {
+            }
+            else {
                 var status = await _processor.GetInformation(entry);
                 if (status == AudioType.Valid) {
-                    if (entry.ProcessingStatus == ProcessingStatus.Processing) {
-                        if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                            entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
-                        }
-                        entry.Processed = false;
-                        _repository.AddOrUpdate(entry);
-                        try {
-                            bool succeeded = await _unitOfWork.CompleteAsync();
-                            await _repository.LoadPodcastAsync(entry);
-                            if (succeeded) {
-                                _processEntry(entry);
-                                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                                return result;
-                            }
-                        } catch (DbUpdateException e) {
-                            _logger.LogError(e.Message);
-                            return BadRequest(item);
+                    if (entry.ProcessingStatus != ProcessingStatus.Processing)
+                        return BadRequest("Failed to create podcast entry");
+
+                    if (string.IsNullOrEmpty(entry.ImageUrl)) {
+                        entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
+                    }
+
+                    entry.Processed = false;
+                    _repository.AddOrUpdate(entry);
+                    try {
+                        var succeeded = await _unitOfWork.CompleteAsync();
+                        await _repository.LoadPodcastAsync(entry);
+                        if (succeeded) {
+                            _processEntry(entry);
+                            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                            return result;
                         }
                     }
-                } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                            || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                    catch (DbUpdateException e) {
+                        _logger.LogError(e.Message);
+                        return BadRequest(item);
+                    }
+                }
+                else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                         || MixcloudParser.ValidateUrl(item.SourceUrl)) {
                     entry.ProcessingStatus = ProcessingStatus.Deferred;
                     var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     return Accepted(result);
                 }
             }
+
             return BadRequest("Failed to create podcast entry");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
-                await this._repository.DeleteAsync(new Guid(id));
+                await _repository.DeleteAsync(new Guid(id));
                 await _unitOfWork.CompleteAsync();
                 return Ok();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
+
             return BadRequest("Unable to delete entry");
         }
+
         [HttpPost("/preprocess")]
         public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {
             var entry = await _repository.GetAsync(item.Id);
@@ -175,6 +194,7 @@ namespace PodNoms.Api.Controllers {
             if (entry.ProcessingStatus != ProcessingStatus.Processed) {
                 _processEntry(entry);
             }
+
             return Ok(entry);
         }
     }

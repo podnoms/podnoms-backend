@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using System.Collections.Generic;
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using System.Collections.Generic;
-    using Helpers;
 
     #endregion
 
@@ -55,8 +55,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool BiDiWorkaround
         {
-            get => this.biDiWorkaround.Value ?? false;
-            set => this.SetField(ref this.biDiWorkaround.Value, value);
+            get => biDiWorkaround.Value ?? false;
+            set => SetField(ref biDiWorkaround.Value, value);
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Encoding
         {
-            get => this.encoding.Value;
-            set => this.SetField(ref this.encoding.Value, value);
+            get => encoding.Value;
+            set => SetField(ref encoding.Value, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int MaxSleepInterval
         {
-            get => this.maxSleepInterval.Value ?? -1;
-            set => this.SetField(ref this.maxSleepInterval.Value, value);
+            get => maxSleepInterval.Value ?? -1;
+            set => SetField(ref maxSleepInterval.Value, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoCheckCertificate
         {
-            get => this.noCheckCertificate.Value ?? false;
-            set => this.SetField(ref this.noCheckCertificate.Value, value);
+            get => noCheckCertificate.Value ?? false;
+            set => SetField(ref noCheckCertificate.Value, value);
         }
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool PreferInsecure
         {
-            get => this.preferInsecure.Value ?? false;
-            set => this.SetField(ref this.preferInsecure.Value, value);
+            get => preferInsecure.Value ?? false;
+            set => SetField(ref preferInsecure.Value, value);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Referer
         {
-            get => this.referer.Value;
-            set => this.SetField(ref this.referer.Value, value);
+            get => referer.Value;
+            set => SetField(ref referer.Value, value);
         }
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int SleepInterval
         {
-            get => this.sleepInterval.Value ?? -1;
-            set => this.SetField(ref this.sleepInterval.Value, value);
+            get => sleepInterval.Value ?? -1;
+            set => SetField(ref sleepInterval.Value, value);
         }
 
         /// <summary>
@@ -118,8 +118,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string UserAgent
         {
-            get => this.userAgent.Value;
-            set => this.SetField(ref this.userAgent.Value, value);
+            get => userAgent.Value;
+            set => SetField(ref userAgent.Value, value);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace NYoutubeDL.Options
         /// </param>
         public void AddHeader(string header)
         {
-            this.AddHeader(header, false);
+            AddHeader(header, false);
         }
 
         /// <summary>
@@ -146,18 +146,18 @@ namespace NYoutubeDL.Options
         {
             if (overwrite)
             {
-                this.headers.Remove(header);
+                headers.Remove(header);
             }
 
-            this.headers.Add(header);
+            headers.Add(header);
         }
 
         public override string ToCliParameters()
         {
-            foreach (string header in this.headers)
+            foreach (var header in headers)
             {
-                this.CustomParameters.Add("--add-header");
-                this.CustomParameters.Add(header);
+                CustomParameters.Add("--add-header");
+                CustomParameters.Add(header);
             }
 
             return base.ToCliParameters();

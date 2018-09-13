@@ -1,4 +1,4 @@
-namespace PodNoms.Data.Models.Settings {
+namespace PodNoms.Common.Data.Settings {
 
     public class EmailSettings {
         public string ApiKey { get; set; }

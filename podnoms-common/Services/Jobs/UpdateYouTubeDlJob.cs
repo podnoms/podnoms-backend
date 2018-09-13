@@ -1,20 +1,15 @@
 using System.Threading.Tasks;
-using NYoutubeDL;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Services.NYT;
 
-using PodNoms.Api.Services.Jobs;
-using PodNoms.Api.Services;
-using PodNoms.Common.Services;
-using PodNoms.Services.Services;
-
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class UpdateYouTubeDlJob : IJob {
         private readonly IMailSender _sender;
         private readonly ILogger _logger;
 
         public UpdateYouTubeDlJob(IMailSender sender, ILogger<UpdateYouTubeDlJob> logger) {
-            this._sender = sender;
-            this._logger = logger;
+            _sender = sender;
+            _logger = logger;
         }
 
         public async Task<bool> Execute() {

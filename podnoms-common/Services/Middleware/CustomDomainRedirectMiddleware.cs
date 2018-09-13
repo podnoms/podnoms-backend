@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence.Repositories;
 
-namespace PodNoms.Api.Services.Middleware {
+namespace PodNoms.Common.Services.Middleware {
     public sealed class CustomDomainRedirectOptions {
 
     }
@@ -27,7 +27,7 @@ namespace PodNoms.Api.Services.Middleware {
         public async Task Invoke(HttpContext context, IPodcastRepository repository) {
             var requestHost = context.Request.Host.Host;
             var siteHost = new UriBuilder(_appSettings.SiteUrl).Host;
-            var cleaned = new System.Uri(_appSettings.RssUrl).GetComponents(
+            var cleaned = new Uri(_appSettings.RssUrl).GetComponents(
                     UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme, UriFormat.UriEscaped)
                     .TrimEnd('/');
             if (requestHost.Equals(cleaned)) {

@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NYoutubeDL.Models;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Downloader;
+using PodNoms.Common.Services.NYT.Models;
+using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Downloader;
-using PodNoms.Api.Utils.RemoteParsers;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistsJob : IJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly HelpersSettings _helpersSettings;

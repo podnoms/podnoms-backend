@@ -1,4 +1,4 @@
-namespace PodNoms.Api.Services.Push {
+namespace PodNoms.Common.Services.Push {
     public class PushNotificationServiceOptions {
 
         public string Subject { get; set; }

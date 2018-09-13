@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Options;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     public class ChatMessage : BaseEntity, IEntity {

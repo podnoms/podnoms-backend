@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace PodNoms.Api.Utils {
+namespace PodNoms.Common.Utils {
     public class LowercaseDocumentFilter : IDocumentFilter {
         public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context) {
             ////////	PATHS

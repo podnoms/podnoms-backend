@@ -1,13 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PodNoms.Api.Services.Push;
-using PodNoms.Api.Services.Push.Models;
-using PodNoms.Api.Persistence;
 using Microsoft.AspNetCore.Identity;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Services.Push;
+using PodNoms.Common.Services.Push.Models;
+using PodNoms.Data.Models;
 using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
@@ -21,8 +21,8 @@ namespace PodNoms.Api.Controllers {
         public WebPushController(IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
                                     UserManager<ApplicationUser> userManager, ILogger<WebPushController> logger,
                                     IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-            this._subscriptionStore = subscriptionStore;
-            this._notificationService = notificationService;
+            _subscriptionStore = subscriptionStore;
+            _notificationService = notificationService;
         }
 
         [HttpPost("subscribe")]
@@ -34,7 +34,7 @@ namespace PodNoms.Api.Controllers {
         // POST push-notifications-api/notifications
         [HttpPost("message")]
         public async Task<IActionResult> SendNotification([FromBody]PushMessageViewModel message) {
-            WP.PushMessage pushMessage = new WP.PushMessage(message.Notification) {
+            var pushMessage = new WP.PushMessage(message.Notification) {
                 Topic = message.Topic,
                 Urgency = message.Urgency
             };

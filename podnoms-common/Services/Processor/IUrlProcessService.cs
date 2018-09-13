@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Services.Processor {
+namespace PodNoms.Common.Services.Processor {
     public interface IUrlProcessService {
 
         Task<AudioType> GetInformation(string entryId);

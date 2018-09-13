@@ -1,6 +1,6 @@
 using System;
 
-namespace PodNoms.Data.Models {
+namespace PodNoms.Data.Interfaces {
     public interface IEntity {
         Guid Id { get; set; }
         DateTime CreateDate { get; set; }

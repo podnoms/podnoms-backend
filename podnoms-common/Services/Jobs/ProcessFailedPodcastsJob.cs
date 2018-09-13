@@ -3,20 +3,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Processor;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Processor;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class ProcessFailedPodcastsJob : IJob {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly ILogger<ProcessFailedPodcastsJob> _logger;
         public ProcessFailedPodcastsJob(ILogger<ProcessFailedPodcastsJob> logger, IUrlProcessService processor, IEntryRepository entryRepository, IAudioUploadProcessService uploadService) {
-            this._logger = logger;
-            this._uploadService = uploadService;
-            this._entryRepository = entryRepository;
-            this._processor = processor;
+            _logger = logger;
+            _uploadService = uploadService;
+            _entryRepository = entryRepository;
+            _processor = processor;
 
         }
         public async Task<bool> Execute() {
@@ -29,7 +29,7 @@ namespace PodNoms.Api.Services.Jobs {
                 foreach (var entry in entries) {
                     var processed = await _processor.DownloadAudio(entry.Id);
                     if (processed) {
-                        var uploaded = await this._uploadService.UploadAudio(entry.Id, entry.AudioUrl);
+                        var uploaded = await _uploadService.UploadAudio(entry.Id, entry.AudioUrl);
                         if (!uploaded) {
                             _logger.LogError($"Error uploading audio from {entry.Id}");
                         }

@@ -18,12 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using System;
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using System;
-    using Helpers;
 
     #endregion
 
@@ -75,8 +75,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int AgeLimit
         {
-            get => this.ageLimit.Value ?? -1;
-            set => this.SetField(ref this.ageLimit.Value, value);
+            get => ageLimit.Value ?? -1;
+            set => SetField(ref ageLimit.Value, value);
         }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public DateTime? Date
         {
-            get => this.date.Value;
-            set => this.SetField(ref this.date.Value, value);
+            get => date.Value;
+            set => SetField(ref date.Value, value);
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public DateTime? DateAfter
         {
-            get => this.dateAfter.Value;
-            set => this.SetField(ref this.dateAfter.Value, value);
+            get => dateAfter.Value;
+            set => SetField(ref dateAfter.Value, value);
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public DateTime? DateBefore
         {
-            get => this.dateBefore.Value;
-            set => this.SetField(ref this.dateBefore.Value, value);
+            get => dateBefore.Value;
+            set => SetField(ref dateBefore.Value, value);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string DownloadArchive
         {
-            get => this.downloadArchive.Value;
-            set => this.SetField(ref this.downloadArchive.Value, value);
+            get => downloadArchive.Value;
+            set => SetField(ref downloadArchive.Value, value);
         }
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool IncludeAds
         {
-            get => this.includeAds.Value ?? false;
-            set => this.SetField(ref this.includeAds.Value, value);
+            get => includeAds.Value ?? false;
+            set => SetField(ref includeAds.Value, value);
         }
 
         /// <summary>
@@ -130,8 +130,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string MatchFilter
         {
-            get => this.matchFilter.Value;
-            set => this.SetField(ref this.matchFilter.Value, value);
+            get => matchFilter.Value;
+            set => SetField(ref matchFilter.Value, value);
         }
 
         /// <summary>
@@ -139,8 +139,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string MatchTitle
         {
-            get => this.matchTitle.Value;
-            set => this.SetField(ref this.matchTitle.Value, value);
+            get => matchTitle.Value;
+            set => SetField(ref matchTitle.Value, value);
         }
 
         /// <summary>
@@ -148,8 +148,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int MaxDownloads
         {
-            get => this.maxDownloads.Value ?? -1;
-            set => this.SetField(ref this.maxDownloads.Value, value);
+            get => maxDownloads.Value ?? -1;
+            set => SetField(ref maxDownloads.Value, value);
         }
 
         /// <summary>
@@ -157,8 +157,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public FileSizeRate MaxFileSize
         {
-            get => this.maxFileSize.Value;
-            set => this.SetField(ref this.maxFileSize.Value, value);
+            get => maxFileSize.Value;
+            set => SetField(ref maxFileSize.Value, value);
         }
 
         /// <summary>
@@ -166,8 +166,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int MaxViews
         {
-            get => this.maxViews.Value ?? -1;
-            set => this.SetField(ref this.maxViews.Value, value);
+            get => maxViews.Value ?? -1;
+            set => SetField(ref maxViews.Value, value);
         }
 
         /// <summary>
@@ -175,8 +175,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public FileSizeRate MinFileSize
         {
-            get => this.minFileSize.Value;
-            set => this.SetField(ref this.minFileSize.Value, value);
+            get => minFileSize.Value;
+            set => SetField(ref minFileSize.Value, value);
         }
 
         /// <summary>
@@ -184,8 +184,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int MinViews
         {
-            get => this.minViews.Value ?? -1;
-            set => this.SetField(ref this.minViews.Value, value);
+            get => minViews.Value ?? -1;
+            set => SetField(ref minViews.Value, value);
         }
 
         /// <summary>
@@ -193,8 +193,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NoPlaylist
         {
-            get => this.noPlaylist.Value ?? false;
-            set => this.SetField(ref this.noPlaylist.Value, value);
+            get => noPlaylist.Value ?? false;
+            set => SetField(ref noPlaylist.Value, value);
         }
 
         /// <summary>
@@ -202,8 +202,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int PlaylistEnd
         {
-            get => this.playlistEnd.Value ?? -1;
-            set => this.SetField(ref this.playlistEnd.Value, value);
+            get => playlistEnd.Value ?? -1;
+            set => SetField(ref playlistEnd.Value, value);
         }
 
         /// <summary>
@@ -211,8 +211,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string PlaylistItems
         {
-            get => this.playlistItems.Value;
-            set => this.SetField(ref this.playlistItems.Value, value);
+            get => playlistItems.Value;
+            set => SetField(ref playlistItems.Value, value);
         }
 
         /// <summary>
@@ -220,8 +220,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int PlaylistStart
         {
-            get => this.playlistStart.Value ?? 1;
-            set => this.SetField(ref this.playlistStart.Value, value);
+            get => playlistStart.Value ?? 1;
+            set => SetField(ref playlistStart.Value, value);
         }
 
         /// <summary>
@@ -229,8 +229,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string RejectTitle
         {
-            get => this.rejectTitle.Value;
-            set => this.SetField(ref this.rejectTitle.Value, value);
+            get => rejectTitle.Value;
+            set => SetField(ref rejectTitle.Value, value);
         }
 
         /// <summary>
@@ -238,8 +238,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool YesPlaylist
         {
-            get => this.yesPlaylist.Value ?? false;
-            set => this.SetField(ref this.yesPlaylist.Value, value);
+            get => yesPlaylist.Value ?? false;
+            set => SetField(ref yesPlaylist.Value, value);
         }
     }
 }

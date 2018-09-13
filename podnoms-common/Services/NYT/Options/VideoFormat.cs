@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -51,8 +51,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool AllFormats
         {
-            get => this.allFormats.Value ?? false;
-            set => this.SetField(ref this.allFormats.Value, value);
+            get => allFormats.Value ?? false;
+            set => SetField(ref allFormats.Value, value);
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public Enums.VideoFormat Format
         {
-            get => this.format.Value == null ? Enums.VideoFormat.undefined : (Enums.VideoFormat) this.format.Value;
-            set => this.SetField(ref this.format.Value, (int) value);
+            get => format.Value == null ? Enums.VideoFormat.undefined : (Enums.VideoFormat) format.Value;
+            set => SetField(ref format.Value, (int) value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string FormatAdvanced
         {
-            get => this.formatAdvanced.Value;
-            set => this.SetField(ref this.formatAdvanced.Value, value);
+            get => formatAdvanced.Value;
+            set => SetField(ref formatAdvanced.Value, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ListFormats
         {
-            get => this.listFormats.Value ?? false;
-            set => this.SetField(ref this.listFormats.Value, value);
+            get => listFormats.Value ?? false;
+            set => SetField(ref listFormats.Value, value);
         }
 
         /// <summary>
@@ -91,10 +91,10 @@ namespace NYoutubeDL.Options
         /// </summary>
         public Enums.VideoFormat MergeOutputFormat
         {
-            get => this.mergeOutputFormat.Value == null
+            get => mergeOutputFormat.Value == null
                 ? Enums.VideoFormat.undefined
-                : (Enums.VideoFormat) this.mergeOutputFormat.Value;
-            set => this.SetField(ref this.mergeOutputFormat.Value, (int) value);
+                : (Enums.VideoFormat) mergeOutputFormat.Value;
+            set => SetField(ref mergeOutputFormat.Value, (int) value);
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool PreferFreeFormats
         {
-            get => this.preferFreeFormats.Value ?? false;
-            set => this.SetField(ref this.preferFreeFormats.Value, value);
+            get => preferFreeFormats.Value ?? false;
+            set => SetField(ref preferFreeFormats.Value, value);
         }
 
         /// <summary>
@@ -111,17 +111,17 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool YoutubeSkipDashManifest
         {
-            get => this.youtubeSkipDashManifest.Value ?? false;
-            set => this.SetField(ref this.youtubeSkipDashManifest.Value, value);
+            get => youtubeSkipDashManifest.Value ?? false;
+            set => SetField(ref youtubeSkipDashManifest.Value, value);
         }
 
         public override string ToCliParameters()
         {
             // Set format to undefined if formatAdvanced has a valid value,
             // then return the parameters.
-            if (!string.IsNullOrWhiteSpace(this.formatAdvanced.Value))
+            if (!string.IsNullOrWhiteSpace(formatAdvanced.Value))
             {
-                this.format.Value = (int) Enums.VideoFormat.undefined;
+                format.Value = (int) Enums.VideoFormat.undefined;
             }
 
             return base.ToCliParameters();

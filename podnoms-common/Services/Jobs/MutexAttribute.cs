@@ -5,9 +5,9 @@ using Hangfire.Common;
 using Hangfire.States;
 using Hangfire.Storage;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class MutexAttribute : JobFilterAttribute, IElectStateFilter, IApplyStateFilter {
-        private static readonly TimeSpan DistributedLockTimeout = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan _distributedLockTimeout = TimeSpan.FromMinutes(1);
 
         private readonly string _resource;
 
@@ -16,14 +16,14 @@ namespace PodNoms.Api.Services.Jobs {
             RetryInSeconds = 15;
         }
 
-        public int RetryInSeconds { get; set; }
-        public int MaxAttempts { get; set; }
+        private int RetryInSeconds { get; }
+        private int MaxAttempts { get; set; }
 
         public void OnStateElection(ElectStateContext context) {
             // We are intercepting transitions to the Processed state, that is performed by
             // a worker just before processing a job. During the state election phase we can
             // change the target state to another one, causing a worker not to process the
-            // backgorund job.
+            // background job.
             if (context.CandidateState.Name != ProcessingState.StateName ||
                 context.BackgroundJob.Job == null) {
                 return;
@@ -31,8 +31,7 @@ namespace PodNoms.Api.Services.Jobs {
 
             // This filter requires an extended set of storage operations. It's supported
             // by all the official storages, and many of the community-based ones.
-            var storageConnection = context.Connection as JobStorageConnection;
-            if (storageConnection == null) {
+            if (!(context.Connection is JobStorageConnection storageConnection)) {
                 throw new NotSupportedException("This version of storage doesn't support extended methods. Please try to update to the latest version.");
             }
 
@@ -132,7 +131,7 @@ namespace PodNoms.Api.Services.Jobs {
         }
 
         private IDisposable AcquireDistributedSetLock(IStorageConnection connection, IEnumerable<object> args) {
-            return connection.AcquireDistributedLock(GetDistributedLockKey(args), DistributedLockTimeout);
+            return connection.AcquireDistributedLock(GetDistributedLockKey(args), _distributedLockTimeout);
         }
 
         private string GetDistributedLockKey(IEnumerable<object> args) {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PodNoms.Api.Persistence;
+using PodNoms.Common.Persistence;
 
 namespace PodNoms.Api.Migrations
 {
@@ -368,7 +368,7 @@ namespace PodNoms.Api.Migrations
                     b.ToTable("ServerConfig","admin");
                 });
 
-            modelBuilder.Entity("PodNoms.Api.Services.Auth.ApplicationUser", b =>
+            modelBuilder.Entity("PodNoms.Common.Auth.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -443,7 +443,7 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -451,7 +451,7 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -464,7 +464,7 @@ namespace PodNoms.Api.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -472,7 +472,7 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -480,11 +480,11 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
                 {
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser", "FromUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser", "FromUser")
                         .WithMany()
                         .HasForeignKey("FromUserId");
 
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser", "ToUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser", "ToUser")
                         .WithMany()
                         .HasForeignKey("ToUserId");
                 });
@@ -507,7 +507,7 @@ namespace PodNoms.Api.Migrations
 
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
                 {
-                    b.HasOne("PodNoms.Api.Services.Auth.ApplicationUser", "AppUser")
+                    b.HasOne("PodNoms.Common.Auth.ApplicationUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade);

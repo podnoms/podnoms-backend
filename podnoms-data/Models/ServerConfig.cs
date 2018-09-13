@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     [Table("ServerConfig", Schema = "admin")]

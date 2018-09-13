@@ -18,31 +18,31 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+namespace PodNoms.Common.Services.NYT.Models
 {
     public class FormatDownloadInfo
     {
         public FormatDownloadInfo(FormatInfo info)
         {
-            this.Abr = info.abr;
-            this.Acodec = info.acodec;
-            this.Asr = info.asr;
-            this.Container = info.container;
-            this.Ext = info.ext;
-            this.Filesize = info.filesize;
-            this.Format = info.format;
-            this.FormatId = info.format_id;
-            this.FormatNote = info.format_note;
-            this.Fps = info.fps;
-            this.Height = info.height;
-            this.ManifestUrl = info.manifest_url;
-            this.Preference = info.preference;
-            this.Protocol = info.protocol;
-            this.Resolution = info.resolution;
-            this.Tbr = info.tbr;
-            this.Url = info.url;
-            this.Vcodec = info.vcodec;
-            this.Width = info.width;
+            Abr = info.abr;
+            Acodec = info.acodec;
+            Asr = info.asr;
+            Container = info.container;
+            Ext = info.ext;
+            Filesize = info.filesize;
+            Format = info.format;
+            FormatId = info.format_id;
+            FormatNote = info.format_note;
+            Fps = info.fps;
+            Height = info.height;
+            ManifestUrl = info.manifest_url;
+            Preference = info.preference;
+            Protocol = info.protocol;
+            Resolution = info.resolution;
+            Tbr = info.tbr;
+            Url = info.url;
+            Vcodec = info.vcodec;
+            Width = info.width;
         }
 
         public int? Abr { get; }

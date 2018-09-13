@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
     public interface IPlaylistRepository : IRepository<Playlist> {
         IEnumerable<ParsedPlaylistItem> GetParsedItems();
         Task<ParsedPlaylistItem> GetParsedItem(string itemId, Guid playlistId);

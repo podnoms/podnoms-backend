@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace PodNoms.Api.Services.Middleware {
+namespace PodNoms.Common.Services.Middleware {
     public class HttpStatusCodeExceptionMiddleware {
         private readonly RequestDelegate _next;
         private readonly ILogger<HttpStatusCodeExceptionMiddleware> _logger;

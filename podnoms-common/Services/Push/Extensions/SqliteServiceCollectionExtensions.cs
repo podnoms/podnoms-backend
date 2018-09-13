@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using PodNoms.Api.Services.Push.Data;
+using PodNoms.Common.Services.Push.Data;
 
-namespace PodNoms.Api.Services.Push.Extensions {
+namespace PodNoms.Common.Services.Push.Extensions {
     public static class SqliteServiceCollectionExtensions {
         private const string SQLITE_CONNECTION_STRING_NAME = "PushSubscriptionSqliteDatabase";
 

@@ -18,18 +18,17 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     #region Using
-
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Microsoft.CSharp.RuntimeBinder;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using Options;
 
     #endregion
 
@@ -41,27 +40,27 @@ namespace NYoutubeDL.Helpers
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(Options);
+            return objectType == typeof(Options.Options);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            JObject jo = JObject.Load(reader);
-            Options options = new Options();
+            var jo = JObject.Load(reader);
+            var options = new Options.Options();
 
-            foreach (KeyValuePair<string, JToken> jPair in jo)
+            foreach (var jPair in jo)
             {
-                PropertyInfo propertyInfo = options.GetType().GetRuntimeProperty(jPair.Key);
-                object property = propertyInfo.GetValue(options);
+                var propertyInfo = options.GetType().GetRuntimeProperty(jPair.Key);
+                var property = propertyInfo.GetValue(options);
 
-                foreach (JToken token in jPair.Value)
+                foreach (var token in jPair.Value)
                 {
-                    JObject childObject = new JObject(token);
-                    foreach (KeyValuePair<string, JToken> childPair in childObject)
+                    var childObject = new JObject(token);
+                    foreach (var childPair in childObject)
                     {
                         // Why on earth does GetRuntimeField(childPair.Key) return null here, but THIS works!?
-                        FieldInfo fieldInfo =
+                        var fieldInfo =
                             propertyInfo.PropertyType.GetRuntimeFields().
                                 First(field => field.Name.Equals(childPair.Key));
 
@@ -109,26 +108,26 @@ namespace NYoutubeDL.Helpers
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            JObject jo = new JObject();
-            Type type = value.GetType();
+            var jo = new JObject();
+            var type = value.GetType();
 
             // value is an Options object. Get it's properties
-            foreach (PropertyInfo propertyInfo in type.GetRuntimeProperties())
+            foreach (var propertyInfo in type.GetRuntimeProperties())
             {
-                object propVal = propertyInfo.GetValue(value);
+                var propVal = propertyInfo.GetValue(value);
                 if (propVal != null)
                 {
-                    JObject childObject = new JObject();
+                    var childObject = new JObject();
 
                     // Get the fields of the options object
-                    foreach (FieldInfo fieldInfo in propVal.GetType().GetRuntimeFields())
+                    foreach (var fieldInfo in propVal.GetType().GetRuntimeFields())
                     {
                         try
                         {
                             dynamic fieldVal = fieldInfo.GetValue(propVal);
                             if (fieldVal.Value != null)
                             {
-                                FileSizeRate fileSizeRate = fieldVal.Value as FileSizeRate;
+                                var fileSizeRate = fieldVal.Value as FileSizeRate;
                                 object val = fileSizeRate != null ? fileSizeRate.ToString() : fieldVal.Value;
 
                                 childObject.Add(new JProperty(fieldInfo.Name, val));

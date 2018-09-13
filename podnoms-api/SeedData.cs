@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Utils.Extensions;
 
 namespace PodNoms.Api {
     internal class SeedData {

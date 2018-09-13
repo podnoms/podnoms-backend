@@ -9,13 +9,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Services;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils;
+using PodNoms.Common;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services;
-using PodNoms.Services.Services;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]

@@ -1,25 +1,17 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PodNoms.Data.Extensions;
+using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.Annotations;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils.Extensions;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence {
 
 
     public class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
@@ -27,7 +19,7 @@ namespace PodNoms.Api.Persistence {
 
         public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options, ILogger<PodNomsDbContext> logger) : base(options) {
             Database.SetCommandTimeout(360);
-            this._logger = logger;
+            _logger = logger;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -66,7 +58,7 @@ namespace PodNoms.Api.Persistence {
         }
 
         public override int SaveChanges() {
-            foreach (var entity in this.ChangeTracker.Entries()
+            foreach (var entity in ChangeTracker.Entries()
                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
                     .Where(e => e.Entity is ISluggedEntity)
                     .Select(e => e.Entity as ISluggedEntity)
@@ -75,8 +67,8 @@ namespace PodNoms.Api.Persistence {
             }
             return base.SaveChanges();
         }
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(System.Threading.CancellationToken)) {
-            foreach (var entity in this.ChangeTracker.Entries()
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken)) {
+            foreach (var entity in ChangeTracker.Entries()
                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
                     .Where(e => e.Entity is ISluggedEntity)
                     .Select(e => e.Entity as ISluggedEntity)

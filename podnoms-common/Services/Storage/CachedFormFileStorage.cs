@@ -2,7 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace PodNoms.Api.Services.Storage
+namespace PodNoms.Common.Services.Storage
 {
     public abstract class CachedFormFileStorage 
     {

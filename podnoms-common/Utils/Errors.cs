@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace PodNoms.Api.Utils {
+namespace PodNoms.Common.Utils {
     public static class Errors {
         public static ModelStateDictionary AddErrorsToModelState(IdentityResult identityResult, ModelStateDictionary modelState) {
             foreach (var e in identityResult.Errors) {

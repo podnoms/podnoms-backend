@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -51,8 +51,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool AllSubs
         {
-            get => this.allSubs.Value ?? false;
-            set => this.SetField(ref this.allSubs.Value, value);
+            get => allSubs.Value ?? false;
+            set => SetField(ref allSubs.Value, value);
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ListSubs
         {
-            get => this.listsubs.Value ?? false;
-            set => this.SetField(ref this.listsubs.Value, value);
+            get => listsubs.Value ?? false;
+            set => SetField(ref listsubs.Value, value);
         }
 
         /// <summary>
@@ -71,10 +71,10 @@ namespace NYoutubeDL.Options
         /// </summary>
         public Enums.SubtitleFormat SubFormat
         {
-            get => this.subFormat.Value == null
+            get => subFormat.Value == null
                 ? Enums.SubtitleFormat.undefined
-                : (Enums.SubtitleFormat) this.subFormat.Value;
-            set => this.SetField(ref this.subFormat.Value, (int) value);
+                : (Enums.SubtitleFormat) subFormat.Value;
+            set => SetField(ref subFormat.Value, (int) value);
         }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string SubFormatAdvanced
         {
-            get => this.subFormatAdvanced.Value;
-            set => this.SetField(ref this.subFormatAdvanced.Value, value);
+            get => subFormatAdvanced.Value;
+            set => SetField(ref subFormatAdvanced.Value, value);
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string SubLang
         {
-            get => this.subLang.Value;
-            set => this.SetField(ref this.subLang.Value, value);
+            get => subLang.Value;
+            set => SetField(ref subLang.Value, value);
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteAutoSub
         {
-            get => this.writeAutoSub.Value ?? false;
-            set => this.SetField(ref this.writeAutoSub.Value, value);
+            get => writeAutoSub.Value ?? false;
+            set => SetField(ref writeAutoSub.Value, value);
         }
 
         /// <summary>
@@ -111,17 +111,17 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool WriteSub
         {
-            get => this.writeSub.Value ?? false;
-            set => this.SetField(ref this.writeSub.Value, value);
+            get => writeSub.Value ?? false;
+            set => SetField(ref writeSub.Value, value);
         }
 
         public override string ToCliParameters()
         {
             // Set subFormat to undefined if subFormatAdvanced has a valid value,
             // then return the parameters.
-            if (!string.IsNullOrWhiteSpace(this.subFormatAdvanced.Value))
+            if (!string.IsNullOrWhiteSpace(subFormatAdvanced.Value))
             {
-                this.subFormat.Value = (int) Enums.SubtitleFormat.undefined;
+                subFormat.Value = (int) Enums.SubtitleFormat.undefined;
             }
 
             return base.ToCliParameters();

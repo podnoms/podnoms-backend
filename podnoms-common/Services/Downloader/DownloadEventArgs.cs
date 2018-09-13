@@ -1,6 +1,6 @@
 using System;
 
-namespace PodNoms.Api.Services.Downloader {
+namespace PodNoms.Common.Services.Downloader {
     /// <summary>
     /// The event arguement class for passing when progress event is fired
     /// </summary>

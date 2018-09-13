@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
-namespace PodNoms.Api.Services.Push.Formatters {
+namespace PodNoms.Common.Services.Push.Formatters {
     public class TextPlainInputFormatter : TextInputFormatter {
         public TextPlainInputFormatter() {
             SupportedMediaTypes.Add("text/plain");

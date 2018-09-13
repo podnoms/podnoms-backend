@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PodNoms.Api.Services.Push.Extensions {
+namespace PodNoms.Common.Services.Push.Extensions {
     public static class ServiceCollectionExtensions {
         private const string PUSH_NOTIFICATION_SERVICE_CONFIGURATION_SECTION = "PushNotificationService";
 

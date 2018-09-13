@@ -15,11 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Data.Models;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Services.Auth;
-using PodNoms.Api.Utils;
+using PodNoms.Common.Auth;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]/[action]")]

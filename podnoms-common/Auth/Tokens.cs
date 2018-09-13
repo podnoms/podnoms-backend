@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Services.Auth {
+namespace PodNoms.Common.Auth {
     public class Tokens {
         public static async Task<string> GenerateJwt(ClaimsIdentity identity, IJwtFactory jwtFactory, string userName,
                     JwtIssuerOptions jwtOptions, JsonSerializerSettings serializerSettings) {

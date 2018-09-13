@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PodNoms.Data.Models;
-using PodNoms.Data.Models.Annotations;
+using PodNoms.Data.Interfaces;
 
-namespace PodNoms.Api.Persistence {
+namespace PodNoms.Common.Persistence.Repositories {
     public interface IRepository<TEntity> where TEntity : class, IEntity {
         IQueryable<TEntity> GetAll();
         Task<TEntity> GetAsync(string id);
@@ -56,12 +53,8 @@ namespace PodNoms.Api.Persistence {
 
         public TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
-            // TODO: Fix this logic, we can nolonger guarantee blanks IDs for new records
-            if (entity.Id != Guid.Empty) {
-                ret = Update(entity);
-            } else {
-                ret = Create(entity);
-            }
+            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
+            ret = entity.Id != Guid.Empty ? Update(entity) : Create(entity);
             return ret;
         }
 

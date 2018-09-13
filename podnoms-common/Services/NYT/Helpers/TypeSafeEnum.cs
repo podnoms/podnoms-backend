@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     public class TypeSafeEnum
     {
@@ -28,13 +28,13 @@ namespace NYoutubeDL.Helpers
 
         protected TypeSafeEnum(int value, string name)
         {
-            this.Name = name;
-            this.Value = value;
+            Name = name;
+            Value = value;
         }
 
         public override string ToString()
         {
-            return this.Name;
+            return Name;
         }
     }
 }

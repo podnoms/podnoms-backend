@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -46,8 +46,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool NetRc
         {
-            get => this.netRc.Value ?? false;
-            set => this.SetField(ref this.netRc.Value, value);
+            get => netRc.Value ?? false;
+            set => SetField(ref netRc.Value, value);
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Password
         {
-            get => this.password.Value;
-            set => this.SetField(ref this.password.Value, value);
+            get => password.Value;
+            set => SetField(ref password.Value, value);
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string TwoFactor
         {
-            get => this.twoFactor.Value;
-            set => this.SetField(ref this.twoFactor.Value, value);
+            get => twoFactor.Value;
+            set => SetField(ref twoFactor.Value, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Username
         {
-            get => this.username.Value;
-            set => this.SetField(ref this.username.Value, value);
+            get => username.Value;
+            set => SetField(ref username.Value, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string VideoPassword
         {
-            get => this.videoPassword.Value;
-            set => this.SetField(ref this.videoPassword.Value, value);
+            get => videoPassword.Value;
+            set => SetField(ref videoPassword.Value, value);
         }
     }
 }

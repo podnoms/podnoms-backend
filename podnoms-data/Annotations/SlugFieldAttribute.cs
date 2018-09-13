@@ -1,13 +1,12 @@
 using System;
-namespace PodNoms.Data.Models.Annotations {
-    [System.AttributeUsage(System.AttributeTargets.Property)]
+
+namespace PodNoms.Data.Annotations {
+    [AttributeUsage(AttributeTargets.Property)]
     public class SlugFieldAttribute : Attribute {
-        private readonly string _sourceField;
+        public string SourceField { get; }
 
-        public string SourceField => _sourceField;
         public SlugFieldAttribute(string sourceField) {
-            this._sourceField = sourceField;
+            SourceField = sourceField;
         }
-
     }
 }

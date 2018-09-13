@@ -1,4 +1,4 @@
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels {
     public class RegistrationViewModel {
         public string Email { get; set; }
         public string Password { get; set; }

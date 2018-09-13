@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Models
+using System.Collections.Generic;
+
+namespace PodNoms.Common.Services.NYT.Models
 {
     #region Using
-
-    using System.Collections.Generic;
 
     #endregion
 
@@ -35,75 +35,75 @@ namespace NYoutubeDL.Models
         {
             if (info == null)
             {
-                this.Title = "Video deleted or otherwise unreachable";
+                Title = "Video deleted or otherwise unreachable";
                 return;
             }
 
-            this.Abr = info.abr;
-            this.Acodec = info.acodec;
-            this.AgeLimit = info.age_limit;
-            this.AverageRating = info.average_rating;
-            this.Categories = info.categories;
-            this.Description = info.description;
-            this.DislikeCount = info.dislike_count;
-            this.DisplayId = info.display_id;
-            this.Duration = info.duration;
-            this.Ext = info.ext;
-            this.Extractor = info.extractor;
-            this.ExtractorKey = info.extractor_key;
-            this.Format = info.format;
-            this.FormatId = info.format_id;
+            Abr = info.abr;
+            Acodec = info.acodec;
+            AgeLimit = info.age_limit;
+            AverageRating = info.average_rating;
+            Categories = info.categories;
+            Description = info.description;
+            DislikeCount = info.dislike_count;
+            DisplayId = info.display_id;
+            Duration = info.duration;
+            Ext = info.ext;
+            Extractor = info.extractor;
+            ExtractorKey = info.extractor_key;
+            Format = info.format;
+            FormatId = info.format_id;
 
             if (info.formats != null)
             {
-                foreach (FormatInfo formatInfo in info.formats)
+                foreach (var formatInfo in info.formats)
                 {
-                    this.Formats.Add(new FormatDownloadInfo(formatInfo));
+                    Formats.Add(new FormatDownloadInfo(formatInfo));
                 }
             }
 
-            this.Fps = info.fps;
-            this.Height = info.height;
-            this.Id = info.id;
-            this.IeKey = info.ie_key;
-            this.License = info.license;
-            this.LikeCount = info.like_count;
-            this.NEntries = info.n_entries;
-            this.Playlist = info.playlist;
-            this.PlaylistId = info.playlist_id;
-            this.PlaylistIndex = info.playlist_index;
-            this.PlaylistTitle = info.playlist_title;
+            Fps = info.fps;
+            Height = info.height;
+            Id = info.id;
+            IeKey = info.ie_key;
+            License = info.license;
+            LikeCount = info.like_count;
+            NEntries = info.n_entries;
+            Playlist = info.playlist;
+            PlaylistId = info.playlist_id;
+            PlaylistIndex = info.playlist_index;
+            PlaylistTitle = info.playlist_title;
 
             if (info.requested_formats != null)
             {
-                foreach (FormatInfo formatInfo in info.requested_formats)
+                foreach (var formatInfo in info.requested_formats)
                 {
-                    this.RequestedFormats.Add(new FormatDownloadInfo(formatInfo));
+                    RequestedFormats.Add(new FormatDownloadInfo(formatInfo));
                 }
             }
 
-            this.Tags = info.tags;
-            this.Thumbnail = info.thumbnail;
+            Tags = info.tags;
+            Thumbnail = info.thumbnail;
 
             if (info.thumbnails != null)
             {
-                foreach (ThumbnailInfo thumbnail in info.thumbnails)
+                foreach (var thumbnail in info.thumbnails)
                 {
-                    this.Thumbnails.Add(new ThumbnailDownloadInfo(thumbnail));
+                    Thumbnails.Add(new ThumbnailDownloadInfo(thumbnail));
                 }
             }
 
-            this.Title = info.title;
-            this.UploadDate = info.upload_date;
-            this.Uploader = info.uploader;
-            this.UploaderId = info.uploader_id;
-            this.UploaderUrl = info.uploader_url;
-            this.Url = info.url;
-            this.Vcodec = info.vcodec;
-            this.ViewCount = info.view_count;
-            this.WebpageUrl = info.webpage_url;
-            this.WebpageUrlBasename = info.webpage_url_basename;
-            this.Width = info.width;
+            Title = info.title;
+            UploadDate = info.upload_date;
+            Uploader = info.uploader;
+            UploaderId = info.uploader_id;
+            UploaderUrl = info.uploader_url;
+            Url = info.url;
+            Vcodec = info.vcodec;
+            ViewCount = info.view_count;
+            WebpageUrl = info.webpage_url;
+            WebpageUrlBasename = info.webpage_url_basename;
+            Width = info.width;
         }
 
         public string Acodec { get; }

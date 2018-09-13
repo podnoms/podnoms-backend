@@ -1,4 +1,4 @@
-﻿namespace PodNoms.Data.Models.ViewModels {
+﻿namespace PodNoms.Common.Data.ViewModels {
     public class SocialAuthViewModel {
         public string AccessToken { get; set; }
     }

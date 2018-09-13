@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+using System;
+
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     #region Using
-
-    using System;
 
     #endregion
 

@@ -4,12 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using PodNoms.Data.Models;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
-using PodNoms.Api.Persistence;
 
-namespace PodNoms.Api.Services.Notifications {
+namespace PodNoms.Common.Services.Notifications {
     public abstract class BaseNotificationHandler : INotificationHandler {
         public abstract Notification.NotificationType Type { get; }
 
@@ -17,8 +15,8 @@ namespace PodNoms.Api.Services.Notifications {
         protected readonly HttpClient _httpClient;
 
         protected BaseNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient) {
-            this._notificationRepository = notificationRepository;
-            this._httpClient = httpClient.CreateClient("Notifications");
+            _notificationRepository = notificationRepository;
+            _httpClient = httpClient.CreateClient("Notifications");
         }
         public abstract Task<bool> SendNotification(Guid notificationId, string title, string message);
 

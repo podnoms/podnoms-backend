@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Helpers
+namespace PodNoms.Common.Services.NYT.Helpers
 {
     [Option]
     internal class StringOption : BaseOption<string>
@@ -29,9 +29,9 @@ namespace NYoutubeDL.Helpers
 
         public override string ToString()
         {
-            if (!string.IsNullOrEmpty(this.Value))
+            if (!string.IsNullOrEmpty(Value))
             {
-                return this.ParamString + " " + this.Value;
+                return ParamString + " " + Value;
             }
 
             return string.Empty;

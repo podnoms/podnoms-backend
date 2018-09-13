@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace NYoutubeDL.Options
+using PodNoms.Common.Services.NYT.Helpers;
+
+namespace PodNoms.Common.Services.NYT.Options
 {
     #region Using
-
-    using Helpers;
 
     #endregion
 
@@ -46,8 +46,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ForceIpv4
         {
-            get => this.forceIpv4.Value ?? false;
-            set => this.SetField(ref this.forceIpv4.Value, value);
+            get => forceIpv4.Value ?? false;
+            set => SetField(ref forceIpv4.Value, value);
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public bool ForceIpv6
         {
-            get => this.forceIpv6.Value ?? false;
-            set => this.SetField(ref this.forceIpv6.Value, value);
+            get => forceIpv6.Value ?? false;
+            set => SetField(ref forceIpv6.Value, value);
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string Proxy
         {
-            get => this.proxy.Value;
-            set => this.SetField(ref this.proxy.Value, value);
+            get => proxy.Value;
+            set => SetField(ref proxy.Value, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public int SocketTimeout
         {
-            get => this.socketTimeout.Value ?? -1;
-            set => this.SetField(ref this.socketTimeout.Value, value);
+            get => socketTimeout.Value ?? -1;
+            set => SetField(ref socketTimeout.Value, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace NYoutubeDL.Options
         /// </summary>
         public string SourceAddress
         {
-            get => this.sourceAddress.Value;
-            set => this.SetField(ref this.sourceAddress.Value, value);
+            get => sourceAddress.Value;
+            set => SetField(ref sourceAddress.Value, value);
         }
     }
 }

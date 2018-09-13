@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace PodNoms.Api.Utils.RemoteParsers {
+namespace PodNoms.Common.Utils.RemoteParsers {
     public partial class Welcome {
         [JsonProperty("paging")]
         public Paging Paging { get; set; }

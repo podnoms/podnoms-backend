@@ -3,9 +3,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Data.Models.ViewModels;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Auth;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Data.ViewModels;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
 
@@ -15,8 +15,8 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
 
         public AccountsController(UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<AccountsController> logger) : base(logger) {
-            this._userManager = userManager;
-            this._mapper = mapper;
+            _userManager = userManager;
+            _mapper = mapper;
         }
         // POST api/accounts
         [HttpPost]

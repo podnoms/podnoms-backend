@@ -2,7 +2,7 @@ using System;
 using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace PodNoms.Api.Services.Push.Data {
+namespace PodNoms.Common.Services.Push.Data {
     public class MemoryVapidTokenCache : IVapidTokenCache {
         private readonly IMemoryCache _memoryCache;
 

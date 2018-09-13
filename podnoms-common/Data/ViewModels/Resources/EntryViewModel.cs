@@ -1,6 +1,6 @@
 using System;
 
-namespace PodNoms.Data.Models.ViewModels {
+namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PodcastEntryViewModel {
 
         public string Id { get; set; }

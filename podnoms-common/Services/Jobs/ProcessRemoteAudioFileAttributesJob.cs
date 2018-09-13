@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Data.Models.Settings;
-using PodNoms.Api.Persistence;
-using PodNoms.Api.Services.Storage;
+using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Storage;
 
-namespace PodNoms.Api.Services.Jobs {
+namespace PodNoms.Common.Services.Jobs {
     public class ProcessRemoteAudioFileAttributesJob : IJob {
         private readonly IEntryRepository _entryRepository;
         private readonly IFileUtilities _fileUtilities;
@@ -16,16 +15,16 @@ namespace PodNoms.Api.Services.Jobs {
         public ProcessRemoteAudioFileAttributesJob(IEntryRepository entryRepository,
                             IFileUtilities fileUtilities, ILogger<ProcessRemoteAudioFileAttributesJob> logger,
                             IUnitOfWork unitOfWork) {
-            this._logger = logger;
-            this._entryRepository = entryRepository;
-            this._fileUtilities = fileUtilities;
-            this._unitOfWork = unitOfWork;
+            _logger = logger;
+            _entryRepository = entryRepository;
+            _fileUtilities = fileUtilities;
+            _unitOfWork = unitOfWork;
         }
         public async Task<bool> Execute() {
             var entries = await _entryRepository.GetAll()
                         .ToListAsync();
             foreach (var entry in entries) {
-                string[] parts = entry.AudioUrl.Split("/");
+                var parts = entry.AudioUrl.Split("/");
 
                 if (parts.Length == 2) {
                     _logger.LogInformation($"Processing remote: {entry.AudioUrl}");
