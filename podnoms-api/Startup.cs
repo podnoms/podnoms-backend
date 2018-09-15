@@ -227,19 +227,21 @@ namespace PodNoms.Api {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            lifetime.ApplicationStarted.Register(() => {
-                var p = new System.Diagnostics.Process {
-                    StartInfo = {
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        FileName = "/usr/bin/play",
-                        Arguments =
-                            "-n synth -j 3 sin %3 sin %-2 sin %-5 sin %-9 sin %-14 sin %-21 fade h .01 2 1.5 delay 1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1"
-                    }
-                };
-                p.Start();
-            });
+            if (Env.IsDevelopment()) {
+                lifetime.ApplicationStarted.Register(() => {
+                    var p = new System.Diagnostics.Process {
+                        StartInfo = {
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            FileName = "/usr/bin/play",
+                            Arguments =
+                                "-n synth -j 3 sin %3 sin %-2 sin %-5 sin %-9 sin %-14 sin %-21 fade h .01 2 1.5 delay 1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1"
+                        }
+                    };
+                    p.Start();
+                });
+            }
 
             app.UseHttpStatusCodeExceptionMiddleware();
             app.UseExceptionHandler(new ExceptionHandlerOptions {
