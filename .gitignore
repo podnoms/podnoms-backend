@@ -293,3 +293,4 @@ out/pushsubscription.db
 pushsubscription.db
 dev_push_subscriptions.db
 .vscode
+out/
