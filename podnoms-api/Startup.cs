@@ -92,24 +92,10 @@ namespace PodNoms.Api {
         }
 
         public void ConfigureServices(IServiceCollection services) {
-            Console.WriteLine($"Configuring services: {Configuration.ToString()}");
+            Console.WriteLine($"Configuring services: {Configuration}");
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
-            services.AddOptions();
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
-            services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
-            services.Configure<HelpersSettings>(Configuration.GetSection("HelpersSettings"));
-            services.Configure<FacebookAuthSettings>(Configuration.GetSection("FacebookAuthSettings"));
-            services.Configure<ChatSettings>(Configuration.GetSection("ChatSettings"));
-            services.Configure<ImageFileStorageSettings>(Configuration.GetSection("ImageFileStorageSettings"));
-            services.Configure<AudioFileStorageSettings>(Configuration.GetSection("AudioFileStorageSettings"));
-            services.Configure<JwtIssuerOptions>(Configuration.GetSection("JwtIssuerOptions"));
-            services.Configure<FormOptions>(options => {
-                // options.ValueCountLimit = 10;
-                options.ValueLengthLimit = int.MaxValue;
-                options.MemoryBufferThreshold = int.MaxValue;
-                options.MultipartBodyLengthLimit = long.MaxValue;
-            });
+            services.AddPodNomsOptions(Configuration);
 
             mutex.WaitOne();
             Mapper.Reset();
@@ -230,7 +216,7 @@ namespace PodNoms.Api {
             services.AddPodNomsSignalR();
             services.AddDependencies();
             services.AddPodNomsHangfire(Configuration);
-            
+
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(instance);
@@ -282,7 +268,7 @@ namespace PodNoms.Api {
             });
             app.UsePodNomsHangfire(serviceProvider, Configuration);
             app.UsePodNomsSignalRRoutes();
-            
+
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "default",

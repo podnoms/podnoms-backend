@@ -62,10 +62,9 @@ namespace PodNoms.Api.Controllers {
 
         private void _processEntry(PodcastEntry entry) {
             try {
-                
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
                     r => r.DownloadAudio(entry.Id));
-                
+
                 var uploadJobId = BackgroundJob.ContinueWith<IAudioUploadProcessService>(
                     extractJobId, r => r.UploadAudio(entry.Id, entry.AudioUrl));
 
@@ -73,12 +72,12 @@ namespace PodNoms.Api.Controllers {
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 
                 BackgroundJob.ContinueWith<INotifyJobCompleteService>(
-                    uploadJobId, 
+                    uploadJobId,
                     r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
                     ));
-                
+
                 BackgroundJob.ContinueWith<INotifyJobCompleteService>(
                     uploadJobId,
                     r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",

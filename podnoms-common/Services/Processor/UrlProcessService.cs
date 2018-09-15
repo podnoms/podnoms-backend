@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,8 @@ namespace PodNoms.Common.Services.Processor {
         public UrlProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
             HubLifetimeManager<UserUpdatesHub> hub,
-            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater) : base(logger, realtimeUpdater) {
+            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater, IMapper mapper)
+            : base(logger, realtimeUpdater, mapper) {
             _helpersSettings = helpersSettings.Value;
             _repository = repository;
             _unitOfWork = unitOfWork;

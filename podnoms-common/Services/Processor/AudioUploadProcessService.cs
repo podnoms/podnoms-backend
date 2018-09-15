@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -20,7 +21,8 @@ namespace PodNoms.Common.Services.Processor {
 
         public AudioUploadProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<AudioFileStorageSettings> audioStorageSettings,
-            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater) : base(logger, realtimeUpdater) {
+            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater, IMapper mapper)
+            : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
             _unitOfWork = unitOfWork;
             _fileUploader = fileUploader;
@@ -67,13 +69,12 @@ namespace PodNoms.Common.Services.Processor {
                     await _sendProcessCompleteMessage(entry);
                     return true;
                 }
-                else {
-                    Logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
-                    entry.ProcessingStatus = ProcessingStatus.Failed;
-                    entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
-                    await _unitOfWork.CompleteAsync();
-                    await _sendProcessCompleteMessage(entry);
-                }
+
+                Logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
+                entry.ProcessingStatus = ProcessingStatus.Failed;
+                entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
+                await _unitOfWork.CompleteAsync();
+                await _sendProcessCompleteMessage(entry);
             }
             catch (Exception ex) {
                 Logger.LogError($"Error uploading audio file: {ex.Message}");

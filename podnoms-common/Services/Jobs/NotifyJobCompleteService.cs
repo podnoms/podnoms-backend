@@ -36,7 +36,7 @@ namespace PodNoms.Common.Services.Jobs {
                 Urgency = PushMessageUrgency.Normal
             };
             await _subscriptionStore.ForEachSubscriptionAsync(userId,
-                (PushSubscription subscription) => {
+                subscription => {
                     _notificationService.SendNotificationAsync(subscription, pushMessage);
                 });
         }

@@ -29,7 +29,7 @@ namespace PodNoms.Data.Extensions {
                 context.Database.OpenConnection();
 
                 using (var reader = command.ExecuteReader()) {
-                    var result = reader.Select<T>(r => new T {
+                    var result = reader.Select(r => new T {
                         Slug = r["Slug"] is DBNull ? string.Empty : r["Slug"].ToString()
                     });
                     return result.ToList();
@@ -41,7 +41,7 @@ namespace PodNoms.Data.Extensions {
             try {
                 var property = entity.GetType()
                     .GetProperties()
-                    .FirstOrDefault(prop => Attribute.IsDefined((MemberInfo) prop, typeof(SlugFieldAttribute)));
+                    .FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(SlugFieldAttribute)));
                 if (property != null) {
                     var attribute = property.GetCustomAttributes(typeof(SlugFieldAttribute), false)
                         .FirstOrDefault();
