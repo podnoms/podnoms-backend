@@ -76,6 +76,7 @@ namespace PodNoms.Api {
             services.AddHangfire(config => {
                 config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddApplicationInsightsTelemetry(Configuration);
         }
 
         public void ConfigureDevelopmentServices(IServiceCollection services) {
@@ -248,10 +249,11 @@ namespace PodNoms.Api {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
-            app.UsePodNomsApplicationInsights(
-                Env.IsProduction(),
-                Configuration.GetSection("ApplicationInsights")
-            );
+
+            // app.UsePodNomsApplicationInsights(
+            //     Env.IsProduction(),
+            //     Configuration.GetSection("ApplicationInsights")
+            // );
 
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
