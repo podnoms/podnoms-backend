@@ -82,7 +82,6 @@ namespace PodNoms.Api {
         public void ConfigureDevelopmentServices(IServiceCollection services) {
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                // options.EnableSensitiveDataLogging(true);
             });
 
             ConfigureServices(services);
@@ -248,12 +247,6 @@ namespace PodNoms.Api {
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
-
-
-            // app.UsePodNomsApplicationInsights(
-            //     Env.IsProduction(),
-            //     Configuration.GetSection("ApplicationInsights")
-            // );
 
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
