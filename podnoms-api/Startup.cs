@@ -247,6 +247,7 @@ namespace PodNoms.Api {
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
+            app.UseSqlitePushSubscriptionStore();
 
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
