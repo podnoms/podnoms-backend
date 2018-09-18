@@ -62,7 +62,7 @@ namespace PodNoms.Api.Controllers {
             var sum = entries.Select(x => x.AudioFileSize)
                 .Sum();
             var vm = new ProfileLimitsViewModel {
-                StorageQuota = 5368709120, //5Gb
+                StorageQuota = 5368709, //5Gb
                 StorageUsed = sum,
                 User = user
             };

@@ -37,6 +37,7 @@ using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
+using PodNoms.Common.Services.Jobs;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -272,6 +273,8 @@ namespace PodNoms.Api {
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            JobBootstrapper.BootstrapJobs();
         }
     }
 }
