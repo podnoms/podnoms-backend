@@ -3,7 +3,7 @@ using Hangfire;
 
 namespace PodNoms.Common.Services.Jobs {
     public static class JobBootstrapper {
-        public static void BootstrapJobs(bool isDevelopment) {
+        public static void BootstrapJobs() {
 
             RecurringJob.AddOrUpdate<DeleteOrphanAudioJob>(x => x.Execute(), Cron.Daily(1));
             RecurringJob.AddOrUpdate<UpdateYouTubeDlJob>(x => x.Execute(), Cron.Daily(1, 30));
@@ -11,9 +11,9 @@ namespace PodNoms.Common.Services.Jobs {
             RecurringJob.AddOrUpdate<ProcessFailedPodcastsJob>(x => x.Execute(), Cron.Daily(2, 30));
             RecurringJob.AddOrUpdate<DeleteOrphanAudioJob>(x => x.Execute(), Cron.Daily(3));
 
-            BackgroundJob.Schedule<ProcessRemoteAudioFileAttributesJob>(
+            RecurringJob.AddOrUpdate<ProcessRemoteAudioFileAttributesJob>(
                 x => x.Execute(),
-                TimeSpan.FromDays(short.MaxValue));
+                Cron.Hourly());
         }
     }
 }
