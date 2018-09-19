@@ -22,9 +22,6 @@ using Newtonsoft.Json.Serialization;
 using PodNoms.Data.Models;
 using PodNoms.Api.Providers;
 using PodNoms.Common.Auth;
-using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.Elasticsearch;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -53,20 +50,6 @@ namespace PodNoms.Api {
         public Startup(IHostingEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
             Env = env;
-
-            if (!Env.IsDevelopment()) {
-                var logServer = Configuration["StorageSettings:ElasticHost"]?.ToString();
-                if (!string.IsNullOrEmpty(logServer)) {
-                    Log.Logger = new LoggerConfiguration()
-                        .Enrich.FromLogContext()
-                        .MinimumLevel.Debug()
-                        .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(logServer)) {
-                            MinimumLogEventLevel = LogEventLevel.Verbose,
-                            AutoRegisterTemplate = true
-                        })
-                        .CreateLogger();
-                }
-            }
         }
 
         public void ConfigureProductionServices(IServiceCollection services) {
@@ -94,7 +77,6 @@ namespace PodNoms.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services: {Configuration}");
-            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
             services.AddPodNomsOptions(Configuration);
 
