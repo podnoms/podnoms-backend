@@ -23,8 +23,7 @@ namespace PodNoms.Common.Services.Jobs {
             _unitOfWork = unitOfWork;
         }
         public async Task<bool> Execute() {
-            var entries = _entryRepository.GetAll()
-                .Where(r => EF.Functions.Like(r.AudioUrl, "7402ffff-554c-4c25-8134-7126b7390d2b"));
+            var entries = _entryRepository.GetAll();
 
             foreach (var entry in entries) {
                 var parts = entry.AudioUrl.Split("/");
