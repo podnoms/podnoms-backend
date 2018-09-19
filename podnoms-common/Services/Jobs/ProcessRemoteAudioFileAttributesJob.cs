@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,17 +23,24 @@ namespace PodNoms.Common.Services.Jobs {
             _unitOfWork = unitOfWork;
         }
         public async Task<bool> Execute() {
-            var entries = await _entryRepository.GetAll()
-                        .ToListAsync();
+            var entries = _entryRepository.GetAll()
+                .Where(r => EF.Functions.Like(r.AudioUrl, "7402ffff-554c-4c25-8134-7126b7390d2b"));
+
             foreach (var entry in entries) {
                 var parts = entry.AudioUrl.Split("/");
 
                 if (parts.Length == 2) {
                     _logger.LogInformation($"Processing remote: {entry.AudioUrl}");
-                    var size = await _fileUtilities.GetRemoteFileSize(
-                        parts[0], parts[1]);
-                    if (size != -1) {
-                        entry.AudioFileSize = size;
+                    try {
+                        var size = await _fileUtilities.GetRemoteFileSize(
+                            parts[0], parts[1]);
+                        if (size != -1) {
+                            entry.AudioFileSize = size;
+                        }
+                    } catch (InvalidOperationException ex) {
+                        _logger.LogWarning(ex, "Probably missing item error processing remote file");
+                    } catch (Exception ex) {
+                        _logger.LogWarning(ex, "Fatal error processing remote file");
                     }
                 }
             }
