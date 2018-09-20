@@ -9,6 +9,10 @@ using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Extensions {
+    public class GenerateSlugFailureException : Exception {
+        public GenerateSlugFailureException(string message) : base(message) { }
+    }
+
     public static class SluggedEntityExtensions {
         private class ProxySluggedModel : ISluggedEntity {
             public string Slug { get; set; }
@@ -50,17 +54,24 @@ namespace PodNoms.Data.Extensions {
                     var tableName = context.Model.FindEntityType(t).SqlServer().TableName;
                     if (!string.IsNullOrEmpty(tableName)) {
                         var sourceField = (attribute as SlugFieldAttribute)?.SourceField;
-                        var slugSource = entity.GetType().GetProperty(sourceField).GetValue(entity, null).ToString();
+                        
+                        var slugSource = entity.GetType()
+                            .GetProperty(sourceField)
+                            .GetValue(entity, null)
+                            .ToString();
+                        
                         var source = context.ExecSQL<ProxySluggedModel>($"SELECT Slug FROM {tableName}")
                             .Select(m => m.Slug);
+                        
                         return slugSource.Slugify(source);
                     }
                 }
             }
             catch (Exception ex) {
                 logger?.LogError($"Error slugifying {entity.GetType().Name} - {ex.Message}");
+                // need to throw here, shouldn't save without slug
+                throw new GenerateSlugFailureException(ex.Message);
             }
-
             return string.Empty;
         }
     }
