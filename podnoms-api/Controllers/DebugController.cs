@@ -9,6 +9,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Middleware;
@@ -43,6 +45,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IPushNotificationService _notificationService;
         private readonly IPodcastRepository _podcastRepository;
         public readonly AppSettings _appSettings;
+        private readonly IMailSender _mailSender;
 
         public DebugController(IOptions<StorageSettings> settings, IOptions<AppSettings> appSettings,
             HubLifetimeManager<DebugHub> hub,
@@ -57,7 +60,8 @@ namespace PodNoms.Api.Controllers {
             IMapper mapper,
             IPushNotificationService notificationService,
             IPodcastRepository podcastRepository,
-            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+            IHttpContextAccessor contextAccessor,
+            IMailSender mailSender) : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
             _storageSettings = settings.Value;
             _helpersSettings = helpersSettings.Value;
@@ -70,6 +74,7 @@ namespace PodNoms.Api.Controllers {
             _subscriptionStore = subscriptionStore;
             _notificationService = notificationService;
             _podcastRepository = podcastRepository;
+            _mailSender = mailSender;
         }
 
         [HttpGet]
@@ -87,44 +92,65 @@ namespace PodNoms.Api.Controllers {
             };
             return Ok(config);
         }
+
         [AllowAnonymous]
         [HttpGet("generatelogdata")]
         public IActionResult GenerateLogData() {
             for (var i = 0; i < 1000; i++) {
                 _logger.LogError($"Debug error {i}");
             }
+
             return Ok();
         }
+
+        [AllowAnonymous]
+        [HttpGet("sendmail")]
+        public async Task<IActionResult> SendEmail() {
+            await _mailSender.SendEmailAsync("fergal.moran+podnoms@gmail.com", "Debug Message", "Hello Sailor");
+            return Ok();
+        }
+
         [Authorize]
         [AllowAnonymous]
         [HttpGet("getoptions")]
         public IActionResult GetOptions() {
             var response = new {
-                AppSettings = _config.GetSection("AppSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                StorageSettings = _config.GetSection("StorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                HelpersSettings = _config.GetSection("HelpersSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                EmailSettings = _config.GetSection("EmailSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                ChatSettings = _config.GetSection("ChatSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                ImageFileStorageSettings = _config.GetSection("ImageFileStorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                AudioFileStorageSettings = _config.GetSection("AudioFileStorageSettings").GetChildren().Select(c => new { Key = c.Key, Value = c.Value }),
-                JwtIssuerOptions = _config.GetSection("JwtIssuerOptions").GetChildren().Select(c => new { Key = c.Key, Value = c.Value })
+                AppSettings = _config.GetSection("AppSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                StorageSettings = _config.GetSection("StorageSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                HelpersSettings = _config.GetSection("HelpersSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                EmailSettings = _config.GetSection("EmailSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                ChatSettings = _config.GetSection("ChatSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                ImageFileStorageSettings = _config.GetSection("ImageFileStorageSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                AudioFileStorageSettings = _config.GetSection("AudioFileStorageSettings").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                JwtIssuerOptions = _config.GetSection("JwtIssuerOptions").GetChildren()
+                    .Select(c => new {Key = c.Key, Value = c.Value})
             };
             return Ok(JsonConvert.SerializeObject(response));
         }
+
         [Authorize]
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
-            await _hub.SendUserAsync(User.Identity.Name, "Send", new string[] { $"User {User.Identity.Name}: {message}" });
-            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
+            await _hub.SendUserAsync(User.Identity.Name, "Send",
+                new string[] {$"User {User.Identity.Name}: {message}"});
+            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
             return Ok(message);
         }
+
         [Authorize]
         [HttpGet("serverpush")]
         public async Task<string> ServerPush(string message) {
             var response = new StringBuilder();
-            var pushMessage = new WP.PushMessage(message)
-            {
+            var pushMessage = new WP.PushMessage(message) {
                 Topic = "Debug",
                 Urgency = WP.PushMessageUrgency.Normal
             };
@@ -140,6 +166,7 @@ namespace PodNoms.Api.Controllers {
         public void ThrowException(string text) {
             throw new HttpStatusCodeException(500, text);
         }
+
         [HttpGet("qry")]
         public async Task<ActionResult<PodcastViewModel>> Query() {
             var podcast = await _podcastRepository.GetAll()

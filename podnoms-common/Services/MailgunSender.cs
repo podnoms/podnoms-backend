@@ -54,7 +54,7 @@ namespace PodNoms.Common.Services {
                     new KeyValuePair<string, string>("html", mailBody)
                 });
 
-                var result = await client.PostAsync(_emailSettings.RequestUri, content).ConfigureAwait(false);
+                var result = await client.PostAsync(_emailSettings.RequestUri, content);
                 if (result.StatusCode == HttpStatusCode.OK)
                     return true;
 
