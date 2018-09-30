@@ -41,6 +41,10 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.Notifications)
                 )
                 .ForMember(
+                    v => v.AuthPassword,
+                    e => e.MapFrom(m => string.Empty)
+                )
+                .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
                         _options.GetSection("StorageSettings")["CdnUrl"],
@@ -114,7 +118,10 @@ namespace PodNoms.Common.Data {
                     dest => dest.Category,
                     src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString()))
                 .ForMember(
-                    dest => dest.Slug, 
+                    dest => dest.AuthPassword,
+                    src => src.ResolveUsing<PodcastAuthPasswordResolver, string>(s => s.Category.Id.ToString()))
+                .ForMember(
+                    dest => dest.Slug,
                     opt => opt.Condition(src => (!string.IsNullOrEmpty(src.Slug))))
                 .ForMember(
                     dest => dest.Slug,

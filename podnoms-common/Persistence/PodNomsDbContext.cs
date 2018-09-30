@@ -35,6 +35,10 @@ namespace PodNoms.Common.Persistence {
             modelBuilder.Entity<Podcast>()
                 .Property(p => p.AppUserId)
                 .IsRequired();
+            modelBuilder.Entity<Podcast>()
+                .Property(p => p.Private)
+                .IsRequired()
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })

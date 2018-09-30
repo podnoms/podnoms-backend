@@ -93,24 +93,23 @@ namespace PodNoms.Api.Controllers {
 
                 return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
             }
-            catch (GenerateSlugFailureException e) {
+            catch (GenerateSlugFailureException) {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] PodcastViewModel vm) {
-            if (ModelState.IsValid && !string.IsNullOrEmpty(vm.Id)) {
-                var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
-                if (podcast.AppUser is null)
-                    podcast.AppUser = _applicationUser;
+            if (!ModelState.IsValid || string.IsNullOrEmpty(vm.Id)) return BadRequest("Invalid request data");
+            
+            var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
+            if (podcast.AppUser is null)
+                podcast.AppUser = _applicationUser;
 
-                _repository.AddOrUpdate(podcast);
-                await _uow.CompleteAsync();
-                return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
-            }
+            _repository.AddOrUpdate(podcast);
+            await _uow.CompleteAsync();
+            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
 
-            return BadRequest("Invalid request data");
         }
 
         [HttpDelete("{id}")]

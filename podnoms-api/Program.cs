@@ -13,10 +13,9 @@ namespace PodNoms.Api {
             var host = BuildWebHost(args);
             host.Run();
         }
-
-        private static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((context, config) => {
+        private static IWebHost BuildWebHost(string[] args) {
+            var builder = WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, config) => {
                     if (_isDevelopment) return;
                     config.SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", optional: false)
@@ -26,12 +25,14 @@ namespace PodNoms.Api {
                         $"https://{builtConfig["Vault"]}.vault.azure.net/",
                         builtConfig["ClientId"],
                         builtConfig["ClientSecret"]);
-                })
-            .UseApplicationInsights()
-            .UseStartup<Startup>()
-            .UseKestrel(options => {
-                options.Limits.MaxRequestBodySize = 1073741824;
-            }).Build();
-
+                });
+            if (!_isDevelopment) {
+                builder.UseApplicationInsights();
+            }
+            return builder.UseStartup<Startup>()
+                            .UseKestrel(options => {
+                                options.Limits.MaxRequestBodySize = 1073741824;
+                            }).Build();
+        }
     }
 }

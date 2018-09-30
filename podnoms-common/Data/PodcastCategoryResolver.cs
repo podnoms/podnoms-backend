@@ -6,25 +6,45 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data {
-    internal class PodcastCategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, string, Category> {
+    internal class PodcastAuthPasswordResolver : IMemberValueResolver<PodcastViewModel, Podcast, string, byte[]> {
+        public byte[] Resolve(PodcastViewModel source, Podcast destination, string sourceMember, byte[] destMember,
+            ResolutionContext context) {
+            return string.IsNullOrEmpty(source.AuthPassword)
+                ? null
+                : System.Text.Encoding.ASCII.GetBytes(source.AuthPassword);
+        }
+    }
+
+    internal class PodcastCategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, string      , Category> {
         private readonly ICategoryRepository _categoryRepository;
+
         public PodcastCategoryResolver(ICategoryRepository categoryRespository) {
             _categoryRepository = categoryRespository;
         }
 
-        public Category Resolve(PodcastViewModel source, Podcast destination, string sourceMember, Category destMember, ResolutionContext context) {
-            var category = _categoryRepository.GetAll()
-                .Where(r => r.Id.ToString() == sourceMember)
-                .FirstOrDefault();
+        public Category Resolve(PodcastViewModel source, Podcast destination, string sourceMember, Category destMember,
+            ResolutionContext context) {
+            if (string.IsNullOrEmpty(sourceMember)) return null;
+
+            var category = _categoryRepository
+                .GetAll()
+                .FirstOrDefault(r => r.Id.ToString() == sourceMember);
+
             return category;
         }
     }
-    internal class PodcastSubcategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, ICollection<SubcategoryViewModel>, ICollection<Subcategory>> {
+
+    internal class PodcastSubcategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast,
+        ICollection<SubcategoryViewModel>, ICollection<Subcategory>> {
         private readonly ICategoryRepository _categoryRepository;
+
         public PodcastSubcategoryResolver(ICategoryRepository categoryRespository) {
             _categoryRepository = categoryRespository;
         }
-        public ICollection<Subcategory> Resolve(PodcastViewModel source, Podcast destination, ICollection<SubcategoryViewModel> sourceMember, ICollection<Subcategory> destMember, ResolutionContext context) {
+
+        public ICollection<Subcategory> Resolve(PodcastViewModel source, Podcast destination,
+            ICollection<SubcategoryViewModel> sourceMember, ICollection<Subcategory> destMember,
+            ResolutionContext context) {
             var results = _categoryRepository.GetAllSubcategories()
                 .Where(r => sourceMember.Select(e => e.Id.ToString()).Contains(r.Id.ToString()))
                 .ToList();
