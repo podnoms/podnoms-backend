@@ -9,6 +9,7 @@ using PodNoms.Common.Services.Processor;
 namespace PodNoms.Common.Services.Startup {
     public static class HangfireStartup {
         public static IServiceCollection AddPodNomsHangfire(this IServiceCollection services, IConfiguration config) {
+//            System.Console.WriteLine(config.GetConnectionString("DefaultConnection"));
             services.AddHangfire(options => {
                 options.UseSqlServerStorage(config.GetConnectionString("DefaultConnection"));
             });
@@ -17,6 +18,7 @@ namespace PodNoms.Common.Services.Startup {
 
         public static IApplicationBuilder UsePodNomsHangfire(
             this IApplicationBuilder builder, IServiceProvider serviceProvider, IConfiguration config) {
+//            System.Console.WriteLine(config.GetConnectionString("DefaultConnection"));
             builder.UseHangfireServer()
                 .UseHangfireDashboard("/hangfire", new DashboardOptions {
                     Authorization = new[] {new HangFireAuthorizationFilter()}
