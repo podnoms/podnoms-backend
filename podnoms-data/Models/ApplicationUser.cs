@@ -10,6 +10,8 @@ namespace PodNoms.Data.Models {
         public long? FacebookId { get; set; }
         public string PictureUrl { get; set; }
         
+        public long? DiskQuota { get; set; }
+
         [SlugField(sourceField: "FullName")]
         public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
