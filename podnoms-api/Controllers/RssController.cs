@@ -42,6 +42,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("{slug}/{entry}")]
         [HttpHead("{slug}/{entry}")]
         [Produces("application/xml")]
+        [RssFeedAuthorize]
         public async Task<IActionResult> Get(string slug, string entry) {
             _logger.LogDebug($"RSS: Retrieving podcast: {slug} - {entry}");
 

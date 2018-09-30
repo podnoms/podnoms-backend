@@ -24,6 +24,13 @@ namespace PodNoms.Data.Models {
         public List<Subcategory> Subcategories { get; set; }
         public List<Notification> Notifications { get; set; }
 
+        #region AuthStuff
+        public bool? Private { get; set; } = false;
+        public string AuthUserName { get; set; }
+        public byte[] AuthPassword { get; set; }
+        public byte[] AuthPasswordSalt { get; set; }
+        #endregion
+
         public string GetImageUrl(string cdnUrl, string containerName) {
             return $"{cdnUrl}{containerName}/podcast/{Id.ToString()}.png";
         }

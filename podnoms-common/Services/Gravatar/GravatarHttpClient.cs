@@ -14,6 +14,7 @@ namespace PodNoms.Common.Services.Gravatar {
             _client.BaseAddress = new Uri("https://www.gravatar.com");
             _logger = logger;
         }
+
         public async Task<string> GetGravatarImage(string email) {
             try {
                 var hash = MD5Generator.CalculateMD5Hash(email.ToLower().Trim());
@@ -21,9 +22,11 @@ namespace PodNoms.Common.Services.Gravatar {
                 var res = await _client.GetAsync(gravatarUri);
                 res.EnsureSuccessStatusCode();
                 return new Uri(_client.BaseAddress, $"/avatar/{hash}").AbsoluteUri;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 _logger.LogError($"Error obtaining gravatar image\n\t{ex.Message}");
             }
+
             return string.Empty;
         }
     }

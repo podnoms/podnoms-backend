@@ -12,6 +12,11 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string ThumbnailUrl { get; set; }
         public string RssUrl { get; set; }
         public DateTime CreateDate { get; set; }
+
+        public bool Private { get; set; }
+        public string AuthUserName { get; set; }
+        public string AuthPassword { get; set; }
+
         public List<PodcastEntryViewModel> PodcastEntries { get; set; }
         public CategoryViewModel Category { get; set; }
         public List<SubcategoryViewModel> Subcategories { get; set; }
