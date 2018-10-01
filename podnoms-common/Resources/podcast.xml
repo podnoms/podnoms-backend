@@ -9,14 +9,14 @@
         <category>{{category}}</category>
         <itunes:category text="{{category}}">
         </itunes:category>
-        <link>{{link}}</link>
+        <link>{{showUrl}}</link>
         <itunes:image href="{{image}}" />
         <itunes:explicit>no</itunes:explicit>
         <itunes:owner>
             <itunes:name>{{owner}}</itunes:name>
             <itunes:email>{{ownerEmail}}</itunes:email>
         </itunes:owner>
-        <atom:link href="{{showUrl}}" rel="self" type="application/rss+xml" />
+        <atom:link href="{{link}}" rel="self" type="application/rss+xml" />
         <pubDate> {{publishDate}} </pubDate>
         <language>{{language}}</language>
         <copyright>{{copyright}}</copyright>    {{#each Items}}
