@@ -66,7 +66,7 @@ namespace PodNoms.Api.Controllers {
                         Copyright = $"© {DateTime.Now.Year} PodNoms",
                         Owner = $"{user.FirstName} {user.LastName}",
                         OwnerEmail = user.Email,
-                        ShowUrl = $"http://dev.podnoms.com:5000/rss/{user.Slug}/{podcast.Slug}",
+                        ShowUrl = $"{_appOptions.SiteUrl}rss/{user.Slug}/{podcast.Slug}",
 
                         Items = (
                             from e in podcast.PodcastEntries
