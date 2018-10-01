@@ -83,8 +83,7 @@ namespace PodNoms.Api.Controllers {
                     r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
                         $"{entry.Title} has finished processing")
                 );
-            }
-            catch (InvalidOperationException ex) {
+            } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
             }
@@ -111,6 +110,15 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid podcast entry posted");
+
+            // check user quota
+            var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
+            var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
+                .Select(x => x.AudioFileSize)
+                .Sum();
+            if (totalUsed >= quota) {
+                return StatusCode(402);
+            }
             // first check url is valid
             var entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
@@ -120,8 +128,7 @@ namespace PodNoms.Api.Controllers {
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
-            }
-            else {
+            } else {
                 var status = await _processor.GetInformation(entry);
                 if (status == AudioType.Valid) {
                     if (entry.ProcessingStatus != ProcessingStatus.Processing)
@@ -141,14 +148,12 @@ namespace PodNoms.Api.Controllers {
                             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                             return result;
                         }
-                    }
-                    catch (DbUpdateException e) {
+                    } catch (DbUpdateException e) {
                         _logger.LogError(e.Message);
                         return BadRequest(item);
                     }
-                }
-                else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                         || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                           || MixcloudParser.ValidateUrl(item.SourceUrl)) {
                     entry.ProcessingStatus = ProcessingStatus.Deferred;
                     var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     return Accepted(result);
@@ -164,8 +169,7 @@ namespace PodNoms.Api.Controllers {
                 await _repository.DeleteAsync(new Guid(id));
                 await _unitOfWork.CompleteAsync();
                 return Ok();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
