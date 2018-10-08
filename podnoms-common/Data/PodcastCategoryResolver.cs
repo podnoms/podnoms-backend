@@ -6,16 +6,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data {
-    internal class PodcastAuthPasswordResolver : IMemberValueResolver<PodcastViewModel, Podcast, string, byte[]> {
-        public byte[] Resolve(PodcastViewModel source, Podcast destination, string sourceMember, byte[] destMember,
-            ResolutionContext context) {
-            return string.IsNullOrEmpty(source.AuthPassword)
-                ? null
-                : System.Text.Encoding.ASCII.GetBytes(source.AuthPassword);
-        }
-    }
-
-    internal class PodcastCategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, string      , Category> {
+    internal class PodcastCategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, string, Category> {
         private readonly ICategoryRepository _categoryRepository;
 
         public PodcastCategoryResolver(ICategoryRepository categoryRespository) {

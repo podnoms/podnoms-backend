@@ -11,7 +11,8 @@ namespace PodNoms.Common.Services.Notifications {
         public TwitterNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
+        public override async Task<bool>
+            SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
             if (config == null || !(config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret") &&
                                     config.ContainsKey("AccessToken") && config.ContainsKey("AccessTokenSecret")))
@@ -23,7 +24,7 @@ namespace PodNoms.Common.Services.Notifications {
                 config["AccessToken"],
                 config["AccessTokenSecret"]);
             var user = Tweetinvi.User.GetAuthenticatedUser(auth);
-            var tweet = user.PublishTweet($"New podcast episide - {title}\n{message}");
+            var tweet = user.PublishTweet($"New podcast episide - {title}\n{message}\n{url}");
 
             return !string.IsNullOrEmpty(tweet.Id.ToString());
         }

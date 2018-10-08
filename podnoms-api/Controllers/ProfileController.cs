@@ -70,7 +70,7 @@ namespace PodNoms.Api.Controllers {
                 .Sum();
             
             var vm = new ProfileLimitsViewModel {
-                StorageQuota = quota, //5Gb
+                StorageQuota = quota,
                 StorageUsed = totalUsed,
                 User = user
             };

@@ -69,25 +69,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("config")]
         public ActionResult<NotificationConfigViewModel> GetConfig(string type) {
-            BaseNotificationConfig config;
-            switch (type) {
-                case "Slack":
-                    config = new SlackNotificationConfig();
-                    break;
-                case "IFTT":
-                    config = new IFTTNotificationConfig();
-                    break;
-                case "Email":
-                    config = new EmailNotificationConfig();
-                    break;
-                case "Twitter":
-                    config = new TwitterNotificationConfig();
-                    break;
-                default:
-                    config = null;
-                    break;
-            }
-
+            var config = BaseNotificationConfig.GetConfig(type);
             if (config != null)
                 return Ok(_mapper.Map<BaseNotificationConfig, NotificationConfigViewModel>(config));
 

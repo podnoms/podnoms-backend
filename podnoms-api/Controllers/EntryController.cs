@@ -37,6 +37,7 @@ namespace PodNoms.Api.Controllers {
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly AppSettings _appSettings;
         private readonly IUrlProcessService _processor;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
@@ -44,6 +45,7 @@ namespace PodNoms.Api.Controllers {
         public EntryController(IEntryRepository repository,
             IPodcastRepository podcastRepository,
             IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
+            IOptions<AppSettings> appSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IConfiguration options,
             IUrlProcessService processor,
@@ -53,6 +55,7 @@ namespace PodNoms.Api.Controllers {
             _podcastRepository = podcastRepository;
             _repository = repository;
             _options = options;
+            _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
             _unitOfWork = unitOfWork;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
@@ -81,9 +84,12 @@ namespace PodNoms.Api.Controllers {
                 BackgroundJob.ContinueWith<INotifyJobCompleteService>(
                     uploadJobId,
                     r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
-                        $"{entry.Title} has finished processing")
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                    )
                 );
-            } catch (InvalidOperationException ex) {
+            }
+            catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
             }
@@ -119,6 +125,7 @@ namespace PodNoms.Api.Controllers {
             if (totalUsed >= quota) {
                 return StatusCode(402);
             }
+
             // first check url is valid
             var entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
@@ -128,7 +135,8 @@ namespace PodNoms.Api.Controllers {
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
-            } else {
+            }
+            else {
                 var status = await _processor.GetInformation(entry);
                 if (status == AudioType.Valid) {
                     if (entry.ProcessingStatus != ProcessingStatus.Processing)
@@ -148,12 +156,14 @@ namespace PodNoms.Api.Controllers {
                             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                             return result;
                         }
-                    } catch (DbUpdateException e) {
+                    }
+                    catch (DbUpdateException e) {
                         _logger.LogError(e.Message);
                         return BadRequest(item);
                     }
-                } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                           || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                }
+                else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                         || MixcloudParser.ValidateUrl(item.SourceUrl)) {
                     entry.ProcessingStatus = ProcessingStatus.Deferred;
                     var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     return Accepted(result);
@@ -169,7 +179,8 @@ namespace PodNoms.Api.Controllers {
                 await _repository.DeleteAsync(new Guid(id));
                 await _unitOfWork.CompleteAsync();
                 return Ok();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
