@@ -19,10 +19,12 @@ namespace PodNoms.Common.Data {
             return map;
         }
     }
+
     public class MappingProvider : Profile {
         private readonly IConfiguration _options;
 
         public MappingProvider() { }
+
         public MappingProvider(IConfiguration options) {
             _options = options;
 
@@ -80,33 +82,13 @@ namespace PodNoms.Common.Data {
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
-                    map => map.MapFrom(r =>
-                        r.Options.Select(v =>
-                            new NotificationOptionViewModel<string>(
-                                v.Value,
-                                v.Key,
-                                v.Key,
-                                false,
-                                1,
-                                "textbox"
-                            )
-                        )
-                    )
-                );
+                    map => map.MapFrom(r => r.Options.Select(o => o.Value)));
+
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,
-                    map => map.MapFrom(r =>
-                        JsonConvert.DeserializeObject<IList<NotificationOptionViewModel<string>>>(r.Config)
-                            .Select(v => new NotificationOptionViewModel<string>(
-                                v.Value,
-                                v.Key,
-                                v.Key,
-                                true,
-                                1,
-                                "textbox")
-                        )
-                    )
+                    map => map.ResolveUsing<NotificationOptionsResolver, string>(s =>
+                        s.Config)
                 );
 
             CreateMap<ChatMessage, ChatViewModel>();

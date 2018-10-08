@@ -6,10 +6,10 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Services.Notifications {
-    public class IFTTNotificationHandler : BaseNotificationHandler, INotificationHandler {
-        public override Notification.NotificationType Type => Notification.NotificationType.IFTT;
+    public class PushBulletNotificationHandler : BaseNotificationHandler, INotificationHandler {
+        public override Notification.NotificationType Type => Notification.NotificationType.PushBullet;
 
-        public IFTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
+        public PushBulletNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
         public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
