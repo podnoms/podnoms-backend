@@ -41,7 +41,7 @@ namespace PodNoms.Common.Services.Jobs {
                 });
         }
 
-        public async Task SendCustomNotifications(Guid podcastId, string title, string body) {
+        public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {
             var id = podcastId.ToString();
             _logger.LogDebug($"Finding custom notifications for {id}");
             var notifications = _notificationRepository.GetAll().Where(r => r.PodcastId == podcastId);
@@ -50,7 +50,7 @@ namespace PodNoms.Common.Services.Jobs {
                 var typeHandlers = _handlers.Where(h => h.Type == notification.Type);
                 foreach (var handler in typeHandlers) {
                     _logger.LogDebug($"Found handler: {notification.Type.ToString()}");
-                    await handler.SendNotification(notification.Id, title, body);
+                    await handler.SendNotification(notification.Id, title, body, url);
                 }
             }
         }

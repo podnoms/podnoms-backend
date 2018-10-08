@@ -14,16 +14,17 @@ namespace PodNoms.Common.Services.Notifications {
         public SlackNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
+        public override async Task<bool>
+            SendNotification(Guid notificationId, string title, string message, string url) {
             var content = new StringContent(JsonConvert.SerializeObject(new {
-                text = message
+                text = $"{message}\n{url}",
             }), Encoding.UTF8, "application/json");
 
             var config = await _getConfiguration(notificationId);
             if (config == null || !config.ContainsKey("WebHookUrl")) return false;
-            var url = config["WebHookUrl"];
+            var hookUrl = config["WebHookUrl"];
             var response = await _httpClient.PostAsync(
-                url,
+                hookUrl,
                 content
             );
             return response.StatusCode == HttpStatusCode.OK;

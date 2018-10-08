@@ -15,15 +15,16 @@ namespace PodNoms.Common.Services.Notifications {
             _emailSender = emailSender;
         }
 
-        public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
+        public override async Task<bool>
+            SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
             if (config == null || !(config.ContainsKey("To")))
                 return false;
 
             var response = await _emailSender.SendEmailAsync(
-                config["To"], 
+                config["To"],
                 config["Subject"] ?? "New Podcast",
-                $"Title: {title}\n\n{message}"
+                $"Title: {title}\n\n{message}\n\n\n{url}"
             );
 
             return true;

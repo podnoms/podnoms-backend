@@ -36,6 +36,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IFileUtilities, AzureFileUtilities>()
                 .AddScoped<INotificationHandler, SlackNotificationHandler>()
                 .AddScoped<INotificationHandler, IFTTNotificationHandler>()
+                .AddScoped<INotificationHandler, PushBulletNotificationHandler>()
                 .AddScoped<INotificationHandler, TwitterNotificationHandler>()
                 .AddScoped<INotificationHandler, EmailNotificationHandler>()
                 .AddScoped<YouTubeParser>()

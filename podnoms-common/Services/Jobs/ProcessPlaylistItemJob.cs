@@ -93,7 +93,8 @@ namespace PodNoms.Common.Services.Jobs {
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
                         service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
-                            $"{entry.Title} has finished processing"
+                            $"{entry.Title} has finished processing",
+                            entry.Podcast.GetAuthenticatedUrl(_options.GetSection("AppSettings")["SiteUrl"])
                         ));
                 }
                 else {
@@ -101,6 +102,7 @@ namespace PodNoms.Common.Services.Jobs {
                     return false;
                 }
             }
+
             return true;
         }
     }
