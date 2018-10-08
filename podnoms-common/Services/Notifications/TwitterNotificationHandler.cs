@@ -11,12 +11,12 @@ namespace PodNoms.Common.Services.Notifications {
         public TwitterNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool>
+        public override async Task<string>
             SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
             if (config == null || !(config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret") &&
                                     config.ContainsKey("AccessToken") && config.ContainsKey("AccessTokenSecret")))
-                return false;
+                return "Invalid configuration";
 
             var auth = Tweetinvi.Auth.CreateCredentials(
                 config["ConsumerKey"],
@@ -26,7 +26,7 @@ namespace PodNoms.Common.Services.Notifications {
             var user = Tweetinvi.User.GetAuthenticatedUser(auth);
             var tweet = user.PublishTweet($"New podcast episide - {title}\n{message}\n{url}");
 
-            return !string.IsNullOrEmpty(tweet.Id.ToString());
+            return $"Tweet Id: {tweet.Id.ToString()}";
         }
     }
 }

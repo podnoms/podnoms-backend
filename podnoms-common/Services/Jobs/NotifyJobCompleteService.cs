@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Notifications;
 using PodNoms.Common.Services.Push;
@@ -16,17 +17,20 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly INotificationRepository _notificationRepository;
 
         private readonly ILogger<NotifyJobCompleteService> _logger;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationHandler[] _handlers;
 
         public NotifyJobCompleteService(IPushSubscriptionStore subscriptionStore,
             IPushNotificationService notificationService,
             INotificationRepository notificationRepository,
             ILogger<NotifyJobCompleteService> logger,
-            IServiceProvider serviceProvider) {
+            IServiceProvider serviceProvider,
+            IUnitOfWork unitOfWork) {
             _notificationService = notificationService;
             _subscriptionStore = subscriptionStore;
             _notificationRepository = notificationRepository;
             _logger = logger;
+            _unitOfWork = unitOfWork;
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
 
@@ -50,7 +54,10 @@ namespace PodNoms.Common.Services.Jobs {
                 var typeHandlers = _handlers.Where(h => h.Type == notification.Type);
                 foreach (var handler in typeHandlers) {
                     _logger.LogDebug($"Found handler: {notification.Type.ToString()}");
-                    await handler.SendNotification(notification.Id, title, body, url);
+                    var response = await handler.SendNotification(notification.Id, title, body, url);
+                    _logger.LogInformation(response);
+                    _notificationRepository.AddLog(notification, response);
+                    await _unitOfWork.CompleteAsync();
                 }
             }
         }

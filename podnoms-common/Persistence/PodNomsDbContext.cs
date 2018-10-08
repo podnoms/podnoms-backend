@@ -90,5 +90,6 @@ namespace PodNoms.Common.Persistence {
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationLog> NotificationLogs { get; set; }
     }
 }
