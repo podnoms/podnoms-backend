@@ -12,11 +12,11 @@ namespace PodNoms.Common.Services.Notifications {
         public IFTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
+        public override async Task<bool> SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
             if (config == null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event")) return false;
-            var url = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
-            var response = await _httpClient.GetAsync(url);
+            var hookUrl = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
+            var response = await _httpClient.GetAsync(hookUrl);
             return response.StatusCode == HttpStatusCode.OK;
         }
     }

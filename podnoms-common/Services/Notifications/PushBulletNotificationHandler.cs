@@ -1,7 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
 
@@ -9,14 +11,27 @@ namespace PodNoms.Common.Services.Notifications {
     public class PushBulletNotificationHandler : BaseNotificationHandler, INotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.PushBullet;
 
-        public PushBulletNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
+        public PushBulletNotificationHandler(INotificationRepository notificationRepository,
+            IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool> SendNotification(Guid notificationId, string title, string message) {
+        public override async Task<bool>
+            SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config == null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event")) return false;
-            var url = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
-            var response = await _httpClient.GetAsync(url);
+            if (config == null || !config.ContainsKey("AccessToken")) return false;
+
+            var payload = JsonConvert.SerializeObject(new {
+                device_iden = config["Device"] ?? string.Empty,
+                title = title,
+                body = message,
+                type = "link",
+                url = url
+            });
+            var hookUrl = "https://api.pushbullet.com/v2/pushes";
+            _httpClient.DefaultRequestHeaders.Add("Access-Token", config["AccessToken"]);
+            var response = await _httpClient.PostAsync(
+                hookUrl,
+                new StringContent(payload, Encoding.UTF8, "application/json"));
             return response.StatusCode == HttpStatusCode.OK;
         }
     }
