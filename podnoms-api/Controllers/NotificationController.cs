@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Google.Apis.Logging;
+using Google.Apis.YouTube.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +57,12 @@ namespace PodNoms.Api.Controllers {
             var ret = _notificationRepository.AddOrUpdate(model);
             await _unitOfWork.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
+        }
+
+        [HttpGet("logs")]
+        public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId) {
+            var logs = await _notificationRepository.GetLogsAsync(notificationId);
+            return logs.ToList();
         }
 
         [HttpGet("types")]
