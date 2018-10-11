@@ -15,11 +15,11 @@ namespace PodNoms.Common.Services.Notifications {
             _emailSender = emailSender;
         }
 
-        public override async Task<bool>
+        public override async Task<string>
             SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
             if (config == null || !(config.ContainsKey("To")))
-                return false;
+                return "\"To\" not found in config";
 
             var response = await _emailSender.SendEmailAsync(
                 config["To"],
@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Notifications {
                 $"Title: {title}\n\n{message}\n\n\n{url}"
             );
 
-            return true;
+            return "Email succesfully sent to {config[\"To\"]}";
         }
     }
 }

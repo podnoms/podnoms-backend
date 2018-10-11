@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Services.Notifications {
@@ -15,10 +16,11 @@ namespace PodNoms.Common.Services.Notifications {
             IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<bool>
+        public override async Task<string>
             SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config == null || !config.ContainsKey("AccessToken")) return false;
+            if (config == null || !config.ContainsKey("AccessToken")) 
+                return "Access token missing in config";
 
             var payload = JsonConvert.SerializeObject(new {
                 device_iden = config["Device"] ?? string.Empty,
@@ -32,7 +34,7 @@ namespace PodNoms.Common.Services.Notifications {
             var response = await _httpClient.PostAsync(
                 hookUrl,
                 new StringContent(payload, Encoding.UTF8, "application/json"));
-            return response.StatusCode == HttpStatusCode.OK;
+            return response.ToResponseString();
         }
     }
 }
