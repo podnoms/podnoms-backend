@@ -22,6 +22,7 @@ namespace PodNoms.Api.Controllers.Public {
         public async Task<ActionResult<List<PodcastViewModel>>> Get(string user, string podcast) {
             var results = await _podcastRepository.GetAll()
                 .Where(r => r.AppUser.Slug == user && r.Slug == podcast)
+                .Include(p => p.PodcastEntries)
                 .ToListAsync();
             return _mapper.Map<List<Podcast>, List<PodcastViewModel>>(results);
         }

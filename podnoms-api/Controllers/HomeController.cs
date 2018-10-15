@@ -5,6 +5,7 @@ namespace PodNoms.Api.Controllers {
     public class HomeController : Controller {
         [Route("robots.txt", Name = "GetRobotsText")]
         [Route("rss/robots.txt", Name = "GetRobotsTextRss")]
+        [HttpGet]
         public ContentResult RobotsText() {
             var stringBuilder = new StringBuilder();
 
