@@ -1,0 +1,26 @@
+@using PodNoms.Pages.Shared
+@page "/getpage"
+@inject HttpClient Http
+
+<h1>Get Page</h1>
+
+@if(pagedata == null){
+    <p><em>Loading...</em></p>
+}else{
+    @foreach (var forecast in pagedata)
+    {
+        <tr>
+            <td>@forecast.Date.ToShortDateString()</td>
+            <td>@forecast.TemperatureC</td>
+            <td>@forecast.TemperatureF</td>
+            <td>@forecast.Summary</td>
+        </tr>
+    }
+}
+
+@functions {
+    WeatherForecast[] pagedata;
+    protected override async Task OnInitAsync() {
+         pagedata = await Http.GetJsonAsync<WeatherForecast[]>("api/SampleData/WeatherForecasts");
+    }
+}
