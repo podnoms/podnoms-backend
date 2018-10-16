@@ -13,13 +13,15 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> Execute() {
-            _logger.LogInformation("Updating YoutubeDL");
+            return await Task.Run(() => {
+                _logger.LogInformation("Updating YoutubeDL");
 
-            var yt = new YoutubeDL();
-            yt.Options.GeneralOptions.Update = true;
-            yt.Download("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
+                var yt = new YoutubeDL();
+                yt.Options.GeneralOptions.Update = true;
+                yt.Download("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
 
-            return true;
+                return true;
+            });
         }
     }
 }
