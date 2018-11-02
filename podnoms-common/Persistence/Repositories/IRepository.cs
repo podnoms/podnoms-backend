@@ -13,6 +13,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
         TEntity AddOrUpdate(TEntity entity);
+        Task DeleteAsync(string id);
         Task DeleteAsync(Guid id);
     }
 
@@ -61,6 +62,15 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task DeleteAsync(Guid id) {
             var entity = await _context.Set<TEntity>().FindAsync(id);
             _context.Set<TEntity>().Remove(entity);
+        }
+
+        public async Task DeleteAsync(string id) {
+            if (Guid.TryParse(id, out Guid guid)) {
+                var entity = await _context.Set<TEntity>().FindAsync(id);
+                _context.Set<TEntity>().Remove(entity);
+            } else {
+                _logger.LogError($"Error updating entity with guid: {id}");
+            }
         }
     }
 }

@@ -58,6 +58,14 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }
+        [HttpDelete]
+        public async Task<IActionResult> Delete(string id) {
+            if (!Guid.TryParse(id, out var parsedId)) return BadRequest("Invalid id");
+            
+            await _notificationRepository.DeleteAsync(parsedId);
+            await _unitOfWork.CompleteAsync();
+            return Ok();
+        }
 
         [HttpGet("logs")]
         public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId) {
