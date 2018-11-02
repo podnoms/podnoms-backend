@@ -26,6 +26,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
+using Google.Apis.Util;
 using PodNoms.Common.Data;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
@@ -73,10 +74,12 @@ namespace PodNoms.Api {
             });
 
             ConfigureServices(services);
-            services.AddHangfire(config => {
-                // config.UseMemoryStorage();
-                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-            });
+            if (false) {
+                services.AddHangfire(config => {
+                    // config.UseMemoryStorage();
+                    config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+                });
+            }
         }
 
         public void ConfigureServices(IServiceCollection services) {
@@ -103,8 +106,7 @@ namespace PodNoms.Api {
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            var tokenValidationParameters = new TokenValidationParameters
-            {
+            var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
@@ -155,11 +157,11 @@ namespace PodNoms.Api {
             identityBuilder.AddUserManager<PodNomsUserManager>();
 
             services.AddMvc(options => {
-                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
-                options.OutputFormatters
-                    .OfType<StringOutputFormatter>()
-                    .Single().SupportedMediaTypes.Add("text/html");
-            })
+                    options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
+                    options.OutputFormatters
+                        .OfType<StringOutputFormatter>()
+                        .Single().SupportedMediaTypes.Add("text/html");
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest)
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -169,7 +171,7 @@ namespace PodNoms.Api {
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Info { Title = "PodNoms.API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info {Title = "PodNoms.API", Version = "v1"});
                 c.DocumentFilter<LowercaseDocumentFilter>();
             });
 
@@ -213,8 +215,7 @@ namespace PodNoms.Api {
             loggerFactory.AddDebug();
 
             app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseExceptionHandler(new ExceptionHandlerOptions
-            {
+            app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
             app.UseSqlitePushSubscriptionStore();
@@ -222,8 +223,7 @@ namespace PodNoms.Api {
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseAuthentication();
@@ -243,8 +243,9 @@ namespace PodNoms.Api {
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            JobBootstrapper.BootstrapJobs();
+            if (Env.IsProduction()) {
+                JobBootstrapper.BootstrapJobs();
+            }
         }
     }
 }
