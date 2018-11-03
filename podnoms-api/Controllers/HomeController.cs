@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PodNoms.Api.Controllers {
     public class HomeController : Controller {
+        [HttpGet]
         [Route("robots.txt", Name = "GetRobotsText")]
         [Route("rss/robots.txt", Name = "GetRobotsTextRss")]
         public ContentResult RobotsText() {
