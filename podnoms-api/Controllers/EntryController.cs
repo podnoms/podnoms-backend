@@ -117,57 +117,56 @@ namespace PodNoms.Api.Controllers {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid podcast entry posted");
 
-            // check user quota
-            var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
-            var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
-                .Select(x => x.AudioFileSize)
-                .Sum();
-            if (totalUsed >= quota) {
-                return StatusCode(402);
-            }
-
-            // first check url is valid
             var entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
                 entry.ProcessingStatus == ProcessingStatus.Processed) {
-                // file was uploaded, just update repository and bail
+                // we're editing an existing entry
                 _repository.AddOrUpdate(entry);
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
             }
-            else {
-                var status = await _processor.GetInformation(entry);
-                if (status == AudioType.Valid) {
-                    if (entry.ProcessingStatus != ProcessingStatus.Processing)
-                        return BadRequest("Failed to create podcast entry");
 
-                    if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                        entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
-                    }
+            //we're adding a new entry
+            var status = await _processor.GetInformation(entry);
+            if (status == AudioType.Valid) {
+                // check user quota
+                var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
+                var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
+                    .Select(x => x.AudioFileSize)
+                    .Sum();
+                if (totalUsed >= quota) {
+                    return StatusCode(402);
+                }
 
-                    entry.Processed = false;
-                    _repository.AddOrUpdate(entry);
-                    try {
-                        var succeeded = await _unitOfWork.CompleteAsync();
-                        await _repository.LoadPodcastAsync(entry);
-                        if (succeeded) {
-                            _processEntry(entry);
-                            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                            return result;
-                        }
-                    }
-                    catch (DbUpdateException e) {
-                        _logger.LogError(e.Message);
-                        return BadRequest(item);
+                if (entry.ProcessingStatus != ProcessingStatus.Processing)
+                    return BadRequest("Failed to create podcast entry");
+
+                if (string.IsNullOrEmpty(entry.ImageUrl)) {
+                    entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
+                }
+
+                entry.Processed = false;
+                _repository.AddOrUpdate(entry);
+                try {
+                    var succeeded = await _unitOfWork.CompleteAsync();
+                    await _repository.LoadPodcastAsync(entry);
+                    if (succeeded) {
+                        _processEntry(entry);
+                        var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                        return result;
                     }
                 }
-                else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                         || MixcloudParser.ValidateUrl(item.SourceUrl)) {
-                    entry.ProcessingStatus = ProcessingStatus.Deferred;
-                    var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                    return Accepted(result);
+                catch (DbUpdateException e) {
+                    _logger.LogError(e.Message);
+                    return BadRequest(item);
                 }
+            }
+            else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                     || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                entry.ProcessingStatus = ProcessingStatus.Deferred;
+                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                return Accepted(result);
             }
 
             return BadRequest("Failed to create podcast entry");
