@@ -58,7 +58,8 @@ namespace PodNoms.Api.Controllers {
             if (podcast == null)
                 return NotFound();
 
-            var entry = new PodcastEntry {
+            var entry = new PodcastEntry
+            {
                 Title = Path.GetFileName(Path.GetFileNameWithoutExtension(file.FileName)),
                 ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png",
                 Processed = false,
@@ -71,7 +72,8 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
 
             BackgroundJob.Enqueue<IAudioUploadProcessService>(service => service.UploadAudio(entry.Id, localFile));
-            return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
+            var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+            return Ok(ret);
         }
     }
 }
