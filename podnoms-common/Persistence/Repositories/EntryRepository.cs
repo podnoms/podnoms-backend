@@ -10,6 +10,7 @@ namespace PodNoms.Common.Persistence.Repositories {
     public interface IEntryRepository : IRepository<PodcastEntry> {
         Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug);
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);
+        Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast);
         Task LoadPodcastAsync(PodcastEntry entry);
     }
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
@@ -43,6 +44,14 @@ namespace PodNoms.Common.Persistence.Repositories {
             await GetContext().Entry(entry)
                    .Reference(e => e.Podcast)
                    .LoadAsync();
+        }
+
+
+        public async Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast) {
+            return await GetContext()
+                .PodcastEntries
+                .OrderByDescending(e => e.UpdateDate)
+                .FirstOrDefaultAsync(e => e.Podcast == podcast);
         }
     }
 }

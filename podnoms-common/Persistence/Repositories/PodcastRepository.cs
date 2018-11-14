@@ -14,7 +14,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<Podcast> GetAsync(string userId, Guid id);
         new Task<Podcast> GetAsync(Guid id);
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
-        Task<Podcast> GetForUserAndSlugAsync(string userId, string slug);
+        Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug);
     }
 
     public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
@@ -49,9 +49,9 @@ namespace PodNoms.Common.Persistence.Repositories {
             return ret;
         }
 
-        public async Task<Podcast> GetForUserAndSlugAsync(string userId, string slug) {
+        public async Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug) {
             return await GetAll()
-                .Where(r => r.AppUser.Id == userId && r.Slug == slug)
+                .Where(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug)
                 .Include(p => p.AppUser)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.Category)

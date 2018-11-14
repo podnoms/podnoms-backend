@@ -43,12 +43,12 @@ namespace PodNoms.Api.Controllers {
         [HttpHead("{slug}/{entry}")]
         [Produces("application/xml")]
         [RssFeedAuthorize]
-        public async Task<IActionResult> Get(string slug, string entry) {
-            _logger.LogDebug($"RSS: Retrieving podcast: {slug} - {entry}");
+        public async Task<IActionResult> Get(string userSlug, string podcastSlug) {
+            _logger.LogDebug($"RSS: Retrieving podcast: {userSlug} - {podcastSlug}");
 
-            var user = await _userManager.FindBySlugAsync(slug);
+            var user = await _userManager.FindBySlugAsync(userSlug);
             if (user != null) {
-                var podcast = await _podcastRepository.GetForUserAndSlugAsync(user.Id, entry);
+                var podcast = await _podcastRepository.GetForUserAndSlugAsync(userSlug, podcastSlug);
                 if (podcast == null) return NotFound();
                 try {
                     var xml = await ResourceReader.ReadResource("podcast.xml");
@@ -85,11 +85,11 @@ namespace PodNoms.Api.Controllers {
                     return Content(result, "application/xml", Encoding.UTF8);
                 }
                 catch (NullReferenceException ex) {
-                    _logger.LogError(ex, "Error getting RSS", user, slug);
+                    _logger.LogError(ex, "Error getting RSS", user, userSlug);
                 }
             }
             else {
-                _logger.LogError($"Unable to find user {slug}");
+                _logger.LogError($"Unable to find user {userSlug}");
             }
 
             return NotFound();
