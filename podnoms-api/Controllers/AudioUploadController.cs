@@ -54,7 +54,7 @@ namespace PodNoms.Api.Controllers {
             if (file.Length > _audioFileStorageSettings.MaxUploadFileSize) return BadRequest("Maximum file size exceeded");
             if (!_audioFileStorageSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type");
 
-            var podcast = await _podcastRepository.GetForUserAndSlugAsync(_userId, slug);
+            var podcast = await _podcastRepository.GetForUserAndSlugAsync(_applicationUser.Slug, slug);
             if (podcast == null)
                 return NotFound();
 
