@@ -14,7 +14,7 @@
         <PackageReference Include="DnsClient" Version="1.2.0" />
         <PackageReference Include="Handlebars.Net" Version="1.9.5" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.0" />
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="8.0.100" />
