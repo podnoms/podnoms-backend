@@ -90,7 +90,7 @@ namespace PodNoms.Common.Data {
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,
-                    map => map.ResolveUsing<NotificationOptionsResolver, string>(s =>
+                    map => map.MapFrom<NotificationOptionsResolver, string>(s =>
                         s.Config)
                 );
 
@@ -101,10 +101,10 @@ namespace PodNoms.Common.Data {
             CreateMap<PodcastViewModel, Podcast>()
                 .ForMember(
                     dest => dest.Category,
-                    src => src.ResolveUsing<PodcastCategoryResolver, string>(s => s.Category.Id.ToString()))
+                    src => src.MapFrom<PodcastCategoryResolver, string>(s => s.Category.Id.ToString()))
                 .ForMember(
                     dest => dest.AuthPassword,
-                    src => src.ResolveUsing<PodcastAuthPasswordResolver, string>(s => s.Category.Id.ToString()))
+                    src => src.MapFrom<PodcastAuthPasswordResolver, string>(s => s.Category.Id.ToString()))
                 .ForMember(
                     dest => dest.Slug,
                     opt => opt.Condition(src => (!string.IsNullOrEmpty(src.Slug))))

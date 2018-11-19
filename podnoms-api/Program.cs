@@ -13,6 +13,7 @@ namespace PodNoms.Api {
             var host = BuildWebHost(args);
             host.Run();
         }
+
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => {
@@ -29,10 +30,10 @@ namespace PodNoms.Api {
             if (!_isDevelopment) {
                 builder.UseApplicationInsights();
             }
+
             return builder.UseStartup<Startup>()
-                            .UseKestrel(options => {
-                                options.Limits.MaxRequestBodySize = 1073741824;
-                            }).Build();
+                .UseKestrel(options => { options.Limits.MaxRequestBodySize = 1073741824; })
+                .UseUrls("http://*:5000").Build();
         }
     }
 }
