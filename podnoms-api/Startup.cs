@@ -238,6 +238,8 @@ namespace PodNoms.Api {
             app.UsePodNomsHangfire(serviceProvider, Configuration);
             app.UsePodNomsSignalRRoutes();
 
+            app.UseSecureHeaders();
+            
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "default",
