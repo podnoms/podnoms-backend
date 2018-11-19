@@ -13,7 +13,7 @@ namespace PodNoms.Common.Services.Jobs {
 
             RecurringJob.AddOrUpdate<ProcessRemoteAudioFileAttributesJob>(
                 x => x.Execute(),
-                Cron.Hourly());
+                Cron.Daily());
         }
     }
 }
