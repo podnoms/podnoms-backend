@@ -33,7 +33,7 @@ namespace PodNoms.Api {
 
             return builder.UseStartup<Startup>()
                 .UseKestrel(options => { options.Limits.MaxRequestBodySize = 1073741824; })
-                .UseUrls("http://*:5000").Build();
+                .Build();
         }
     }
 }
