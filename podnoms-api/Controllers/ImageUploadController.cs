@@ -28,13 +28,14 @@ namespace PodNoms.Api.Controllers {
     [Route("/podcast/{slug}/imageupload")]
     public class ImageUploadController : BaseAuthController {
         private readonly IPodcastRepository _podcastRepository;
+        private readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
         public readonly IFileUploader _fileUploader;
         private readonly StorageSettings _storageSettings;
 
-        public ImageUploadController(IPodcastRepository repository, IUnitOfWork unitOfWork,
+        public ImageUploadController(IPodcastRepository repository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
                 IFileUploader fileUploader, IOptions<StorageSettings> storageSettings,
                  IOptions<ImageFileStorageSettings> imageFileStorageSettings,
                 ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
@@ -44,6 +45,7 @@ namespace PodNoms.Api.Controllers {
             _storageSettings = storageSettings.Value;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
             _podcastRepository = repository;
+            this._entryRepository = entryRepository;
             //this._repository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -61,6 +63,24 @@ namespace PodNoms.Api.Controllers {
                 await _unitOfWork.CompleteAsync();
 
                 return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
+            } catch (InvalidOperationException ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("/entry/{id}/imageupload")]
+        public async Task<ActionResult<string>> UploadEntryImage(string id, IFormFile image) {
+            _logger.LogDebug("Uploading new entry image");
+
+            var entry = await _entryRepository.GetAsync(_applicationUser.Id, id);
+            if (entry == null)
+                return NotFound();
+            try {
+                var result = await _commitImage(id, image, "entry");
+                entry.ImageUrl = result;
+                _entryRepository.AddOrUpdate(entry);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok($"\"{_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry).ImageUrl}\"");
             } catch (InvalidOperationException ex) {
                 return BadRequest(ex.Message);
             }
