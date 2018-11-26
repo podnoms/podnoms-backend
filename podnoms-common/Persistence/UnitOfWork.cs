@@ -12,7 +12,6 @@ namespace PodNoms.Common.Persistence {
         }
         public async Task<bool> CompleteAsync() {
             try {
-                await Task.FromResult<object>(null);
                 await _context.SaveChangesAsync();
                 return true;
             } catch (DbUpdateException e) {

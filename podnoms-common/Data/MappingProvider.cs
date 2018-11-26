@@ -60,6 +60,12 @@ namespace PodNoms.Common.Data {
                     src => src.AudioUrl,
                     e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
+                    src => src.ImageUrl,
+                    e => e.MapFrom(m => 
+                        m.ImageUrl.StartsWith("http") ? 
+                            m.ImageUrl : 
+                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
+                .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))
                 .ForMember(

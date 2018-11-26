@@ -106,7 +106,8 @@ namespace PodNoms.Api {
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            var tokenValidationParameters = new TokenValidationParameters {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
@@ -127,7 +128,8 @@ namespace PodNoms.Api {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents {
+                configureOptions.Events = new JwtBearerEvents
+                {
                     OnMessageReceived = context => {
                         if (context.Request.Path.Value.StartsWith("/hubs/") &&
                             context.Request.Query.TryGetValue("token", out var token)) {
@@ -157,11 +159,11 @@ namespace PodNoms.Api {
             identityBuilder.AddUserManager<PodNomsUserManager>();
 
             services.AddMvc(options => {
-                    options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
-                    options.OutputFormatters
-                        .OfType<StringOutputFormatter>()
-                        .Single().SupportedMediaTypes.Add("text/html");
-                })
+                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
+                options.OutputFormatters
+                    .OfType<StringOutputFormatter>()
+                    .Single().SupportedMediaTypes.Add("text/html");
+            })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest)
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -171,7 +173,7 @@ namespace PodNoms.Api {
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Info {Title = "PodNoms.API", Version = "v1"});
+                c.SwaggerDoc("v1", new Info { Title = "PodNoms.API", Version = "v1" });
                 c.DocumentFilter<LowercaseDocumentFilter>();
             });
 
@@ -215,7 +217,8 @@ namespace PodNoms.Api {
             loggerFactory.AddDebug();
 
             app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseExceptionHandler(new ExceptionHandlerOptions {
+            app.UseExceptionHandler(new ExceptionHandlerOptions
+            {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
             app.UseSqlitePushSubscriptionStore();
@@ -223,7 +226,8 @@ namespace PodNoms.Api {
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseAuthentication();
@@ -239,15 +243,13 @@ namespace PodNoms.Api {
             app.UsePodNomsSignalRRoutes();
 
             app.UseSecureHeaders();
-            
+
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-            if (Env.IsProduction()) {
-                JobBootstrapper.BootstrapJobs();
-            }
+            JobBootstrapper.BootstrapJobs(Env.IsDevelopment());
         }
     }
 }
