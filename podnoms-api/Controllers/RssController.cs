@@ -39,8 +39,8 @@ namespace PodNoms.Api.Controllers {
             _logger = loggerFactory.CreateLogger<RssController>();
         }
 
-        [HttpGet("{slug}/{entry}")]
-        [HttpHead("{slug}/{entry}")]
+        [HttpGet("{userSlug}/{podcastSlug}")]
+        [HttpHead("{userSlug}/{podcastSlug}")]
         [Produces("application/xml")]
         [RssFeedAuthorize]
         public async Task<IActionResult> Get(string userSlug, string podcastSlug) {
