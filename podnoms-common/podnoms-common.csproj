@@ -8,6 +8,7 @@
     <ItemGroup>
         <EmbeddedResource Include="Resources/*.xml" />
         <EmbeddedResource Include="Resources/*.html" />
+        <EmbeddedResource Remove="out\**" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="DNS" Version="5.0.0" />
@@ -17,7 +18,7 @@
         <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
-        <PackageReference Include="FluentValidation.AspNetCore" Version="8.0.100" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="8.0.101" />
         <PackageReference Include="Google.Apis.Auth" Version="1.36.1" />
         <PackageReference Include="Google.Apis.Plus.v1" Version="1.36.1.1410" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.36.1.1226" />
@@ -46,6 +47,14 @@
 
     <ItemGroup>
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="out\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="out\**" />
     </ItemGroup>
 
 </Project>

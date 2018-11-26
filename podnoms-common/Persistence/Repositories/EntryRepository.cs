@@ -8,6 +8,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IEntryRepository : IRepository<PodcastEntry> {
+        Task<PodcastEntry> GetAsync(string userId, string entryId);
         Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug);
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);
         Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast);
@@ -25,6 +26,14 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .FirstOrDefaultAsync();
             return ret;
         }
+        public async Task<PodcastEntry> GetAsync(string userId, string entryId) {
+            var ret = await GetAll()
+                .Where(e => e.Id == Guid.Parse(entryId) && e.Podcast.AppUser.Id == userId)
+                .Include(e => e.Podcast)
+                .Include(e => e.Podcast.AppUser)
+                .FirstOrDefaultAsync();
+            return ret;
+        }
         public async Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug) {
             var entries = await GetAll()
                 .Where(e => e.Podcast.Slug == podcastSlug)
@@ -39,14 +48,11 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .ToListAsync();
             return entries;
         }
-
         public async Task LoadPodcastAsync(PodcastEntry entry) {
             await GetContext().Entry(entry)
                    .Reference(e => e.Podcast)
                    .LoadAsync();
         }
-
-
         public async Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast) {
             return await GetContext()
                 .PodcastEntries

@@ -65,6 +65,9 @@ namespace PodNoms.Api.Controllers {
 
         private void _processEntry(PodcastEntry entry) {
             try {
+                var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
+                    r => r.CacheImage(entry.Id));
+
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
                     r => r.DownloadAudio(entry.Id));
 
@@ -102,6 +105,15 @@ namespace PodNoms.Api.Controllers {
                 entries.OrderByDescending(e => e.CreateDate).ToList()
             );
             return Ok(results);
+        }
+
+        [HttpGet("{entryId}")]
+        public async Task<ActionResult<PodcastEntryViewModel>> Get(string entryId) {
+            var entry = await _repository.GetAll()
+                .Include(e => e.Podcast)
+                .SingleOrDefaultAsync(e => e.Id == Guid.Parse(entryId));
+            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+            return Ok(result);
         }
 
         [HttpGet("all/{podcastSlug}")]
