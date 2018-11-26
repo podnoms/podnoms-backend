@@ -48,7 +48,7 @@ namespace PodNoms.Common.Services.Jobs {
                     e.ImageUrl = result;
                 }
             }
-
+            await _unitOfWork.CompleteAsync();
             return true;
         }
 
