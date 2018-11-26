@@ -33,6 +33,11 @@ namespace PodNoms.Api.Controllers {
             var infoJobId = BackgroundJob.Enqueue<ProcessMissingPodcastsJob>(service => service.Execute());
             return Ok();
         }
+        [HttpGet("updateimages")]
+        public IActionResult UpdateImages() {
+            var infoJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(service => service.Execute());
+            return Ok();
+        }
         [HttpGet("updateyoutubedl")]
         public IActionResult UpdateYouTubeDl() {
             var infoJobId = BackgroundJob.Enqueue<UpdateYouTubeDlJob>(service => service.Execute());

@@ -35,13 +35,16 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> Execute() {
+            _logger.LogDebug("Start processing images");
             var uncached = _entryRepository
                 .GetAll()
                 .Where(e => e.ImageUrl.StartsWith("http"));
 
             foreach (var e in uncached) {
+                _logger.LogDebug($"Process image for: {e.ImageUrl}");
                 var result = await CacheImage(e.ImageUrl, e.Id.ToString());
                 if (!string.IsNullOrEmpty(result)) {
+                    _logger.LogDebug($"Successfully processed: {result}");
                     e.ImageUrl = result;
                 }
             }
@@ -72,8 +75,7 @@ namespace PodNoms.Common.Services.Jobs {
                     $"entry/{destUid}.png",
                     "image/png", null);
                 return result;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError($"Error caching image: {ex.Message}");
             }
 
