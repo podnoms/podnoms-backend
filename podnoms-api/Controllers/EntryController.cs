@@ -65,6 +65,9 @@ namespace PodNoms.Api.Controllers {
 
         private void _processEntry(PodcastEntry entry) {
             try {
+                var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
+                    r => r.CacheImage(entry.Id));
+
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
                     r => r.DownloadAudio(entry.Id));
 

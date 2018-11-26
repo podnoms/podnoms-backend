@@ -8,6 +8,7 @@
     <ItemGroup>
         <EmbeddedResource Include="Resources/*.xml" />
         <EmbeddedResource Include="Resources/*.html" />
+        <EmbeddedResource Remove="out\**" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="DNS" Version="5.0.0" />
@@ -46,6 +47,14 @@
 
     <ItemGroup>
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="out\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="out\**" />
     </ItemGroup>
 
 </Project>
