@@ -42,44 +42,52 @@ namespace PodNoms.Common.Services.Jobs {
 
             foreach (var e in uncached) {
                 _logger.LogDebug($"Process image for: {e.ImageUrl}");
-                var result = await CacheImage(e.ImageUrl, e.Id.ToString());
-                if (!string.IsNullOrEmpty(result)) {
-                    _logger.LogDebug($"Successfully processed: {result}");
-                    e.ImageUrl = result;
+                var (original, thumbnail) = await CacheImage(e.ImageUrl, e.Id.ToString());
+                if (!string.IsNullOrEmpty(original) && !string.IsNullOrEmpty(thumbnail)) {
+                    _logger.LogDebug($"Successfully processed: {original}");
+                    e.ImageUrl = original;
                 }
             }
-
+            await _unitOfWork.CompleteAsync();
             return true;
         }
 
-        public async Task<string> CacheImage(Guid entryId) {
+        public async Task<(string, string)> CacheImage(Guid entryId) {
             var entry = await _entryRepository.GetAsync(entryId);
-            if (entry == null) return string.Empty;
+            if (entry == null) return (string.Empty, string.Empty);
 
-            var result = await CacheImage(entry.ImageUrl, entry.Id.ToString());
+            var (original, thumbnail) = await CacheImage(entry.ImageUrl, entry.Id.ToString());
 
-            if (string.IsNullOrEmpty(result)) return result;
+            if (string.IsNullOrEmpty(original)) return (string.Empty, string.Empty);
 
-            entry.ImageUrl = result;
+            entry.ImageUrl = original;
             await _unitOfWork.CompleteAsync();
 
-            return result;
+            return (original, thumbnail);
         }
 
-        public async Task<string> CacheImage(string imageUrl, string destUid) {
+        public async Task<(string, string)> CacheImage(string imageUrl, string destUid) {
             try {
                 var sourceFile = await HttpUtils.DownloadFile(imageUrl);
-                var result = await _fileUploader.UploadFile(
+                var thumbnailFile = ImageUtils.CreateThumbnail(sourceFile, destUid, 32, 32);
+
+                var original = await _fileUploader.UploadFile(
                     sourceFile,
                     _imageFileStoragesSettings.ContainerName,
                     $"entry/{destUid}.png",
                     "image/png", null);
-                return result;
+                var thumbnail = await _fileUploader.UploadFile(
+                    thumbnailFile,
+                    _imageFileStoragesSettings.ContainerName,
+                    $"entry/{destUid}-32x32.png",
+                    "image/png", null);
+
+                return (original, thumbnail);
             } catch (Exception ex) {
                 _logger.LogError($"Error caching image: {ex.Message}");
             }
 
-            return string.Empty;
+            return (string.Empty, string.Empty);
         }
     }
 }

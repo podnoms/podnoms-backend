@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181129195045_RenameThumbnailField")]
+    partial class RenameThumbnailField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -434,6 +436,8 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("ProcessingStatus");
 
                     b.Property<string>("SourceUrl");
+
+                    b.Property<string>("ThumbnailUrl");
 
                     b.Property<string>("Title");
 
