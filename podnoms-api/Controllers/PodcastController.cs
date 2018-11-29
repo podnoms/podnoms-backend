@@ -77,6 +77,8 @@ namespace PodNoms.Api.Controllers {
                 if (!isNew) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
                 // TODO: Revisit this at some stage, horribly hacky & brittle
+                // TODO: This should be moved to the background cache images job
+                // TODO: And ultimately handled by imageresizer when they get their fucking docs in order
                 var rawImageFileName = vm.ImageUrl?.Replace(_storageSettings.CdnUrl, string.Empty).TrimStart('/');
                 if (string.IsNullOrEmpty(rawImageFileName)) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 

@@ -58,13 +58,20 @@ namespace PodNoms.Common.Data {
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                    e => e.MapFrom(m => 
+                        $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m => 
                         m.ImageUrl.StartsWith("http") ? 
                             m.ImageUrl : 
                             $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
+                .ForMember(
+                    src => src.ThumbnailUrl,
+                    e => e.MapFrom(m => 
+                        m.ImageUrl.StartsWith("http") ? 
+                            m.ImageUrl : 
+                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/{m.Id.ToString()}-32x32.png"))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))

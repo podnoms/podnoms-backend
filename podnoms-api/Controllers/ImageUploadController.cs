@@ -58,7 +58,7 @@ namespace PodNoms.Api.Controllers {
             if (podcast == null)
                 return NotFound();
             try {
-                var result = await _commitImage(id, image, "podcast");
+                var (imageFile, thumbnailFile) = await _commitImage(id, image, "podcast");
                 _podcastRepository.AddOrUpdate(podcast);
                 await _unitOfWork.CompleteAsync();
 
@@ -75,8 +75,8 @@ namespace PodNoms.Api.Controllers {
             if (entry == null)
                 return NotFound();
             try {
-                var imageUrl = await _commitImage(id, image, "entry");
-                entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageUrl}";
+                var (imageFile, thumbnailFile) = await _commitImage(id, image, "entry");
+                entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageFile}";
                 _entryRepository.AddOrUpdate(entry);
                 await _unitOfWork.CompleteAsync();
 
@@ -88,12 +88,12 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("/profile/{id}/imageupload")]
         public async Task<ActionResult<string>> UploadProfileImage(string id, IFormFile image) {
             //TODO: Cache this and remove CdnUrl from below
-            var imageUrl = await _commitImage(id, image, "profile");
-            _applicationUser.PictureUrl = $"{_storageSettings.CdnUrl}{_imageFileStorageSettings.ContainerName}/{imageUrl}";
+            var (imageFile, thumbnailFile) = await _commitImage(id, image, "profile");
+            _applicationUser.PictureUrl = $"{_storageSettings.CdnUrl}{_imageFileStorageSettings.ContainerName}/{imageFile}";
             await _userManager.UpdateAsync(_applicationUser);
             return Ok($"\"{_applicationUser.PictureUrl}\"");
         }
-        private async Task<string> _commitImage(string id, IFormFile image, string subDirectory) {
+        private async Task<(string, string)> _commitImage(string id, IFormFile image, string subDirectory) {
 
             if (image == null || image.Length == 0) throw new InvalidOperationException("No file found in stream");
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException("Maximum file size exceeded");
@@ -111,7 +111,7 @@ namespace PodNoms.Api.Controllers {
 
             await _fileUploader.UploadFile(thumbnailFile, _imageFileStorageSettings.ContainerName,
                            destinationFileThumbnail, "image/png", (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}"));
-            return destinationFile;
+            return (destinationFile, thumbnailFile);
         }
     }
 }

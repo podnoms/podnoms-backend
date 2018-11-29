@@ -13,6 +13,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public float AudioLength { get; set; }
         public long AudioFileSize { get; set; }
         public string ImageUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
         public string ProcessingStatus { get; set; }
         public bool Processed { get; set; }
         public string ProcessingPayload { get; set; }
