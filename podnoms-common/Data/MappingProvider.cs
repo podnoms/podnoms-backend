@@ -71,7 +71,7 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => 
                         m.ImageUrl.StartsWith("http") ? 
                             m.ImageUrl : 
-                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/{m.Id.ToString()}-32x32.png"))
+                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/cached/{m.Id.ToString()}-32x32.png"))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))
