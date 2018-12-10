@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
         <RootNamespace>PodNoms.Common</RootNamespace>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -15,10 +15,10 @@
         <PackageReference Include="DnsClient" Version="1.2.0" />
         <PackageReference Include="Handlebars.Net" Version="1.9.5" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
-        <PackageReference Include="FluentValidation.AspNetCore" Version="8.0.101" />
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="8.1.0" />
         <PackageReference Include="Google.Apis.Auth" Version="1.36.1" />
         <PackageReference Include="Google.Apis.Plus.v1" Version="1.36.1.1410" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.36.1.1226" />
@@ -27,10 +27,10 @@
         <PackageReference Include="Lib.Net.Http.WebPush" Version="1.5.0" />
         <PackageReference Include="AutoMapper" Version="8.0.0" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.6" />
-        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0" />
-        <PackageReference Include="Polly" Version="6.1.1" />
+        <PackageReference Include="Polly" Version="6.1.2" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
         <PackageReference Include="RestSharp" Version="106.5.4" />
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
@@ -41,7 +41,7 @@
         <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
         <PackageReference Include="TweetinviAPI" Version="4.0.0" />
         <PackageReference Include="WebPush" Version="1.0.11" />
-        <PackageReference Include="WindowsAzure.Storage" Version="9.3.2" />
+        <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
         <PackageReference Include="zxcvbn-core" Version="2.1.44" />
     </ItemGroup>
 
@@ -50,11 +50,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="out\**" />
+        <Compile Remove="out\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="out\**" />
+        <None Remove="out\**" />
     </ItemGroup>
 
 </Project>
