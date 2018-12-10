@@ -104,7 +104,7 @@ namespace PodNoms.Api.Controllers {
             var thumbnailFile = ImageUtils.CreateThumbnail(cacheFile, id, 32, 32);
 
             var destinationFile = $"{subDirectory}/{id}.{extension}";
-            var destinationFileThumbnail = $"{subDirectory}/{id}-32x32.{extension}";
+            var destinationFileThumbnail = $"{subDirectory}/cached/{id}-32x32.{extension}";
 
             await _fileUploader.UploadFile(finishedFile, _imageFileStorageSettings.ContainerName,
                 destinationFile, "image/png", (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}"));
