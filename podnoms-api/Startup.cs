@@ -194,14 +194,14 @@ namespace PodNoms.Api {
             services.AddPushSubscriptionStore(Configuration);
             services.AddPushNotificationService(Configuration);
 
-            services.AddCors(options => {
-                options.AddPolicy("AllowAllPolicy",
-                    builder => builder
-                        .AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
-            });
+            // services.AddCors(options => {
+            //     options.AddPolicy("AllowAllPolicy",
+            //         builder => builder
+            //             .AllowAnyOrigin()
+            //             .AllowAnyMethod()
+            //             .AllowAnyHeader()
+            //             .AllowCredentials());
+            // });
             services.AddPodNomsSignalR();
             services.AddDependencies();
             services.AddPodNomsHangfire(Configuration);
