@@ -74,12 +74,9 @@ namespace PodNoms.Api {
             });
 
             ConfigureServices(services);
-            if (false) {
-                services.AddHangfire(config => {
-                    // config.UseMemoryStorage();
-                    config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-                });
-            }
+            // services.AddHangfire(config => {
+            //     config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+            // });
         }
 
         public void ConfigureServices(IServiceCollection services) {
@@ -187,21 +184,16 @@ namespace PodNoms.Api {
                     builder => builder
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .WithOrigins("http://localhost:4200", "https://*.podnoms.com")
+                        .WithOrigins(
+                            "https://localhost:4200",
+                            "https://dev.podnoms.com:4200",
+                            "https://*.podnoms.com")
                         .AllowCredentials());
             });
 
             services.AddPushSubscriptionStore(Configuration);
             services.AddPushNotificationService(Configuration);
 
-            // services.AddCors(options => {
-            //     options.AddPolicy("AllowAllPolicy",
-            //         builder => builder
-            //             .AllowAnyOrigin()
-            //             .AllowAnyMethod()
-            //             .AllowAnyHeader()
-            //             .AllowCredentials());
-            // });
             services.AddPodNomsSignalR();
             services.AddDependencies();
             services.AddPodNomsHangfire(Configuration);
@@ -213,8 +205,6 @@ namespace PodNoms.Api {
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
 
             app.UseHttpStatusCodeExceptionMiddleware();
             app.UseExceptionHandler(new ExceptionHandlerOptions
@@ -232,7 +222,7 @@ namespace PodNoms.Api {
             });
             app.UseAuthentication();
 
-            app.UseCors("AllowAllPolicy");
+            app.UseCors("PodNomsClientPolicy");
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {
