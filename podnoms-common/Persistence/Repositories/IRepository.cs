@@ -52,7 +52,7 @@ namespace PodNoms.Common.Persistence.Repositories {
             return entity;
         }
 
-        public TEntity AddOrUpdate(TEntity entity) {
+        public virtual TEntity AddOrUpdate(TEntity entity) {
             var ret = entity;
             // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
             ret = entity.Id != Guid.Empty ? Update(entity) : Create(entity);
