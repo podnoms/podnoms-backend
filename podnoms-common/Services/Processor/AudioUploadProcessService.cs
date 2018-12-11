@@ -64,6 +64,7 @@ namespace PodNoms.Common.Services.Processor {
                     entry.Processed = true;
                     entry.ProcessingStatus = ProcessingStatus.Processed;
                     entry.AudioUrl = $"{_audioStorageSettings.ContainerName}/{fileName}";
+                    Logger.LogDebug($"AudioUrl is: {entry.AudioUrl}");
                     entry.AudioFileSize = fileInfo.Length;
                     await _unitOfWork.CompleteAsync();
                     await _sendProcessCompleteMessage(entry);
