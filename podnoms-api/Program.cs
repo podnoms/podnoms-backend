@@ -15,6 +15,7 @@ namespace PodNoms.Api {
         }
 
         private static IWebHost BuildWebHost(string[] args) {
+            Console.WriteLine("Building web host");
             var builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => {
                     if (_isDevelopment) return;
