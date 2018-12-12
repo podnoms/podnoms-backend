@@ -20,12 +20,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public override PodcastEntry AddOrUpdate(PodcastEntry entry){
             GetContext().Entry<PodcastEntry>(entry).Property(x => x.AudioUrl).IsModified = false;
-            var ret = entry;
-            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
-            /* ret = entity.Id != Guid.Empty ?
-                Update(entry).Exclude(e => e.AudioUrl) :
-                Create(entry); */
-            return ret;
+            return base.AddOrUpdate(entry);
         }
         public new async Task<PodcastEntry> GetAsync(Guid id) {
             var ret = await GetAll()
