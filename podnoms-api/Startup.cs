@@ -88,6 +88,7 @@ namespace PodNoms.Api {
             Mapper.Reset();
             services.AddAutoMapper(e => { e.AddProfile(new MappingProvider(Configuration)); });
             mutex.ReleaseMutex();
+            Console.WriteLine("Automappered");
 
             services.AddHttpClient("mixcloud", c => {
                 c.BaseAddress = new Uri("https://api.mixcloud.com/");
@@ -202,45 +203,62 @@ namespace PodNoms.Api {
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(instance);
+            Console.WriteLine("Finished configuring services");
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+            System.Console.WriteLine($"Configurating");
 
             app.UseHttpStatusCodeExceptionMiddleware();
             app.UseExceptionHandler(new ExceptionHandlerOptions
             {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
+            System.Console.WriteLine($"Configuring push");
+
             app.UseSqlitePushSubscriptionStore();
+            System.Console.WriteLine($"Configuring domain redirect");
 
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
+            System.Console.WriteLine($"Configuring forwarding headers");
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
+            System.Console.WriteLine($"Configuring auth");
+
             app.UseAuthentication();
 
+            System.Console.WriteLine($"Configuring CORS");
             app.UseCors("PodNomsClientPolicy");
+
+            System.Console.WriteLine($"Configuring swagger");
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
+            System.Console.WriteLine($"Configuring background jobs");
             app.UsePodNomsHangfire(serviceProvider, Configuration);
             app.UsePodNomsSignalRRoutes();
 
+            System.Console.WriteLine($"Configuring secure headers");
             app.UseSecureHeaders();
 
+            System.Console.WriteLine($"Configuring MVC");
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            
+            System.Console.WriteLine($"Bootstrapping jobs");
             JobBootstrapper.BootstrapJobs(Env.IsDevelopment());
+            System.Console.WriteLine($"Configurated");
         }
     }
 }

@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk-alpine AS build
+FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /app
 EXPOSE 80
 
@@ -24,7 +24,7 @@ WORKDIR /app/podnoms-api
 RUN dotnet publish -c Release -o out
 
 # spin up the runtime
-FROM fergalmoran/podnoms.alpine.base AS runtime
+FROM fergalmoran/podnoms.base AS runtime
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]

@@ -128,8 +128,19 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid podcast entry posted");
+            PodcastEntry entry;
 
-            var entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
+            if (item.Id != null) {
+                entry = await _repository.GetAsync(item.Id);
+                _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item, entry);
+            }
+            else {
+                entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
+            }
+
+            if (entry == null)
+                return BadRequest();
+
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
                 entry.ProcessingStatus == ProcessingStatus.Processed) {
                 // we're editing an existing entry
