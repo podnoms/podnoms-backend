@@ -18,10 +18,10 @@ namespace PodNoms.Common.Persistence.Repositories {
         public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) {
         }
 
-        public override PodcastEntry AddOrUpdate(PodcastEntry entry){
-            GetContext().Entry<PodcastEntry>(entry).Property(x => x.AudioUrl).IsModified = false;
-            return base.AddOrUpdate(entry);
-        }
+//        public override PodcastEntry AddOrUpdate(PodcastEntry entity){
+//            GetContext().Entry<PodcastEntry>(entity).Property(x => x.AudioUrl).IsModified = false;
+//            return entity.Id != Guid.Empty ? Update(entity) : Create(entity);
+//        }
         public new async Task<PodcastEntry> GetAsync(Guid id) {
             var ret = await GetAll()
                 .Where(p => p.Id == id)

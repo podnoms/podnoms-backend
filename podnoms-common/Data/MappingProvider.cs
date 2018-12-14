@@ -11,15 +11,6 @@ using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Data {
-    public static class MappingExtensions {
-        public static IMappingExpression<TSource, TDestination> Ignore<TSource, TDestination>(
-            this IMappingExpression<TSource, TDestination> map,
-            Expression<Func<TDestination, object>> selector) {
-            map.ForMember(selector, config => config.Ignore());
-            return map;
-        }
-    }
-
     public class MappingProvider : Profile {
         private readonly IConfiguration _options;
 
@@ -58,20 +49,20 @@ namespace PodNoms.Common.Data {
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => 
+                    e => e.MapFrom(m =>
                         $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember(
                     src => src.ImageUrl,
-                    e => e.MapFrom(m => 
-                        m.ImageUrl.StartsWith("http") ? 
-                            m.ImageUrl : 
-                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
+                    e => e.MapFrom(m =>
+                        m.ImageUrl.StartsWith("http")
+                            ? m.ImageUrl
+                            : $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
                 .ForMember(
                     src => src.ThumbnailUrl,
-                    e => e.MapFrom(m => 
-                        m.ImageUrl.StartsWith("http") ? 
-                            m.ImageUrl : 
-                            $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/cached/{m.Id.ToString()}-32x32.png"))
+                    e => e.MapFrom(m =>
+                        m.ImageUrl.StartsWith("http")
+                            ? m.ImageUrl
+                            : $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/cached/{m.Id.ToString()}-32x32.png"))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))
@@ -125,7 +116,12 @@ namespace PodNoms.Common.Data {
                     dest => dest.Slug,
                     map => map.MapFrom(vm => vm.Slug));
 
-            CreateMap<PodcastEntryViewModel, PodcastEntry>();
+            CreateMap<PodcastEntryViewModel, PodcastEntry>()
+                .ForMember(
+                    e => e.AudioUrl,
+                    map => map.Ignore())
+                .AfterMap((src, dest) => dest.AudioUrl = dest.AudioUrl);
+
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
                     e => e.UserName,
