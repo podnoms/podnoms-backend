@@ -11,11 +11,17 @@
         <EmbeddedResource Remove="out\**" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="AspNetcore.HealthChecks.AzureStorage" Version="2.2.0" />
+        <PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.1" />
+        <PackageReference Include="AspNetcore.HealthChecks.SqlServer" Version="2.2.0" />
+        <PackageReference Include="AspNetcore.HealthChecks.UI" Version="2.2.4" />
+        <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="2.2.1" />
         <PackageReference Include="DNS" Version="5.0.0" />
         <PackageReference Include="DnsClient" Version="1.2.0" />
         <PackageReference Include="Handlebars.Net" Version="1.9.5" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="8.1.1" />
