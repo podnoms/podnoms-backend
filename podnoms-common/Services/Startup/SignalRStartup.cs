@@ -8,8 +8,10 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
             services.AddSignalR()
                 .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver =
-                    new DefaultContractResolver() {
-                        NamingStrategy = new CamelCaseNamingStrategy() {
+                    new DefaultContractResolver()
+                    {
+                        NamingStrategy = new CamelCaseNamingStrategy()
+                        {
                             ProcessDictionaryKeys = true
                         }
                     });
