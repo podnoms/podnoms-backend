@@ -83,7 +83,6 @@ namespace PodNoms.Api {
             Console.WriteLine($"Configuring services: {Configuration}");
 
             services.AddPodNomsOptions(Configuration);
-
             services.AddPodNomsHealthChecks(Configuration);
 
             mutex.WaitOne();
