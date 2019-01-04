@@ -13,15 +13,22 @@ using PodNoms.Common.Data.Settings;
 namespace PodNoms.Common.Services.Storage {
 
     public class AzureFileUploader : IFileUploader {
-        private readonly StorageSettings _settings;
-        public AzureFileUploader(IOptions<StorageSettings> settings, ILoggerFactory logger) {
-            _settings = settings.Value;
+        private readonly CloudBlobClient _blobClient;
+
+        public AzureFileUploader(IOptions<StorageSettings> settings) {
+            var storageAccount = CloudStorageAccount.Parse(settings.Value.ConnectionString);
+            _blobClient = storageAccount.CreateCloudBlobClient();
         }
+
+        public async Task<bool> FileExists(string containerName, string fileName) {
+            return await _blobClient.GetContainerReference(containerName)
+                .GetBlockBlobReference(fileName)
+                .ExistsAsync();
+        }
+
         public async Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
         string contentType, Action<int, long> progressCallback) {
-            var storageAccount = CloudStorageAccount.Parse(_settings.ConnectionString);
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(containerName);
+            var container = _blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
 
             var blockBlob = container.GetBlockBlobReference(destinationFile);

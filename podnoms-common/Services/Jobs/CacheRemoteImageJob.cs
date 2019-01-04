@@ -35,36 +35,17 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> Execute() {
-            // _logger.LogDebug("Start processing images");
-            // var uncached = _entryRepository
-            //     .GetAll()
-            //     .Where(e => e.ImageUrl.StartsWith("http"));
-
-            // foreach (var e in uncached) {
-            //     _logger.LogDebug($"Process image for: {e.ImageUrl}");
-            //     var (original, thumbnail) = await CacheImage(e.ImageUrl, e.Id.ToString());
-            //     if (!string.IsNullOrEmpty(original) && !string.IsNullOrEmpty(thumbnail)) {
-            //         _logger.LogDebug($"Successfully processed: {original}");
-            //         e.ImageUrl = original;
-            //     }
-            // }
-            // await _unitOfWork.CompleteAsync();
-            // return true;
-
             var images = _entryRepository
-                .GetAll();
-            foreach (var e in images) {
-                //cache image
-                var imageUrl = _storageSettings.CdnUrl + $"/{e.ImageUrl}";
+                .GetAll()
+//                .Where(e => e.ImageUrl.StartsWith("http") && e.ImageUrl !=
+//                            "https://podnomscdn.blob.core.windows.net/static/images/default-entry.png");
+                .Where(r => r.Id == Guid.Parse("1ba9eeae-77ab-48d2-abb1-c758c4780d5e"));
 
-                var sourceFile = await HttpUtils.DownloadFile(imageUrl);
-                var thumbnailFile = ImageUtils.CreateThumbnail(sourceFile, e.Id.ToString(), 32, 32);
-                var thumbnail = await _fileUploader.UploadFile(
-                    thumbnailFile,
-                    _imageFileStoragesSettings.ContainerName,
-                    $"entry/cached/{e.Id.ToString()}-32x32.png",
-                    "image/png", null);
+            foreach (var e in images) {
+                _logger.LogDebug($"Caching image for: {e.Id}"); 
+                await CacheImage(e.ImageUrl, e.Id.ToString());
             }
+
             return true;
         }
 
@@ -99,7 +80,8 @@ namespace PodNoms.Common.Services.Jobs {
                     "image/png", null);
 
                 return (original, thumbnail);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 _logger.LogError($"Error caching image: {ex.Message}");
             }
 

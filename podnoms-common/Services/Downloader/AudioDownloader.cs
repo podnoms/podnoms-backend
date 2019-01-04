@@ -86,7 +86,6 @@ namespace PodNoms.Common.Services.Downloader {
             yt.StandardOutputEvent += (sender, output) => {
                 if (output.Contains("%")) {
                     var progress = _parseProgress(output);
-                    Console.WriteLine($"Processing {progress.CurrentSpeed} {progress.ETA} {progress.Percentage}");
                     DownloadProgress?.Invoke(this, progress);
                 }
                 else {
