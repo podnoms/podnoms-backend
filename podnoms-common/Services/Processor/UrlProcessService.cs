@@ -60,7 +60,10 @@ namespace PodNoms.Common.Services.Processor {
             var ret = downloader.GetInfo();
             if (ret != AudioType.Valid) return ret;
 
-            entry.Title = downloader.Properties?.Title;
+            if (!string.IsNullOrEmpty(downloader.Properties?.Title)) {
+                entry.Title = downloader.Properties?.Title;
+            }
+
             entry.Description = downloader.Properties?.Description;
             entry.ImageUrl = downloader.Properties?.Thumbnail;
             entry.ProcessingStatus = ProcessingStatus.Processing;

@@ -2,10 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.NYT;
 using PodNoms.Common.Services.NYT.Helpers;
 using PodNoms.Common.Services.NYT.Models;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
@@ -54,6 +56,11 @@ namespace PodNoms.Common.Services.Downloader {
 
         public AudioType GetInfo() {
             var ret = AudioType.Invalid;
+
+            if (_url.Contains("drive.google.com")) {
+                return AudioType.Valid;
+            }
+
             var yt = new YoutubeDL {VideoUrl = _url};
             var info = yt.GetDownloadInfo();
 
@@ -75,6 +82,10 @@ namespace PodNoms.Common.Services.Downloader {
         public string DownloadAudio(Guid id) {
             var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
+
+            if (_url.Contains("drive.google.com")) {
+                return _downloadFileDirect(_url, outputFile);
+            }
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
@@ -127,6 +138,11 @@ namespace PodNoms.Common.Services.Downloader {
             }
 
             return result;
+        }
+
+        private string _downloadFileDirect(string url, string fileName) {
+            var file = HttpUtils.DownloadFile(url, fileName).WaitAndUnwrapException();
+            return file;
         }
     }
 }
