@@ -22,6 +22,9 @@ namespace PodNoms.Common.Persistence.Repositories {
 //            GetContext().Entry<PodcastEntry>(entity).Property(x => x.AudioUrl).IsModified = false;
 //            return entity.Id != Guid.Empty ? Update(entity) : Create(entity);
 //        }
+        public new async Task<PodcastEntry> GetAsync(string id) {
+            return await GetAsync(Guid.Parse(id));
+        }
         public new async Task<PodcastEntry> GetAsync(Guid id) {
             var ret = await GetAll()
                 .Where(p => p.Id == id)
