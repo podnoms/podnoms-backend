@@ -8,6 +8,7 @@ using PodNoms.Common.Services.NYT;
 using PodNoms.Common.Services.NYT.Helpers;
 using PodNoms.Common.Services.NYT.Models;
 using PodNoms.Common.Utils;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
@@ -32,8 +33,10 @@ namespace PodNoms.Common.Services.Downloader {
 
         public static string GetVersion(string downloader) {
             try {
-                var proc = new Process {
-                    StartInfo = new ProcessStartInfo {
+                var proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
                         FileName = downloader,
                         Arguments = $"--version",
                         UseShellExecute = false,
@@ -48,8 +51,7 @@ namespace PodNoms.Common.Services.Downloader {
                 }
 
                 return br.ToString();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return $"{{\"Error\": \"{ex.Message}\"}}";
             }
         }
@@ -61,14 +63,20 @@ namespace PodNoms.Common.Services.Downloader {
                 return AudioType.Valid;
             }
 
-            var yt = new YoutubeDL {VideoUrl = _url};
+            var yt = new YoutubeDL { VideoUrl = _url };
             var info = yt.GetDownloadInfo();
 
-            if (info == null || (info.Errors.Count != 0 && info.VideoSize == null)) return ret;
+            if (info == null ||
+                info.Errors.Count != 0 ||
+                (info.GetType() == typeof(PlaylistDownloadInfo) && 
+                    !MixcloudParser.ValidateUrl(_url) && 
+                    !YouTubeParser.ValidateUrl(_url))) {
+                return ret; 
+            }
             RawProperties = info;
             switch (info) {
                 // have to dump playlist handling for now
-                case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo) info).Videos.Count > 0:
+                case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
                     ret = AudioType.Playlist;
                     break;
                 case VideoDownloadInfo _:
@@ -98,8 +106,7 @@ namespace PodNoms.Common.Services.Downloader {
                 if (output.Contains("%")) {
                     var progress = _parseProgress(output);
                     DownloadProgress?.Invoke(this, progress);
-                }
-                else {
+                } else {
                     Console.WriteLine(output);
                     PostProcessing?.Invoke(this, output);
                 }
@@ -118,7 +125,7 @@ namespace PodNoms.Common.Services.Downloader {
 
             var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
             var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
-            result.Percentage = (int) Math.Round(double.Parse(progressString));
+            result.Percentage = (int)Math.Round(double.Parse(progressString));
 
             var sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal)) + 1;
             var sizeString = output.Substring(sizeIndex,

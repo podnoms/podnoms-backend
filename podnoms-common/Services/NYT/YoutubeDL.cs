@@ -230,7 +230,7 @@ namespace PodNoms.Common.Services.NYT
 
             Info = infos.Count > 1 ? new MultiDownloadInfo(infos) : infos[0];
 
-            return Info;
+            return Info; 
         }
 
         /// <summary>
