@@ -68,7 +68,7 @@ namespace PodNoms.Api.Controllers {
             }
         }
         [HttpPost("/entry/{id}/imageupload")]
-        public async Task<ActionResult<string>> UploadEntryImage(string id, IFormFile image) {
+        public async Task<ActionResult<PodcastEntryViewModel>> UploadEntryImage(string id, IFormFile image) {
             _logger.LogDebug("Uploading new entry image");
 
             var entry = await _entryRepository.GetAsync(_applicationUser.Id, id);
@@ -80,7 +80,7 @@ namespace PodNoms.Api.Controllers {
                 _entryRepository.AddOrUpdate(entry);
                 await _unitOfWork.CompleteAsync();
 
-                return Ok($"\"{_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry).ImageUrl}\"");
+                return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
             } catch (InvalidOperationException ex) {
                 return BadRequest(ex.Message);
             }
