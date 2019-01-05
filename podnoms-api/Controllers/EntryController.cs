@@ -91,8 +91,7 @@ namespace PodNoms.Api.Controllers {
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                     )
                 );
-            }
-            catch (InvalidOperationException ex) {
+            } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
             }
@@ -133,8 +132,7 @@ namespace PodNoms.Api.Controllers {
             if (item.Id != null) {
                 entry = await _repository.GetAsync(item.Id);
                 _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item, entry);
-            }
-            else {
+            } else {
                 entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             }
 
@@ -179,14 +177,12 @@ namespace PodNoms.Api.Controllers {
                         var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                         return result;
                     }
-                }
-                catch (DbUpdateException e) {
+                } catch (DbUpdateException e) {
                     _logger.LogError(e.Message);
                     return BadRequest(item);
                 }
-            }
-            else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                     || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+            } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
+                       || MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);
@@ -201,8 +197,7 @@ namespace PodNoms.Api.Controllers {
                 await _repository.DeleteAsync(new Guid(id));
                 await _unitOfWork.CompleteAsync();
                 return Ok();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
