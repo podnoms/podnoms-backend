@@ -23,7 +23,7 @@ namespace PodNoms.Api.Controllers {
 
         public UrlProcessController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                             ILogger<UrlProcessController> logger, IUrlProcessService processService,
-                            IPageParser parser, IOptions<HelpersSettings> helpersSettings) : 
+                            IPageParser parser, IOptions<HelpersSettings> helpersSettings) :
                             base(contextAccessor, userManager, logger) {
             this._processService = processService;
             this._parser = parser;
@@ -37,11 +37,16 @@ namespace PodNoms.Api.Controllers {
             if (fileType == AudioType.Invalid) {
                 var links = await _parser.GetAudioLinks(url);
                 if (links.Count > 0) {
-                    return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status300MultipleChoices, links);
+                    return new OkObjectResult(new {
+                        type = "proxied",
+                        data = links
+                    });
                 }
                 return BadRequest();
             }
-            return Ok();
+            return new OkObjectResult(new {
+                type = "native"
+            });
         }
     }
 }

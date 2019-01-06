@@ -106,6 +106,16 @@ namespace PodNoms.Api.Controllers {
             return Ok(results);
         }
 
+        [HttpGet("all/{podcastSlug}")]
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
+            var entries = await _repository.GetAllForSlugAsync(podcastSlug);
+            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
+                entries.OrderByDescending(r => r.CreateDate).ToList()
+            );
+
+            return Ok(results);
+        }
+
         [HttpGet("{entryId}")]
         public async Task<ActionResult<PodcastEntryViewModel>> Get(string entryId) {
             var entry = await _repository.GetAll()
@@ -113,14 +123,6 @@ namespace PodNoms.Api.Controllers {
                 .SingleOrDefaultAsync(e => e.Id == Guid.Parse(entryId));
             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(result);
-        }
-
-        [HttpGet("all/{podcastSlug}")]
-        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
-            var entries = await _repository.GetAllForSlugAsync(podcastSlug);
-            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(entries.ToList());
-
-            return Ok(results);
         }
 
         [HttpPost]
