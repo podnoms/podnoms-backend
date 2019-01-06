@@ -8,6 +8,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Gravatar;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Notifications;
+using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Slack;
@@ -19,6 +20,7 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddDependencies(this IServiceCollection services) {
             services.AddTransient<IFileUploader, AzureFileUploader>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
+                .AddTransient<IPageParser, DefaultPageParser>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
