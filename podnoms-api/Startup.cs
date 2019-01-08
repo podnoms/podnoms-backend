@@ -191,6 +191,7 @@ namespace PodNoms.Api {
                             "https://localhost:4200",
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.com",
+                            "https://pages.podnoms.com",
                             "https://www.podnoms.com")
                         .AllowCredentials());
             });
