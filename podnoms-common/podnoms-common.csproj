@@ -27,7 +27,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="8.1.2" />
         <PackageReference Include="Google.Apis.Auth" Version="1.37.0" />
-        <PackageReference Include="Google.Apis.Plus.v1" Version="1.36.1.1438" />
+        <PackageReference Include="Google.Apis.Plus.v1" Version="1.37.0.1438" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.37.0.1226" />
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.0-beta2" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.0-beta2" />
