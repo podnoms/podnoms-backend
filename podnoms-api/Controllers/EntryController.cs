@@ -230,5 +230,18 @@ namespace PodNoms.Api.Controllers {
 
             return Ok(entry);
         }
+
+        [HttpGet("downloadurl/{entryId}")]
+        public async Task<ActionResult<string>> GetDownloadUrl(string entryId) {
+            var entry = await _repository.GetAsync(entryId);
+
+            if (entry == null) {
+                return NotFound();
+            }
+            return Ok(new {
+                url = $"{_storageSettings.CdnUrl}{entry.AudioUrl}",
+                title = entry.Title
+            });
+        }
     }
 }
