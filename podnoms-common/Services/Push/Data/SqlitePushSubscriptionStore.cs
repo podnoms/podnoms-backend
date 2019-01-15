@@ -12,7 +12,7 @@ namespace PodNoms.Common.Services.Push.Data {
             _context = context;
         }
 
-        public Task StoreSubscriptionAsync(string uid, PushSubscription subscription) {
+        public async Task<string> StoreSubscriptionAsync(string uid, PushSubscription subscription) {
             var entity = new PushSubscriptionContext.PushSubscription(uid, subscription);
             if (_context.Subscriptions.Where(s => s.Endpoint == subscription.Endpoint).Count() > 0) {
                 // _context.Entry(entry).State = EntityState.Modified
@@ -21,7 +21,9 @@ namespace PodNoms.Common.Services.Push.Data {
             } else {
                 _context.Subscriptions.Add(entity);
             }
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+
+            return uid;
         }
 
         public async Task DiscardSubscriptionAsync(string endpoint) {

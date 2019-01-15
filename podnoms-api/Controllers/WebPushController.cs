@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
@@ -27,8 +28,12 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost("subscribe")]
         public async Task<IActionResult> StoreSubscription([FromBody]WP.PushSubscription subscription) {
-            await _subscriptionStore.StoreSubscriptionAsync(_applicationUser.Id, subscription);
-            return NoContent();
+            var subscriptionId = await _subscriptionStore.StoreSubscriptionAsync(_applicationUser.Id, subscription);
+            return Ok(new {
+                    uid = subscriptionId,
+                    status = true
+                }
+            );
         }
 
         // POST push-notifications-api/notifications
