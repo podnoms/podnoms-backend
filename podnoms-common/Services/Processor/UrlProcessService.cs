@@ -69,8 +69,7 @@ namespace PodNoms.Common.Services.Processor {
             entry.ProcessingStatus = ProcessingStatus.Processing;
             try {
                 entry.Author = downloader.Properties?.Uploader;
-            }
-            catch (Exception) {
+            } catch (Exception) {
                 Logger.LogWarning($"Unable to extract downloader info for: {entry.SourceUrl}");
             }
 
@@ -94,8 +93,7 @@ namespace PodNoms.Common.Services.Processor {
                 downloader.DownloadProgress += async (s, e) => {
                     try {
                         await __downloader_progress(entry.Podcast.AppUser.Id, entry.Id.ToString(), e);
-                    }
-                    catch (NullReferenceException nre) {
+                    } catch (NullReferenceException nre) {
                         Logger.LogError(nre.Message);
                     }
                 };
@@ -110,13 +108,19 @@ namespace PodNoms.Common.Services.Processor {
 
                 await _sendProcessCompleteMessage(entry);
                 await _unitOfWork.CompleteAsync();
+
+                var updateMessage = new UserUpdatesHub.UserUpdateMessage
+                {
+                    Title = "Success",
+                    Message = $"{entry.Title} has succesfully been processed",
+                    ImageUrl = entry.ImageUrl
+                };
                 await _hub.SendUserAsync(
                     entry.Podcast.AppUser.Id,
                     "site-notices",
-                    new object[] {$"{entry.Title} has succesfully been processed"});
+                    new object[] { updateMessage });
                 return true;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 Logger.LogError($"Entry: {entryId}\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
@@ -124,7 +128,7 @@ namespace PodNoms.Common.Services.Processor {
                 await _sendProcessCompleteMessage(entry);
                 await _hub.SendAllAsync(
                     entry.Podcast.AppUser.Id,
-                    new object[] {$"Error processing {entry.Title}"});
+                    new object[] { $"Error processing {entry.Title}" });
             }
 
             return false;

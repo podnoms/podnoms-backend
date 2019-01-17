@@ -189,7 +189,9 @@ namespace PodNoms.Api {
                         .AllowAnyHeader()
                         .WithOrigins(
                             "https://localhost:4200",
+                            "http://localhost:8080",
                             "http://localhost:4200",
+                            "http://10.1.1.5:9999",
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.com",
                             "https://pages.podnoms.com",
