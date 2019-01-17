@@ -55,8 +55,7 @@ namespace PodNoms.Common.Services.Jobs {
                 : item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.VideoId}" : string.Empty;
             if (string.IsNullOrEmpty(url)) {
                 _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
-            }
-            else {
+            } else {
                 var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
                 var info = downloader.GetInfo();
                 if (info == AudioType.Valid) {
@@ -67,7 +66,8 @@ namespace PodNoms.Common.Services.Jobs {
                     if (!File.Exists(file)) return true;
 
                     //we have the file so lets create the entry and ship to CDN
-                    var entry = new PodcastEntry {
+                    var entry = new PodcastEntry
+                    {
                         Title = downloader.Properties?.Title,
                         Description = downloader.Properties?.Description,
                         ProcessingStatus = ProcessingStatus.Uploading,
@@ -86,6 +86,7 @@ namespace PodNoms.Common.Services.Jobs {
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
                         service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
                             $"{entry.Title} has finished processing",
+                            entry.Podcast.GetAuthenticatedUrl(_options.GetSection("AppSettings")["SiteUrl"]),
                             entry.Podcast.GetThumbnailUrl(
                                 _options.GetSection("StorageSettings")["CdnUrl"],
                                 _options.GetSection("ImageFileStorageSettings")["ContainerName"])
@@ -96,8 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
                             $"{entry.Title} has finished processing",
                             entry.Podcast.GetAuthenticatedUrl(_options.GetSection("AppSettings")["SiteUrl"])
                         ));
-                }
-                else {
+                } else {
                     _logger.LogError($"Processing playlist item {itemId} failed");
                     return false;
                 }

@@ -34,14 +34,14 @@ namespace PodNoms.Common.Services.Jobs {
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
 
-        public async Task NotifyUser(string userId, string title, string body, string image) {
+        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
             var pushMessage = new PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
             await _subscriptionStore.ForEachSubscriptionAsync(userId,
                 subscription => {
-                    _notificationService.SendNotificationAsync(subscription, pushMessage);
+                    _notificationService.SendNotificationAsync(subscription, pushMessage, target);
                 });
         }
 
