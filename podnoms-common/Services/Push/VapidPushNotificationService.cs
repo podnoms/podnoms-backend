@@ -20,20 +20,20 @@ namespace PodNoms.Common.Services.Push {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
         }
-        public async Task SendNotificationAsync(WP.PushSubscription subscription, PushMessage message) {
+        public async Task SendNotificationAsync(WP.PushSubscription subscription, PushMessage message, string target) {
             var sub = new WebPush.PushSubscription(
                     subscription.Endpoint,
                     subscription.Keys["p256dh"],
                     subscription.Keys["auth"]
             );
 
-            var vapid = new VapidDetails("mailto: support@podnoms.com", _options.PublicKey, _options.PrivateKey);
+            var vapid = new VapidDetails(_options.Subject, _options.PublicKey, _options.PrivateKey);
             var payload = JsonConvert.SerializeObject(new {
                 notification = new {
                     title = message.Topic,
                     body = message.Content,
                     icon = _options.ImageUrl,
-                    click_action = message
+                    click_action = string.IsNullOrEmpty(target) ? _options.ClickUrl : target
                 }
             });
 

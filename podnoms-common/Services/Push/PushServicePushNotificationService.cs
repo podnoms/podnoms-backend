@@ -17,8 +17,10 @@ namespace PodNoms.Common.Services.Push {
         public PushServicePushNotificationService(IOptions<PushNotificationServiceOptions> optionsAccessor, IVapidTokenCache vapidTokenCache, ILogger<PushServicePushNotificationService> logger) {
             _options = optionsAccessor.Value;
 
-            _pushClient = new PushServiceClient {
-                DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey) {
+            _pushClient = new PushServiceClient
+            {
+                DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey)
+                {
                     Subject = _options.Subject,
                     TokenCache = vapidTokenCache
                 }
@@ -27,7 +29,7 @@ namespace PodNoms.Common.Services.Push {
             _logger = logger;
         }
 
-        public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message) {
+        public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message, string target) {
             try {
                 await _pushClient.RequestPushMessageDeliveryAsync(subscription, message);
             } catch (Exception ex) {

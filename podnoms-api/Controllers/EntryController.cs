@@ -81,6 +81,7 @@ namespace PodNoms.Api.Controllers {
                     uploadJobId,
                     r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
                         $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                         entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
                     ));
 

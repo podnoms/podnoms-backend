@@ -116,23 +116,23 @@ namespace PodNoms.Api.Controllers {
         public IActionResult GetOptions() {
             var response = new {
                 AppSettings = _config.GetSection("AppSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 StorageSettings = _config.GetSection("StorageSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 HelpersSettings = _config.GetSection("HelpersSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 EmailSettings = _config.GetSection("EmailSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 ChatSettings = _config.GetSection("ChatSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 ImageFileStorageSettings = _config.GetSection("ImageFileStorageSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 AudioFileStorageSettings = _config.GetSection("AudioFileStorageSettings").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value}),
+                    .Select(c => new { Key = c.Key, Value = c.Value }),
                 JwtIssuerOptions = _config.GetSection("JwtIssuerOptions").GetChildren()
-                    .Select(c => new {Key = c.Key, Value = c.Value})
+                    .Select(c => new { Key = c.Key, Value = c.Value })
             };
             return Ok(JsonConvert.SerializeObject(response));
         }
@@ -141,8 +141,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] {$"User {User.Identity.Name}: {message}"});
-            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
+                new string[] { $"User {User.Identity.Name}: {message}" });
+            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
             return Ok(message);
         }
 
@@ -150,12 +150,13 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("serverpush")]
         public async Task<string> ServerPush(string message) {
             var response = new StringBuilder();
-            var pushMessage = new WP.PushMessage(message) {
+            var pushMessage = new WP.PushMessage(message)
+            {
                 Topic = "Debug",
                 Urgency = WP.PushMessageUrgency.Normal
             };
             await _subscriptionStore.ForEachSubscriptionAsync(_applicationUser.Id, (subscription) => {
-                _notificationService.SendNotificationAsync(subscription, pushMessage);
+                _notificationService.SendNotificationAsync(subscription, pushMessage, "http://fergl.ie");
                 response.Append($"Sent: {subscription.Endpoint}");
             });
             return response.ToString();

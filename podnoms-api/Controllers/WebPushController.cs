@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
             // TODO: This should be scheduled in background
             await _subscriptionStore.ForEachSubscriptionAsync((WP.PushSubscription subscription) => {
                 // Fire-and-forget 
-                _notificationService.SendNotificationAsync(subscription, pushMessage);
+                _notificationService.SendNotificationAsync(subscription, pushMessage, message.Target);
             });
 
             return NoContent();

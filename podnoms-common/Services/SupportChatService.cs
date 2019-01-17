@@ -42,7 +42,7 @@ namespace PodNoms.Common.Services {
                         Urgency = PushMessageUrgency.Normal
                     };
                     await _subscriptionStore.ForEachSubscriptionAsync(user.Id, (PushSubscription subscription) => {
-                        _notificationService.SendNotificationAsync(subscription, pushMessage);
+                        _notificationService.SendNotificationAsync(subscription, pushMessage, string.Empty);
                     });
 
                     //send SignalR message to notify in chat.component
