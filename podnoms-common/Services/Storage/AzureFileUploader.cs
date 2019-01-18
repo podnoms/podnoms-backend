@@ -11,7 +11,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using PodNoms.Common.Data.Settings;
 
 namespace PodNoms.Common.Services.Storage {
-
     public class AzureFileUploader : IFileUploader {
         private readonly CloudBlobClient _blobClient;
 
@@ -21,13 +20,15 @@ namespace PodNoms.Common.Services.Storage {
         }
 
         public async Task<bool> FileExists(string containerName, string fileName) {
-            return await _blobClient.GetContainerReference(containerName)
+            var result = await _blobClient.GetContainerReference(containerName)
                 .GetBlockBlobReference(fileName)
                 .ExistsAsync();
+
+            return result;
         }
 
         public async Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
-        string contentType, Action<int, long> progressCallback) {
+            string contentType, Action<int, long> progressCallback) {
             var container = _blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
 
@@ -41,7 +42,8 @@ namespace PodNoms.Common.Services.Storage {
 
             if (bytesToUpload < blockSize) {
                 await blockBlob.UploadFromFileAsync(sourceFile);
-            } else {
+            }
+            else {
                 var blockIds = new List<string>();
                 var index = 1;
                 long startPosition = 0;
@@ -51,8 +53,9 @@ namespace PodNoms.Common.Services.Storage {
                     var blobContents = new byte[bytesToRead];
                     using (var fs = new FileStream(sourceFile, FileMode.Open)) {
                         fs.Position = startPosition;
-                        fs.Read(blobContents, 0, (int)bytesToRead);
+                        fs.Read(blobContents, 0, (int) bytesToRead);
                     }
+
                     var mre = new ManualResetEvent(false);
                     var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(index.ToString("d6")));
                     Console.WriteLine("Now uploading block # " + index.ToString("d6"));
@@ -62,14 +65,14 @@ namespace PodNoms.Common.Services.Storage {
                     bytesToUpload -= bytesToRead;
                     startPosition += bytesToRead;
                     index++;
-                    var percentComplete = (double)bytesUploaded / (double)fileSize;
+                    var percentComplete = (double) bytesUploaded / (double) fileSize;
                     Console.WriteLine("Percent complete = " + percentComplete.ToString("P"));
-                    if (progressCallback != null) progressCallback((int)(percentComplete * 100), bytesToUpload);
+                    if (progressCallback != null) progressCallback((int) (percentComplete * 100), bytesToUpload);
 
                     mre.Set();
                     mre.WaitOne();
-                }
-                while (bytesToUpload > 0);
+                } while (bytesToUpload > 0);
+
                 Console.WriteLine("Now committing block list");
                 await blockBlob.PutBlockListAsync(blockIds);
                 blockBlob.Properties.ContentType = "audio/mpeg";
@@ -77,6 +80,7 @@ namespace PodNoms.Common.Services.Storage {
 
                 Console.WriteLine("Blob uploaded completely.");
             }
+
             return $"{containerName}/{destinationFile}";
         }
     }

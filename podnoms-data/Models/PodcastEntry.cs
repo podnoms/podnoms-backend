@@ -28,6 +28,12 @@ namespace PodNoms.Data.Models {
         public Guid PodcastId { get; set; }
         [JsonIgnore]
         public Podcast Podcast { get; set; }
-    }
 
+        public string GetThumbnailUrl(string cdnUrl, string containerName) {
+            var url = ImageUrl.StartsWith("http")
+                            ? ImageUrl
+                            : $"{cdnUrl}{containerName}/entry/cached/{Id.ToString()}-32x32.png";
+            return url;
+        }
+    }
 }

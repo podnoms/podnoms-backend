@@ -59,10 +59,10 @@ namespace PodNoms.Common.Data {
                             : $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
                 .ForMember(
                     src => src.ThumbnailUrl,
-                    e => e.MapFrom(m =>
-                        m.ImageUrl.StartsWith("http")
-                            ? m.ImageUrl
-                            : $"{_options.GetSection("StorageSettings")["CdnUrl"]}{_options.GetSection("ImageFileStorageSettings")["ContainerName"]}/entry/cached/{m.Id.ToString()}-32x32.png"))
+                    e => e.MapFrom(m => m.GetThumbnailUrl(
+                        _options.GetSection("StorageSettings")["CdnUrl"], 
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])
+                ))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))
