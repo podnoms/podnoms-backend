@@ -4,4 +4,5 @@ namespace PodNoms.Common.Data.Settings {
         public string CdnUrl { get; set; }
         public long DefaultUserQuota { get; set; }
     }
+
 }

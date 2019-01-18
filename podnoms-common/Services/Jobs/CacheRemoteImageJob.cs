@@ -57,7 +57,6 @@ namespace PodNoms.Common.Services.Jobs {
                 else {
                     _logger.LogDebug($"Not caching: {e.Id}");
                 }
-
                 _logger.LogDebug($"Processing {i++} of {count}");
             }
 

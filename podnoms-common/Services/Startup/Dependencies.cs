@@ -9,6 +9,7 @@ using PodNoms.Common.Services.Gravatar;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Notifications;
 using PodNoms.Common.Services.PageParser;
+using PodNoms.Common.Services.Payments;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Slack;
@@ -30,6 +31,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IPlaylistRepository, PlaylistRepository>()
                 .AddScoped<IChatRepository, ChatRepository>()
                 .AddScoped<INotificationRepository, NotificationRepository>()
+                .AddScoped<IPaymentRepository, PaymentRepository>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
@@ -41,6 +43,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<INotificationHandler, PushBulletNotificationHandler>()
                 .AddScoped<INotificationHandler, TwitterNotificationHandler>()
                 .AddScoped<INotificationHandler, EmailNotificationHandler>()
+                .AddScoped<IPaymentProcessor, StripePaymentProcessor>()
                 .AddScoped<YouTubeParser>()
                 .AddScoped<MixcloudParser>()
                 .AddScoped<SlackSupportClient>()
