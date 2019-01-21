@@ -31,7 +31,7 @@
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.37.0.1469" />
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.0-beta2" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.0-beta2" />
-        <PackageReference Include="Lib.Net.Http.WebPush" Version="1.5.0" />
+        <PackageReference Include="Lib.Net.Http.WebPush" Version="2.0.0" />
         <PackageReference Include="AutoMapper" Version="8.0.0" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
