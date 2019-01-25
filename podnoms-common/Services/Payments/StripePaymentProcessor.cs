@@ -12,12 +12,14 @@ namespace PodNoms.Common.Services.Payments {
 
             var service = new ChargeService();
             var customers = new CustomerService();
-            var customer = customers.Create(new CustomerCreateOptions {
+            var customer = customers.Create(new CustomerCreateOptions
+            {
                 Email = credentials[0].ToString(),
                 SourceToken = credentials[1].ToString()
             });
 
-            var options = new ChargeCreateOptions {
+            var options = new ChargeCreateOptions
+            {
                 Amount = amount,
                 Currency = "eur",
                 Metadata = new Dictionary<string, string> {
@@ -27,12 +29,13 @@ namespace PodNoms.Common.Services.Payments {
             };
 
             var charge = await service.CreateAsync(options);
-            return new StripePaymentResult {
+            return new StripePaymentResult
+            {
                 Id = charge.Id,
                 Paid = charge.Paid,
                 Status = charge.Status,
                 Amount = charge.Amount,
-                ReceiptUrl = charge.ReceiptUrl
+                ReceiptURL = charge.ReceiptUrl
             };
         }
     }

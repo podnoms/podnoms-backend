@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessPayment([FromBody] PaymentViewModel payment) {
+        public async Task<ActionResult<StripePaymentResult>> ProcessPayment([FromBody] PaymentViewModel payment) {
             var orderId = System.Guid.NewGuid().ToString();
             var result = await this._paymentProcessor.ProcessPayment(
                 orderId,
@@ -40,13 +41,14 @@ namespace PodNoms.Api.Controllers {
                 _applicationUser.Id,
                 new object[] {"fergal.moran@gmail.com", payment.Token});
 
-            this._paymentRepository.AddPayment(_applicationUser, orderId, payment.Amount, payment.Type);
+            this._paymentRepository.AddPayment(_applicationUser, orderId, payment.Amount, payment.Type, result.ReceiptURL);
             await this._uow.CompleteAsync();
             if (result.Paid) {
-                return Ok();
+                return Ok(result);
             }
 
             return BadRequest();
         }
+
     }
 }

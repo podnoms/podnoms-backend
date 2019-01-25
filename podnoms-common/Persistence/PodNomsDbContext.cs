@@ -114,6 +114,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
+        public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
         public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }

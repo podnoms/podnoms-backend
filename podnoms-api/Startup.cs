@@ -53,32 +53,6 @@ namespace PodNoms.Api {
             Env = env;
         }
 
-        public void ConfigureProductionServices(IServiceCollection services) {
-            services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common"));
-            });
-            ConfigureServices(services);
-            services.AddHangfire(config => {
-                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-            });
-            services.AddApplicationInsightsTelemetry(Configuration);
-        }
-
-        public void ConfigureDevelopmentServices(IServiceCollection services) {
-            services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common"));
-            });
-
-            ConfigureServices(services);
-            // services.AddHangfire(config => {
-            //     config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-            // });
-        }
-
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services: {Configuration}");
 
@@ -90,6 +64,16 @@ namespace PodNoms.Api {
             services.AddAutoMapper(e => { e.AddProfile(new MappingProvider(Configuration)); });
             mutex.ReleaseMutex();
 
+            services.AddDbContext<PodNomsDbContext>(options => {
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("podnoms-common"));
+            });
+            services.AddHangfire(config => {
+                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+            });
+            services.AddApplicationInsightsTelemetry(Configuration);
+            
             services.AddHealthChecks();
 
             services.AddHttpClient("mixcloud", c => {

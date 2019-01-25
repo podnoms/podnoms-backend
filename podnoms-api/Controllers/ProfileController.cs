@@ -16,6 +16,7 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Data.ViewModels;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -24,14 +25,16 @@ namespace PodNoms.Api.Controllers {
         public IUnitOfWork _unitOfWork { get; }
         public IMapper _mapper { get; }
         private readonly IEntryRepository _entryRepository;
+        private readonly IPaymentRepository _paymentRepository;
         private readonly StorageSettings _storageSettings;
 
         public ProfileController(IMapper mapper, IUnitOfWork unitOfWork,
-            IEntryRepository entryRepository, ILogger<ProfileController> logger,
+            IEntryRepository entryRepository, IPaymentRepository paymentRepository, ILogger<ProfileController> logger,
             IOptions<StorageSettings> storageSettings,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
             : base(contextAccessor, userManager, logger) {
             _entryRepository = entryRepository;
+            this._paymentRepository = paymentRepository;
             _mapper = mapper;
             _storageSettings = storageSettings.Value;
             _unitOfWork = unitOfWork;
@@ -40,7 +43,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return Ok(new List<ProfileViewModel> {result});
+            return Ok(new List<ProfileViewModel> { result });
         }
 
         [HttpPost]
@@ -68,13 +71,31 @@ namespace PodNoms.Api.Controllers {
 
             var totalUsed = entries.Select(x => x.AudioFileSize)
                 .Sum();
-            
-            var vm = new ProfileLimitsViewModel {
+
+            var vm = new ProfileLimitsViewModel
+            {
                 StorageQuota = quota,
                 StorageUsed = totalUsed,
                 User = user
             };
             return Ok(vm);
+        }
+        [HttpGet("payments")]
+        public ActionResult<IEnumerable<PaymentLogViewModel>> GetPayments() {
+            var payments =
+                _paymentRepository.GetAll()
+                .Where(r => r.AppUser.Id == _applicationUser.Id)
+                .OrderByDescending(e => e.StartDate)
+                .Select(e => new PaymentLogViewModel
+                {
+                    TransactionId = e.TransactionId,
+                    Type = "advanced",
+                    StartDate = e.StartDate,
+                    EndDate = e.EndDate,
+                    ReceiptURL = e.ReceiptURL
+                });
+
+            return Ok(payments);
         }
     }
 }

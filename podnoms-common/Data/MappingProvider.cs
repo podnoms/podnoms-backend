@@ -84,7 +84,14 @@ namespace PodNoms.Common.Data {
             CreateMap<ApplicationUser, ProfileViewModel>()
                 .ForMember(
                     src => src.ProfileImage,
-                    map => map.MapFrom(s => s.PictureUrl));
+                    map => map.MapFrom(s => s.PictureUrl))
+                .ForMember(
+                    src => src.SubscriptionType,
+                    map => map.MapFrom<ProfileSubscriptionTypeResolver, string>(o => o.Id));
+//                .ForMember(
+//                    src => src.SubscriptionValidUntil,
+//                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver, DateTime>(o => o.));
+//                
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(

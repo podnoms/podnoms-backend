@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Annotations;
@@ -20,22 +19,4 @@ namespace PodNoms.Data.Models {
         public List<AccountSubscription> AccountSubscriptions { get; set; }
     }
 
-    public class AccountSubscription : IEntity {
-        public Guid Id { get; set; }
-
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-
-        public string TransactionId { get; set; }
-        public ApplicationUser AppUser { get; set; }
-        public AccountSubscriptionType Type { get; set; }
-
-        public DateTime CreateDate { get; set; }
-        public DateTime UpdateDate { get; set; }
-    }
-
-    public enum AccountSubscriptionType {
-        Advanced,
-        Professional
-    }
 }

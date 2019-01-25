@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190118153900_AddedSubscriptions")]
+    partial class AddedSubscriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,8 +144,6 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<DateTime>("EndDate");
 
-                    b.Property<string>("ReceiptURL");
-
                     b.Property<DateTime>("StartDate");
 
                     b.Property<string>("TransactionId");
@@ -158,7 +158,7 @@ namespace PodNoms.Comon.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("AccountSubscriptions");
+                    b.ToTable("AccountSubscription");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b =>

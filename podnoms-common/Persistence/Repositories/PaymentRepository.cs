@@ -1,27 +1,48 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
+using System.Linq;
 
 namespace PodNoms.Common.Persistence.Repositories {
-    public interface IPaymentRepository {
-        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, string paymentType);
+    public interface IPaymentRepository : IRepository<AccountSubscription> {
+        Task<bool> Overlaps(string appUserId, DateTime startDate, DateTime endDate);
+        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, string paymentType, string receipt);
     }
 
     public class PaymentRepository : GenericRepository<AccountSubscription>, IPaymentRepository {
         public PaymentRepository(PodNomsDbContext context, ILogger<GenericRepository<AccountSubscription>> logger) :
             base(context, logger) { }
 
+        public async Task<bool> Overlaps(string appUserId, DateTime startDate, DateTime endDate) {
+            var items = GetAll().Any(
+                x => x.AppUser.Id == appUserId && x.EndDate >= startDate && x.StartDate <= endDate
+            );
+            return items;
+        }
+
         public void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount,
-            string paymentType) {
-            var newPayment = new AccountSubscription {
-                Id = Guid.Parse(orderId),
-                Type = paymentType.Equals("Professional")
+            string paymentType, string receipt) {
+            var existingSubscription = GetAll()
+                .Where(r => r.AppUser == appUser)
+                .OrderByDescending(e => e.EndDate)
+                .Select(r => r.EndDate)
+                .FirstOrDefault();
+
+            var startDate = existingSubscription.Equals(DateTime.MinValue)
+                ? DateTime.Now
+                : existingSubscription.AddHours(1);
+
+            var newPayment = new AccountSubscription
+            {
+                Type = paymentType.Equals("professional")
                     ? AccountSubscriptionType.Professional
                     : AccountSubscriptionType.Advanced,
                 AppUser = appUser,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(7),
-                TransactionId = orderId
+                StartDate = startDate,
+                EndDate = startDate.AddMonths(1),
+                TransactionId = orderId,
+                ReceiptURL = receipt
             };
             Create(newPayment);
         }
