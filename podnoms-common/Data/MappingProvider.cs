@@ -60,7 +60,7 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
-                        _options.GetSection("StorageSettings")["CdnUrl"], 
+                        _options.GetSection("StorageSettings")["CdnUrl"],
                         _options.GetSection("ImageFileStorageSettings")["ContainerName"])
                 ))
                 .ForMember(
@@ -86,12 +86,16 @@ namespace PodNoms.Common.Data {
                     src => src.ProfileImage,
                     map => map.MapFrom(s => s.PictureUrl))
                 .ForMember(
+                    src => src.HasSubscribed,
+                    map => map.MapFrom<ProfileHasSubscribedTypeResolver>()
+                )
+                .ForMember(
                     src => src.SubscriptionType,
-                    map => map.MapFrom<ProfileSubscriptionTypeResolver, string>(o => o.Id));
-//                .ForMember(
-//                    src => src.SubscriptionValidUntil,
-//                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver, DateTime>(o => o.));
-//                
+                    map => map.MapFrom<ProfileSubscriptionTypeResolver>()
+                );
+            //                .ForMember(
+            //                    src => src.SubscriptionValidUntil,
+            //                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver, DateTime>(o => o.));
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
@@ -101,8 +105,7 @@ namespace PodNoms.Common.Data {
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,
-                    map => map.MapFrom<NotificationOptionsResolver, string>(s =>
-                        s.Config)
+                    map => map.MapFrom<NotificationOptionsResolver>()
                 );
 
             CreateMap<ChatMessage, ChatViewModel>();
