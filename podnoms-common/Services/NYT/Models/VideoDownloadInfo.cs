@@ -33,7 +33,7 @@ namespace PodNoms.Common.Services.NYT.Models
     {
         public VideoDownloadInfo(VideoInfo info)
         {
-            if (info == null)
+            if (info is null)
             {
                 Title = "Video deleted or otherwise unreachable";
                 return;

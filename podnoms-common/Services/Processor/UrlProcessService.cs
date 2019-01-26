@@ -42,7 +42,7 @@ namespace PodNoms.Common.Services.Processor {
 
         public async Task<AudioType> GetInformation(string entryId) {
             var entry = await _repository.GetAsync(entryId);
-            if (entry == null || string.IsNullOrEmpty(entry.SourceUrl)) {
+            if (entry is null || string.IsNullOrEmpty(entry.SourceUrl)) {
                 Logger.LogError("Unable to process item");
                 return AudioType.Invalid;
             }
@@ -83,7 +83,7 @@ namespace PodNoms.Common.Services.Processor {
         public async Task<bool> DownloadAudio(Guid entryId) {
             var entry = await _repository.GetAsync(entryId);
 
-            if (entry == null)
+            if (entry is null)
                 return false;
             try {
                 var downloader = new AudioDownloader(entry.SourceUrl, _helpersSettings.Downloader);

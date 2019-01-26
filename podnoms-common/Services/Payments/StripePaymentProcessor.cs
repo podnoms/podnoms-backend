@@ -20,7 +20,7 @@ namespace PodNoms.Common.Services.Payments {
 
             var options = new ChargeCreateOptions
             {
-                Amount = amount,
+                Amount = (long)(amount * 100),
                 Currency = "eur",
                 Metadata = new Dictionary<string, string> {
                     {"OrderId", orderId}

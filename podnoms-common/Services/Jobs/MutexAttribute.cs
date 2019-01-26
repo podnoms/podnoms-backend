@@ -25,7 +25,7 @@ namespace PodNoms.Common.Services.Jobs {
             // change the target state to another one, causing a worker not to process the
             // background job.
             if (context.CandidateState.Name != ProcessingState.StateName ||
-                context.BackgroundJob.Job == null) {
+                context.BackgroundJob.Job is null) {
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace PodNoms.Common.Services.Jobs {
                     // We should permit an invocation only when the set is empty, or if current background
                     // job is already owns a resource. This may happen, when the localTransaction succeeded,
                     // but outer transaction was failed.
-                    if (blockedBy == null || blockedBy == context.BackgroundJob.Id) {
+                    if (blockedBy is null || blockedBy == context.BackgroundJob.Id) {
                         // We need to commit the changes inside a distributed lock, otherwise it's 
                         // useless. So we create a local transaction instead of using the 
                         // context.Transaction property.
@@ -97,7 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction) {
-            if (context.BackgroundJob.Job == null) return;
+            if (context.BackgroundJob.Job is null) return;
 
             if (context.OldStateName == ProcessingState.StateName) {
                 using (AcquireDistributedSetLock(context.Connection, context.BackgroundJob.Job.Args)) {

@@ -86,7 +86,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.ExternalDownloader ExternalDownloader
         {
-            get => externalDownloader.Value == null
+            get => externalDownloader.Value is null
                 ? Enums.ExternalDownloader.undefined
                 : (Enums.ExternalDownloader) externalDownloader.Value;
             set => SetField(ref externalDownloader.Value, (int) value);

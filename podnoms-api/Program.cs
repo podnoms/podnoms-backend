@@ -15,6 +15,7 @@ namespace PodNoms.Api {
 
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://localhost:5000", "https://localhost:5001", "http://10.1.1.1:5000", "https://10.1.1.1:5001")
                 .ConfigureAppConfiguration((context, config) => {
                     if (_isDevelopment) return;
                     config.SetBasePath(Directory.GetCurrentDirectory())

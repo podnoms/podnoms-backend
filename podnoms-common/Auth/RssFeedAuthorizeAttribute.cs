@@ -46,7 +46,7 @@ namespace PodNoms.Common.Auth {
                 .GetAll().FirstOrDefault(
                     p => p.AppUser.Slug == userSlug &&
                          p.Slug == podcastSlug && (p.Private ?? false));
-            if (podcast == null)
+            if (podcast is null)
                 return;
 
             string authHeader = context.HttpContext.Request.Headers["Authorization"];
@@ -80,7 +80,7 @@ namespace PodNoms.Common.Auth {
             var record = _podcastRepository
                 .GetAll()
                 .SingleOrDefault(r => r.AuthUserName.Equals(username));
-            if (record == null)
+            if (record is null)
                 return false;
             
             var pwd = Encoding.ASCII.GetBytes(password);

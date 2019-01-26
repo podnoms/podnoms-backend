@@ -17,6 +17,7 @@ namespace PodNoms.Data.Models {
         public string FullName => $"{FirstName} {LastName}";
 
         public List<AccountSubscription> AccountSubscriptions { get; set; }
+        public List<Donation> Donations { get; set; }
     }
 
 }

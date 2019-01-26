@@ -85,7 +85,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.AudioFormat AudioFormat
         {
-            get => audioFormat.Value == null
+            get => audioFormat.Value is null
                 ? Enums.AudioFormat.best
                 : (Enums.AudioFormat) audioFormat.Value;
             set => SetField(ref audioFormat.Value, (int) value);
@@ -114,7 +114,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.SubtitleFormat ConvertSubs
         {
-            get => convertSubs.Value == null
+            get => convertSubs.Value is null
                 ? Enums.SubtitleFormat.undefined
                 : (Enums.SubtitleFormat) convertSubs.Value;
             set => SetField(ref convertSubs.Value, (int) value);
@@ -161,7 +161,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.FixupPolicy FixupPolicy
         {
-            get => fixupPolicy.Value == null
+            get => fixupPolicy.Value is null
                 ? Enums.FixupPolicy.detect_or_warn
                 : (Enums.FixupPolicy) fixupPolicy.Value;
             set => SetField(ref fixupPolicy.Value, (int) value);
@@ -226,7 +226,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.VideoFormat RecodeFormat
         {
-            get => recodeFormat.Value == null
+            get => recodeFormat.Value is null
                 ? Enums.VideoFormat.undefined
                 : (Enums.VideoFormat) recodeFormat.Value;
             set => SetField(ref recodeFormat.Value, (int) value);

@@ -65,7 +65,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<(string, string)> CacheImage(Guid entryId) {
             var entry = await _entryRepository.GetAsync(entryId);
-            if (entry == null) return (string.Empty, string.Empty);
+            if (entry is null) return (string.Empty, string.Empty);
 
             var (original, thumbnail) = await CacheImage(entry.ImageUrl, entry.Id.ToString());
 

@@ -87,15 +87,20 @@ namespace PodNoms.Common.Data {
                     map => map.MapFrom(s => s.PictureUrl))
                 .ForMember(
                     src => src.HasSubscribed,
-                    map => map.MapFrom<ProfileHasSubscribedTypeResolver>()
+                    map => map.MapFrom<ProfileHasSubscribedResolver>()
                 )
                 .ForMember(
                     src => src.SubscriptionType,
-                    map => map.MapFrom<ProfileSubscriptionTypeResolver>()
+                    map => map.MapFrom<ProfileSubscriptionResolver>()
+                )
+                .ForMember(
+                    src => src.SubscriptionValid,
+                    map => map.MapFrom<ProfileSubscriptionValidResolver>()
+                )
+                .ForMember(
+                    src => src.SubscriptionValidUntil,
+                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
                 );
-            //                .ForMember(
-            //                    src => src.SubscriptionValidUntil,
-            //                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver, DateTime>(o => o.));
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
@@ -115,10 +120,10 @@ namespace PodNoms.Common.Data {
             CreateMap<PodcastViewModel, Podcast>()
                 .ForMember(
                     dest => dest.Category,
-                    src => src.MapFrom<PodcastCategoryResolver, string>(s => s.Category.Id.ToString()))
+                    src => src.MapFrom<PodcastCategoryResolver>())
                 .ForMember(
                     dest => dest.AuthPassword,
-                    src => src.MapFrom<PodcastAuthPasswordResolver, string>(s => s.Category.Id.ToString()))
+                    src => src.MapFrom<PodcastAuthPasswordResolver>())
                 .ForMember(
                     dest => dest.Slug,
                     opt => opt.Condition(src => (!string.IsNullOrEmpty(src.Slug))))

@@ -32,6 +32,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IChatRepository, ChatRepository>()
                 .AddScoped<INotificationRepository, NotificationRepository>()
                 .AddScoped<IPaymentRepository, PaymentRepository>()
+                .AddScoped<IDonationRepository, DonationRepository>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()

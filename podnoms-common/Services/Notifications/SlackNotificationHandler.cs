@@ -22,7 +22,7 @@ namespace PodNoms.Common.Services.Notifications {
             }), Encoding.UTF8, "application/json");
 
             var config = await _getConfiguration(notificationId);
-            if (config == null || !config.ContainsKey("WebHookUrl"))
+            if (config is null || !config.ContainsKey("WebHookUrl"))
                 return "WebHookUrl missing in config";
             var hookUrl = config["WebHookUrl"];
             var response = await _httpClient.PostAsync(

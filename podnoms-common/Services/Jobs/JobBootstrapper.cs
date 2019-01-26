@@ -14,9 +14,6 @@ namespace PodNoms.Common.Services.Jobs {
                     x => x.Execute(),
                     Cron.Daily());
             }
-            else {
-                BackgroundJob.Enqueue<CacheRemoteImageJob>(x => x.Execute());
-            }
         }
     }
 }

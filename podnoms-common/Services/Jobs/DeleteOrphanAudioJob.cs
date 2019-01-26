@@ -39,7 +39,7 @@ namespace PodNoms.Common.Services.Jobs {
                         var url = $"{_audioStorageSettings.ContainerName}/{blob.Name}";
                         var entry = _entryRepository.GetAll()
                             .Where(r => r.AudioUrl == url);
-                        if (entry == null) {
+                        if (entry is null) {
                             await blob.DeleteIfExistsAsync();
                             blobCount++;
                         }

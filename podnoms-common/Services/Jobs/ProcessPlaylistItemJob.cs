@@ -48,7 +48,7 @@ namespace PodNoms.Common.Services.Jobs {
         [Mutex("ProcessPlaylistItemJob")]
         public async Task<bool> ExecuteForItem(string itemId, Guid playlistId) {
             var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
-            if (item == null || string.IsNullOrEmpty(item.VideoType) ||
+            if (item is null || string.IsNullOrEmpty(item.VideoType) ||
                 (!item.VideoType.Equals("youtube") && !item.VideoType.Equals("mixcloud"))) return true;
 
             var url = item.VideoType.Equals("youtube") ? $"https://www.youtube.com/watch?v={item.VideoId}"

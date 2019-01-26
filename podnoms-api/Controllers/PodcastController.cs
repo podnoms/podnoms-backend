@@ -57,7 +57,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("{slug}")]
         public async Task<IActionResult> GetBySlug(string slug) {
             var podcast = await _repository.GetAsync(_applicationUser.Id, slug);
-            if (podcast == null)
+            if (podcast is null)
                 return NotFound();
             return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
         }

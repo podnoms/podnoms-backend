@@ -25,16 +25,14 @@ namespace PodNoms.Api.Controllers {
         public IUnitOfWork _unitOfWork { get; }
         public IMapper _mapper { get; }
         private readonly IEntryRepository _entryRepository;
-        private readonly IPaymentRepository _paymentRepository;
         private readonly StorageSettings _storageSettings;
 
         public ProfileController(IMapper mapper, IUnitOfWork unitOfWork,
-            IEntryRepository entryRepository, IPaymentRepository paymentRepository, ILogger<ProfileController> logger,
+            IEntryRepository entryRepository, ILogger<ProfileController> logger,
             IOptions<StorageSettings> storageSettings,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor)
             : base(contextAccessor, userManager, logger) {
             _entryRepository = entryRepository;
-            this._paymentRepository = paymentRepository;
             _mapper = mapper;
             _storageSettings = storageSettings.Value;
             _unitOfWork = unitOfWork;
@@ -79,23 +77,6 @@ namespace PodNoms.Api.Controllers {
                 User = user
             };
             return Ok(vm);
-        }
-        [HttpGet("payments")]
-        public ActionResult<IEnumerable<PaymentLogViewModel>> GetPayments() {
-            var payments =
-                _paymentRepository.GetAll()
-                .Where(r => r.AppUser.Id == _applicationUser.Id)
-                .OrderByDescending(e => e.StartDate)
-                .Select(e => new PaymentLogViewModel
-                {
-                    TransactionId = e.TransactionId,
-                    Type = "advanced",
-                    StartDate = e.StartDate,
-                    EndDate = e.EndDate,
-                    ReceiptURL = e.ReceiptURL
-                });
-
-            return Ok(payments);
         }
     }
 }

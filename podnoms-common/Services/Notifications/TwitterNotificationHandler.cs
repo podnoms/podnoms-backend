@@ -14,7 +14,7 @@ namespace PodNoms.Common.Services.Notifications {
         public override async Task<string>
             SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config == null || !(config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret") &&
+            if (config is null || !(config.ContainsKey("ConsumerKey") && config.ContainsKey("ConsumerSecret") &&
                                     config.ContainsKey("AccessToken") && config.ContainsKey("AccessTokenSecret")))
                 return "Invalid configuration";
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190125210929_AddedWasSuccessfulToSubsriptions")]
+    partial class AddedWasSuccessfulToSubsriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,8 +135,6 @@ namespace PodNoms.Comon.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<long>("Amount");
 
                     b.Property<string>("AppUserId");
 
@@ -280,30 +280,6 @@ namespace PodNoms.Comon.Migrations
                     b.HasIndex("ToUserId");
 
                     b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<long>("Amount");
-
-                    b.Property<string>("AppUserId");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasDefaultValueSql("getdate()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.ToTable("Donations");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
@@ -621,13 +597,6 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ToUser")
                         .WithMany()
                         .HasForeignKey("ToUserId");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany("Donations")
-                        .HasForeignKey("AppUserId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>

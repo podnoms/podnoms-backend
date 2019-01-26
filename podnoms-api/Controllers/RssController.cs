@@ -49,7 +49,7 @@ namespace PodNoms.Api.Controllers {
             var user = await _userManager.FindBySlugAsync(userSlug);
             if (user != null) {
                 var podcast = await _podcastRepository.GetForUserAndSlugAsync(userSlug, podcastSlug);
-                if (podcast == null) return NotFound();
+                if (podcast is null) return NotFound();
                 try {
                     var xml = await ResourceReader.ReadResource("podcast.xml");
                     var template = Handlebars.Compile(xml);

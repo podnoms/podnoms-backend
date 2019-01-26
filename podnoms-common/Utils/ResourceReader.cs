@@ -8,7 +8,7 @@ namespace PodNoms.Common.Utils {
     public static class ResourceReader {
         public static async Task<string> ReadResource(string resourceName) {
             var assembly = Assembly.GetExecutingAssembly();
-            if (assembly == null) return string.Empty;
+            if (assembly is null) return string.Empty;
 
             var resourceStream = assembly.GetManifestResourceStream($"PodNoms.Common.Resources.{resourceName}");
             if (resourceStream != null) {

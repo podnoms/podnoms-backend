@@ -50,12 +50,12 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<IActionResult> Upload(string slug, IFormFile file) {
             _logger.LogDebug($"Settings are\nMaxUploadFileSize: {_audioFileStorageSettings.MaxUploadFileSize}");
-            if (file == null || file.Length == 0) return BadRequest("No file found in stream");
+            if (file is null || file.Length == 0) return BadRequest("No file found in stream");
             if (file.Length > _audioFileStorageSettings.MaxUploadFileSize) return BadRequest("Maximum file size exceeded");
             if (!_audioFileStorageSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type");
 
             var podcast = await _podcastRepository.GetForUserAndSlugAsync(_applicationUser.Slug, slug);
-            if (podcast == null)
+            if (podcast is null)
                 return NotFound();
 
             var entry = new PodcastEntry

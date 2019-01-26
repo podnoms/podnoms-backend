@@ -20,15 +20,15 @@ namespace PodNoms.Common.Persistence {
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext(string[] args) {
             var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile($"appsettings.json")
                 .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
                 .Build();
-            
+
             Console.WriteLine(configuration);
-            
+
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             builder.UseSqlServer(connectionString);
@@ -62,7 +62,7 @@ namespace PodNoms.Common.Persistence {
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<ParsedPlaylistItem>()
-                .HasIndex(p => new {p.VideoId, p.PlaylistId})
+                .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
 
             foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
@@ -115,6 +115,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
+        public DbSet<Donation> Donations { get; set; }
         public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }

@@ -3,18 +3,22 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using PodNoms.Data.Extensions;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IPaymentRepository : IRepository<AccountSubscription> {
-        Task<bool> Overlaps(string appUserId, DateTime startDate, DateTime endDate);
-        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, string paymentType, string receipt);
+        bool Overlaps(string appUserId, DateTime startDate, DateTime endDate);
+        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, string paymentType, bool paid, string receipt);
+        IEnumerable<AccountSubscription> GetAllValidSubscriptions(string id);
     }
 
     public class PaymentRepository : GenericRepository<AccountSubscription>, IPaymentRepository {
         public PaymentRepository(PodNomsDbContext context, ILogger<GenericRepository<AccountSubscription>> logger) :
             base(context, logger) { }
 
-        public async Task<bool> Overlaps(string appUserId, DateTime startDate, DateTime endDate) {
+        public bool Overlaps(string appUserId, DateTime startDate, DateTime endDate) {
             var items = GetAll().Any(
                 x => x.AppUser.Id == appUserId && x.EndDate >= startDate && x.StartDate <= endDate
             );
@@ -22,7 +26,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
 
         public void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount,
-            string paymentType, string receipt) {
+            string paymentType, bool paid, string receipt) {
             var existingSubscription = GetAll()
                 .Where(r => r.AppUser == appUser)
                 .OrderByDescending(e => e.EndDate)
@@ -41,10 +45,19 @@ namespace PodNoms.Common.Persistence.Repositories {
                 AppUser = appUser,
                 StartDate = startDate,
                 EndDate = startDate.AddMonths(1),
+                Amount = paymentAmount,
+                WasSuccessful = paid,
                 TransactionId = orderId,
                 ReceiptURL = receipt
             };
             Create(newPayment);
+        }
+
+        public IEnumerable<AccountSubscription> GetAllValidSubscriptions(string id) {
+
+            var forUser = GetAll().Where(r => r.AppUser.Id == id).Where(r => DateTime.Now >= r.StartDate)
+                    .Where(r => DateTime.Now <= r.EndDate);
+            return forUser;
         }
     }
 }
