@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using PodNoms.Common.Data.Settings;
 using Stripe;
 
 namespace PodNoms.Common.Services.Payments {
     public class StripePaymentProcessor : IPaymentProcessor {
+        private readonly PaymentSettings _paymentSettings;
+
+        public StripePaymentProcessor(IOptions<PaymentSettings> paymentSettings) {
+            this._paymentSettings = paymentSettings.Value;
+        }
         public async Task<StripePaymentResult> ProcessPayment(string orderId, long amount, string description,
             string idempotencyKey,
             object[] credentials) {
-            StripeConfiguration.SetApiKey("sk_test_VQ9zzpfvaiL98jYYs1P1Wifm");
+            StripeConfiguration.SetApiKey(_paymentSettings.StripeSettings.PrivateKey);
 
             var service = new ChargeService();
             var customers = new CustomerService();

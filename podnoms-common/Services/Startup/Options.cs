@@ -16,6 +16,7 @@ namespace PodNoms.Common.Services.Startup {
             services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
             services.Configure<FacebookAuthSettings>(config.GetSection("FacebookAuthSettings"));
             services.Configure<ChatSettings>(config.GetSection("ChatSettings"));
+            services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
             services.Configure<ImageFileStorageSettings>(config.GetSection("ImageFileStorageSettings"));
             services.Configure<AudioFileStorageSettings>(config.GetSection("AudioFileStorageSettings"));
             services.Configure<JwtIssuerOptions>(config.GetSection("JwtIssuerOptions"));
