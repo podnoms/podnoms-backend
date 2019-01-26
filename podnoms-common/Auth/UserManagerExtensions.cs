@@ -11,7 +11,7 @@ namespace PodNoms.Common.Auth {
         }
         public static async Task<bool> CheckSlug(this UserManager<ApplicationUser> userManager, string slug) {
             var user = await Task.Run(() => userManager.Users.SingleOrDefault(x => x.Slug == slug));
-            return (user == null);
+            return (user is null);
         }
     }
 }

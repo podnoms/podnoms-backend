@@ -31,7 +31,7 @@ namespace PodNoms.Common.Services.Processor {
 
         public async Task<bool> UploadAudio(Guid entryId, string localFile) {
             var entry = await _repository.GetAsync(entryId);
-            if (entry == null) {
+            if (entry is null) {
                 Logger.LogError($"Unable to find entry with id: {entryId}");
                 return false;
             }

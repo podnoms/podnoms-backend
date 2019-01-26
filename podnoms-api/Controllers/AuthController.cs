@@ -42,7 +42,7 @@ namespace PodNoms.Api.Controllers {
             }
 
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
-            if (identity == null) {
+            if (identity is null) {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
@@ -58,7 +58,7 @@ namespace PodNoms.Api.Controllers {
             // get the user to verifty
             var userToVerify = await _userManager.FindByNameAsync(userName);
 
-            if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
+            if (userToVerify is null) return await Task.FromResult<ClaimsIdentity>(null);
 
             // check the credentials
             if (await _userManager.CheckPasswordAsync(userToVerify, password)) {
@@ -75,7 +75,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordViewModel model) {
             if (ModelState.IsValid) {
                 var user = await _userManager.FindByNameAsync(model.Email);
-                if (user == null) {
+                if (user is null) {
                     _logger.LogWarning($"Password reset requested for {model.Email}");
                     return Ok(model);
                 }
@@ -95,7 +95,7 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest("Unable to reset your password at this time");
             }
             var user = await _userManager.FindByNameAsync(model.Email);
-            if (user == null) {
+            if (user is null) {
                 return BadRequest("Unable to reset your password at this time");
             }
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);

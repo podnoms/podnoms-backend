@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Annotations;
@@ -33,7 +32,8 @@ namespace PodNoms.Data.Extensions {
                 context.Database.OpenConnection();
 
                 using (var reader = command.ExecuteReader()) {
-                    var result = reader.Select(r => new T {
+                    var result = reader.Select(r => new T
+                    {
                         Slug = r["Slug"] is DBNull ? string.Empty : r["Slug"].ToString()
                     });
                     return result.ToList();
@@ -54,20 +54,19 @@ namespace PodNoms.Data.Extensions {
                     var tableName = context.Model.FindEntityType(t).SqlServer().TableName;
                     if (!string.IsNullOrEmpty(tableName)) {
                         var sourceField = (attribute as SlugFieldAttribute)?.SourceField;
-                        
+
                         var slugSource = entity.GetType()
                             .GetProperty(sourceField)
                             .GetValue(entity, null)
                             .ToString();
-                        
+
                         var source = context.ExecSQL<ProxySluggedModel>($"SELECT Slug FROM {tableName}")
                             .Select(m => m.Slug);
-                        
+
                         return slugSource.Slugify(source);
                     }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger?.LogError($"Error slugifying {entity.GetType().Name} - {ex.Message}");
                 // need to throw here, shouldn't save without slug
                 throw new GenerateSlugFailureException(ex.Message);

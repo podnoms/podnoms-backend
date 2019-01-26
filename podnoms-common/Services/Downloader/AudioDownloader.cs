@@ -66,7 +66,7 @@ namespace PodNoms.Common.Services.Downloader {
             var yt = new YoutubeDL { VideoUrl = _url };
             var info = yt.GetDownloadInfo();
 
-            if (info == null ||
+            if (info is null ||
                 info.Errors.Count != 0 ||
                 (info.GetType() == typeof(PlaylistDownloadInfo) && 
                     !MixcloudParser.ValidateUrl(_url) && 

@@ -55,7 +55,7 @@ namespace PodNoms.Api.Controllers {
             _logger.LogDebug("Uploading new image");
 
             var podcast = await _podcastRepository.GetAsync(_applicationUser.Id, Guid.Parse(id));
-            if (podcast == null)
+            if (podcast is null)
                 return NotFound();
             try {
                 var (imageFile, thumbnailFile) = await _commitImage(id, image, "podcast");
@@ -72,7 +72,7 @@ namespace PodNoms.Api.Controllers {
             _logger.LogDebug("Uploading new entry image");
 
             var entry = await _entryRepository.GetAsync(_applicationUser.Id, id);
-            if (entry == null)
+            if (entry is null)
                 return NotFound();
             try {
                 var (imageFile, thumbnailFile) = await _commitImage(id, image, "entry");
@@ -95,7 +95,7 @@ namespace PodNoms.Api.Controllers {
         }
         private async Task<(string, string)> _commitImage(string id, IFormFile image, string subDirectory) {
 
-            if (image == null || image.Length == 0) throw new InvalidOperationException("No file found in stream");
+            if (image is null || image.Length == 0) throw new InvalidOperationException("No file found in stream");
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException("Maximum file size exceeded");
             if (!_imageFileStorageSettings.IsSupported(image.FileName)) throw new InvalidOperationException("Invalid file type");
 

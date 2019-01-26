@@ -49,7 +49,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(Guid playlistId) {
             try {
                 var playlist = await _playlistRepository.GetAsync(playlistId);
-                if (playlist == null)
+                if (playlist is null)
                     return false;
                 var resultList = new List<ParsedItemResult>();
 
@@ -68,7 +68,7 @@ namespace PodNoms.Common.Services.Jobs {
                     resultList = await _mixcloudParser.GetEntries(playlist.SourceUrl);
                 }
 
-                if (resultList == null) return true;
+                if (resultList is null) return true;
                 //order in reverse so the newest item is added first
                 foreach (var item in resultList?.OrderBy(r => r.UploadDate)) {
                     if (playlist.ParsedPlaylistItems.Any(p => p.VideoId == item.Id)) continue;

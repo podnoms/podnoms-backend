@@ -71,7 +71,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.SubtitleFormat SubFormat
         {
-            get => subFormat.Value == null
+            get => subFormat.Value is null
                 ? Enums.SubtitleFormat.undefined
                 : (Enums.SubtitleFormat) subFormat.Value;
             set => SetField(ref subFormat.Value, (int) value);

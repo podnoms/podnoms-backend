@@ -16,6 +16,7 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Data.ViewModels;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -40,7 +41,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return Ok(new List<ProfileViewModel> {result});
+            return Ok(new List<ProfileViewModel> { result });
         }
 
         [HttpPost]
@@ -68,8 +69,9 @@ namespace PodNoms.Api.Controllers {
 
             var totalUsed = entries.Select(x => x.AudioFileSize)
                 .Sum();
-            
-            var vm = new ProfileLimitsViewModel {
+
+            var vm = new ProfileLimitsViewModel
+            {
                 StorageQuota = quota,
                 StorageUsed = totalUsed,
                 User = user

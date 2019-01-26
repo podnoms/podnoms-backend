@@ -29,7 +29,7 @@ namespace PodNoms.Common.Services.NYT.Helpers
 
         public override string ToString()
         {
-            return Value == null ? string.Empty : ParamString + " " + Value;
+            return Value is null ? string.Empty : ParamString + " " + Value;
         }
     }
 }

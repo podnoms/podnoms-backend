@@ -10,12 +10,12 @@ namespace PodNoms.Api {
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main(string[] args) {
-            var host = BuildWebHost(args);
-            host.Run();
+            BuildWebHost(args).Run();
         }
 
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://localhost:5000", "https://localhost:5001", "http://10.1.1.1:5000", "https://10.1.1.1:5001")
                 .ConfigureAppConfiguration((context, config) => {
                     if (_isDevelopment) return;
                     config.SetBasePath(Directory.GetCurrentDirectory())

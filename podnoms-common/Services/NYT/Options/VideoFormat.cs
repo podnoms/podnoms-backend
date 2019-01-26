@@ -62,7 +62,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.VideoFormat Format
         {
-            get => format.Value == null ? Enums.VideoFormat.undefined : (Enums.VideoFormat) format.Value;
+            get => format.Value is null ? Enums.VideoFormat.undefined : (Enums.VideoFormat) format.Value;
             set => SetField(ref format.Value, (int) value);
         }
 
@@ -91,7 +91,7 @@ namespace PodNoms.Common.Services.NYT.Options
         /// </summary>
         public Enums.VideoFormat MergeOutputFormat
         {
-            get => mergeOutputFormat.Value == null
+            get => mergeOutputFormat.Value is null
                 ? Enums.VideoFormat.undefined
                 : (Enums.VideoFormat) mergeOutputFormat.Value;
             set => SetField(ref mergeOutputFormat.Value, (int) value);

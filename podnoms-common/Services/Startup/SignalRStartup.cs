@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 using PodNoms.Common.Services.Hubs;
 
 namespace PodNoms.Common.Services.Startup {
+
     public static class SignalRStartup {
         public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
             services.AddSignalR()

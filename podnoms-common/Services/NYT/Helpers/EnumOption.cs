@@ -35,7 +35,7 @@ namespace PodNoms.Common.Services.NYT.Helpers
 
         public override string ToString()
         {
-            if (Value == null)
+            if (Value is null)
             {
                 return string.Empty;
             }
