@@ -17,6 +17,7 @@ using System.Net;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Services;
+using PodNoms.Common.Data.ViewModels.Resources;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -57,7 +58,7 @@ namespace PodNoms.Api.Controllers {
                     TransactionId = e.TransactionId,
                     Amount = e.Amount,
                     WasSuccessful = e.WasSuccessful,
-                    Type = "advanced",
+                    Type = e.Type,
                     CreateDate = e.CreateDate,
                     StartDate = e.StartDate,
                     EndDate = e.EndDate,
@@ -76,7 +77,7 @@ namespace PodNoms.Api.Controllers {
                 "PodNoms subscription",
                 _applicationUser.Id,
                 new object[] { _applicationUser.Email, payment.Token });
-            if (payment.Type.Equals("donation") && result.Paid) {
+            if (payment.Type == AccountSubscriptionType.Free && result.Paid) {
                 this._donationRepository.AddOrUpdate(new Donation
                 {
                     AppUser = _applicationUser,
@@ -118,6 +119,22 @@ namespace PodNoms.Api.Controllers {
                     } else {
                         _logger.LogError($"Error proxying invoice: {result.StatusCode} - {result.ReasonPhrase}");
                     }
+                }
+            }
+            return NotFound();
+        }
+        [AllowAnonymous]
+        [HttpGet("pricingtiers")]
+        public ActionResult<List<PricingTierViewModel>> GetPricingTiers() {
+            return Ok(new PricingTierController().PricingTiers);
+        }
+        [AllowAnonymous]
+        [HttpGet("pricingtier/{tierType}")]
+        public ActionResult<PricingTierController> GetPricingTier(string tierType) {
+            if (Enum.TryParse(tierType, out AccountSubscriptionType type)) {
+                var tiers = new PricingTierController().PricingTiers.Where(r => r.Type == type);
+                if (tiers.Count() != 0) {
+                    return Ok(tiers.FirstOrDefault());
                 }
             }
             return NotFound();

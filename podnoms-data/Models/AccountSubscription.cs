@@ -4,7 +4,8 @@ using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     public enum AccountSubscriptionType {
-        Advanced,
+        Free,
+        Personal,
         Professional
     }
     public class AccountSubscription : IEntity {
