@@ -15,7 +15,7 @@ namespace PodNoms.Comon.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.2.1-servicing-10028")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -127,6 +127,42 @@ namespace PodNoms.Comon.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long>("Amount");
+
+                    b.Property<string>("AppUserId");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime>("EndDate");
+
+                    b.Property<string>("ReceiptURL");
+
+                    b.Property<DateTime>("StartDate");
+
+                    b.Property<string>("TransactionId");
+
+                    b.Property<int>("Type");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<bool>("WasSuccessful");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("AccountSubscriptions");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b =>
@@ -244,6 +280,30 @@ namespace PodNoms.Comon.Migrations
                     b.HasIndex("ToUserId");
 
                     b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long>("Amount");
+
+                    b.Property<string>("AppUserId");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Donations");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
@@ -545,6 +605,13 @@ namespace PodNoms.Comon.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
+                        .WithMany("AccountSubscriptions")
+                        .HasForeignKey("AppUserId");
+                });
+
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
                 {
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "FromUser")
@@ -554,6 +621,13 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ToUser")
                         .WithMany()
                         .HasForeignKey("ToUserId");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
+                        .WithMany("Donations")
+                        .HasForeignKey("AppUserId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>

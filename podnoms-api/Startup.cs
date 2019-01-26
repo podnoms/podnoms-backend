@@ -36,6 +36,7 @@ using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Services.Jobs;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -53,50 +54,28 @@ namespace PodNoms.Api {
             Env = env;
         }
 
-        public void ConfigureProductionServices(IServiceCollection services) {
-            services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common"));
-            });
-            ConfigureServices(services);
-            services.AddHangfire(config => {
-                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-            });
-            services.AddApplicationInsightsTelemetry(Configuration);
-        }
-
-        public void ConfigureDevelopmentServices(IServiceCollection services) {
-            services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common"));
-            });
-
-            ConfigureServices(services);
-            // services.AddHangfire(config => {
-            //     config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
-            // });
-        }
-
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services: {Configuration}");
 
             services.AddPodNomsOptions(Configuration);
             services.AddPodNomsHealthChecks(Configuration);
+            services.AddPodNomsApplicationInsights(Configuration, Env.IsProduction());
 
             mutex.WaitOne();
             Mapper.Reset();
             services.AddAutoMapper(e => { e.AddProfile(new MappingProvider(Configuration)); });
             mutex.ReleaseMutex();
 
-            services.AddHealthChecks();
-
-            services.AddHttpClient("mixcloud", c => {
-                c.BaseAddress = new Uri("https://api.mixcloud.com/");
-                c.DefaultRequestHeaders.Add("Accept", "application/json");
+            services.AddDbContext<PodNomsDbContext>(options => {
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("podnoms-common"));
             });
-            services.AddHttpClient();
+
+            services.AddHealthChecks();
+            services.AddPodNomsHttpClients();
+
+
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options => {
@@ -168,6 +147,8 @@ namespace PodNoms.Api {
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 })
                 .AddXmlSerializerFormatters()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
@@ -204,7 +185,7 @@ namespace PodNoms.Api {
 
             services.AddPodNomsSignalR();
             services.AddDependencies();
-            services.AddPodNomsHangfire(Configuration);
+            services.AddPodNomsHangfire(Configuration, Env.IsProduction());
 
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
@@ -233,17 +214,17 @@ namespace PodNoms.Api {
             app.UseAuthentication();
 
             app.UseCors("PodNomsClientPolicy");
-            
+
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
-            app.UsePodNomsHangfire(serviceProvider, Configuration);
+            app.UsePodNomsHangfire(serviceProvider, Configuration, Env.IsProduction());
             app.UsePodNomsSignalRRoutes();
             app.UsePodNomsHealthChecks("/healthcheck");
-
+            app.UsePodNomsApplicationInsights(Configuration.GetSection("ApplicationInsights"), Env.IsProduction());
             app.UseSecureHeaders();
 
             app.UseMvc(routes => {

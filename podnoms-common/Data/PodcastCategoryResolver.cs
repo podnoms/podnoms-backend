@@ -6,20 +6,20 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data {
-    internal class PodcastCategoryResolver : IMemberValueResolver<PodcastViewModel, Podcast, string, Category> {
+    internal class PodcastCategoryResolver : IValueResolver<PodcastViewModel, Podcast, Category> {
         private readonly ICategoryRepository _categoryRepository;
 
         public PodcastCategoryResolver(ICategoryRepository categoryRespository) {
             _categoryRepository = categoryRespository;
         }
 
-        public Category Resolve(PodcastViewModel source, Podcast destination, string sourceMember, Category destMember,
-            ResolutionContext context) {
-            if (string.IsNullOrEmpty(sourceMember)) return null;
+        public Category Resolve(PodcastViewModel source, Podcast destination, Category destMember, ResolutionContext context) {
+
+            if (source.Category.Id.ToString() is null) return null;
 
             var category = _categoryRepository
                 .GetAll()
-                .FirstOrDefault(r => r.Id.ToString() == sourceMember);
+                .FirstOrDefault(r => r.Id.ToString() == source.Category.Id.ToString());
 
             return category;
         }

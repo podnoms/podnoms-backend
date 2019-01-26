@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Notifications {
 
         protected async Task<Dictionary<string, string>> _getConfiguration(Guid notificationId) {
             var notification = await _notificationRepository.GetAsync(notificationId);
-            if (notification == null) return null;
+            if (notification is null) return null;
 
             var list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(notification.Config);
             var dictionary = list.ToDictionary(x => x.Key, x => x.Value);

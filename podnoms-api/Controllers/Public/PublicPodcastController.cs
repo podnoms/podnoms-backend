@@ -26,7 +26,7 @@ namespace PodNoms.Api.Controllers.Public {
         public async Task<ActionResult<PodcastViewModel>> Get(string user, string podcast) {
             var result = await _podcastRepository.GetForUserAndSlugAsync(user, podcast);
 
-            if (result == null) return NotFound();
+            if (result is null) return NotFound();
 
             return _mapper.Map<Podcast, PodcastViewModel>(result);
         }
@@ -38,7 +38,7 @@ namespace PodNoms.Api.Controllers.Public {
                 .SingleOrDefaultAsync(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug);
 
             var result = await _entryRepository.GetFeaturedEpisode(podcast);
-            if (result == null) return NotFound();
+            if (result is null) return NotFound();
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
         }
@@ -46,10 +46,10 @@ namespace PodNoms.Api.Controllers.Public {
         [HttpGet("{podcastId}/featured")]
         public async Task<ActionResult<PodcastEntryViewModel>> GetFeaturedEpisode(string podcastId) {
             var podcast = await _podcastRepository.GetAsync(podcastId);
-            if (podcast == null) return NotFound();
+            if (podcast is null) return NotFound();
 
             var result = await _entryRepository.GetFeaturedEpisode(podcast);
-            if (result == null) return NotFound();
+            if (result is null) return NotFound();
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
         }

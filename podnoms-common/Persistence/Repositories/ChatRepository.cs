@@ -12,6 +12,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId);
         Task<IEnumerable<ChatMessage>> GetAllChats(string userId);
     }
+    
+    
     public class ChatRepository : GenericRepository<ChatMessage>, IChatRepository {
         public ChatRepository(PodNomsDbContext context, ILogger<ChatRepository> logger) : base(context, logger) {
 

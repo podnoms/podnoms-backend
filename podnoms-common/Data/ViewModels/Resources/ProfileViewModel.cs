@@ -1,4 +1,7 @@
-﻿namespace PodNoms.Common.Data.ViewModels.Resources {
+﻿using System;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {
         public string Id { get; set; }
         public string Slug { get; set; }
@@ -9,5 +12,10 @@
         public string Description { get; set; }
         public string ProfileImage { get; set; }
         public string ApiKey { get; set; }
+
+        public bool HasSubscribed { get; set; }
+        public string SubscriptionType { get; set; }
+        public bool SubscriptionValid { get; set; }
+        public DateTime? SubscriptionValidUntil { get; set; }
     }
 }

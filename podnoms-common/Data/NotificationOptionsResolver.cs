@@ -7,12 +7,11 @@ using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Data {
-    internal class NotificationOptionsResolver : IMemberValueResolver<Notification, NotificationViewModel, string,
+    internal class NotificationOptionsResolver : IValueResolver<Notification, NotificationViewModel,
         List<NotificationOptionViewModel>> {
-        public List<NotificationOptionViewModel> Resolve(Notification source, NotificationViewModel destination, 
-                string sourceMember, List<NotificationOptionViewModel> destMember, ResolutionContext context) {
+        public List<NotificationOptionViewModel> Resolve(Notification source, NotificationViewModel destination, List<NotificationOptionViewModel> destMember, ResolutionContext context) {
             var config = BaseNotificationConfig.GetConfig(source.Type);
-            var stored = JsonConvert.DeserializeObject<IList<NotificationOptionViewModel>>(sourceMember)
+            var stored = JsonConvert.DeserializeObject<IList<NotificationOptionViewModel>>(source.Config)
                 .Select(v => new NotificationOptionViewModel(
                     v.Value,
                     v.Key,

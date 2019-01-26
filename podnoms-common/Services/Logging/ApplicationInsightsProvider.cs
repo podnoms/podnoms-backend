@@ -3,12 +3,13 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PodNoms.Common.Services.Logging {
     public static class ApplicationInsightsProvider {
         public static IApplicationBuilder UsePodNomsApplicationInsights(
-            this IApplicationBuilder builder, bool isProduction, IConfigurationSection config) {
-            if (isProduction) {
+            this IApplicationBuilder builder, IConfigurationSection config, bool isProduction) {
+            if (isProduction && config.Value != null) {
 
                 var telemetryKey = config.GetValue<string>("InstrumentationKey");
                 if (!string.IsNullOrEmpty(telemetryKey)) {
@@ -30,6 +31,13 @@ namespace PodNoms.Common.Services.Logging {
                 }
             }
             return builder;
+        }
+        public static IServiceCollection AddPodNomsApplicationInsights(this IServiceCollection services,
+                IConfiguration Configuration, bool isProduction) {
+            if (isProduction) {
+                services.AddApplicationInsightsTelemetry(Configuration);
+            }
+            return services;
         }
     }
 }

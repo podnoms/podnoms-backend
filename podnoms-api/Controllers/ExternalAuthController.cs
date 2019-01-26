@@ -98,7 +98,7 @@ namespace PodNoms.Api.Controllers {
         private async Task<IActionResult> _processUserDetails(FacebookUserData userInfo) {
             // 4. ready to create the local user account (if necessary) and jwt
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
-            if (user == null) {
+            if (user is null) {
                 var appUser = new ApplicationUser {
                     FirstName = userInfo.FirstName,
                     LastName = userInfo.LastName,
@@ -118,7 +118,7 @@ namespace PodNoms.Api.Controllers {
             // generate the jwt for the local user...
             var localUser = await _userManager.FindByNameAsync(userInfo.Email);
 
-            if (localUser == null) {
+            if (localUser is null) {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Failed to create local user account.", ModelState));
             }
 

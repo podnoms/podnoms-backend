@@ -139,7 +139,7 @@ namespace PodNoms.Api.Controllers {
                 entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             }
 
-            if (entry == null)
+            if (entry is null)
                 return BadRequest();
 
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
@@ -236,7 +236,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<string>> GetDownloadUrl(string entryId) {
             var entry = await _repository.GetAsync(entryId);
 
-            if (entry == null) {
+            if (entry is null) {
                 return NotFound();
             }
             return Ok(new {

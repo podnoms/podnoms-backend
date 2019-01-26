@@ -54,17 +54,17 @@ namespace PodNoms.Common.Auth {
                               .TotalSeconds);
 
         private static void ThrowIfInvalidOptions(JwtIssuerOptions options) {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options is null) throw new ArgumentNullException(nameof(options));
 
             if (options.ValidFor <= TimeSpan.Zero) {
                 throw new ArgumentException("Must be a non-zero TimeSpan.", nameof(JwtIssuerOptions.ValidFor));
             }
 
-            if (options.SigningCredentials == null) {
+            if (options.SigningCredentials is null) {
                 throw new ArgumentNullException(nameof(JwtIssuerOptions.SigningCredentials));
             }
 
-            if (options.JtiGenerator == null) {
+            if (options.JtiGenerator is null) {
                 throw new ArgumentNullException(nameof(JwtIssuerOptions.JtiGenerator));
             }
         }

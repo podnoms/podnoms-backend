@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Middleware {
             context.Response.ContentType = "application/json";
 
             var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-            if (ex == null) return;
+            if (ex is null) return;
 
             var error = BuildError(ex, _env);
 

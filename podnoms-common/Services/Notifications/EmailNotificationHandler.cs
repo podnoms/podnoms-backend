@@ -18,7 +18,7 @@ namespace PodNoms.Common.Services.Notifications {
         public override async Task<string>
             SendNotification(Guid notificationId, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config == null || !(config.ContainsKey("To")))
+            if (config is null || !(config.ContainsKey("To")))
                 return "\"To\" not found in config";
 
             var response = await _emailSender.SendEmailAsync(
