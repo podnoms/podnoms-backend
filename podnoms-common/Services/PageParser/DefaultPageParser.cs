@@ -10,20 +10,16 @@ namespace PodNoms.Common.Services.PageParser {
     public class DefaultPageParser : IPageParser {
 
         public async Task<IList<KeyValuePair<string, string>>> GetAllAudioLinks(string url) {
-            var document = (await GetAudioLinks(url)
-                    .ConfigureAwait(false))
-                .SelectMany(r => r, (k, v) => new { Key = k.Key, Value = v });
-            var iframeLinks = (await GetIFrameLinks(url)
-                    .ConfigureAwait(false))
-                .SelectMany(r => r, (k, v) => new { Key = k.FirstOrDefault().Key, Value = v.FirstOrDefault() })
-                .ToList();
+            var empty = Enumerable.Empty<KeyValuePair<string, string>>();
+            var document = (await GetAudioLinks(url).ConfigureAwait(false)) ?? empty;
+            var iframeLinks = (await GetIFrameLinks(url).ConfigureAwait(false)) ?? empty;
+
             var links = document.Concat(iframeLinks)
-                .Select(r => new KeyValuePair<string, string>(r.Key, r.Value))
                 .ToList();
 
             return links;
         }
-        public async Task<IList<ILookup<string, string>>> GetIFrameLinks(string url) {
+        public async Task<IList<KeyValuePair<string, string>>> GetIFrameLinks(string url) {
             HtmlWeb web = new HtmlWeb();
             var doc = await web.LoadFromWebAsync(url)
                 .ConfigureAwait(false);
@@ -36,11 +32,12 @@ namespace PodNoms.Common.Services.PageParser {
                 var response = await Task.WhenAll(
                         iframes.Select(async e => await GetAudioLinks(e).ConfigureAwait(false))
                         ).ConfigureAwait(false);
-                return response;
+                return response.SelectMany(r => r).ToList();
             }
             return null;
         }
-        public async Task<ILookup<string, string>> GetAudioLinks(string url) {
+        public async Task<IList<KeyValuePair<string, string>>> GetAudioLinks(string url) {
+            var empty = Enumerable.Empty<KeyValuePair<string, string>>();
             HtmlWeb web = new HtmlWeb();
 
             var doc = await web.LoadFromWebAsync(url)
@@ -56,17 +53,18 @@ namespace PodNoms.Common.Services.PageParser {
                                 a.Attributes["href"].Value.EndsWith("m4a")
                                 )
                             ))
-                .Select(d => new {
-                        Name = Regex.Replace(d.InnerText, @"\s+", ""),
-                        SourceUrl = _normaliseUrl(url, d.Attributes["href"].Value)
-                        });
+                .Select(d => new KeyValuePair<string, string> (
+                    Regex.Replace(d.InnerText, @"\s+", ""),
+                    _normaliseUrl(url, d.Attributes["href"].Value)
+                )) ?? empty;
 
             var audioSources = doc.DocumentNode.Descendants("audio")
                 .Where(n => n.Attributes["src"] != null)
-                .Select(d => new {
-                        Name = Path.GetFileName(d.Attributes["src"].Value),
-                        SourceUrl = _normaliseUrl(url, d.Attributes["src"].Value)
-                        });
+                .Select(d => new KeyValuePair<string, string>(
+                    Path.GetFileName(d.Attributes["src"].Value),
+                    _normaliseUrl(url, d.Attributes["src"].Value)
+                )) ?? empty;
+
             var embeddedAudioSources = doc.DocumentNode.Descendants("audio")
                 .Where(n => n.HasChildNodes)
                 .SelectMany(r => r.ChildNodes.Where(n =>
@@ -78,14 +76,15 @@ namespace PodNoms.Common.Services.PageParser {
                                 n.Attributes["type"].Value == "audio/m4a"
                                 )
                             ))
-                .Select(d => new {
-                        Name = Path.GetFileName(d.Attributes["src"].Value),
-                        SourceUrl = _normaliseUrl(url, d.Attributes["src"].Value)
-                        });
+                .Select(d => new KeyValuePair<string, string>(
+                    Path.GetFileName(d.Attributes["src"].Value),
+                    _normaliseUrl(url, d.Attributes["src"].Value)
+                )) ?? empty;
+
             return hrefSources
                 .Concat(audioSources)
                 .Concat(embeddedAudioSources)
-                .ToLookup(r => r.Name, r => r.SourceUrl);
+                .ToList();
         }
         private string _normaliseUrl(string baseUrl, string remoteUrl) {
             if (!remoteUrl.StartsWith("http")) {

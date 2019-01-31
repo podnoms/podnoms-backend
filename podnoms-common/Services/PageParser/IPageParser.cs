@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PodNoms.Common.Services.PageParser {
     public interface IPageParser {
         Task<IList<KeyValuePair<string, string>>> GetAllAudioLinks(string url);
-        Task<IList<ILookup<string, string>>> GetIFrameLinks(string url);
-        Task<ILookup<string, string>> GetAudioLinks(string url);
+        Task<IList<KeyValuePair<string, string>>> GetIFrameLinks(string url);
+        Task<IList<KeyValuePair<string, string>>> GetAudioLinks(string url);
     }
 }
