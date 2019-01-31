@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +36,7 @@ namespace PodNoms.Api.Controllers {
             var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
             var fileType = downloader.GetInfo();
             if (fileType == AudioType.Invalid) {
-                var links = await _parser.GetAudioLinks(url);
+                var links = await _parser.GetAllAudioLinks(url);
                 if (links.Count > 0) {
                     return new OkObjectResult(new {
                         type = "proxied",
