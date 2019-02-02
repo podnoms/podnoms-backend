@@ -15,10 +15,18 @@ namespace PodNoms.Common.Services.PageParser {
             var iframeLinks = (await GetIFrameLinks(url).ConfigureAwait(false)) ?? empty;
 
             var links = document.Concat(iframeLinks)
-                .ToList();
-
+                .Select(r => new KeyValuePair<string, string>(
+                    string.IsNullOrWhiteSpace(r.Key) ? _getFilenameFromUrl(r.Value) : r.Key,
+                    r.Value
+                )).ToList();
             return links;
         }
+
+        private string _getFilenameFromUrl(string value) {
+            var uri = new Uri(value);
+            return uri.Segments[uri.Segments.Length - 1];
+        }
+
         public async Task<IList<KeyValuePair<string, string>>> GetIFrameLinks(string url) {
             HtmlWeb web = new HtmlWeb();
             var doc = await web.LoadFromWebAsync(url)
@@ -53,7 +61,7 @@ namespace PodNoms.Common.Services.PageParser {
                                 a.Attributes["href"].Value.EndsWith("m4a")
                                 )
                             ))
-                .Select(d => new KeyValuePair<string, string> (
+                .Select(d => new KeyValuePair<string, string>(
                     Regex.Replace(d.InnerText, @"\s+", ""),
                     _normaliseUrl(url, d.Attributes["href"].Value)
                 )) ?? empty;
