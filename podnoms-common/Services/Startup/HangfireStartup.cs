@@ -9,7 +9,7 @@ using PodNoms.Common.Services.Processor;
 namespace PodNoms.Common.Services.Startup {
     public static class HangfireStartup {
         public static IServiceCollection AddPodNomsHangfire(this IServiceCollection services, IConfiguration config, bool isProduction) {
-            if (isProduction) {
+            if (isProduction || false) {
                 services.AddHangfire(options => {
                     options.UseSqlServerStorage(config.GetConnectionString("DefaultConnection"));
                 });
@@ -19,7 +19,7 @@ namespace PodNoms.Common.Services.Startup {
 
         public static IApplicationBuilder UsePodNomsHangfire(
             this IApplicationBuilder builder, IServiceProvider serviceProvider, IConfiguration config, bool isProduction) {
-            if (isProduction) {
+            if (isProduction || false) {
                 builder.UseHangfireServer()
                 .UseHangfireDashboard("/hangfire", new DashboardOptions
                 {

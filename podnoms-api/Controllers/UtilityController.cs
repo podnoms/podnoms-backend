@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DNS.Client;
@@ -22,6 +23,7 @@ using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Common.Utils;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
 using Zxcvbn;
 
@@ -31,14 +33,17 @@ namespace PodNoms.Api.Controllers {
     public class UtilityController : BaseAuthController {
         private readonly AppSettings _appSettings;
         private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly PodNomsDbContext _context;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                         IOptions<AppSettings> appSettings, PodNomsDbContext context,
-                        ILogger<UtilityController> logger, IConfiguration config)
+                        ILogger<UtilityController> logger, IConfiguration config,
+                        IHttpClientFactory httpClientFactory)
                                     : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
             _config = config;
+            _httpClientFactory = httpClientFactory;
             _context = context;
         }
 
@@ -51,7 +56,8 @@ namespace PodNoms.Api.Controllers {
                     var sql = $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
                     var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
                     if (result != null) {
-                        return Ok(new CheckValueResult {
+                        return Ok(new CheckValueResult
+                        {
                             IsValid = false,
                             Value = value,
                             ResponseMessage = result.ResponseMessage
@@ -60,7 +66,8 @@ namespace PodNoms.Api.Controllers {
                 } catch (Exception ex) {
                     _logger.LogError($"Error checking for dupes\n{ex.Message}\n\tTable: {table}\n\tField: {field}\n\tValue: {value}\n\tNarrative: {narrative}");
                 }
-                return Ok(new CheckValueResult {
+                return Ok(new CheckValueResult
+                {
                     Value = value,
                     IsValid = true,
                     ResponseMessage = "No duplicates found"
@@ -105,6 +112,13 @@ namespace PodNoms.Api.Controllers {
         public ActionResult<string> GetTemporaryPodcastImage() {
             var image = ImageUtils.GetTemporaryImage("podcast", 16);
             return $"\"{_config.GetSection("StorageSettings")["CdnUrl"]}static/images/{image}\"";
+        }
+
+        [HttpGet("filesize")]
+        public async Task<long> GetRemoteFileSize([FromQuery]string url) {
+            using (var client = _httpClientFactory.CreateClient()) {
+                return await client.GetContentSizeAsync(url);
+            }
         }
     }
 }
