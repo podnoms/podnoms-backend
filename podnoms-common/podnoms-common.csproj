@@ -39,7 +39,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0" />
         <PackageReference Include="Polly" Version="6.1.2" />
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
+        <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
         <PackageReference Include="RestSharp" Version="106.6.7" />
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
         <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev001631" />
