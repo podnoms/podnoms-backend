@@ -61,6 +61,13 @@ namespace PodNoms.Common.Persistence {
                 .IsRequired()
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<PodcastEntrySharingLink>()
+                .HasIndex(l => l.LinkIndex)
+                .IsUnique();
+            modelBuilder.Entity<PodcastEntrySharingLink>()
+                .HasIndex(l => l.LinkId)
+                .IsUnique();
+
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
@@ -90,7 +97,7 @@ namespace PodNoms.Common.Persistence {
                 .Where(e => e.Entity is ISluggedEntity)
                 .Select(e => e.Entity as ISluggedEntity)
                 .Where(e => string.IsNullOrEmpty(e.Slug))) {
-                entity.Slug = entity.GetSlug(this);
+                entity.Slug = entity.GenerateSlug(this);
             }
 
             return base.SaveChanges();
@@ -103,7 +110,7 @@ namespace PodNoms.Common.Persistence {
                 .Where(e => e.Entity is ISluggedEntity)
                 .Select(e => e.Entity as ISluggedEntity)
                 .Where(e => string.IsNullOrEmpty(e.Slug))) {
-                entity.Slug = entity.GetSlug(this);
+                entity.Slug = entity.GenerateSlug(this);
             }
 
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -111,6 +118,7 @@ namespace PodNoms.Common.Persistence {
 
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<PodcastEntry> PodcastEntries { get; set; }
+        public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<Playlist> Playlists { get; set; }

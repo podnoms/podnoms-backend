@@ -7,12 +7,23 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
+/// <summary>
+/// Actually going to try and document some of this as I've spent a night
+/// Trying to remember what the hell I was playing at!!
+/// </summary>
 namespace PodNoms.Data.Extensions {
+    /// <summary>Class <c>UniqueGeneratedFieldExtensions</c>
+    /// Various methods for slugifying/unique keying entities.</summary>
+    ///
+
     public class GenerateSlugFailureException : Exception {
         public GenerateSlugFailureException(string message) : base(message) { }
     }
 
-    public static class SluggedEntityExtensions {
+    public static class UniqueGeneratedFieldExtensions {
+        /// <summary>
+        /// Simple ViewModel to easily work with ExecSQL 
+        /// </summary>
         private class ProxySluggedModel : ISluggedEntity {
             public string Slug { get; set; }
         }
@@ -41,7 +52,7 @@ namespace PodNoms.Data.Extensions {
             }
         }
 
-        public static string GetSlug(this ISluggedEntity entity, DbContext context, ILogger logger = null) {
+        public static string GenerateSlug(this IUniqueFieldEntity entity, DbContext context, ILogger logger = null) {
             try {
                 var property = entity.GetType()
                     .GetProperties()

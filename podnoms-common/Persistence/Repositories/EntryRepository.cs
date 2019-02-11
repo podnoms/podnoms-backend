@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
@@ -13,15 +14,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);
         Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast);
         Task LoadPodcastAsync(PodcastEntry entry);
+        Task<PodcastEntrySharingLink> CreateNewSharingLink(SharingViewModel model);
     }
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
         public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) {
         }
-
-//        public override PodcastEntry AddOrUpdate(PodcastEntry entity){
-//            GetContext().Entry<PodcastEntry>(entity).Property(x => x.AudioUrl).IsModified = false;
-//            return entity.Id != Guid.Empty ? Update(entity) : Create(entity);
-//        }
         public new async Task<PodcastEntry> GetAsync(string id) {
             return await GetAsync(Guid.Parse(id));
         }
@@ -65,6 +62,35 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .PodcastEntries
                 .OrderByDescending(e => e.UpdateDate)
                 .FirstOrDefaultAsync(e => e.Podcast == podcast);
+        }
+        /// <summary>
+        /// Base36 encode the model's ID with extra parity bit
+        /// </summary>
+        /// <param name="model">The incoming model to convert</param>
+        /// <returns>Base36 encoded string</returns>
+        public async Task<PodcastEntrySharingLink> CreateNewSharingLink(SharingViewModel model) {
+            char[] padding = { '=' };
+            var ret = string.Empty;
+            var entry = await GetAsync(model.Id);
+            if (entry is null) return null;
+            var index = await GetContext()
+                .PodcastEntrySharingLinks
+                .OrderByDescending(l => l.LinkIndex)
+                .Select(l => l.LinkIndex + 1)
+                .FirstOrDefaultAsync();
+
+            ret = System.Convert.ToBase64String(BitConverter.GetBytes(index))
+                        .TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+            var link = new PodcastEntrySharingLink
+            {
+                LinkId = ret,
+                ValidFrom = model.ValidFrom,
+                ValidTo = model.ValidTo
+            };
+            if (entry.SharingLinks is null)
+                entry.SharingLinks = new List<PodcastEntrySharingLink>();
+            entry.SharingLinks.Add(link);
+            return link;
         }
     }
 }

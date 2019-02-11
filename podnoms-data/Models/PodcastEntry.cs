@@ -1,8 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace PodNoms.Data.Models {
+    public enum ShareOptions {
+        Public = (1 << 0),
+        Private = (1 << 1),
+        Download = (1 << 2)
+    }
     public enum ProcessingStatus {
         Accepted, //0
         Downloading, //1
@@ -24,11 +30,13 @@ namespace PodNoms.Data.Models {
         public string ImageUrl { get; set; }
         public string ProcessingPayload { get; set; }
         public ProcessingStatus ProcessingStatus { get; set; } = ProcessingStatus.Accepted;
+        public int ShareOptions { get; set; }
         public bool Processed { get; set; }
         public Guid PodcastId { get; set; }
         [JsonIgnore]
         public Podcast Podcast { get; set; }
-
+        [JsonIgnore]
+        public virtual List<PodcastEntrySharingLink> SharingLinks { get; set; }
         public string GetThumbnailUrl(string cdnUrl, string containerName) {
             var url = ImageUrl.StartsWith("http")
                             ? ImageUrl
