@@ -60,6 +60,7 @@ namespace PodNoms.Api {
             services.AddPodNomsOptions(Configuration);
             services.AddPodNomsHealthChecks(Configuration);
             services.AddPodNomsApplicationInsights(Configuration, Env.IsProduction());
+            services.AddPodNomsRouting(Configuration, Env.IsProduction());
 
             mutex.WaitOne();
             Mapper.Reset();
@@ -205,6 +206,7 @@ namespace PodNoms.Api {
 
             app.UseCustomDomainRedirect();
             app.UseStaticFiles();
+            app.UsePodNomsRouting();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -229,7 +231,13 @@ namespace PodNoms.Api {
 
             app.UseMvc(routes => {
                 routes.MapRoute(
-                    name: "default",
+                    name: "sharing",
+                    template: "{controller=Sharing}/{action=RedirectShare}/{linkId}",
+                    defaults: "",
+                    constraints: new { _ = new DomainConstraint("dev.pdnm.be") });
+
+                routes.MapRoute(
+                    name: "shared",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 

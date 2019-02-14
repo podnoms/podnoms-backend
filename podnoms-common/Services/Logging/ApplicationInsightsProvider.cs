@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace PodNoms.Common.Services.Logging {
+
     public static class ApplicationInsightsProvider {
         public static IApplicationBuilder UsePodNomsApplicationInsights(
             this IApplicationBuilder builder, IConfigurationSection config, bool isProduction) {
@@ -38,6 +39,6 @@ namespace PodNoms.Common.Services.Logging {
                 services.AddApplicationInsightsTelemetry(Configuration);
             }
             return services;
-        }
+        }       
     }
 }

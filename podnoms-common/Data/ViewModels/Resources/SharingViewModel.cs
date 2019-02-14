@@ -6,4 +6,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public DateTime? ValidFrom { get; set; }
         public DateTime? ValidTo { get; set; }
     }
+
+    public class SharingResultViewModel : SharingViewModel {
+        public string Url { get; set; }
+    }
 }
