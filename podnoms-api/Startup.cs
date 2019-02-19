@@ -231,12 +231,6 @@ namespace PodNoms.Api {
 
             app.UseMvc(routes => {
                 routes.MapRoute(
-                    name: "sharing",
-                    template: "{controller=Sharing}/{action=RedirectShare}/{linkId}",
-                    defaults: "",
-                    constraints: new { _ = new DomainConstraint("dev.pdnm.be") });
-
-                routes.MapRoute(
                     name: "shared",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });

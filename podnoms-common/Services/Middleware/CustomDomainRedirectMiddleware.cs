@@ -9,9 +9,6 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Middleware {
-    public sealed class CustomDomainRedirectOptions {
-
-    }
     public sealed class CustomDomainRedirectMiddleware {
         private readonly RequestDelegate _next;
         private readonly AppSettings _appSettings;

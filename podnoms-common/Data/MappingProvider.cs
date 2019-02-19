@@ -62,7 +62,7 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.GetThumbnailUrl(
                         _options.GetSection("StorageSettings")["CdnUrl"],
                         _options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                ))
+                    ))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))
@@ -72,6 +72,19 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.PodcastTitle,
                     e => e.MapFrom(m => m.Podcast.Title));
+
+            CreateMap<PodcastEntry, SharingPublicViewModel>()
+                .ForMember(
+                    src => src.Title,
+                    e => e.MapFrom(m => m.Title))
+                .ForMember(
+                    src => src.AudioUrl,
+                    e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                .ForMember(
+                    src => src.ImageUrl,
+                    e => e.MapFrom(m =>
+                        m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrl"],
+                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Category, CategoryViewModel>()
                 .ForMember(

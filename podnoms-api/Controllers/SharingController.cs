@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ namespace PodNoms.Api.Controllers {
     public class SharingController : BaseAuthController {
         private readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         private readonly SharingSettings _sharingSettings;
 
         public SharingController(
@@ -25,10 +27,12 @@ namespace PodNoms.Api.Controllers {
             UserManager<ApplicationUser> userManager,
             IEntryRepository entryRepository,
             IUnitOfWork unitOfWork,
+            IMapper mapper,
             IOptions<SharingSettings> sharingSettings,
             ILogger<SharingController> logger) : base(contextAccessor, userManager, logger) {
             this._entryRepository = entryRepository;
             this._unitOfWork = unitOfWork;
+            this._mapper = mapper;
             this._sharingSettings = sharingSettings.Value;
         }
 
@@ -45,15 +49,12 @@ namespace PodNoms.Api.Controllers {
                     Id = model.Id,
                     ValidFrom = model.ValidFrom,
                     ValidTo = model.ValidTo,
-                    Url = Flurl.Url.Combine(new string[] { _sharingSettings.BaseUrl, share.LinkId })
+                    Url = Flurl.Url.Combine(new string[] {_sharingSettings.BaseUrl, share.LinkId})
                 });
             }
+
             return BadRequest();
         }
 
-        [DomainConstraintRoute("reverselink/{linkId}", "dev.pdnm.be")]
-        public IActionResult RedirectShare(string linkId) {
-            return Ok(linkId);
-        }
     }
 }

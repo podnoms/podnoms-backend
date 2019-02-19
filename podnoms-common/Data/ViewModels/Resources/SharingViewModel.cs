@@ -10,4 +10,10 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
     public class SharingResultViewModel : SharingViewModel {
         public string Url { get; set; }
     }
+
+    public class SharingPublicViewModel {
+        public string Title { get; set; }
+        public string AudioUrl { get; set; }
+        public string ImageUrl { get; set; }
+    }
 }
