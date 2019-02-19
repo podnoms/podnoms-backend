@@ -18,7 +18,6 @@ using PodNoms.Common.Services;
 using WebPush = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
     [Authorize]
     public class ChatController : BaseAuthController {
         private readonly ISupportChatService _supportChatService;

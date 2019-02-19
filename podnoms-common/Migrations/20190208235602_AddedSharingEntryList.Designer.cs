@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190208235602_AddedSharingEntryList")]
+    partial class AddedSharingEntryList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -521,11 +523,10 @@ namespace PodNoms.Comon.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("LinkId");
-
-                    b.Property<int>("LinkIndex")
+                    b.Property<string>("LinkId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasDefaultValue("False");
 
                     b.Property<Guid?>("PodcastEntryId");
 
@@ -539,12 +540,7 @@ namespace PodNoms.Comon.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LinkId")
-                        .IsUnique()
-                        .HasFilter("[LinkId] IS NOT NULL");
-
-                    b.HasIndex("LinkIndex")
-                        .IsUnique();
+                    b.HasIndex("LinkId");
 
                     b.HasIndex("PodcastEntryId");
 
