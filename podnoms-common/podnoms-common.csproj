@@ -12,7 +12,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AspNetcore.HealthChecks.AzureStorage" Version="2.2.1" />
-        <PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.1" />
+        <PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.2" />
         <PackageReference Include="AspNetcore.HealthChecks.SqlServer" Version="2.2.0" />
         <PackageReference Include="AspNetcore.HealthChecks.UI" Version="2.2.12" />
         <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="2.2.2" />
