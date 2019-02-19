@@ -493,6 +493,8 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<int>("ProcessingStatus");
 
+                    b.Property<int>("ShareOptions");
+
                     b.Property<string>("SourceUrl");
 
                     b.Property<string>("Title");
@@ -508,6 +510,45 @@ namespace PodNoms.Comon.Migrations
                     b.HasIndex("PodcastId");
 
                     b.ToTable("PodcastEntries");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("LinkId");
+
+                    b.Property<int>("LinkIndex")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<Guid?>("PodcastEntryId");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime?>("ValidFrom");
+
+                    b.Property<DateTime?>("ValidTo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkId")
+                        .IsUnique()
+                        .HasFilter("[LinkId] IS NOT NULL");
+
+                    b.HasIndex("LinkIndex")
+                        .IsUnique();
+
+                    b.HasIndex("PodcastEntryId");
+
+                    b.ToTable("PodcastEntrySharingLinks");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ServerConfig", b =>
@@ -684,6 +725,13 @@ namespace PodNoms.Comon.Migrations
                         .WithMany("PodcastEntries")
                         .HasForeignKey("PodcastId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
+                        .WithMany("SharingLinks")
+                        .HasForeignKey("PodcastEntryId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
