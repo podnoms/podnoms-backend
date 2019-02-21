@@ -25,7 +25,8 @@ namespace PodNoms.Common.Services.Middleware {
 
         public async Task Invoke(HttpContext context, IEntryRepository entryRepository) {
             var requestHost = context.Request.Host.Host;
-            if (requestHost.Equals(_sharingSettings.BaseUrl)) {
+            var baseHost = new System.Uri(_sharingSettings.BaseUrl).Host;
+            if (requestHost.Equals(baseHost)) {
                 var requestPath = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
                 if (!string.IsNullOrEmpty(requestPath)) {
                     var entryId = await entryRepository.GetIdForShareLink(requestPath);
@@ -34,8 +35,7 @@ namespace PodNoms.Common.Services.Middleware {
                         context.Response.Redirect(redirectUrl);
                         return;
                     }
-                }
-                else {
+                } else {
                     context.Response.Redirect(Url.Combine(_appSettings.SiteUrl, "sharing/notfound"));
                     return;
                 }
