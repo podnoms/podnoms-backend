@@ -7,7 +7,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
-    [Route("pub/sharing")]
+    [Route("pub/[controller]")]
     public class PublicSharingController : Controller {
         private readonly IEntryRepository _entryRepository;
         private readonly IMapper _mapper;
