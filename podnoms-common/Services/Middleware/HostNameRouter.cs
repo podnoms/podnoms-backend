@@ -29,7 +29,7 @@ namespace PodNoms.Common.Services.Middleware {
                 var action = "Index";
                 var controller = "TestRouting";
 
-                context.RouteData.Values["controller"] = $"/pub/sharing/{controller}";
+                context.RouteData.Values["controller"] = $"/pub/{controller}";
                 context.RouteData.Values["action"] = action;
 
                 await _defaultRouter.RouteAsync(context);

@@ -205,7 +205,6 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
-            app.UseCustomDomainRedirect();
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -229,9 +228,11 @@ namespace PodNoms.Api {
             app.UseSecureHeaders();
 
             app.UseMvc(routes => {
+                
                 routes.Routes.Add(new HostNameRouter(
                     routes.DefaultHandler, 
                     Configuration.GetSection("SharingSettings")));
+
                 routes.MapRoute(
                     name: "shared",
                     template: "{controller=Home}/{action=Index}/{id?}");
