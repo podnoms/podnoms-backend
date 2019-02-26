@@ -22,6 +22,7 @@ namespace PodNoms.Common.Services.Startup {
                 .ImageSources(s => s.Self())
                 .ImageSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
                 .ScriptSources(s => s.Self())
+                .ScriptSources(s => s.UnsafeInline()) //TODO: Look into removing this
             );
 
             return app;
