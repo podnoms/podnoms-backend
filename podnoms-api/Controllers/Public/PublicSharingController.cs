@@ -7,7 +7,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
-    [Route("pub/[controller]")]
+    [Route("pub/sharing")]
     public class PublicSharingController : Controller {
         private readonly IEntryRepository _entryRepository;
         private readonly IMapper _mapper;
@@ -20,10 +20,10 @@ namespace PodNoms.Api.Controllers.Public {
 
         [AllowAnonymous]
         [HttpGet("{shareId}")]
-        public async Task<ActionResult<SharingPublicViewModel>> GetDetails(string shareId) {
+        public async Task<IActionResult> Index(string shareId) {
             var entry = await this._entryRepository.GetEntryForShareId(shareId);
             if (entry != null)
-                return Ok(_mapper.Map<PodcastEntry, SharingPublicViewModel>(entry));
+                return View(_mapper.Map<PodcastEntry, SharingPublicViewModel>(entry));
 
             return NotFound();
         }

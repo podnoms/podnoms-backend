@@ -7,8 +7,7 @@ using PodNoms.Common.Data.Settings;
 
 namespace PodNoms.Api.Providers {
     public static class RewriteExtensions {
-        public static IApplicationBuilder UseCustomDomainRewrites(this IApplicationBuilder app,
-                    IConfigurationSection config) {
+        public static IApplicationBuilder UseCustomDomainRewrites(this IApplicationBuilder app) {
 
             var options = new RewriteOptions()
                 .Add(MethodRules.RedirectShortUrlHost)
@@ -50,7 +49,7 @@ namespace PodNoms.Api.Providers {
             var requestHost = request.Host.Host;
             var siteHost = new UriBuilder(config.SiteUrl).Host;
             var cleaned = new Uri(config.RssUrl).GetComponents(
-                    UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme, 
+                    UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme,
                     UriFormat.UriEscaped)
                     .TrimEnd('/');
 

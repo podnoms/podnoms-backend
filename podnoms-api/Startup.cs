@@ -46,7 +46,7 @@ namespace PodNoms.Api {
             _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
         private static Mutex mutex = new Mutex();
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
         public IHostingEnvironment Env { get; }
 
         public Startup(IHostingEnvironment env, IConfiguration configuration) {
@@ -205,6 +205,7 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
+            app.UseCustomDomainRewrites();
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -228,9 +229,9 @@ namespace PodNoms.Api {
             app.UseSecureHeaders();
 
             app.UseMvc(routes => {
-                
+
                 routes.Routes.Add(new HostNameRouter(
-                    routes.DefaultHandler, 
+                    routes.DefaultHandler,
                     Configuration.GetSection("SharingSettings")));
 
                 routes.MapRoute(
