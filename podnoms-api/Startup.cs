@@ -46,7 +46,7 @@ namespace PodNoms.Api {
             _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
         private static Mutex mutex = new Mutex();
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
         public IHostingEnvironment Env { get; }
 
         public Startup(IHostingEnvironment env, IConfiguration configuration) {
@@ -60,7 +60,6 @@ namespace PodNoms.Api {
             services.AddPodNomsOptions(Configuration);
             services.AddPodNomsHealthChecks(Configuration);
             services.AddPodNomsApplicationInsights(Configuration, Env.IsProduction());
-            services.AddPodNomsRouting(Configuration, Env.IsProduction());
 
             mutex.WaitOne();
             Mapper.Reset();
@@ -139,6 +138,8 @@ namespace PodNoms.Api {
             identityBuilder.AddUserManager<PodNomsUserManager>();
 
             services.AddMvc(options => {
+                //TODO: This needs to be investigated
+                options.EnableEndpointRouting = false;
                 options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
                 options.OutputFormatters
                     .OfType<StringOutputFormatter>()
@@ -204,9 +205,8 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
-            app.UseCustomDomainRedirect();
+            app.UseCustomDomainRewrites();
             app.UseStaticFiles();
-            app.UsePodNomsRouting();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -216,7 +216,6 @@ namespace PodNoms.Api {
             app.UseAuthentication();
 
             app.UseCors("PodNomsClientPolicy");
-
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {

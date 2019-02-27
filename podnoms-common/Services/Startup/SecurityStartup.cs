@@ -14,11 +14,15 @@ namespace PodNoms.Common.Services.Startup {
                 .BlockAllMixedContent()
                 .StyleSources(s => s.Self())
                 .StyleSources(s => s.UnsafeInline())
+                .StyleSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
                 .FontSources(s => s.Self())
+                .FontSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
                 .FormActions(s => s.Self())
                 .FrameAncestors(s => s.Self())
                 .ImageSources(s => s.Self())
+                .ImageSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
                 .ScriptSources(s => s.Self())
+                .ScriptSources(s => s.UnsafeInline()) //TODO: Look into removing this
             );
 
             return app;

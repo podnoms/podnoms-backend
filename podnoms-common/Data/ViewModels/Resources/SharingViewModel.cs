@@ -15,7 +15,9 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
 
     public class SharingPublicViewModel {
         public string Title { get; set; }
+        public string Description { get; set; }
         public string AudioUrl { get; set; }
         public string ImageUrl { get; set; }
+        public string Url { get; set; }
     }
 }
