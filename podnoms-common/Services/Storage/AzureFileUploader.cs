@@ -75,7 +75,7 @@ namespace PodNoms.Common.Services.Storage {
 
                 Console.WriteLine("Now committing block list");
                 await blockBlob.PutBlockListAsync(blockIds);
-                blockBlob.Properties.ContentType = "audio/mpeg";
+                blockBlob.Properties.ContentType = contentType;
                 await blockBlob.SetPropertiesAsync();
 
                 Console.WriteLine("Blob uploaded completely.");

@@ -75,7 +75,6 @@ namespace PodNoms.Api {
             services.AddHealthChecks();
             services.AddPodNomsHttpClients();
 
-
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options => {
@@ -198,6 +197,8 @@ namespace PodNoms.Api {
             IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
 
             app.UseHttpStatusCodeExceptionMiddleware();
+            app.UseHttpsRedirection();
+
             app.UseExceptionHandler(new ExceptionHandlerOptions
             {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke

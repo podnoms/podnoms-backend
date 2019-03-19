@@ -26,7 +26,5 @@ namespace PodNoms.Common.Services.Startup {
 
             return services;
         }
-
-
     }
 }

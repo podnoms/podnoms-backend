@@ -24,7 +24,6 @@ namespace PodNoms.Common.Services.Startup {
                 .ScriptSources(s => s.Self())
                 .ScriptSources(s => s.UnsafeInline()) //TODO: Look into removing this
             );
-
             return app;
         }
     }

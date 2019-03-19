@@ -9,11 +9,11 @@ namespace PodNoms.Api {
         private static readonly bool _isDevelopment =
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
-        public static void Main(string[] args) {
+        public static void Main (string[] args) {
             BuildWebHost(args).Run();
         }
 
-        private static IWebHost BuildWebHost(string[] args) {
+        private static IWebHost BuildWebHost (string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => {
                     if (_isDevelopment) return;
@@ -32,6 +32,7 @@ namespace PodNoms.Api {
 
             return builder.UseStartup<Startup>()
                 .UseKestrel(options => { options.Limits.MaxRequestBodySize = 1073741824; })
+                .UseUrls("http://*:5000", "https://*:5001")
                 .Build();
         }
     }
