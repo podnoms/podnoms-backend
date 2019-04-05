@@ -28,6 +28,7 @@ using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
+using System.Threading;
 
 namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -105,36 +106,9 @@ namespace PodNoms.Api.Controllers {
 
         [AllowAnonymous]
         [HttpGet("sendmail")]
-        public async Task<IActionResult> SendEmail() {
-            await _mailSender.SendEmailAsync("fergal.moran+podnoms@gmail.com", "Debug Message", "Hello Sailor");
+        public async Task<IActionResult> SendEmail(string email) {
+            await _mailSender.SendEmailAsync(email, "Debug Message", "Hello Sailor");
             return Ok();
-        }
-
-        [Authorize]
-        [AllowAnonymous]
-        [HttpGet("getoptions")]
-        public IActionResult GetOptions() {
-            var response = new {
-                AppSettings = _config.GetSection("AppSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                StorageSettings = _config.GetSection("StorageSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                HelpersSettings = _config.GetSection("HelpersSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                EmailSettings = _config.GetSection("EmailSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                FacebookAuthSettings = _config.GetSection("FacebookAuthSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                ChatSettings = _config.GetSection("ChatSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                ImageFileStorageSettings = _config.GetSection("ImageFileStorageSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                AudioFileStorageSettings = _config.GetSection("AudioFileStorageSettings").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value }),
-                JwtIssuerOptions = _config.GetSection("JwtIssuerOptions").GetChildren()
-                    .Select(c => new { Key = c.Key, Value = c.Value })
-            };
-            return Ok(JsonConvert.SerializeObject(response));
         }
 
         [Authorize]
@@ -150,8 +124,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("serverpush")]
         public async Task<string> ServerPush(string message) {
             var response = new StringBuilder();
-            var pushMessage = new WP.PushMessage(message)
-            {
+            var pushMessage = new WP.PushMessage(message) {
                 Topic = "Debug",
                 Urgency = WP.PushMessageUrgency.Normal
             };
@@ -176,6 +149,12 @@ namespace PodNoms.Api.Controllers {
                 .FirstOrDefaultAsync();
             var response = _mapper.Map<Podcast, PodcastViewModel>(podcast);
             return response;
+        }
+        [HttpGet("longrunningrequest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> LongRunningRequest([FromQuery] int delay) {
+            await Task.Delay(TimeSpan.FromSeconds(delay));
+            return Ok();
         }
     }
 }
