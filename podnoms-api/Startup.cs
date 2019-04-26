@@ -84,8 +84,7 @@ namespace PodNoms.Api {
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            var tokenValidationParameters = new TokenValidationParameters
-            {
+            var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
@@ -106,8 +105,7 @@ namespace PodNoms.Api {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents
-                {
+                configureOptions.Events = new JwtBearerEvents {
                     OnMessageReceived = context => {
                         if (context.Request.Path.Value.StartsWith("/hubs/") &&
                             context.Request.Query.TryGetValue("token", out var token)) {
@@ -179,6 +177,11 @@ namespace PodNoms.Api {
                             "https://pages.podnoms.com",
                             "https://www.podnoms.com")
                         .AllowCredentials());
+                options.AddPolicy("BrowserExtensionPolicy",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
             });
 
             services.AddPushSubscriptionStore(Configuration);
@@ -199,8 +202,7 @@ namespace PodNoms.Api {
             app.UseHttpStatusCodeExceptionMiddleware();
             app.UseHttpsRedirection();
 
-            app.UseExceptionHandler(new ExceptionHandlerOptions
-            {
+            app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
             });
 
@@ -209,8 +211,7 @@ namespace PodNoms.Api {
             app.UseCustomDomainRewrites();
             app.UseStaticFiles();
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
