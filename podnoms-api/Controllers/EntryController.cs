@@ -98,7 +98,7 @@ namespace PodNoms.Api.Controllers {
             }
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
             var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
