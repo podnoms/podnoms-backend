@@ -79,6 +79,7 @@ namespace PodNoms.Common.Services.PageParser {
                             n.Attributes["src"] != null &&
                             n.Attributes["type"] != null && (
                                 n.Attributes["type"].Value == "audio/mp3" ||
+                                n.Attributes["type"].Value == "audio/mpeg" ||
                                 n.Attributes["type"].Value == "audio/ogg" ||
                                 n.Attributes["type"].Value == "audio/wav" ||
                                 n.Attributes["type"].Value == "audio/m4a"

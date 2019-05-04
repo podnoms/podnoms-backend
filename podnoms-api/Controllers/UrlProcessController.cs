@@ -13,6 +13,7 @@ using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -31,6 +32,19 @@ namespace PodNoms.Api.Controllers {
             _helpersSettings = helpersSettings.Value;
         }
 
+        [HttpGet("__temp__naked__validate")]
+        [AllowAnonymous]
+        [DisableCors]
+        public async Task<ActionResult> ___ValidateUrl([FromQuery]string url) {
+            var links = await _parser.GetAllAudioLinks(url);
+            if (links.Count > 0) {
+                return new OkObjectResult(new {
+                    type = "proxied",
+                    data = links
+                });
+            }
+            return BadRequest();
+        }
         [HttpGet("validate")]
         public async Task<ActionResult> ValidateUrl([FromQuery]string url) {
             var downloader = new AudioDownloader(url, _helpersSettings.Downloader);

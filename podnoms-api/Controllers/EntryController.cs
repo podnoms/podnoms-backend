@@ -5,18 +5,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Data.Models;
 using PodNoms.Common;
 using PodNoms.Common.Auth;
-using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -25,9 +24,10 @@ using PodNoms.Common.Services;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
+    [Route ("[controller]")]
     [Authorize]
     public class EntryController : BaseAuthController {
         private readonly IPodcastRepository _podcastRepository;
@@ -42,7 +42,7 @@ namespace PodNoms.Api.Controllers {
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
 
-        public EntryController(IEntryRepository repository,
+        public EntryController (IEntryRepository repository,
             IPodcastRepository podcastRepository,
             IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
             IOptions<AppSettings> appSettings,
@@ -51,7 +51,7 @@ namespace PodNoms.Api.Controllers {
             IUrlProcessService processor,
             ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+            IHttpContextAccessor contextAccessor) : base (contextAccessor, userManager, logger) {
             _podcastRepository = podcastRepository;
             _repository = repository;
             _options = options;
@@ -63,185 +63,185 @@ namespace PodNoms.Api.Controllers {
             _processor = processor;
         }
 
-        private void _processEntry(PodcastEntry entry) {
+        private void _processEntry (PodcastEntry entry) {
             try {
-                var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
-                    r => r.CacheImage(entry.Id));
+                var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob> (
+                    r => r.CacheImage (entry.Id));
 
-                var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
-                    r => r.DownloadAudio(entry.Id));
+                var extractJobId = BackgroundJob.Enqueue<IUrlProcessService> (
+                    r => r.DownloadAudio (entry.Id));
 
-                var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
-                    extractJobId, r => r.UploadAudio(entry.Id, entry.AudioUrl));
+                var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService> (
+                    extractJobId, r => r.UploadAudio (entry.Id, entry.AudioUrl));
 
-                var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
-                var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
+                var cdnUrl = _options.GetSection ("StorageSettings") ["CdnUrl"];
+                var imageContainer = _options.GetSection ("ImageFileStorageSettings") ["ContainerName"];
 
-                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService> (
                     uploadJobId,
-                    r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                    r => r.NotifyUser (entry.Podcast.AppUser.Id, "PodNoms",
                         $"{entry.Title} has finished processing",
-                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                        entry.Podcast.GetAuthenticatedUrl (_appSettings.SiteUrl),
+                        entry.Podcast.GetThumbnailUrl (cdnUrl, imageContainer)
                     ));
 
-                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService> (
                     uploadJobId,
-                    r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                    r => r.SendCustomNotifications (entry.Podcast.Id, "PodNoms",
                         $"{entry.Title} has finished processing",
-                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                        entry.Podcast.GetAuthenticatedUrl (_appSettings.SiteUrl)
                     )
                 );
             } catch (InvalidOperationException ex) {
-                _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
+                _logger.LogError ($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
             }
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
-            var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
-            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(e => e.CreateDate).ToList()
-            );
-            return Ok(results);
+        [HttpGet ()]
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser () {
+            var entries = await _repository.GetAllForUserAsync (_applicationUser.Id);
+            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>> (
+                    entries.OrderByDescending (e => e.CreateDate).ToList ()
+                );
+            return Ok (results);
         }
 
-        [HttpGet("all/{podcastSlug}")]
-        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
-            var entries = await _repository.GetAllForSlugAsync(podcastSlug);
-            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(r => r.CreateDate).ToList()
-            );
+        [HttpGet ("all/{podcastSlug}")]
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug (string podcastSlug) {
+            var entries = await _repository.GetAllForSlugAsync (podcastSlug);
+            var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>> (
+                    entries.OrderByDescending (r => r.CreateDate).ToList ()
+                );
 
-            return Ok(results);
+            return Ok (results);
         }
 
-        [HttpGet("{entryId}")]
-        public async Task<ActionResult<PodcastEntryViewModel>> Get(string entryId) {
-            var entry = await _repository.GetAll()
-                .Include(e => e.Podcast)
-                .SingleOrDefaultAsync(e => e.Id == Guid.Parse(entryId));
-            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-            return Ok(result);
+        [HttpGet ("{entryId}")]
+        public async Task<ActionResult<PodcastEntryViewModel>> Get (string entryId) {
+            var entry = await _repository.GetAll ()
+                .Include (e => e.Podcast)
+                .SingleOrDefaultAsync (e => e.Id == Guid.Parse (entryId));
+            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry);
+            return Ok (result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
+        public async Task<ActionResult<PodcastEntryViewModel>> Post ([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid podcast entry posted");
+                return BadRequest ("Invalid podcast entry posted");
             PodcastEntry entry;
 
             if (item.Id != null) {
-                entry = await _repository.GetAsync(item.Id);
-                _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item, entry);
+                entry = await _repository.GetAsync (item.Id);
+                _mapper.Map<PodcastEntryViewModel, PodcastEntry> (item, entry);
             } else {
-                entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
+                entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry> (item);
             }
 
             if (entry is null)
-                return BadRequest();
+                return BadRequest ();
 
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
                 entry.ProcessingStatus == ProcessingStatus.Processed) {
                 // we're editing an existing entry
-                _repository.AddOrUpdate(entry);
-                await _unitOfWork.CompleteAsync();
-                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                return Ok(result);
+                _repository.AddOrUpdate (entry);
+                await _unitOfWork.CompleteAsync ();
+                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry);
+                return Ok (result);
             }
 
             //we're adding a new entry
-            var status = await _processor.GetInformation(entry);
+            var status = await _processor.GetInformation (entry);
             if (status == AudioType.Valid) {
                 // check user quota
                 var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
-                var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
-                    .Select(x => x.AudioFileSize)
-                    .Sum();
+                var totalUsed = (await _repository.GetAllForUserAsync (_applicationUser.Id))
+                    .Select (x => x.AudioFileSize)
+                    .Sum ();
                 if (totalUsed >= quota) {
-                    return StatusCode(402);
+                    return StatusCode (402);
                 }
 
                 if (entry.ProcessingStatus != ProcessingStatus.Processing)
-                    return BadRequest("Failed to create podcast entry");
+                    return BadRequest ("Failed to create podcast entry");
 
-                if (string.IsNullOrEmpty(entry.ImageUrl)) {
+                if (string.IsNullOrEmpty (entry.ImageUrl)) {
                     entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
                 }
 
                 entry.Processed = false;
-                _repository.AddOrUpdate(entry);
+                _repository.AddOrUpdate (entry);
                 try {
-                    var succeeded = await _unitOfWork.CompleteAsync();
-                    await _repository.LoadPodcastAsync(entry);
+                    var succeeded = await _unitOfWork.CompleteAsync ();
+                    await _repository.LoadPodcastAsync (entry);
                     if (succeeded) {
-                        _processEntry(entry);
-                        var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+                        _processEntry (entry);
+                        var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry);
                         return result;
                     }
                 } catch (DbUpdateException e) {
-                    _logger.LogError(e.Message);
-                    return BadRequest(item);
+                    _logger.LogError (e.Message);
+                    return BadRequest (item);
                 }
-            } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl))
-                       || MixcloudParser.ValidateUrl(item.SourceUrl)) {
+            } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl (item.SourceUrl)) ||
+                MixcloudParser.ValidateUrl (item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
-                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                return Accepted(result);
+                var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry);
+                return Accepted (result);
             }
 
-            return BadRequest("Failed to create podcast entry");
+            return BadRequest ("Failed to create podcast entry");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id) {
+        [HttpDelete ("{id}")]
+        public async Task<IActionResult> Delete (string id) {
             try {
-                await _repository.DeleteAsync(new Guid(id));
-                await _unitOfWork.CompleteAsync();
-                return Ok();
+                await _repository.DeleteAsync (new Guid (id));
+                await _unitOfWork.CompleteAsync ();
+                return Ok ();
             } catch (Exception ex) {
-                _logger.LogError("Error deleting entry");
-                _logger.LogError(ex.Message);
+                _logger.LogError ("Error deleting entry");
+                _logger.LogError (ex.Message);
             }
 
-            return BadRequest("Unable to delete entry");
+            return BadRequest ("Unable to delete entry");
         }
 
-        [HttpPost("/preprocess")]
-        public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {
-            var entry = await _repository.GetAsync(item.Id);
+        [HttpPost ("/preprocess")]
+        public async Task<ActionResult<PodcastEntryViewModel>> PreProcess (PodcastEntryViewModel item) {
+            var entry = await _repository.GetAsync (item.Id);
             entry.ProcessingStatus = ProcessingStatus.Accepted;
-            var response = _processor.GetInformation(item.Id);
+            var response = _processor.GetInformation (item.Id);
             entry.ProcessingStatus = ProcessingStatus.Processing;
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync ();
 
-            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
+            var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry);
             return result;
         }
 
-        [HttpPost("resubmit")]
-        public async Task<IActionResult> ReSubmit([FromBody] PodcastEntryViewModel item) {
-            var entry = await _repository.GetAsync(item.Id);
+        [HttpPost ("resubmit")]
+        public async Task<IActionResult> ReSubmit ([FromBody] PodcastEntryViewModel item) {
+            var entry = await _repository.GetAsync (item.Id);
             entry.ProcessingStatus = ProcessingStatus.Processing;
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync ();
             if (entry.ProcessingStatus != ProcessingStatus.Processed) {
-                _processEntry(entry);
+                _processEntry (entry);
             }
 
-            return Ok(entry);
+            return Ok (entry);
         }
 
-        [HttpGet("downloadurl/{entryId}")]
-        public async Task<ActionResult<string>> GetDownloadUrl(string entryId) {
-            var entry = await _repository.GetAsync(entryId);
+        [HttpGet ("downloadurl/{entryId}")]
+        public async Task<ActionResult<string>> GetDownloadUrl (string entryId) {
+            var entry = await _repository.GetAsync (entryId);
 
             if (entry is null) {
-                return NotFound();
+                return NotFound ();
             }
-            return Ok(new {
+            return Ok (new {
                 url = $"{_storageSettings.CdnUrl}{entry.AudioUrl}",
-                title = entry.Title
+                    title = entry.Title
             });
         }
     }
