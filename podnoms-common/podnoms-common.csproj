@@ -31,7 +31,7 @@
         <PackageReference Include="FluentValidation.AspNetCore" Version="8.3.0" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.39.0.1572" />
         <PackageReference Include="Google.Apis.Auth" Version="1.39.0" />
-        <PackageReference Include="Google.Apis.Plus.v1" Version="1.39.0.1572" />
+        <PackageReference Include="Google.Apis.Plus.v1" Version="1.39.0.1580" />
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.2" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.2" />
         <PackageReference Include="Lib.Net.Http.WebPush" Version="2.2.0" />
@@ -47,7 +47,7 @@
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
         <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev001631" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
-        <PackageReference Include="Stripe.net" Version="25.16.0" />
+        <PackageReference Include="Stripe.net" Version="25.16.1" />
         <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.13" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
         <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
