@@ -17,7 +17,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Api.Analyzers" Version="2.2.0" PrivateAssets="All"/>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
   </ItemGroup>
   <ItemGroup>

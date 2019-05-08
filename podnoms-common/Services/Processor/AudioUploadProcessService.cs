@@ -47,7 +47,10 @@ namespace PodNoms.Common.Services.Processor {
                 if (File.Exists(localFile)) {
                     var fileInfo = new FileInfo(localFile);
                     var fileName = fileInfo.Name;
-                    await _fileUploader.UploadFile(localFile, _audioStorageSettings.ContainerName, fileName,
+                    await _fileUploader.UploadFile(
+                        localFile,
+                        _audioStorageSettings.ContainerName,
+                        fileName,
                         "application/mpeg",
                         async (p, t) => {
                             if (p % 1 == 0) {
