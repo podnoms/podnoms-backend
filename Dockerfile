@@ -27,4 +27,5 @@ RUN dotnet publish -c Release -o out
 FROM fergalmoran/podnoms.base AS runtime
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
+RUN youtube-dl -U
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]
