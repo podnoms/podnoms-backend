@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -7,10 +7,6 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
-/// <summary>
-/// Actually going to try and document some of this as I've spent a night
-/// Trying to remember what the hell I was playing at!!
-/// </summary>
 namespace PodNoms.Data.Extensions {
     /// <summary>Class <c>UniqueGeneratedFieldExtensions</c>
     /// Various methods for slugifying/unique keying entities.</summary>

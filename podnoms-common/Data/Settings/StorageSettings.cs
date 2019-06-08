@@ -3,6 +3,6 @@ namespace PodNoms.Common.Data.Settings {
         public string ConnectionString { get; set; }
         public string CdnUrl { get; set; }
         public long DefaultUserQuota { get; set; }
+        public int DefaultEntryCount { get; set; }
     }
-
 }

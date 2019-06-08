@@ -46,6 +46,7 @@ namespace PodNoms.Api.Controllers {
             return BadRequest();
         }
         [HttpGet("validate")]
+        [AllowAnonymous]
         public async Task<ActionResult> ValidateUrl([FromQuery]string url) {
             var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
             var fileType = downloader.GetInfo();
