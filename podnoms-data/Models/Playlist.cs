@@ -9,8 +9,8 @@ namespace PodNoms.Data.Models {
         public Podcast Podcast { get; set; }
         public List<PodcastEntry> PodcastEntries { get; set; }
         public List<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
-        public Playlist() {
-            ParsedPlaylistItems = new List<ParsedPlaylistItem>();
+        public Playlist () {
+            ParsedPlaylistItems = new List<ParsedPlaylistItem> ();
         }
     }
     public class ParsedPlaylistItem : BaseEntity {
