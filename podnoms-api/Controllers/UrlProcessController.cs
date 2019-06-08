@@ -36,7 +36,8 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [DisableCors]
         public async Task<ActionResult> ___ValidateUrl ([FromQuery] string url) {
-            var links = await _parser.GetAllAudioLinks (url);
+            await _parser.Initialise (url);
+            var links = await _parser.GetAllAudioLinks ();
             if (links.Count > 0) {
                 return new OkObjectResult (new {
                     type = "proxied",
@@ -51,8 +52,9 @@ namespace PodNoms.Api.Controllers {
             var downloader = new AudioDownloader (url, _helpersSettings.Downloader);
             var fileType = downloader.GetInfo ();
             if (fileType == AudioType.Invalid) {
-                var title = await _parser.GetPageTitle (url);
-                var links = await _parser.GetAllAudioLinks (url);
+                await _parser.Initialise (url);
+                var title = _parser.GetPageTitle ();
+                var links = await _parser.GetAllAudioLinks ();
                 if (links.Count > 0) {
                     return new OkObjectResult (new {
                         type = "proxied",
