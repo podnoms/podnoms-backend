@@ -18,102 +18,105 @@ using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Persistence {
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
-        public PodNomsDbContext CreateDbContext(string[] args) {
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        public PodNomsDbContext CreateDbContext (string[] args) {
+            var envName = Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT");
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.json")
-                .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
-                .Build();
+            var configuration = new ConfigurationBuilder ()
+                .SetBasePath (Directory.GetCurrentDirectory ())
+                .AddJsonFile ($"appsettings.json")
+                .AddJsonFile ($"appsettings.{envName}.json", optional : true, reloadOnChange : true)
+                .Build ();
 
-            Console.WriteLine(configuration);
+            Console.WriteLine (configuration);
 
-            var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            builder.UseSqlServer(connectionString);
+            var builder = new DbContextOptionsBuilder<PodNomsDbContext> ();
+            var connectionString = configuration.GetConnectionString ("DefaultConnection");
+            builder.UseSqlServer (connectionString);
 
-            return new PodNomsDbContext(builder.Options);
+            return new PodNomsDbContext (builder.Options);
         }
     }
 
     public class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
-        public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) :
-            base(options) {
-            Database.SetCommandTimeout(360);
+        public PodNomsDbContext (DbContextOptions<PodNomsDbContext> options) : base (options) {
+            Database.SetCommandTimeout (360);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating (ModelBuilder modelBuilder) {
+            base.OnModelCreating (modelBuilder);
 
-            modelBuilder.Entity<ApplicationUser>()
-                .HasIndex(p => p.Slug)
-                .IsUnique(true);
+            modelBuilder.Entity<ApplicationUser> ()
+                .HasIndex (p => p.Slug)
+                .IsUnique (true);
 
-            modelBuilder.Entity<Podcast>()
-                .HasIndex(p => p.Slug)
-                .IsUnique(true);
-            modelBuilder.Entity<Podcast>()
-                .Property(p => p.AppUserId)
-                .IsRequired();
-            modelBuilder.Entity<Podcast>()
-                .Property(p => p.Private)
-                .IsRequired()
-                .HasDefaultValue(false);
+            modelBuilder.Entity<Podcast> ()
+                .HasIndex (p => p.Slug)
+                .IsUnique (true);
+            modelBuilder.Entity<Podcast> ()
+                .Property (p => p.AppUserId)
+                .IsRequired ();
+            modelBuilder.Entity<Podcast> ()
+                .Property (p => p.Private)
+                .IsRequired ()
+                .HasDefaultValue (false);
+            modelBuilder.Entity<PodcastEntry> ()
+                .HasMany (e => e.SharingLinks)
+                .WithOne (e => e.PodcastEntry)
+                .OnDelete (DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<PodcastEntrySharingLink>()
-                .HasIndex(l => l.LinkIndex)
-                .IsUnique();
-            modelBuilder.Entity<PodcastEntrySharingLink>()
-                .HasIndex(l => l.LinkId)
-                .IsUnique();
+            modelBuilder.Entity<PodcastEntrySharingLink> ()
+                .HasIndex (l => l.LinkIndex)
+                .IsUnique ();
+            modelBuilder.Entity<PodcastEntrySharingLink> ()
+                .HasIndex (l => l.LinkId)
+                .IsUnique ();
 
-            modelBuilder.Entity<ParsedPlaylistItem>()
-                .HasIndex(p => new { p.VideoId, p.PlaylistId })
-                .IsUnique(true);
+            modelBuilder.Entity<ParsedPlaylistItem> ()
+                .HasIndex (p => new { p.VideoId, p.PlaylistId })
+                .IsUnique (true);
 
-            foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
-                pb.ValueGeneratedOnAdd()
-                    .HasDefaultValueSql("getdate()");
+            foreach (var pb in __getColumn (modelBuilder, "CreateDate")) {
+                pb.ValueGeneratedOnAdd ()
+                    .HasDefaultValueSql ("getdate()");
             }
 
-            foreach (var pb in __getColumn(modelBuilder, "UpdateDate")) {
-                pb.ValueGeneratedOnAddOrUpdate()
-                    .HasDefaultValueSql("getdate()");
+            foreach (var pb in __getColumn (modelBuilder, "UpdateDate")) {
+                pb.ValueGeneratedOnAddOrUpdate ()
+                    .HasDefaultValueSql ("getdate()");
             }
         }
 
-        private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
+        private IEnumerable<PropertyBuilder> __getColumn (ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
-                .GetEntityTypes()
-                .SelectMany(t => t.GetProperties())
-                .Where(p => p.Name == columnName)
-                .Select(p => modelBuilder.Entity(p.DeclaringEntityType.ClrType).Property(p.Name));
+                .GetEntityTypes ()
+                .SelectMany (t => t.GetProperties ())
+                .Where (p => p.Name == columnName)
+                .Select (p => modelBuilder.Entity (p.DeclaringEntityType.ClrType).Property (p.Name));
         }
 
-        public override int SaveChanges() {
-            foreach (var entity in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Where(e => e.Entity is ISluggedEntity)
-                .Select(e => e.Entity as ISluggedEntity)
-                .Where(e => string.IsNullOrEmpty(e.Slug))) {
-                entity.Slug = entity.GenerateSlug(this);
+        public override int SaveChanges () {
+            foreach (var entity in ChangeTracker.Entries ()
+                    .Where (e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where (e => e.Entity is ISluggedEntity)
+                    .Select (e => e.Entity as ISluggedEntity)
+                    .Where (e => string.IsNullOrEmpty (e.Slug))) {
+                entity.Slug = entity.GenerateSlug (this);
             }
 
-            return base.SaveChanges();
+            return base.SaveChanges ();
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
-            CancellationToken cancellationToken = default(CancellationToken)) {
-            foreach (var entity in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Where(e => e.Entity is ISluggedEntity)
-                .Select(e => e.Entity as ISluggedEntity)
-                .Where(e => string.IsNullOrEmpty(e.Slug))) {
-                entity.Slug = entity.GenerateSlug(this);
+        public override Task<int> SaveChangesAsync (bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default (CancellationToken)) {
+            foreach (var entity in ChangeTracker.Entries ()
+                    .Where (e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where (e => e.Entity is ISluggedEntity)
+                    .Select (e => e.Entity as ISluggedEntity)
+                    .Where (e => string.IsNullOrEmpty (e.Slug))) {
+                entity.Slug = entity.GenerateSlug (this);
             }
 
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            return base.SaveChangesAsync (acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public DbSet<Podcast> Podcasts { get; set; }
