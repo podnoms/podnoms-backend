@@ -62,9 +62,9 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet ("active")]
-        public async Task<string> GetActive () {
+        public async Task<ActionResult<string>> GetActive () {
             var item = await _repository.GetActivePodcast (_applicationUser.Id);
-            return item;
+            return Ok ($"\"{item}\"");
         }
 
         [HttpPost]
