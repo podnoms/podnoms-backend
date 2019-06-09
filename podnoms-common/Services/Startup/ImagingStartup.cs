@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.Web.Providers;
 
 namespace PodNoms.Common.Services.Startup {
     public static class ImagingStartup {
-        public static IServiceCollection cccccccAddPodNomsImaging (this IServiceCollection services, IConfiguration config) {
+        public static IServiceCollection AddPodNomsImaging (this IServiceCollection services, IConfiguration config) {
             return services;
             var connectionString = config.GetSection ("StorageSettings") ["ConnectionString"];
             var containerName = config.GetSection ("ImageFileStorageSettings") ["ContainerName"];
