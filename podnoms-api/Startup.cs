@@ -185,7 +185,7 @@ namespace PodNoms.Api {
                     .AllowAnyHeader ()
                     .AllowAnyMethod ());
             });
-
+            services.AddPodNomsImaging (Configuration);
             services.AddPushSubscriptionStore (Configuration);
             services.AddPushNotificationService (Configuration);
 
@@ -228,6 +228,7 @@ namespace PodNoms.Api {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
+            app.UsePodNomsImaging ();
             app.UsePodNomsHangfire (serviceProvider, Configuration, Env.IsProduction ());
             app.UsePodNomsSignalRRoutes ();
             app.UsePodNomsHealthChecks ("/healthcheck");
