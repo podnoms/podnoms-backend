@@ -295,3 +295,5 @@ dev_push_subscriptions.db
 .vscode
 out/
 keys
+appsettings.Production.json
+.config

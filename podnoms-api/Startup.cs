@@ -201,6 +201,8 @@ namespace PodNoms.Api {
         public void Configure (IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
 
+            UpdateDatabase (app);
+
             app.UseHttpStatusCodeExceptionMiddleware ();
             app.UseHttpsRedirection ();
 
@@ -239,6 +241,15 @@ namespace PodNoms.Api {
             });
 
             JobBootstrapper.BootstrapJobs (Env.IsDevelopment ());
+        }
+        private static void UpdateDatabase (IApplicationBuilder app) {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory> ()
+                .CreateScope ()) {
+                using (var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext> ()) {
+                    context.Database.Migrate ();
+                }
+            }
         }
     }
 }
