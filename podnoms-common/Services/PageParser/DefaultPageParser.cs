@@ -38,7 +38,7 @@ namespace PodNoms.Common.Services.PageParser {
         public async Task<IList<KeyValuePair<string, string>>> GetAllAudioLinks () {
             var empty = Enumerable.Empty<KeyValuePair<string, string>> ();
             var documentLinks = (GetAudioLinks ()) ?? empty;
-            var iframeLinks = (await GetIFrameLinks ()).Select (r => new KeyValuePair<string, string> (
+            var iframeLinks = (await GetIFrameLinks ())?.Select (r => new KeyValuePair<string, string> (
                 string.IsNullOrWhiteSpace (r.Key) ? _getFilenameFromUrl (r.Value) : r.Key,
                 r.Value
             )).ToList () ?? empty;
