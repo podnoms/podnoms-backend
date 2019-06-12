@@ -185,7 +185,7 @@ namespace PodNoms.Api {
                     .AllowAnyHeader ()
                     .AllowAnyMethod ());
             });
-
+            services.AddPodNomsImaging (Configuration);
             services.AddPushSubscriptionStore (Configuration);
             services.AddPushNotificationService (Configuration);
 
@@ -200,6 +200,8 @@ namespace PodNoms.Api {
 
         public void Configure (IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+
+            UpdateDatabase (app);
 
             app.UseHttpStatusCodeExceptionMiddleware ();
             app.UseHttpsRedirection ();
@@ -226,6 +228,7 @@ namespace PodNoms.Api {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
+            app.UsePodNomsImaging ();
             app.UsePodNomsHangfire (serviceProvider, Configuration, Env.IsProduction ());
             app.UsePodNomsSignalRRoutes ();
             app.UsePodNomsHealthChecks ("/healthcheck");
@@ -239,6 +242,15 @@ namespace PodNoms.Api {
             });
 
             JobBootstrapper.BootstrapJobs (Env.IsDevelopment ());
+        }
+        private static void UpdateDatabase (IApplicationBuilder app) {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory> ()
+                .CreateScope ()) {
+                using (var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext> ()) {
+                    context.Database.Migrate ();
+                }
+            }
         }
     }
 }

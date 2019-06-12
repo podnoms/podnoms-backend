@@ -33,14 +33,16 @@ namespace PodNoms.Data.Models {
         public int ShareOptions { get; set; }
         public bool Processed { get; set; }
         public Guid PodcastId { get; set; }
+
         [JsonIgnore]
         public Podcast Podcast { get; set; }
+
         [JsonIgnore]
-        public virtual List<PodcastEntrySharingLink> SharingLinks { get; set; }
-        public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            var url = ImageUrl.StartsWith("http")
-                            ? ImageUrl
-                            : $"{cdnUrl}{containerName}/entry/cached/{Id.ToString()}-32x32.png";
+        public List<PodcastEntrySharingLink> SharingLinks { get; set; }
+        public string GetThumbnailUrl (string cdnUrl, string containerName) {
+            var url = ImageUrl.StartsWith ("http") ?
+                ImageUrl :
+                $"{cdnUrl}{containerName}/entry/cached/{Id.ToString()}-32x32.png";
             return url;
         }
     }

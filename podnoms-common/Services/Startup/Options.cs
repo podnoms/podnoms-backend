@@ -7,22 +7,22 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Startup {
     public static class Options {
-        public static IServiceCollection AddPodNomsOptions(this IServiceCollection services, IConfiguration config) {
-            services.AddOptions();
-            services.Configure<AppSettings>(config.GetSection("AppSettings"));
-            services.Configure<StorageSettings>(config.GetSection("StorageSettings"));
-            services.Configure<StripeSettings>(config.GetSection("StripeSettings"));
-            services.Configure<HelpersSettings>(config.GetSection("HelpersSettings"));
-            services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
-            services.Configure<FacebookAuthSettings>(config.GetSection("FacebookAuthSettings"));
-            services.Configure<ChatSettings>(config.GetSection("ChatSettings"));
-            services.Configure<SharingSettings>(config.GetSection("SharingSettings"));
-            services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
-            services.Configure<ImageFileStorageSettings>(config.GetSection("ImageFileStorageSettings"));
-            services.Configure<AudioFileStorageSettings>(config.GetSection("AudioFileStorageSettings"));
-            services.Configure<JwtIssuerOptions>(config.GetSection("JwtIssuerOptions"));
-            services.Configure<ApplicationInsightsSettings>(config.GetSection("ApplicationInsightsSettings"));
-            services.Configure<FormOptions>(options => {
+        public static IServiceCollection AddPodNomsOptions (this IServiceCollection services, IConfiguration config) {
+            services.AddOptions ();
+            services.Configure<AppSettings> (config.GetSection ("AppSettings"));
+            services.Configure<StorageSettings> (config.GetSection ("StorageSettings"));
+            services.Configure<StripeSettings> (config.GetSection ("StripeSettings"));
+            services.Configure<HelpersSettings> (config.GetSection ("HelpersSettings"));
+            services.Configure<EmailSettings> (config.GetSection ("EmailSettings"));
+            services.Configure<FacebookAuthSettings> (config.GetSection ("FacebookAuthSettings"));
+            services.Configure<ChatSettings> (config.GetSection ("ChatSettings"));
+            services.Configure<SharingSettings> (config.GetSection ("SharingSettings"));
+            services.Configure<PaymentSettings> (config.GetSection ("PaymentSettings"));
+            services.Configure<ImageFileStorageSettings> (config.GetSection ("ImageFileStorageSettings"));
+            services.Configure<AudioFileStorageSettings> (config.GetSection ("AudioFileStorageSettings"));
+            services.Configure<JwtIssuerOptions> (config.GetSection ("JwtIssuerOptions"));
+            services.Configure<ApplicationInsightsSettings> (config.GetSection ("ApplicationInsightsSettings"));
+            services.Configure<FormOptions> (options => {
                 // options.ValueCountLimit = 10;
                 options.ValueLengthLimit = int.MaxValue;
                 options.MemoryBufferThreshold = int.MaxValue;
