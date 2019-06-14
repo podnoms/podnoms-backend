@@ -48,6 +48,10 @@ namespace PodNoms.Common.Persistence {
             modelBuilder.Entity<ApplicationUser> ()
                 .HasIndex (p => p.Slug)
                 .IsUnique (true);
+            modelBuilder.Entity<ApplicationUser> ()
+                .Property (p => p.IsAdmin)
+                .IsRequired ()
+                .HasDefaultValue (false);
 
             modelBuilder.Entity<Podcast> ()
                 .HasIndex (p => p.Slug)
