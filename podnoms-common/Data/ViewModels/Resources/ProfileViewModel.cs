@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
@@ -17,5 +18,6 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string SubscriptionType { get; set; }
         public bool SubscriptionValid { get; set; }
         public DateTime? SubscriptionValidUntil { get; set; }
+        public List<string> Roles { get; set; }
     }
 }

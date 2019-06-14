@@ -130,7 +130,8 @@ namespace PodNoms.Api {
                 o.Password.RequireLowercase = false;
                 o.Password.RequireUppercase = false;
                 o.Password.RequireNonAlphanumeric = false;
-            });
+            }).AddRoles<IdentityRole> ();
+
             identityBuilder =
                 new IdentityBuilder (identityBuilder.UserType, typeof (IdentityRole), identityBuilder.Services);
             identityBuilder.AddEntityFrameworkStores<PodNomsDbContext> ().AddDefaultTokenProviders ();
