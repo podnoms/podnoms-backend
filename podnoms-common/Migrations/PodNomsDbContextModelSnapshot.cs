@@ -175,6 +175,8 @@ namespace PodNoms.Comon.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
+                    b.Property<string>("Country");
+
                     b.Property<long?>("DiskQuota");
 
                     b.Property<string>("Email")
@@ -186,11 +188,17 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("FirstName");
 
+                    b.Property<string>("IpAddress");
+
                     b.Property<bool>("IsAdmin")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
                     b.Property<string>("LastName");
+
+                    b.Property<DateTime>("LastSeen")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -710,7 +718,7 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
                 {
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany()
+                        .WithMany("Podcasts")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade);
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Annotations;
@@ -20,6 +21,9 @@ namespace PodNoms.Data.Models {
         public List<Donation> Donations { get; set; }
         public List<Podcast> Podcasts { get; set; }
         public bool IsAdmin { get; set; } = false;
-    }
 
+        public DateTime LastSeen { get; set; }
+        public string IpAddress { get; set; }
+        public string Country { get; set; }
+    }
 }
