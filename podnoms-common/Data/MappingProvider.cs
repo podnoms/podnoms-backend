@@ -128,7 +128,7 @@ namespace PodNoms.Common.Data {
                     map => map.MapFrom<ProfileSubscriptionValidUntilResolver> ()
                 ).ForMember (
                     src => src.Roles,
-                    map => map.MapFrom (s => new string[] { "podnoms-admin" })
+                    map => map.MapFrom<UserRolesResolver> ()
                 );
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel> ()
