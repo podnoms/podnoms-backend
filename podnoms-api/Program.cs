@@ -10,7 +10,6 @@ namespace PodNoms.Api {
             Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main (string[] args) {
-            Console.WriteLine (Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT"));
             BuildWebHost (args).Run ();
         }
 
