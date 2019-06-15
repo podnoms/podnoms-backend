@@ -1,5 +1,6 @@
 using System;
 using Hangfire;
+using Hangfire.Console;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -13,10 +14,12 @@ namespace PodNoms.Common.Services.Startup {
             if (isProduction || true) {
                 services.AddHangfire (options => {
                     options.UseSqlServerStorage (config.GetConnectionString ("DefaultConnection"));
+                    options.UseConsole ();
                 });
             } else {
                 services.AddHangfire (options => {
                     options.UseMemoryStorage ();
+                    options.UseConsole ();
                 });
             }
             return services;
