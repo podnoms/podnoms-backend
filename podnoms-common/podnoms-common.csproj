@@ -50,9 +50,6 @@
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
         <PackageReference Include="RestSharp" Version="106.6.9" />
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev002724" />
-        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-dev000203" />
-        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000203" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
         <PackageReference Include="Stripe.net" Version="27.2.0" />
         <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.14" />
@@ -66,6 +63,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
+        <ProjectReference Include="..\..\..\working\ImageSharp.Web\src\ImageSharp.Web\ImageSharp.Web.csproj" />
+        <ProjectReference Include="..\..\..\working\ImageSharp.Web\src\ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
