@@ -33,9 +33,7 @@ namespace PodNoms.Common.Services.Startup {
                     options.ConnectionString = connectionString;
                     options.ContainerName = containerName;
                 })
-                .AddProcessor<ResizeWebProcessor> ()
-                .AddProcessor<FormatWebProcessor> ()
-                .AddProcessor<BackgroundColorWebProcessor> ();
+                .AddProcessor<ResizeWebProcessor> ();
             return services;
         }
         public static IApplicationBuilder UsePodNomsImaging (
