@@ -53,10 +53,9 @@ namespace PodNoms.Common.Data {
                         $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
                 .ForMember (
                     src => src.ImageUrl,
-                    e => e.MapFrom (m =>
-                        m.ImageUrl.StartsWith ("http") ?
-                        m.ImageUrl :
-                        $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.ImageUrl}"))
+                    e => e.MapFrom (m => m.GetImageUrl (
+                        _options.GetSection ("StorageSettings") ["CdnUrl"],
+                        _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
                 .ForMember (
                     src => src.ThumbnailUrl,
                     e => e.MapFrom (m => m.GetThumbnailUrl (
