@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Data.Paging;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
@@ -39,14 +40,15 @@ namespace PodNoms.Api.Controllers {
             }
 
         [HttpGet ("activity")]
-        public async Task<ActionResult<PagedResult>> GetUsers (
+        public async Task<ActionResult<PodNoms.Common.Data.Paging.PagedResult<UserActivityViewModel>>> GetUsers (
             [FromQuery] int currentPage, [FromQuery] int pageSize, [FromQuery] string sortBy, [FromQuery] bool ascending = true) {
 
             _logger.LogDebug ($"Paging results for: currentPage: {currentPage}, pageSize: {pageSize}, sortBy:{sortBy}");
             var query = _userManager.Users
                 .Include (p => p.Podcasts)
-                .ThenInclude (podcast => podcast.PodcastEntries)
                 .AsQueryable ();
+
+            var totalCount = await query.CountAsync ();
             if (!string.IsNullOrEmpty (sortBy)) {
                 if (sortBy.Equals ("name")) {
                     sortBy = "FirstName, LastName";
@@ -57,16 +59,14 @@ namespace PodNoms.Api.Controllers {
             } else {
                 query = query.OrderBy ("LastSeen descending");
             }
-            query = query
-                .Skip (currentPage - 1)
-                .Take (pageSize);
 
-            var results = await query.ToListAsync ();
-            // 
+            var results = await query
+                .Skip (currentPage - 1)
+                .Take (pageSize)
+                .ToListAsync ();
 
             var source = _mapper.Map<List<ApplicationUser>, List<UserActivityViewModel>> (results);
-            var response = source.AsQueryable ().PageResult (currentPage, pageSize);
-
+            var response = source.AsQueryable ().GetPaged (currentPage, pageSize, totalCount);
             return response;
         }
     }
