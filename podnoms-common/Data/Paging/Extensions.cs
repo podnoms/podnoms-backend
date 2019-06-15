@@ -11,7 +11,6 @@ namespace PodNoms.Common.Data.Paging {
             result.RowCount = totalCount != 0 ? totalCount : query.Count ();
 
             var pageCount = (double) result.RowCount / pageSize;
-            result.PageCount = (int) Math.Ceiling (pageCount);
 
             var skip = (page - 1) * pageSize;
             if (totalCount != 0) {
