@@ -49,6 +49,10 @@ namespace PodNoms.Common.Persistence {
                 .HasIndex (p => p.Slug)
                 .IsUnique (true);
             modelBuilder.Entity<ApplicationUser> ()
+                .Property (e => e.LastSeen)
+                .HasDefaultValueSql ("getdate()");
+
+            modelBuilder.Entity<ApplicationUser> ()
                 .Property (p => p.IsAdmin)
                 .IsRequired ()
                 .HasDefaultValue (false);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -37,13 +38,32 @@ namespace PodNoms.Api.Controllers {
                 _mapper = mapper;
             }
 
-        [HttpGet]
-        public async Task<ActionResult<List<UserActivityViewModel>>> GetUsers () {
-            var users = await _userManager.Users
-                .Include (r => r.Podcasts)
-                .ThenInclude (podcast => podcast.PodcastEntries)
-                .ToListAsync ();
-            return _mapper.Map<List<ApplicationUser>, List<UserActivityViewModel>> (users);
+        [HttpGet ("activity")]
+        public async Task<ActionResult<PagedResult>> GetUsers (
+            [FromQuery] int currentPage, [FromQuery] int pageSize, [FromQuery] string sortBy, [FromQuery] bool ascending = true) {
+
+            _logger.LogDebug ($"Paging results for: currentPage: {currentPage}, pageSize: {pageSize}, sortBy:{sortBy}");
+            var query = _userManager.Users.AsQueryable ();
+
+            if (!string.IsNullOrEmpty (sortBy)) {
+                if (sortBy.Equals ("name")) {
+                    sortBy = "FirstName, LastName";
+                }
+                var extra = ascending ? string.Empty : " descending";
+                query = query
+                    .OrderBy ($"{sortBy}{extra}");
+            }
+            query = query
+                .Skip (currentPage - 1)
+                .Take (pageSize);
+
+            var results = await query.ToListAsync ();
+            // .ThenInclude (podcast => podcast.PodcastEntries)
+
+            var source = _mapper.Map<List<ApplicationUser>, List<UserActivityViewModel>> (results);
+            var response = source.AsQueryable ().PageResult (currentPage, pageSize);
+
+            return response;
         }
     }
 }

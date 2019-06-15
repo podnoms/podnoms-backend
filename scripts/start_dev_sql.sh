@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 docker run \
   --name mssql \
+  --restart always \
   -e "ACCEPT_EULA=Y" \
   -e "SA_PASSWORD=H8ckMyB88lz" \
   -v /opt/mssql:/var/opt/mssql \

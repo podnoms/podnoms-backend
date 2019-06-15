@@ -172,8 +172,14 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
+                    b.Property<string>("City");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
+
+                    b.Property<string>("CountryCode");
+
+                    b.Property<string>("CountryName");
 
                     b.Property<long?>("DiskQuota");
 
@@ -186,15 +192,25 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("FirstName");
 
+                    b.Property<string>("IpAddress");
+
                     b.Property<bool>("IsAdmin")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
                     b.Property<string>("LastName");
 
+                    b.Property<DateTime>("LastSeen")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<double?>("Latitude");
+
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
+
+                    b.Property<double?>("Longitude");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256);
@@ -210,6 +226,10 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("PictureUrl");
 
+                    b.Property<string>("RegionCode");
+
+                    b.Property<string>("RegionName");
+
                     b.Property<string>("SecurityStamp");
 
                     b.Property<string>("Slug");
@@ -218,6 +238,8 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
+
+                    b.Property<string>("Zip");
 
                     b.HasKey("Id");
 
@@ -710,7 +732,7 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
                 {
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany()
+                        .WithMany("Podcasts")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade);
 

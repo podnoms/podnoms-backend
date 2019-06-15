@@ -3,6 +3,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -25,13 +26,14 @@ namespace PodNoms.Api.Controllers {
         private readonly IMailSender _emailSender;
 
         public RoleManager<IdentityRole> _roleManager;
-
+        private readonly IHttpContextAccessor _contextAccessor;
         private readonly AppSettings _appSettings;
         private readonly JwtIssuerOptions _jwtOptions;
 
         public AuthController (
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
+            IHttpContextAccessor contextAccessor,
             IJwtFactory jwtFactory,
             IOptions<JwtIssuerOptions> jwtOptions,
             IOptions<AppSettings> appSettings,
@@ -41,6 +43,7 @@ namespace PodNoms.Api.Controllers {
             _jwtFactory = jwtFactory;
             _emailSender = mailSender;
             _roleManager = roleManager;
+            _contextAccessor = contextAccessor;
             _appSettings = appSettings.Value;
             _jwtOptions = jwtOptions.Value;
         }

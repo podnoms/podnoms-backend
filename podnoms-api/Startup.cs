@@ -139,6 +139,7 @@ namespace PodNoms.Api {
 
             services.AddMvc (options => {
                     //TODO: This needs to be investigated
+                    options.Filters.Add<UserLoggingFilter> ();
                     options.EnableEndpointRouting = false;
                     options.OutputFormatters.Add (new XmlSerializerOutputFormatter ());
                     options.OutputFormatters

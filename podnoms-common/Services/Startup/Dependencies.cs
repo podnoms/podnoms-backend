@@ -7,6 +7,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Gravatar;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Notifications;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Payments;
@@ -47,6 +48,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IPaymentProcessor, StripePaymentProcessor> ()
                 .AddScoped<YouTubeParser> ()
                 .AddScoped<MixcloudParser> ()
+                .AddScoped<UserLoggingFilter> ()
                 .AddScoped<SlackSupportClient> ()
                 .AddHttpClient<GravatarHttpClient> ();
             services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor> ();
