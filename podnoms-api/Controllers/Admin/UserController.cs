@@ -43,8 +43,10 @@ namespace PodNoms.Api.Controllers {
             [FromQuery] int currentPage, [FromQuery] int pageSize, [FromQuery] string sortBy, [FromQuery] bool ascending = true) {
 
             _logger.LogDebug ($"Paging results for: currentPage: {currentPage}, pageSize: {pageSize}, sortBy:{sortBy}");
-            var query = _userManager.Users.AsQueryable ();
-
+            var query = _userManager.Users
+                .Include (p => p.Podcasts)
+                .ThenInclude (podcast => podcast.PodcastEntries)
+                .AsQueryable ();
             if (!string.IsNullOrEmpty (sortBy)) {
                 if (sortBy.Equals ("name")) {
                     sortBy = "FirstName, LastName";
@@ -52,13 +54,15 @@ namespace PodNoms.Api.Controllers {
                 var extra = ascending ? string.Empty : " descending";
                 query = query
                     .OrderBy ($"{sortBy}{extra}");
+            } else {
+                query = query.OrderBy ("LastSeen descending");
             }
             query = query
                 .Skip (currentPage - 1)
                 .Take (pageSize);
 
             var results = await query.ToListAsync ();
-            // .ThenInclude (podcast => podcast.PodcastEntries)
+            // 
 
             var source = _mapper.Map<List<ApplicationUser>, List<UserActivityViewModel>> (results);
             var response = source.AsQueryable ().PageResult (currentPage, pageSize);

@@ -217,10 +217,10 @@ namespace PodNoms.Api {
             app.UseCustomDomainRewrites ();
             app.UseStaticFiles ();
 
+            //use the forwarded headers from nginx, not the proxyy headers
             app.UseForwardedHeaders (new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-
             app.UseAuthentication ();
 
             app.UseCors ("PodNomsClientPolicy");
