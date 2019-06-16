@@ -297,3 +297,4 @@ out/
 keys
 appsettings.Production.json
 .config
+podnoms-api/wwwroot/is-cache

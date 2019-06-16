@@ -82,7 +82,7 @@ namespace PodNoms.Common.Data {
                 .ForMember (
                     src => src.ImageUrl,
                     e => e.MapFrom (m =>
-                        m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrl"],
+                        m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrll"],
                             _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
 
             CreateMap<Category, CategoryViewModel> ()

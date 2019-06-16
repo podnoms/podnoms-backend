@@ -17,6 +17,12 @@ using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Persistence {
+    public static class SeedData {
+        public static string AUTH = @"CREATE LOGIN podnomsweb WITH PASSWORD = 'podnomsweb', DEFAULT_DATABASE = [PodNoms], CHECK_EXPIRATION = OFF, CHECK_POLICY = OFF
+        GO
+        ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
+        GO";
+    }
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext (string[] args) {
             var envName = Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT");
@@ -92,6 +98,10 @@ namespace PodNoms.Common.Persistence {
                 pb.ValueGeneratedOnAddOrUpdate ()
                     .HasDefaultValueSql ("getdate()");
             }
+
+            // Database.ExecuteSqlCommand (SeedData.CATEGORIES);
+            // Database.ExecuteSqlCommand (SeedData.SUB_CATEGORIES);
+            // Database.ExecuteSqlCommand (SeedData.AUTH);
         }
 
         private IEnumerable<PropertyBuilder> __getColumn (ModelBuilder modelBuilder, string columnName) {
