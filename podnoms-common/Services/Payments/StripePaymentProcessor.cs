@@ -15,7 +15,7 @@ namespace PodNoms.Common.Services.Payments {
         public async Task<StripePaymentResult> ProcessPayment (string orderId, long amount, string description,
             string idempotencyKey,
             object[] credentials) {
-            StripeConfiguration.SetApiKey (_paymentSettings.StripeSettings.PrivateKey);
+            StripeConfiguration.ApiKey = _paymentSettings.StripeSettings.PrivateKey;
 
             var service = new ChargeService ();
             var customers = new CustomerService ();

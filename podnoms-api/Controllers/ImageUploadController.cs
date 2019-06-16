@@ -96,19 +96,16 @@ namespace PodNoms.Api.Controllers {
             return Ok ($"\"{_applicationUser.PictureUrl}\"");
         }
         private async Task<string> _commitImage (string id, IFormFile image, string subDirectory) {
-
             if (image is null || image.Length == 0) throw new InvalidOperationException ("No file found in stream");
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException ("Maximum file size exceeded");
             if (!_imageFileStorageSettings.IsSupported (image.FileName)) throw new InvalidOperationException ("Invalid file type");
 
             var cacheFile = await CachedFormFileStorage.CacheItem (image);
             (var finishedFile, var extension) = ImageUtils.ConvertFile (cacheFile, id);
-
             var destinationFile = $"{subDirectory}/{id}.{extension}";
 
             await _fileUploader.UploadFile (finishedFile, _imageFileStorageSettings.ContainerName,
                 destinationFile, "image/png", (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}"));
-
             return destinationFile;
         }
     }

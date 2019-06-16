@@ -30,7 +30,7 @@ namespace PodNoms.Common.Data {
                 .ForMember (
                     v => v.ImageUrl,
                     e => e.MapFrom (m => m.GetImageUrl (
-                        _options.GetSection ("StorageSettings") ["CdnUrl"],
+                        _options.GetSection ("StorageSettings") ["ImageUrl"],
                         _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
                 .ForMember (
                     v => v.Notifications,
@@ -43,7 +43,7 @@ namespace PodNoms.Common.Data {
                 .ForMember (
                     v => v.ThumbnailUrl,
                     e => e.MapFrom (m => m.GetThumbnailUrl (
-                        _options.GetSection ("StorageSettings") ["CdnUrl"],
+                        _options.GetSection ("StorageSettings") ["ImageUrl"],
                         _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel> ()
@@ -54,12 +54,12 @@ namespace PodNoms.Common.Data {
                 .ForMember (
                     src => src.ImageUrl,
                     e => e.MapFrom (m => m.GetImageUrl (
-                        _options.GetSection ("StorageSettings") ["CdnUrl"],
+                        _options.GetSection ("StorageSettings") ["ImageUrl"],
                         _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
                 .ForMember (
                     src => src.ThumbnailUrl,
                     e => e.MapFrom (m => m.GetThumbnailUrl (
-                        _options.GetSection ("StorageSettings") ["CdnUrl"],
+                        _options.GetSection ("StorageSettings") ["ImageUrl"],
                         _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
                 .ForMember (
                     src => src.PodcastId,
@@ -81,7 +81,7 @@ namespace PodNoms.Common.Data {
                 .ForMember (
                     src => src.ImageUrl,
                     e => e.MapFrom (m =>
-                        m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrl"],
+                        m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrll"],
                             _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
 
             CreateMap<Category, CategoryViewModel> ()
