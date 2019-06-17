@@ -58,7 +58,7 @@ namespace PodNoms.Common.Services.Jobs {
             _httpClient = httpClientFactory.CreateClient ("ipstack_geocoder");
             _appSettings = appSettings.Value;
         }
-        public async Task<bool> Execute () { return false; }
+        public async Task<bool> Execute () { return await Execute (null); }
         public async Task<bool> Execute (PerformContext context) {
             context.WriteLine ("Starting to geocode users");
             context.WriteLine ($"Key: {_appSettings.IPStackKey}");
