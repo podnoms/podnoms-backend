@@ -26,7 +26,5 @@
         <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
         <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
-        <ProjectReference Include="..\..\..\working\ImageSharp.Web\src\ImageSharp.Web\ImageSharp.Web.csproj" />
-        <ProjectReference Include="..\..\..\working\ImageSharp.Web\src\ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj" />
     </ItemGroup>
 </Project>
