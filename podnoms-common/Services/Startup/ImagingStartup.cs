@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Startup {
             services.AddImageSharpCore ()
                 .SetRequestParser<QueryCollectionRequestParser> ()
                 .Configure<PhysicalFileSystemCacheOptions> (options => {
-                    options.CacheFolder = "/tmp/pn-cache";
+                    options.CacheFolder = ".pn-cache";
                 })
                 .SetCache<PhysicalFileSystemCache> ()
                 .SetCacheHash<CacheHash> ()

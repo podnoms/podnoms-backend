@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Common;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -19,9 +14,6 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -96,16 +88,30 @@ namespace PodNoms.Api.Controllers {
             return Ok ($"\"{_applicationUser.PictureUrl}\"");
         }
         private async Task<string> _commitImage (string id, IFormFile image, string subDirectory) {
-            if (image is null || image.Length == 0) throw new InvalidOperationException ("No file found in stream");
-            if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException ("Maximum file size exceeded");
-            if (!_imageFileStorageSettings.IsSupported (image.FileName)) throw new InvalidOperationException ("Invalid file type");
+            if (image is null) {
+                throw new InvalidOperationException ("Image in stream is null");
+            }
+            if (image is null || image.Length == 0) {
+                throw new InvalidOperationException ("Image in stream has zero length");
+            }
+            if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) {
+                throw new InvalidOperationException ("Maximum file size exceeded");
+            }
+            if (!_imageFileStorageSettings.IsSupported (image.FileName)) {
+                throw new InvalidOperationException ("Invalid file type");
+            }
 
             var cacheFile = await CachedFormFileStorage.CacheItem (image);
             (var finishedFile, var extension) = ImageUtils.ConvertFile (cacheFile, id);
             var destinationFile = $"{subDirectory}/{id}.{extension}";
 
-            await _fileUploader.UploadFile (finishedFile, _imageFileStorageSettings.ContainerName,
-                destinationFile, "image/png", (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}"));
+            await _fileUploader.UploadFile (
+                finishedFile,
+                _imageFileStorageSettings.ContainerName,
+                destinationFile,
+                "image/png",
+                (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}")
+            );
             return destinationFile;
         }
     }
