@@ -39,11 +39,13 @@ namespace PodNoms.Data.Models {
 
         [JsonIgnore]
         public List<PodcastEntrySharingLink> SharingLinks { get; set; }
-        public string GetThumbnailUrl (string cdnUrl, string containerName) {
-            var url = ImageUrl.StartsWith ("http") ?
-                ImageUrl :
-                $"{cdnUrl}{containerName}/entry/cached/{Id.ToString()}-32x32.png";
-            return url;
+
+        public string GetImageUrl (string cdnUrl, string containerName) {
+            return $"{cdnUrl}{containerName}/entry/{Id}.png?width=725&height=748";
         }
+        public string GetThumbnailUrl (string cdnUrl, string containerName) {
+            return $"{cdnUrl}{containerName}/entry/{Id}.png?width=32&height=32";
+        }
+
     }
 }

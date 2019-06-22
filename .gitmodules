@@ -1,0 +1,4 @@
+[submodule "ImageSharp.Web"]
+	path = ImageSharp.Web
+	url = https://github.com/SixLabors/ImageSharp.Web
+	branch = master
