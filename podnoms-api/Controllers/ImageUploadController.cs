@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Common;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -19,9 +14,6 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -58,7 +50,7 @@ namespace PodNoms.Api.Controllers {
             if (podcast is null)
                 return NotFound ();
             try {
-                var (imageFile, thumbnailFile) = await _commitImage (id, image, "podcast");
+                var imageFile = await _commitImage (id, image, "podcast");
                 _podcastRepository.AddOrUpdate (podcast);
                 await _unitOfWork.CompleteAsync ();
 
@@ -76,7 +68,7 @@ namespace PodNoms.Api.Controllers {
             if (entry is null)
                 return NotFound ();
             try {
-                var (imageFile, thumbnailFile) = await _commitImage (id, image, "entry");
+                var imageFile = await _commitImage (id, image, "entry");
                 entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageFile}";
                 _entryRepository.AddOrUpdate (entry);
                 await _unitOfWork.CompleteAsync ();
@@ -90,30 +82,37 @@ namespace PodNoms.Api.Controllers {
         [HttpPost ("/profile/{id}/imageupload")]
         public async Task<ActionResult<string>> UploadProfileImage (string id, IFormFile image) {
             //TODO: Cache this and remove CdnUrl from below
-            var (imageFile, thumbnailFile) = await _commitImage (id, image, "profile");
+            var imageFile = await _commitImage (id, image, "profile");
             _applicationUser.PictureUrl = $"{_storageSettings.CdnUrl}{_imageFileStorageSettings.ContainerName}/{imageFile}";
             await _userManager.UpdateAsync (_applicationUser);
             return Ok ($"\"{_applicationUser.PictureUrl}\"");
         }
-        private async Task < (string, string) > _commitImage (string id, IFormFile image, string subDirectory) {
-
-            if (image is null || image.Length == 0) throw new InvalidOperationException ("No file found in stream");
-            if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) throw new InvalidOperationException ("Maximum file size exceeded");
-            if (!_imageFileStorageSettings.IsSupported (image.FileName)) throw new InvalidOperationException ("Invalid file type");
+        private async Task<string> _commitImage (string id, IFormFile image, string subDirectory) {
+            if (image is null) {
+                throw new InvalidOperationException ("Image in stream is null");
+            }
+            if (image is null || image.Length == 0) {
+                throw new InvalidOperationException ("Image in stream has zero length");
+            }
+            if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) {
+                throw new InvalidOperationException ("Maximum file size exceeded");
+            }
+            if (!_imageFileStorageSettings.IsSupported (image.FileName)) {
+                throw new InvalidOperationException ("Invalid file type");
+            }
 
             var cacheFile = await CachedFormFileStorage.CacheItem (image);
             (var finishedFile, var extension) = ImageUtils.ConvertFile (cacheFile, id);
-            var thumbnailFile = ImageUtils.CreateThumbnail (cacheFile, id, 32, 32);
-
             var destinationFile = $"{subDirectory}/{id}.{extension}";
-            var destinationFileThumbnail = $"{subDirectory}/cached/{id}-32x32.{extension}";
 
-            await _fileUploader.UploadFile (finishedFile, _imageFileStorageSettings.ContainerName,
-                destinationFile, "image/png", (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}"));
-
-            await _fileUploader.UploadFile (thumbnailFile, _imageFileStorageSettings.ContainerName,
-                destinationFileThumbnail, "image/png", (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}"));
-            return (destinationFile, thumbnailFile);
+            await _fileUploader.UploadFile (
+                finishedFile,
+                _imageFileStorageSettings.ContainerName,
+                destinationFile,
+                "image/png",
+                (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}")
+            );
+            return destinationFile;
         }
     }
 }
