@@ -84,6 +84,8 @@ namespace PodNoms.Common.Data {
                         m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrll"],
                             _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
 
+            CreateMap<Playlist, PlaylistViewModel> ();
+
             CreateMap<Category, CategoryViewModel> ()
                 .ForMember (
                     src => src.Children,

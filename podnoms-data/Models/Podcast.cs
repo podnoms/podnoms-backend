@@ -34,10 +34,10 @@ namespace PodNoms.Data.Models {
         #endregion
 
         public string GetImageUrl (string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/podcast/{Id}.png?width=725&height=748&ngsw-bypass";
+            return $"{cdnUrl}{containerName}/podcast/{Id}.png?width=725&height=748";
         }
         public string GetThumbnailUrl (string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/podcast/{Id}.png?width=32&height=32&ngsw-bypass";
+            return $"{cdnUrl}{containerName}/podcast/{Id}.png?width=32&height=32";
         }
 
         public string GetAuthenticatedUrl (string siteUrl) {

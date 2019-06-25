@@ -1,9 +1,11 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 using PodNoms.Common.Auth;
@@ -21,8 +23,9 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
 
         public PlaylistController(IPlaylistRepository playlistRepository, IPodcastRepository podcastRepository,
-                IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                IUnitOfWork unitOfWork, IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor, userManager, logger) {
+            IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+            IUnitOfWork unitOfWork, IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor,
+            userManager, logger) {
             _playlistRepository = playlistRepository;
             _podcastRepository = podcastRepository;
             _unitOfWork = unitOfWork;
@@ -30,18 +33,28 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost]
-        public async Task<ActionResult<Playlist>> Post([FromBody] PodcastEntryViewModel entry) {
+        public async Task<ActionResult<PlaylistViewModel>> Post([FromBody] PodcastEntryViewModel entry) {
             var podcast = await _podcastRepository.GetAsync(entry.PodcastId);
             if (podcast != null) {
-                var playlist = new Playlist() {
+                var playlist = new Playlist {
                     Podcast = podcast,
                     SourceUrl = entry.SourceUrl
                 };
                 _playlistRepository.AddOrUpdate(playlist);
-                await _unitOfWork.CompleteAsync();
+                try {
+                    await _unitOfWork.CompleteAsync();
+                } catch (DbUpdateException ex) {
+                    if (ex.InnerException.Message.Contains("IX_Playlists_SourceUrl")) {
+                        return Conflict("This podcast is already monitoring this playlist");
+                    }
+
+                    return BadRequest("There was an error adding this playlist");
+                }
+
                 BackgroundJob.Enqueue<ProcessPlaylistsJob>(job => job.Execute(playlist.Id));
-                return Ok(playlist);
+                return _mapper.Map<Playlist, PlaylistViewModel>(playlist);
             }
+
             return NotFound();
         }
     }

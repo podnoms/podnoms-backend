@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
@@ -23,6 +21,7 @@ namespace PodNoms.Common.Persistence {
         ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
         GO";
     }
+
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext (string[] args) {
             var envName = Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT");
@@ -46,6 +45,14 @@ namespace PodNoms.Common.Persistence {
     public class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
         public PodNomsDbContext (DbContextOptions<PodNomsDbContext> options) : base (options) {
             Database.SetCommandTimeout (360);
+        }
+
+        private IEnumerable<PropertyBuilder> __getColumn (ModelBuilder modelBuilder, string columnName) {
+            return modelBuilder.Model
+                .GetEntityTypes ()
+                .SelectMany (t => t.GetProperties ())
+                .Where (p => p.Name == columnName)
+                .Select (p => modelBuilder.Entity (p.DeclaringEntityType.ClrType).Property (p.Name));
         }
 
         protected override void OnModelCreating (ModelBuilder modelBuilder) {
@@ -85,6 +92,9 @@ namespace PodNoms.Common.Persistence {
                 .HasIndex (l => l.LinkId)
                 .IsUnique ();
 
+            modelBuilder.Entity<Playlist> ()
+                .HasIndex (p => new { p.SourceUrl })
+                .IsUnique (true);
             modelBuilder.Entity<ParsedPlaylistItem> ()
                 .HasIndex (p => new { p.VideoId, p.PlaylistId })
                 .IsUnique (true);
@@ -102,14 +112,6 @@ namespace PodNoms.Common.Persistence {
             // Database.ExecuteSqlCommand (SeedData.CATEGORIES);
             // Database.ExecuteSqlCommand (SeedData.SUB_CATEGORIES);
             // Database.ExecuteSqlCommand (SeedData.AUTH);
-        }
-
-        private IEnumerable<PropertyBuilder> __getColumn (ModelBuilder modelBuilder, string columnName) {
-            return modelBuilder.Model
-                .GetEntityTypes ()
-                .SelectMany (t => t.GetProperties ())
-                .Where (p => p.Name == columnName)
-                .Select (p => modelBuilder.Entity (p.DeclaringEntityType.ClrType).Property (p.Name));
         }
 
         public override int SaveChanges () {
@@ -137,18 +139,19 @@ namespace PodNoms.Common.Persistence {
             return base.SaveChangesAsync (acceptAllChangesOnSuccess, cancellationToken);
         }
 
-        public DbSet<Podcast> Podcasts { get; set; }
+        public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<Donation> Donations { get; set; }
+        public DbSet<NotificationLog> NotificationLogs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
+        public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PodcastEntry> PodcastEntries { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Subcategory> Subcategories { get; set; }
-        public DbSet<Playlist> Playlists { get; set; }
-        public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
-        public DbSet<Donation> Donations { get; set; }
-        public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
-        public DbSet<ChatMessage> ChatMessages { get; set; }
+
+        public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
-        public DbSet<NotificationLog> NotificationLogs { get; set; }
+        public DbSet<Subcategory> Subcategories { get; set; }
     }
 }
