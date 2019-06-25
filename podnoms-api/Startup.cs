@@ -1,4 +1,9 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -27,11 +32,6 @@ using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PodNoms.Api {
     public class Startup {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace PodNoms.Api {
     public class Program {
         private static readonly bool _isDevelopment =
-            Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
+            Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT").Trim () == EnvironmentName.Development;
 
         public static void Main (string[] args) {
             BuildWebHost (args).Run ();
@@ -32,8 +32,7 @@ namespace PodNoms.Api {
 
             var t = builder.UseStartup<Startup> ()
                 .UseKestrel (options => { options.Limits.MaxRequestBodySize = 1073741824; });
-            if (_isDevelopment)
-                t = t.UseUrls ("http://*:5000", "https://*:5001");
+
             return t.Build ();
         }
     }

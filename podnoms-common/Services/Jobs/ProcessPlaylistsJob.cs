@@ -49,9 +49,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> Execute () {
-            var playlists = _playlistRepository.GetAll ()
-                .Where (p => p.PodcastId == Guid.Parse ("76A4140A-8EE0-46C3-2F49-08D62FC39C6F"));
-
+            var playlists = _playlistRepository.GetAll ();
             foreach (var playlist in playlists) {
                 await Execute (playlist.Id);
             }
@@ -81,7 +79,7 @@ namespace PodNoms.Common.Services.Jobs {
                 }
 
                 //check for active subscription
-                if (playlist.PodcastEntries.Count () > _storageSettings.DefaultEntryCount) {
+                if (playlist.PodcastEntries.Count >= _storageSettings.DefaultEntryCount) {
                     _logger.LogError ($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService> (
                         service => service.SendCustomNotifications (playlist.Podcast.Id, "PodNoms",

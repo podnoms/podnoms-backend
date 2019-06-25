@@ -41,10 +41,14 @@ namespace PodNoms.Data.Models {
         public List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
         public string GetImageUrl (string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/entry/{Id}.png?width=725&height=748";
+            return ImageUrl.StartsWith ("http") ?
+                ImageUrl :
+                $"{cdnUrl}{containerName}/entry/{Id}.png?width=725&height=748";
         }
         public string GetThumbnailUrl (string cdnUrl, string containerName) {
-            return $"{cdnUrl}{containerName}/entry/{Id}.png?width=32&height=32";
+            return ImageUrl.StartsWith ("http") ?
+                ImageUrl :
+                $"{cdnUrl}{containerName}/entry/{Id}.png?width=32&height=32";
         }
 
     }
