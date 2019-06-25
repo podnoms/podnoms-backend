@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +9,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
+    [Route("pub/podcast")]
     public class PublicPodcastController : Controller {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _entryRepository;

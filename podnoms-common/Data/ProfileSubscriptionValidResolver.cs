@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using AutoMapper;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -20,7 +20,6 @@ namespace PodNoms.Common.Data {
                 .FirstOrDefault();
 
             var subs = _repository.GetAllValidSubscriptions(source.Id);
-            Console.WriteLine(subs.AsQueryable().ToSql());
             return subs.Count() > 0;
         }
     }

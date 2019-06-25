@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
@@ -37,8 +37,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 ? DateTime.Now
                 : existingSubscription.AddHours(1);
 
-            var newPayment = new AccountSubscription
-            {
+            var newPayment = new AccountSubscription {
                 Type = paymentType,
                 AppUser = appUser,
                 StartDate = startDate,
@@ -51,10 +50,11 @@ namespace PodNoms.Common.Persistence.Repositories {
             Create(newPayment);
         }
 
-        public IEnumerable<AccountSubscription> GetAllValidSubscriptions(string id) {
-
-            var forUser = GetAll().Where(r => r.AppUser.Id == id).Where(r => DateTime.Now >= r.StartDate)
-                    .Where(r => DateTime.Now <= r.EndDate);
+        public IEnumerable<AccountSubscription> GetAllValidSubscriptions(string userId) {
+            var forUser = GetAll()
+                .Where(r => r.AppUser.Id == userId)
+                .Where(r => DateTime.Now >= r.StartDate)
+                .Where(r => DateTime.Now <= r.EndDate);
             return forUser;
         }
     }
