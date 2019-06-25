@@ -54,7 +54,8 @@ namespace PodNoms.Data.Extensions {
                     .GetProperties()
                     .FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(SlugFieldAttribute)));
                 if (property != null) {
-                    var attribute = property.GetCustomAttributes(typeof(SlugFieldAttribute), false)
+                    var attribute = property
+                        .GetCustomAttributes(typeof(SlugFieldAttribute), false)
                         .FirstOrDefault();
 
                     var t = entity.GetType();
