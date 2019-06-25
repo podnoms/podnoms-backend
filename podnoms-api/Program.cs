@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace PodNoms.Api {
     public class Program {
         private static readonly bool _isDevelopment =
-            Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT").Trim () == EnvironmentName.Development;
+            Environment.GetEnvironmentVariable ("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
 
         public static void Main (string[] args) {
             BuildWebHost (args).Run ();
