@@ -299,3 +299,4 @@ appsettings.Production.json
 .config
 podnoms-api/wwwroot/is-cache
 podnoms-api/wwwroot/.pn-cache
+podnoms-debug
