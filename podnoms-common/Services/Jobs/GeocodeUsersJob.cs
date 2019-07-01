@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Hangfire;
 using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.AspNetCore.Identity;
@@ -58,7 +59,10 @@ namespace PodNoms.Common.Services.Jobs {
             _httpClient = httpClientFactory.CreateClient ("ipstack_geocoder");
             _appSettings = appSettings.Value;
         }
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute () { return await Execute (null); }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute (PerformContext context) {
             context.WriteLine ("Starting to geocode users");
             context.WriteLine ($"Key: {_appSettings.IPStackKey}");

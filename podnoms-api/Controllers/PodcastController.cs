@@ -94,10 +94,6 @@ namespace PodNoms.Api.Controllers {
                     parts[0], parts[1],
                     _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}.png");
 
-                await _fileUtilities.CopyRemoteFile (
-                    parts[0], parts[1].Replace (".png", "-32x32.png"),
-                    _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}-32x32.png");
-
                 return Ok (_mapper.Map<Podcast, PodcastViewModel> (ret));
             } catch (GenerateSlugFailureException) {
                 return StatusCode (StatusCodes.Status500InternalServerError);
