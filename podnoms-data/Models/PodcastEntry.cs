@@ -40,11 +40,8 @@ namespace PodNoms.Data.Models {
         [JsonIgnore]
         public List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
-        private string extension {
-            get {
-                return ImageUrl.Contains (".png") ? "png" : "jpg";
-            }
-        }
+        private string extension => "jpg";
+
         public string GetImageUrl (string cdnUrl, string containerName) {
             return ImageUrl.StartsWith ("http") ?
                 ImageUrl :

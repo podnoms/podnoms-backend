@@ -22,11 +22,11 @@ namespace PodNoms.Common.Utils {
             return string.Empty;
         }
 
-        public static string GetTemporaryImage (string type, int upperBound, string extension = "png") {
+        public static string GetTemporaryImage (string type, int upperBound, string extension = "jpg") {
             return $"{type}/image-{Randomisers.RandomInteger(1, upperBound)}.{extension}";
         }
 
-        public static (string, string) ConvertFile (string file, string prefix, string outputType = "png") {
+        public static (string, string) ConvertFile (string file, string prefix, string outputType = "jpg") {
             // return (cacheFile, "jpg");
             var outputFile = Path.Combine (Path.GetTempPath (), $"{prefix}.{outputType}");
             if (File.Exists (outputFile))
