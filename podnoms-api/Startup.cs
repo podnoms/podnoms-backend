@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Api.Providers;
@@ -152,7 +153,7 @@ namespace PodNoms.Api {
                 .AddFluentValidation (fv => fv.RegisterValidatorsFromAssemblyContaining<Startup> ());
 
             services.AddSwaggerGen (c => {
-                c.SwaggerDoc ("v1", new Info { Title = "PodNoms.API", Version = "v1" });
+                c.SwaggerDoc ("v1", new OpenApiInfo { Title = "PodNoms.API", Version = "v1" });
                 c.DocumentFilter<LowercaseDocumentFilter> ();
             });
 

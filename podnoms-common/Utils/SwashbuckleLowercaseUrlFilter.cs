@@ -1,16 +1,17 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace PodNoms.Common.Utils {
     public class LowercaseDocumentFilter : IDocumentFilter {
-        public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context) {
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context) {
             ////////	PATHS
 
             var paths = swaggerDoc.Paths;
 
             //	generate the new keys
-            var newPaths = new Dictionary<string, PathItem>();
+            var newPaths = new Dictionary<string, OpenApiPathItem>();
             var removeKeys = new List<string>();
             foreach (var path in paths) {
                 var newKey = path.Key.ToLower();
@@ -30,5 +31,6 @@ namespace PodNoms.Common.Utils {
                 swaggerDoc.Paths.Remove(key);
             }
         }
+
     }
 }

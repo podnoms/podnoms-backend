@@ -1,181 +1,179 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
+using System;
+using System.Linq;
 
 namespace PodNoms.Common.Data {
     public class MappingProvider : Profile {
         private readonly IConfiguration _options;
 
-        public MappingProvider () { }
+        public MappingProvider() { }
 
-        public MappingProvider (IConfiguration options) {
+        public MappingProvider(IConfiguration options) {
             _options = options;
 
             //Domain to API Resource
-            CreateMap<Podcast, PodcastViewModel> ()
-                .ForMember (
+            CreateMap<Podcast, PodcastViewModel>()
+                .ForMember(
                     v => v.RssUrl,
-                    e => e.MapFrom (m => $"{_options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
-                .ForMember (
+                    e => e.MapFrom(m => $"{_options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
+                .ForMember(
                     v => v.User,
-                    e => e.MapFrom (m => m.AppUser.Slug))
-                .ForMember (
+                    e => e.MapFrom(m => m.AppUser.Slug))
+                .ForMember(
                     v => v.ImageUrl,
-                    e => e.MapFrom (m => m.GetImageUrl (
-                        _options.GetSection ("StorageSettings") ["ImageUrl"],
-                        _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
-                .ForMember (
+                    e => e.MapFrom(m => m.GetImageUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     v => v.Notifications,
-                    e => e.MapFrom (m => m.Notifications)
+                    e => e.MapFrom(m => m.Notifications)
                 )
-                .ForMember (
+                .ForMember(
                     v => v.AuthPassword,
-                    e => e.MapFrom (m => string.Empty)
+                    e => e.MapFrom(m => string.Empty)
                 )
-                .ForMember (
+                .ForMember(
                     v => v.ThumbnailUrl,
-                    e => e.MapFrom (m => m.GetThumbnailUrl (
-                        _options.GetSection ("StorageSettings") ["ImageUrl"],
-                        _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
+                    e => e.MapFrom(m => m.GetThumbnailUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
-            CreateMap<PodcastEntry, PodcastEntryViewModel> ()
-                .ForMember (
+            CreateMap<PodcastEntry, PodcastEntryViewModel>()
+                .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom (m =>
-                        $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
-                .ForMember (
+                    e => e.MapFrom(m =>
+                       $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                .ForMember(
                     src => src.ImageUrl,
-                    e => e.MapFrom (m => m.GetImageUrl (
-                        _options.GetSection ("StorageSettings") ["ImageUrl"],
-                        _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
-                .ForMember (
+                    e => e.MapFrom(m => m.GetImageUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     src => src.ThumbnailUrl,
-                    e => e.MapFrom (m => m.GetThumbnailUrl (
-                        _options.GetSection ("StorageSettings") ["ImageUrl"],
-                        _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])))
-                .ForMember (
+                    e => e.MapFrom(m => m.GetThumbnailUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     src => src.PodcastId,
-                    e => e.MapFrom (m => m.Podcast.Id))
-                .ForMember (
+                    e => e.MapFrom(m => m.Podcast.Id))
+                .ForMember(
                     src => src.PodcastSlug,
-                    e => e.MapFrom (m => m.Podcast.Slug))
-                .ForMember (
+                    e => e.MapFrom(m => m.Podcast.Slug))
+                .ForMember(
                     src => src.PodcastTitle,
-                    e => e.MapFrom (m => m.Podcast.Title));
+                    e => e.MapFrom(m => m.Podcast.Title));
 
-            CreateMap<PodcastEntry, SharingPublicViewModel> ()
-                .ForMember (
+            CreateMap<PodcastEntry, SharingPublicViewModel>()
+                .ForMember(
                     src => src.Title,
-                    e => e.MapFrom (m => m.Title))
-                .ForMember (
+                    e => e.MapFrom(m => m.Title))
+                .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom (m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
-                .ForMember (
+                    e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                .ForMember(
                     src => src.ImageUrl,
-                    e => e.MapFrom (m =>
-                        m.GetThumbnailUrl (_options.GetSection ("StorageSettings") ["CdnUrll"],
-                            _options.GetSection ("ImageFileStorageSettings") ["ContainerName"])));
+                    e => e.MapFrom(m =>
+                       m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrll"],
+                           _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
-            CreateMap<Playlist, PlaylistViewModel> ();
+            CreateMap<Playlist, PlaylistViewModel>();
 
-            CreateMap<Category, CategoryViewModel> ()
-                .ForMember (
+            CreateMap<Category, CategoryViewModel>()
+                .ForMember(
                     src => src.Children,
-                    e => e.MapFrom (m => m.Subcategories)
+                    e => e.MapFrom(m => m.Subcategories)
                 );
 
-            CreateMap<Subcategory, SubcategoryViewModel> ();
+            CreateMap<Subcategory, SubcategoryViewModel>();
 
-            CreateMap<ApplicationUser, UserActivityViewModel> ()
-                .ForMember (
+            CreateMap<ApplicationUser, UserActivityViewModel>()
+                .ForMember(
                     src => src.Name,
-                    map => map.MapFrom (s => $"{s.FirstName} {s.LastName}"))
-                .ForMember (
+                    map => map.MapFrom(s => $"{s.FirstName} {s.LastName}"))
+                .ForMember(
                     src => src.PodcastCount,
-                    map => map.MapFrom (s => s.Podcasts.Count))
-                .ForMember (
+                    map => map.MapFrom(s => s.Podcasts.Count))
+                .ForMember(
                     src => src.EntryCount,
-                    map => map.MapFrom (s => s.Podcasts.Sum (r => r.PodcastEntries.Count)));
+                    map => map.MapFrom(s => s.Podcasts.Sum(r => r.PodcastEntries.Count)));
 
-            CreateMap<ApplicationUser, ProfileViewModel> ()
-                .ForMember (
+            CreateMap<ApplicationUser, ProfileViewModel>()
+                .ForMember(
                     src => src.Name,
-                    map => map.MapFrom (s => $"{s.FirstName} {s.LastName}"))
-                .ForMember (
+                    map => map.MapFrom(s => $"{s.FirstName} {s.LastName}"))
+                .ForMember(
                     src => src.ProfileImage,
-                    map => map.MapFrom (s => s.PictureUrl))
-                .ForMember (
+                    map => map.MapFrom(s => s.PictureUrl))
+                .ForMember(
                     src => src.HasSubscribed,
-                    map => map.MapFrom<ProfileHasSubscribedResolver> ()
+                    map => map.MapFrom<ProfileHasSubscribedResolver>()
                 )
-                .ForMember (
+                .ForMember(
                     src => src.SubscriptionType,
-                    map => map.MapFrom<ProfileSubscriptionResolver> ()
+                    map => map.MapFrom<ProfileSubscriptionResolver>()
                 )
-                .ForMember (
+                .ForMember(
                     src => src.SubscriptionValid,
-                    map => map.MapFrom<ProfileSubscriptionValidResolver> ()
+                    map => map.MapFrom<ProfileSubscriptionValidResolver>()
                 )
-                .ForMember (
+                .ForMember(
                     src => src.SubscriptionValidUntil,
-                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver> ()
-                ).ForMember (
+                    map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
+                ).ForMember(
                     src => src.Roles,
-                    map => map.MapFrom<UserRolesResolver> ()
+                    map => map.MapFrom<UserRolesResolver>()
                 );
 
-            CreateMap<BaseNotificationConfig, NotificationConfigViewModel> ()
-                .ForMember (
+            CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
+                .ForMember(
                     src => src.Options,
-                    map => map.MapFrom (r => r.Options.Select (o => o.Value)));
+                    map => map.MapFrom(r => r.Options.Select(o => o.Value)));
 
-            CreateMap<Notification, NotificationViewModel> ()
-                .ForMember (
+            CreateMap<Notification, NotificationViewModel>()
+                .ForMember(
                     dest => dest.Options,
-                    map => map.MapFrom<NotificationOptionsResolver> ()
+                    map => map.MapFrom<NotificationOptionsResolver>()
                 );
 
-            CreateMap<ChatMessage, ChatViewModel> ();
+            CreateMap<ChatMessage, ChatViewModel>();
 
             //API Resource to Domain
 
-            CreateMap<PodcastViewModel, Podcast> ()
-                .ForMember (
+            CreateMap<PodcastViewModel, Podcast>()
+                .ForMember(
                     dest => dest.Category,
-                    src => src.MapFrom<PodcastCategoryResolver> ())
-                .ForMember (
+                    src => src.MapFrom<PodcastCategoryResolver>())
+                .ForMember(
                     dest => dest.AuthPassword,
-                    src => src.MapFrom<PodcastAuthPasswordResolver> ())
-                .ForMember (
+                    src => src.MapFrom<PodcastAuthPasswordResolver>())
+                .ForMember(
                     dest => dest.Slug,
-                    opt => opt.Condition (src => (!string.IsNullOrEmpty (src.Slug))))
-                .ForMember (
+                    opt => opt.Condition(src => (!string.IsNullOrEmpty(src.Slug))))
+                .ForMember(
                     dest => dest.Slug,
-                    map => map.MapFrom (vm => vm.Slug));
+                    map => map.MapFrom(vm => vm.Slug));
 
-            CreateMap<PodcastEntryViewModel, PodcastEntry> ()
-                .ForMember (
+            CreateMap<PodcastEntryViewModel, PodcastEntry>()
+                .ForMember(
                     e => e.AudioUrl,
-                    map => map.Ignore ())
-                .AfterMap ((src, dest) => dest.AudioUrl = dest.AudioUrl);
+                    map => map.Ignore())
+                .AfterMap((src, dest) => dest.AudioUrl = dest.AudioUrl);
 
-            CreateMap<RegistrationViewModel, ApplicationUser> ()
-                .ForMember (
+            CreateMap<RegistrationViewModel, ApplicationUser>()
+                .ForMember(
                     e => e.UserName,
-                    map => map.MapFrom (vm => vm.Email));
-            CreateMap<ChatViewModel, ChatMessage> ();
-            CreateMap<NotificationViewModel, Notification> ()
-                .ForMember (
+                    map => map.MapFrom(vm => vm.Email));
+            CreateMap<ChatViewModel, ChatMessage>();
+            CreateMap<NotificationViewModel, Notification>()
+                .ForMember(
                     dest => dest.Config,
-                    map => map.MapFrom (r => JsonConvert.SerializeObject (r.Options))
+                    map => map.MapFrom(r => JsonConvert.SerializeObject(r.Options))
                 );
         }
     }
