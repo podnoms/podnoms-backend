@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,7 +56,7 @@ namespace PodNoms.Api {
 
             services.AddPodNomsOptions (Configuration);
             services.AddPodNomsHealthChecks (Configuration);
-            services.AddPodNomsApplicationInsights (Configuration, Env.IsProduction ());
+            //services.AddPodNomsApplicationInsights (Configuration, Env.IsProduction ());
 
             mutex.WaitOne ();
             Mapper.Reset ();
@@ -189,8 +190,7 @@ namespace PodNoms.Api {
 
             services.AddPodNomsSignalR ();
             services.AddDependencies ();
-            services.AddPodNomsHangfire (Configuration, Env.IsProduction ());
-
+         
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider (instance);
@@ -221,16 +221,17 @@ namespace PodNoms.Api {
 
             app.UseCors ("PodNomsClientPolicy");
 
+            app.UseHangfireDashboard();
+
             app.UseSwagger ();
             app.UseSwaggerUI (c => {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
             app.UsePodNomsImaging ();
-            app.UsePodNomsHangfire (serviceProvider, Configuration, Env.IsProduction ());
             app.UsePodNomsSignalRRoutes ();
             app.UsePodNomsHealthChecks ("/healthcheck");
-            app.UsePodNomsApplicationInsights (Configuration.GetSection ("ApplicationInsights"), Env.IsProduction ());
+            //app.UsePodNomsApplicationInsights (Configuration.GetSection ("ApplicationInsights"), Env.IsProduction ());
             app.UseSecureHeaders ();
 
             app.UseMvc (routes => {
