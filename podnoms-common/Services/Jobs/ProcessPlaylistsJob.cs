@@ -49,6 +49,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> Execute () {
+            return true;
             var playlists = _playlistRepository.GetAll ();
             foreach (var playlist in playlists) {
                 await Execute (playlist.Id);
@@ -56,6 +57,7 @@ namespace PodNoms.Common.Services.Jobs {
             return true;
         }
         public async Task<bool> Execute (Guid playlistId) {
+            return true;
             try {
                 var playlist = await _playlistRepository.GetAsync (playlistId);
                 if (playlist is null)
