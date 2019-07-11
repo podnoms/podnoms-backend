@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Mime;
 using HealthChecks.UI.Client;
@@ -22,7 +22,7 @@ namespace PodNoms.Common.Services.Startup {
                     name: "DATABASE",
                     failureStatus: HealthStatus.Degraded,
                     tags: new string[] { "db", "sql", "sqlserver" })
-                .AddUrlGroup(new Uri("https://www.podnoms.com"), "WWW", HealthStatus.Unhealthy)
+                // .AddUrlGroup(new Uri("https://www.podnoms.com"), "WWW", HealthStatus.Unhealthy)
                 .AddApplicationInsightsPublisher();
 
             return services;

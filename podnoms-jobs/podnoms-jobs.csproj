@@ -10,6 +10,7 @@
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.4" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.4" />
         <PackageReference Include="Hangfire.Core" Version="1.7.4" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
     </ItemGroup>
     <ItemGroup>

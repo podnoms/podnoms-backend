@@ -27,9 +27,9 @@ namespace PodNoms.Common.Services.Jobs {
                     .Where(e => !e.Processed)
                     .ToListAsync();
                 foreach (var entry in entries) {
-                    var processed = await _processor.DownloadAudio(entry.Id);
+                    var processed = await _processor.DownloadAudio(string.Empty, entry.Id);
                     if (processed) {
-                        var uploaded = await _uploadService.UploadAudio(entry.Id, entry.AudioUrl);
+                        var uploaded = await _uploadService.UploadAudio(string.Empty, entry.Id, entry.AudioUrl);
                         if (!uploaded) {
                             _logger.LogError($"Error uploading audio from {entry.Id}");
                         }

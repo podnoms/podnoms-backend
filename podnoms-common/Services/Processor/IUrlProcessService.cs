@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using PodNoms.Data.Models;
 
@@ -7,6 +7,6 @@ namespace PodNoms.Common.Services.Processor {
 
         Task<AudioType> GetInformation(string entryId);
         Task<AudioType> GetInformation(PodcastEntry entry);
-        Task<bool> DownloadAudio(Guid entryId);
+        Task<bool> DownloadAudio(string authToken, Guid entryId);
     }
 }

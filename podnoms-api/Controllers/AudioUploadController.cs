@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -23,6 +23,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -58,8 +59,7 @@ namespace PodNoms.Api.Controllers {
             if (podcast is null)
                 return NotFound();
 
-            var entry = new PodcastEntry
-            {
+            var entry = new PodcastEntry {
                 Title = Path.GetFileName(Path.GetFileNameWithoutExtension(file.FileName)),
                 ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png",
                 Processed = false,
@@ -71,7 +71,8 @@ namespace PodNoms.Api.Controllers {
             _entryRepository.AddOrUpdate(entry);
             await _unitOfWork.CompleteAsync();
 
-            BackgroundJob.Enqueue<IAudioUploadProcessService>(service => service.UploadAudio(entry.Id, localFile));
+            var authToken = _httpContext.Request.Headers["Authorization"].ToString();
+            BackgroundJob.Enqueue<IAudioUploadProcessService>(service => service.UploadAudio(authToken, entry.Id, localFile));
             var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(ret);
         }
