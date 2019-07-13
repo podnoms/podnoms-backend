@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Services.Push.Data;
 
@@ -10,6 +11,7 @@ namespace PodNoms.Common.Services.Push.Extensions {
                 try {
                     var context = serviceScope.ServiceProvider.GetService<PushSubscriptionContext>();
                     context.Database.EnsureCreated();
+                    context.Database.Migrate();
                 } catch (Exception ex) {
                     System.Console.Error.WriteLine($"Error configuring push\n{ex.Message}");
                 }

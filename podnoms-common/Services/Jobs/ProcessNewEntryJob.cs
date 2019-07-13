@@ -39,9 +39,9 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ProcessEntry(Guid entryId, string authToken) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
-                //var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
-                //    r => r.CacheImage(entry.Id));
-
+                var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
+                   r => r.CacheImage(entry.Id));
+                var token = authToken.Replace("Bearer ", string.Empty);
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
                     r => r.DownloadAudio(authToken, entry.Id));
 
@@ -52,21 +52,18 @@ namespace PodNoms.Common.Services.Jobs {
                 var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 
-                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
-                   uploadJobId,
-                   r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
+                    j => j.NotifyUser(token, entry.Podcast.AppUser.Id, "PodNoms",
                        $"{entry.Title} has finished processing",
                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
                    ));
-
-                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
-                   uploadJobId,
-                   r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
+                    j => j.SendCustomNotifications(token, entry.Podcast.Id, "PodNoms",
                        $"{entry.Title} has finished processing",
                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
-                   )
-                );
+                    ));
+
                 return true;
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");

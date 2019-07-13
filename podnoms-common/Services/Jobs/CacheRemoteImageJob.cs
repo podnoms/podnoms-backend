@@ -18,7 +18,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IFileUploader _fileUploader;
         private readonly IUnitOfWork _unitOfWork;
         private readonly StorageSettings _storageSettings;
-        private readonly ImageFileStorageSettings _imageFileStoragesSettings;
+        private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly ILogger _logger;
 
         public CacheRemoteImageJob(IEntryRepository entryRepository,
@@ -31,7 +31,7 @@ namespace PodNoms.Common.Services.Jobs {
             _fileUploader = fileUploader;
             _unitOfWork = unitOfWork;
             _storageSettings = storageSettings.Value;
-            _imageFileStoragesSettings = imageFileStoragesSettings.Value;
+            _imageFileStorageSettings = imageFileStoragesSettings.Value;
             _logger = logger.CreateLogger<CacheRemoteImageJob>();
         }
 
@@ -83,7 +83,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 var remoteFile = await _fileUploader.UploadFile(
                     sourceFile,
-                    _imageFileStoragesSettings.ContainerName,
+                    _imageFileStorageSettings.ContainerName,
                     $"entry/{destUid}.jpg",
                     "image/jpeg", null);
 

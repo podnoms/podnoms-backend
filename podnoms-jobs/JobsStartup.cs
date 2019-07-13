@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
 using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,11 +13,13 @@ using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Startup;
+using PodNoms.Jobs.Services;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
         public static IConfiguration Configuration { get; private set; }
         public IHostingEnvironment Env { get; }
+        private WebProxy localDebuggingProxy = new WebProxy("http://localhost:9537");
 
         public JobsStartup(IHostingEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
@@ -35,7 +39,17 @@ namespace PodNoms.Jobs {
                 //TODO: unsure if this is needed - re-enable if we get DI issues
                 // options.UseActivator (new HangfireActivator (serviceProvider));
             });
-
+            services.AddHttpClient("podnoms", c => {
+                c.BaseAddress = new Uri(Configuration["AppSettings:ApiUrl"]);
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+                c.DefaultRequestHeaders.Add("User-Agent", "PodNoms-JobProcessor");
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
+                Proxy = localDebuggingProxy,
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => {
+                    return true;
+                }
+            });
             services
                 .AddLogging()
                 .AddPodNomsOptions(Configuration)
@@ -46,6 +60,7 @@ namespace PodNoms.Jobs {
                     options.UseSqlServer(Configuration.GetConnectionString("PodNomsConnection"));
                 })
                 .AddDependencies()
+                .AddTransient<INotifyJobCompleteService, PodNomsApiNotificationService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
         }
 
