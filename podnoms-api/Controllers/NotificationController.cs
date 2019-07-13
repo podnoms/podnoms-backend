@@ -5,19 +5,23 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Google.Apis.Logging;
 using Google.Apis.YouTube.v3.Data;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using PodNoms.Common;
 using PodNoms.Common.Auth;
+using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services;
+using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -29,15 +33,21 @@ namespace PodNoms.Api.Controllers {
         private readonly ISupportChatService _supportChatService;
         private readonly INotificationRepository _notificationRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AppSettings _appSettings;
+        private readonly INotifyJobCompleteService _jobCompleteNotificationService;
         private readonly IMapper _mapper;
 
         public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                 ILogger<NotificationController> logger,
+                INotifyJobCompleteService jobCompleteNotificationService,
+                IOptions<AppSettings> appSettings,
                 IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
                 ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
             _notificationRepository = notificationRepository;
             _unitOfWork = unitOfWork;
+            _appSettings = appSettings.Value;
+            _jobCompleteNotificationService = jobCompleteNotificationService;
             _mapper = mapper;
             _supportChatService = supportChatService;
         }
@@ -90,6 +100,38 @@ namespace PodNoms.Api.Controllers {
                 return Ok(_mapper.Map<BaseNotificationConfig, NotificationConfigViewModel>(config));
 
             return NotFound();
+        }
+
+        [HttpPost("notifyuser")]
+        public ActionResult NotifyUser(string userId, string title, string body, string target, string image) {
+            var authToken = _httpContext.Request.Headers["Authorization"]
+                .ToString()
+                .Replace("Bearer", string.Empty);
+
+            //think this should be okay? I can't pass this to the jobs server
+            //as it doesn't have access the the sqlite registration store
+            //TODO: we should probably move all the sqlite registration store
+            //TODO: out of the API and into the job server
+            _jobCompleteNotificationService.NotifyUser(authToken, userId, "PodNoms",
+                $"{title} has finished processing",
+                target,
+                image);
+            return Accepted();
+        }
+        [HttpPost("sendcustomnotifications")]
+        public ActionResult SendCustomNotifications(string podcastId, string title, string body, string url) {
+            var authToken = _httpContext.Request.Headers["Authorization"]
+                .ToString()
+                .Replace("Bearer", string.Empty);
+
+            //think this should be okay? I can't pass this to the jobs server
+            //as it doesn't have access the the sqlite registration store
+            //TODO: we should probably move all the sqlite registration store
+            //TODO: out of the API and into the job server
+            _jobCompleteNotificationService.SendCustomNotifications(authToken, Guid.Parse(podcastId), "PodNoms",
+                   $"{title} has finished processing",
+                   url);
+            return Accepted();
         }
     }
 }

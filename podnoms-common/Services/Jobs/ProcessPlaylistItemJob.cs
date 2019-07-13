@@ -97,7 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
                     await _unitOfWork.CompleteAsync();
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                        service => service.NotifyUser(string.Empty, entry.Podcast.AppUser.Id, "PodNoms",
                             $"{entry.Title} has finished processing",
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                             entry.Podcast.GetThumbnailUrl(
@@ -106,7 +106,7 @@ namespace PodNoms.Common.Services.Jobs {
                         ));
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                        service => service.SendCustomNotifications(string.Empty, entry.Podcast.Id, "PodNoms",
                             $"{entry.Title} has finished processing",
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                         ));

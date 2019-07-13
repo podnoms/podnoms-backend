@@ -34,18 +34,20 @@ namespace PodNoms.Common.Services.Jobs {
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
 
-        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
+        public async Task NotifyUser(string token, string userId, string title, string body, string target, string image) {
             var pushMessage = new PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
+            _logger.LogDebug("Sending GCM messages to subscribers");
             await _subscriptionStore.ForEachSubscriptionAsync(userId,
                 subscription => {
+                    _logger.LogDebug($"Sending to {target}");
                     _notificationService.SendNotificationAsync(subscription, pushMessage, target);
                 });
         }
 
-        public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {
+        public async Task SendCustomNotifications(string token, Guid podcastId, string title, string body, string url) {
             var id = podcastId.ToString();
             _logger.LogDebug($"Finding custom notifications for {id}");
             var notifications = _notificationRepository.GetAll().Where(r => r.PodcastId == podcastId);
