@@ -14,7 +14,7 @@ namespace PodNoms.Data.Models {
 
         public long? DiskQuota { get; set; }
 
-        [SlugField (sourceField: "FullName")] public string Slug { get; set; }
+        [SlugField(sourceField: "FullName")] public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
         public List<AccountSubscription> AccountSubscriptions { get; set; }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -56,9 +56,9 @@ namespace PodNoms.Common.Services.Jobs {
         private async Task _process(Guid id, string audioUrl) {
             var audioExists = await _fileUtils.CheckFileExists(audioUrl.Split('/')[0], audioUrl.Split('/')[1]);
             if (!audioExists) {
-                var processed = await _processor.DownloadAudio(id);
+                var processed = await _processor.DownloadAudio(string.Empty, id);
                 if (processed) {
-                    var uploaded = await _uploadService.UploadAudio(id, audioUrl);
+                    var uploaded = await _uploadService.UploadAudio(string.Empty, id, audioUrl);
                     if (!uploaded) {
                         _logger.LogError($"Error uploading audio from {id}");
                     }

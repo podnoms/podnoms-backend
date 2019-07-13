@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -88,7 +88,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 podcast.AuthPassword = password;
             }
 
-            // hack but I can't be arsed.
+            //TODO: hack but I can't be arsed.
             if (podcast.AuthPassword != null && podcast.AuthPassword.Length == 0) {
                 podcast.AuthPassword = null;
             }

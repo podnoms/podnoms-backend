@@ -1,0 +1,39 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
+WORKDIR /app
+EXPOSE 80
+
+# copy csproj and restore as distinct layers
+# COPY *.sln .
+COPY podnoms-jobs/*.csproj ./podnoms-jobs/
+COPY podnoms-common/*.csproj ./podnoms-common/
+COPY podnoms-data/*.csproj ./podnoms-data/
+WORKDIR /app/podnoms-jobs
+RUN dotnet restore \
+    --source https://api.nuget.org/v3/index.json \
+    --source https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json \
+    --source https://dotnet.myget.org/F/aspnetcore-ci-dev/api/v3/index.json \
+    --source https://www.myget.org/F/sixlabors/api/v3/index.json
+
+# copy everything else and build app
+WORKDIR /app/
+COPY podnoms-jobs/. ./podnoms-jobs/
+COPY podnoms-common/. ./podnoms-common/
+COPY podnoms-data/. ./podnoms-data/
+
+WORKDIR /app/podnoms-jobs
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
+RUN apk add --no-cache --update \
+    python \
+    ffmpeg \
+    libuv \
+    curl \
+    curl-dev && \
+    curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl && \
+    chmod a+rx /usr/local/bin/youtube-dl && \
+    youtube-dl -U
+    
+WORKDIR /app
+COPY --from=build /app/podnoms-jobs/out ./
+ENTRYPOINT ["dotnet", "podnoms-jobs.dll"]

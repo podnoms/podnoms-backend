@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Data.Models {
     public enum ShareOptions {
@@ -9,15 +9,7 @@ namespace PodNoms.Data.Models {
         Private = (1 << 1),
         Download = (1 << 2)
     }
-    public enum ProcessingStatus {
-        Accepted, //0
-        Downloading, //1
-        Processing, //2
-        Uploading, //3
-        Processed, //4
-        Failed, //5
-        Deferred //6
-    }
+
     public class PodcastEntry : BaseEntity {
 
         public string Author { get; set; }
@@ -42,13 +34,13 @@ namespace PodNoms.Data.Models {
 
         private string extension => "jpg";
 
-        public string GetImageUrl (string cdnUrl, string containerName) {
-            return ImageUrl.StartsWith ("http") ?
+        public string GetImageUrl(string cdnUrl, string containerName) {
+            return ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=725&height=748";
         }
-        public string GetThumbnailUrl (string cdnUrl, string containerName) {
-            return ImageUrl.StartsWith ("http") ?
+        public string GetThumbnailUrl(string cdnUrl, string containerName) {
+            return ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=32&height=32";
         }

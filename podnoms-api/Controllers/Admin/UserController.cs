@@ -22,7 +22,6 @@ namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings (IgnoreApi = true)]
     public class UserController : BaseAuthController {
 
-        public PodNomsDbContext _context;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         public UserController (
@@ -30,12 +29,10 @@ namespace PodNoms.Api.Controllers {
                 UserManager<ApplicationUser> userManager,
                 ILogger<UserController> logger,
                 RoleManager<IdentityRole> roleManager,
-                PodNomsDbContext context,
                 IMapper mapper,
                 IUnitOfWork unitOfWork):
             base (contextAccessor, userManager, logger) {
                 _roleManager = roleManager;
-                _context = context;
                 _mapper = mapper;
             }
 

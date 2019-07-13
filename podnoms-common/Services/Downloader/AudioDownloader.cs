@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -9,6 +9,7 @@ using PodNoms.Common.Services.NYT.Helpers;
 using PodNoms.Common.Services.NYT.Models;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
@@ -20,62 +21,60 @@ namespace PodNoms.Common.Services.Downloader {
 
         private const string DOWNLOADRATESTRING = "iB/s";
         private const string DOWNLOADSIZESTRING = "iB";
-        private const string ETASTRING = "ETA";
         protected const string OFSTRING = "of";
 
-        public event EventHandler<ProcessProgressEvent> DownloadProgress;
-        public event EventHandler<string> PostProcessing;
+        public event EventHandler<ProcessingProgress> DownloadProgress;
 
-        public AudioDownloader (string url, string downloader) {
+        public AudioDownloader(string url, string downloader) {
             _url = url;
             _downloader = downloader;
         }
 
-        public static string GetVersion (string downloader) {
+        public static string GetVersion(string downloader) {
             try {
                 var proc = new Process {
                     StartInfo = new ProcessStartInfo {
-                    FileName = downloader,
-                    Arguments = $"--version",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                        FileName = downloader,
+                        Arguments = $"--version",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
                     }
                 };
-                var br = new StringBuilder ();
-                proc.Start ();
+                var br = new StringBuilder();
+                proc.Start();
                 while (!proc.StandardOutput.EndOfStream) {
-                    br.Append (proc.StandardOutput.ReadLine ());
+                    br.Append(proc.StandardOutput.ReadLine());
                 }
 
-                return br.ToString ();
+                return br.ToString();
             } catch (Exception ex) {
-                return $"{{\"Error\": \"{ex.Message}\"}}";
+                return $"{{\"Error\": \"{ex?.Message}\"}}";
             }
         }
 
-        public AudioType GetInfo () {
+        public AudioType GetInfo() {
             var ret = AudioType.Invalid;
 
-            if (_url.Contains ("drive.google.com")) {
+            if (_url.Contains("drive.google.com")) {
                 return AudioType.Valid;
             }
 
             var yt = new YoutubeDL { VideoUrl = _url };
-            var info = yt.GetDownloadInfo ();
+            var info = yt.GetDownloadInfo();
 
             if (info is null ||
                 info.Errors.Count != 0 ||
-                (info.GetType () == typeof (PlaylistDownloadInfo) &&
-                    !MixcloudParser.ValidateUrl (_url) &&
-                    !YouTubeParser.ValidateUrl (_url))) {
+                (info.GetType() == typeof(PlaylistDownloadInfo) &&
+                    !MixcloudParser.ValidateUrl(_url) &&
+                    !YouTubeParser.ValidateUrl(_url))) {
                 return ret;
             }
 
             RawProperties = info;
             switch (info) {
                 // have to dump playlist handling for now
-                case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo) info).Videos.Count > 0:
+                case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
                     ret = AudioType.Playlist;
                     break;
                 case VideoDownloadInfo _:
@@ -86,15 +85,15 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public string DownloadAudio (Guid id) {
-            var outputFile = Path.Combine (Path.GetTempPath (), $"{id}.mp3");
-            var templateFile = Path.Combine (Path.GetTempPath (), $"{id}.%(ext)s");
+        public string DownloadAudio(Guid id) {
+            var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
+            var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
 
-            if (_url.Contains ("drive.google.com")) {
-                return _downloadFileDirect (_url, outputFile);
+            if (_url.Contains("drive.google.com")) {
+                return _downloadFileDirect(_url, outputFile);
             }
 
-            var yt = new YoutubeDL ();
+            var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
             yt.Options.PostProcessingOptions.ExtractAudio = true;
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
@@ -102,56 +101,63 @@ namespace PodNoms.Common.Services.Downloader {
             yt.VideoUrl = _url;
 
             yt.StandardOutputEvent += (sender, output) => {
-                if (output.Contains ("%")) {
+                if (output.Contains("%")) {
                     try {
-                        var progress = _parseProgress (output);
-                        DownloadProgress?.Invoke (this, progress);
+                        var progress = _parseProgress(output);
+                        DownloadProgress?.Invoke(this, progress);
                     } catch (Exception ex) {
-                        Console.WriteLine ($"Error parsing progress {ex.Message}");
+                        Console.WriteLine($"Error parsing progress {ex.Message}");
                     }
                 } else {
-                    Console.WriteLine (output);
-                    PostProcessing?.Invoke (this, output);
+                    DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
+                        ProcessingStatus = ProcessingStatus.Converting,
+                        Progress = _statusLineToNarrative(output)
+                    }); ;
+                    Console.WriteLine(output);
                 }
             };
-            var commandText = yt.PrepareDownload ();
-            Console.WriteLine (commandText);
-            Console.WriteLine (yt.RunCommand);
+            var commandText = yt.PrepareDownload();
+            Console.WriteLine(commandText);
+            Console.WriteLine(yt.RunCommand);
 
-            var yp = yt.Download ();
-            yp.WaitForExit ();
-            return File.Exists (outputFile) ? outputFile : string.Empty;
+            var yp = yt.Download();
+            yp.WaitForExit();
+            return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
-        private ProcessProgressEvent _parseProgress (string output) {
-            var result = new ProcessProgressEvent ();
+        private string _statusLineToNarrative(string output) {
+            //[youtube] rzfmZC3kg3M: Downloading webpage
+            if (output.Contains(":")) {
+                return output.Split(':')[1];
+            }
+            return "Transmogrifying";
+        }
 
-            var progressIndex = output.LastIndexOf (' ', output.IndexOf ('%')) + 1;
-            var progressString = output.Substring (progressIndex, output.IndexOf ('%') - progressIndex);
-            result.Percentage = (int) Math.Round (double.Parse (progressString));
+        private ProcessingProgress _parseProgress(string output) {
+            var result = new ProcessingProgress(new TransferProgress());
+            result.ProcessingStatus = ProcessingStatus.Downloading;
 
-            var sizeIndex = output.LastIndexOf (' ', output.IndexOf (DOWNLOADSIZESTRING, StringComparison.Ordinal)) + 1;
-            var sizeString = output.Substring (sizeIndex,
-                output.IndexOf (DOWNLOADSIZESTRING, StringComparison.Ordinal) - sizeIndex + 2);
-            result.TotalSize = sizeString;
+            var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
+            var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
+            ((TransferProgress)result.Payload).Percentage = (int)Math.Round(double.Parse(progressString));
 
-            if (output.Contains (DOWNLOADRATESTRING)) {
+            var sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal)) + 1;
+            var sizeString = output.Substring(sizeIndex,
+                output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal) - sizeIndex + 2);
+            ((TransferProgress)result.Payload).TotalSize = sizeString;
+
+            if (output.Contains(DOWNLOADRATESTRING)) {
                 var rateIndex =
-                    output.LastIndexOf (' ', output.LastIndexOf (DOWNLOADRATESTRING, StringComparison.Ordinal)) + 1;
-                var rateString = output.Substring (rateIndex,
-                    output.LastIndexOf (DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
-                result.CurrentSpeed = rateString;
+                    output.LastIndexOf(' ', output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal)) + 1;
+                var rateString = output.Substring(rateIndex,
+                    output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
+                result.Progress = rateString;
             }
-
-            if (output.Contains (ETASTRING)) {
-                result.ETA = output.Substring (output.LastIndexOf (' ') + 1);
-            }
-
             return result;
         }
 
-        private string _downloadFileDirect (string url, string fileName) {
-            var file = HttpUtils.DownloadFile (url, fileName).WaitAndUnwrapException ();
+        private string _downloadFileDirect(string url, string fileName) {
+            var file = HttpUtils.DownloadFile(url, fileName).WaitAndUnwrapException();
             return file;
         }
     }
