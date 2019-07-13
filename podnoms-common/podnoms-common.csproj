@@ -55,7 +55,6 @@
         <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000203" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
         <PackageReference Include="Stripe.net" Version="27.10.0" />
-        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.0-pre20190628101813" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.17" />
