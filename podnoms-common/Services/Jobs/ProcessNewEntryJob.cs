@@ -52,21 +52,21 @@ namespace PodNoms.Common.Services.Jobs {
                 var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 
-                //BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
-                //    uploadJobId,
-                //    r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
-                //        $"{entry.Title} has finished processing",
-                //        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                //        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
-                //    ));
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
+                   uploadJobId,
+                   r => r.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
+                       $"{entry.Title} has finished processing",
+                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
+                       entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                   ));
 
-                //BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
-                //    uploadJobId,
-                //    r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
-                //        $"{entry.Title} has finished processing",
-                //        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
-                //    )
-                //);
+                BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(
+                   uploadJobId,
+                   r => r.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                       $"{entry.Title} has finished processing",
+                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                   )
+                );
                 return true;
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
