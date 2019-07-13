@@ -25,7 +25,6 @@ namespace PodNoms.Jobs {
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"ApiConnection: \n\t{Configuration.GetConnectionString("PodNomsConnection")}");
             Console.WriteLine($"JobConnection: \n\t{Configuration.GetConnectionString("JobSchedulerConnection")}");
-            Console.ReadKey();
 
             Console.WriteLine($"Configuring services");
             services.AddHangfire(options => {
