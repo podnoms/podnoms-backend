@@ -23,7 +23,7 @@ using PodNoms.Data.Models.Notifications;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace PodNoms.Api.Controllers {
-    [Route ("[controller]")]
+    [Route("[controller]")]
     [Authorize]
     public class NotificationController : BaseAuthController {
         private readonly ISupportChatService _supportChatService;
@@ -31,65 +31,65 @@ namespace PodNoms.Api.Controllers {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public NotificationController (IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+        public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                 ILogger<NotificationController> logger,
                 IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
-                ISupportChatService supportChatService):
-            base (contextAccessor, userManager, logger) {
-                _notificationRepository = notificationRepository;
-                _unitOfWork = unitOfWork;
-                _mapper = mapper;
-                _supportChatService = supportChatService;
-            }
+                ISupportChatService supportChatService) :
+            base(contextAccessor, userManager, logger) {
+            _notificationRepository = notificationRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _supportChatService = supportChatService;
+        }
 
         [HttpGet]
-        public async Task<ActionResult<List<NotificationViewModel>>> Get (string podcastId) {
+        public async Task<ActionResult<List<NotificationViewModel>>> Get(string podcastId) {
             var notifications = await _notificationRepository
-                .GetAll ()
-                .Where (n => n.PodcastId.ToString () == podcastId)
-                .ToListAsync ();
-            return Ok (_mapper.Map<List<Notification>, List<NotificationViewModel>> (notifications));
+                .GetAll()
+                .Where(n => n.PodcastId.ToString() == podcastId)
+                .ToListAsync();
+            return Ok(_mapper.Map<List<Notification>, List<NotificationViewModel>>(notifications));
         }
 
         [HttpPost]
-        public async Task<ActionResult<NotificationViewModel>> Post ([FromBody] NotificationViewModel notification) {
-            var model = _mapper.Map<NotificationViewModel, Notification> (notification);
-            var ret = _notificationRepository.AddOrUpdate (model);
-            await _unitOfWork.CompleteAsync ();
-            return Ok (_mapper.Map<Notification, NotificationViewModel> (ret));
+        public async Task<ActionResult<NotificationViewModel>> Post([FromBody] NotificationViewModel notification) {
+            var model = _mapper.Map<NotificationViewModel, Notification>(notification);
+            var ret = _notificationRepository.AddOrUpdate(model);
+            await _unitOfWork.CompleteAsync();
+            return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete (string id) {
-            if (!Guid.TryParse (id, out var parsedId)) return BadRequest ("Invalid id");
+        public async Task<IActionResult> Delete(string id) {
+            if (!Guid.TryParse(id, out var parsedId)) return BadRequest("Invalid id");
 
-            await _notificationRepository.DeleteAsync (parsedId);
-            await _unitOfWork.CompleteAsync ();
-            return Ok ();
+            await _notificationRepository.DeleteAsync(parsedId);
+            await _unitOfWork.CompleteAsync();
+            return Ok();
         }
 
-        [HttpGet ("logs")]
-        public async Task<ActionResult<IList<NotificationLog>>> GetLogs (string notificationId) {
-            var logs = await _notificationRepository.GetLogsAsync (notificationId);
-            return logs.ToList ();
+        [HttpGet("logs")]
+        public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId) {
+            var logs = await _notificationRepository.GetLogsAsync(notificationId);
+            return logs.ToList();
         }
 
-        [HttpGet ("types")]
-        public ActionResult<IList<string>> GetTypes (string type) {
-            var types = Enum.GetValues (typeof (Notification.NotificationType))
-                .Cast<Notification.NotificationType> ()
-                .Select (t => t.ToString ())
-                .ToList ();
-            return Ok (types);
+        [HttpGet("types")]
+        public ActionResult<IList<string>> GetTypes(string type) {
+            var types = Enum.GetValues(typeof(Notification.NotificationType))
+                .Cast<Notification.NotificationType>()
+                .Select(t => t.ToString())
+                .ToList();
+            return Ok(types);
         }
 
-        [HttpGet ("config")]
-        public ActionResult<NotificationConfigViewModel> GetConfig (string type) {
-            var config = BaseNotificationConfig.GetConfig (type);
+        [HttpGet("config")]
+        public ActionResult<NotificationConfigViewModel> GetConfig(string type) {
+            var config = BaseNotificationConfig.GetConfig(type);
             if (config != null)
-                return Ok (_mapper.Map<BaseNotificationConfig, NotificationConfigViewModel> (config));
+                return Ok(_mapper.Map<BaseNotificationConfig, NotificationConfigViewModel>(config));
 
-            return NotFound ();
+            return NotFound();
         }
     }
 }

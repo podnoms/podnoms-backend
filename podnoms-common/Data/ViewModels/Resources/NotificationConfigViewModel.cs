@@ -5,5 +5,6 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Type { get; set; }
         public string ValueType { get; set; }
         public List<NotificationOptionViewModel> Options;
+        // public List<string> Options;
     }
 }
