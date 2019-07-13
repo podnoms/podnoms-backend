@@ -25,7 +25,7 @@ namespace PodNoms.Common.Services.Processor {
         public UrlProcessService(
             IEntryRepository repository, IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
-            ILoggerFactory logger, IRealTimeUpdater realtimeUpdater,
+            ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
             _helpersSettings = helpersSettings.Value;
             _repository = repository;
@@ -44,7 +44,7 @@ namespace PodNoms.Common.Services.Processor {
         public async Task<AudioType> GetInformation(string entryId) {
             var entry = await _repository.GetAsync(entryId);
             if (entry is null || string.IsNullOrEmpty(entry.SourceUrl)) {
-                Logger.LogError("Unable to process item");
+                _logger.LogError("Unable to process item");
                 return AudioType.Invalid;
             }
 
@@ -75,13 +75,13 @@ namespace PodNoms.Common.Services.Processor {
             try {
                 entry.Author = downloader.Properties?.Uploader;
             } catch (Exception) {
-                Logger.LogWarning($"Unable to extract downloader info for: {entry.SourceUrl}");
+                _logger.LogWarning($"Unable to extract downloader info for: {entry.SourceUrl}");
             }
 
             await _unitOfWork.CompleteAsync();
 
-            Logger.LogDebug("***DOWNLOAD INFO RETRIEVED****\n");
-            Logger.LogDebug($"Title: {entry.Title}\nDescription: {entry.Description}\nAuthor: {entry.Author}\n");
+            _logger.LogDebug("***DOWNLOAD INFO RETRIEVED****\n");
+            _logger.LogDebug($"Title: {entry.Title}\nDescription: {entry.Description}\nAuthor: {entry.Author}\n");
             return ret;
         }
 
@@ -110,7 +110,7 @@ namespace PodNoms.Common.Services.Processor {
                             e
                         );
                     } catch (NullReferenceException nre) {
-                        Logger.LogError(nre.Message);
+                        _logger.LogError(nre.Message);
                     }
                 };
 
@@ -124,7 +124,7 @@ namespace PodNoms.Common.Services.Processor {
                 await _unitOfWork.CompleteAsync();
                 return true;
             } catch (Exception ex) {
-                Logger.LogError($"Entry: {entryId}\n{ex.Message}");
+                _logger.LogError($"Entry: {entryId}\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();

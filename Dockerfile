@@ -1,4 +1,5 @@
-FROM microsoft/dotnet:2.2-sdk AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
+
 WORKDIR /app
 EXPOSE 80
 
@@ -24,7 +25,17 @@ WORKDIR /app/podnoms-api
 RUN dotnet publish -c Release -o out
 
 # spin up the runtime
-FROM fergalmoran/podnoms.base AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
+RUN apk add --no-cache --update \
+    python \
+    ffmpeg \
+    libuv \
+    curl \
+    curl-dev && \
+    curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl && \
+    chmod a+rx /usr/local/bin/youtube-dl && \
+    youtube-dl -U
+
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
 RUN youtube-dl -U

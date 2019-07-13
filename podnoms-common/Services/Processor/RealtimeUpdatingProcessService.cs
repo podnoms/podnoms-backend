@@ -15,13 +15,13 @@ namespace PodNoms.Common.Services.Processor {
     /// which provide realtime updates 
     /// /// </summary>
     public class RealtimeUpdatingProcessService {
-        protected readonly ILogger Logger;
+        protected readonly ILogger _logger;
 
         private readonly IRealTimeUpdater _realtime;
         private readonly IMapper _mapper;
 
-        protected RealtimeUpdatingProcessService(ILoggerFactory logger, IRealTimeUpdater realtimeUpdater, IMapper mapper) {
-            Logger = logger.CreateLogger<UrlProcessService>();
+        protected RealtimeUpdatingProcessService(ILogger logger, IRealTimeUpdater realtimeUpdater, IMapper mapper) {
+            _logger = logger;
             _realtime = realtimeUpdater;
             _mapper = mapper;
         }
