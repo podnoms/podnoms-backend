@@ -33,10 +33,14 @@ namespace PodNoms.Data.Models.Notifications {
                     return new IFTTNotificationConfig();
                 case "Email":
                     return new EmailNotificationConfig();
+                case "Facebook":
+                    return new FacebookNotificationConfig();
                 case "Twitter":
                     return new TwitterNotificationConfig();
                 case "PushBullet":
                     return new PushBulletNotificationConfig();
+                case "WebHook":
+                    return new WebhookNotificationConfig();
                 default:
                     return null;
             }

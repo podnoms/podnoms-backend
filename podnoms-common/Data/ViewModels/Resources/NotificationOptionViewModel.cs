@@ -1,6 +1,6 @@
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class NotificationOptionViewModel {
-        public NotificationOptionViewModel () {
+        public NotificationOptionViewModel() {
 
         }
         public string Value { get; set; }
@@ -10,7 +10,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public bool Required { get; set; }
         public string ControlType { get; set; }
 
-        public NotificationOptionViewModel (string value, string key, string label, string description, bool required,
+        public NotificationOptionViewModel(string value, string key, string label, string description, bool required,
             string controlType) {
             Value = value;
             Key = key;
