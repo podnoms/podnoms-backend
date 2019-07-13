@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
-using PodNoms.Data.Extensions;
+using System.Linq;
 
 namespace PodNoms.Common.Data {
     internal class ProfileSubscriptionValidResolver : IValueResolver<ApplicationUser, ProfileViewModel, bool> {

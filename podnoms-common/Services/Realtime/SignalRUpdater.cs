@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using PodNoms.Common.Services.Hubs;
 
@@ -7,13 +7,11 @@ namespace PodNoms.Common.Services.Realtime {
         private readonly HubLifetimeManager<AudioProcessingHub> _hub;
         public SignalRUpdater(HubLifetimeManager<AudioProcessingHub> hub) {
             _hub = hub;
-
         }
-        public async Task<bool> SendProcessUpdate(string userId, string channelName, string eventName, object data) {
-            var bus = $"{channelName}__{eventName}";
+        public async Task<bool> SendProcessUpdate(string userId, string channelName, object data) {
             await _hub.SendUserAsync(
                 userId,
-                bus, //userId, 
+                channelName, //userId, 
                 new object[] { data });
             return true;
         }

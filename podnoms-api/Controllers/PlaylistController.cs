@@ -35,27 +35,27 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<PlaylistViewModel>> Post([FromBody] PodcastEntryViewModel entry) {
             var podcast = await _podcastRepository.GetAsync(entry.PodcastId);
-            if (podcast != null) {
-                var playlist = new Playlist {
-                    Podcast = podcast,
-                    SourceUrl = entry.SourceUrl
-                };
-                _playlistRepository.AddOrUpdate(playlist);
-                try {
-                    await _unitOfWork.CompleteAsync();
-                } catch (DbUpdateException ex) {
-                    if (ex.InnerException.Message.Contains("IX_Playlists_SourceUrl")) {
-                        return Conflict("This podcast is already monitoring this playlist");
-                    }
-
-                    return BadRequest("There was an error adding this playlist");
-                }
-
-                BackgroundJob.Enqueue<ProcessPlaylistsJob>(job => job.Execute(playlist.Id));
-                return _mapper.Map<Playlist, PlaylistViewModel>(playlist);
+            if (podcast == null) {
+                return NotFound();
             }
 
-            return NotFound();
+            var playlist = new Playlist {
+                Podcast = podcast,
+                SourceUrl = entry.SourceUrl
+            };
+            _playlistRepository.AddOrUpdate(playlist);
+            try {
+                await _unitOfWork.CompleteAsync();
+            } catch (DbUpdateException ex) {
+                if (ex.InnerException.Message.Contains("IX_Playlists_SourceUrl")) {
+                    return Conflict("This podcast is already monitoring this playlist");
+                }
+
+                return BadRequest("There was an error adding this playlist");
+            }
+
+            BackgroundJob.Enqueue<ProcessPlaylistsJob>(job => job.Execute(playlist.Id));
+            return _mapper.Map<Playlist, PlaylistViewModel>(playlist);
         }
     }
 }

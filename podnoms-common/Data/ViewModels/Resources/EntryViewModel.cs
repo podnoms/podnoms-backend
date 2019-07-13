@@ -16,6 +16,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string ThumbnailUrl { get; set; }
         public string ProcessingStatus { get; set; }
         public bool Processed { get; set; }
+        //TODO: Think we can remove this
         public string ProcessingPayload { get; set; }
         public string PodcastId { get; set; }
         public string PodcastSlug { get; set; }

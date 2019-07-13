@@ -11,6 +11,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Processor;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
@@ -89,7 +90,7 @@ namespace PodNoms.Common.Services.Jobs {
                     podcast.PodcastEntries.Add(entry);
                     await _unitOfWork.CompleteAsync();
 
-                    var uploaded = await _uploadService.UploadAudio(entry.Id, file);
+                    var uploaded = await _uploadService.UploadAudio(string.Empty, entry.Id, file);
                     if (!uploaded) return true;
 
                     item.IsProcessed = true;

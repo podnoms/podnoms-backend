@@ -7,18 +7,18 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IMailSender _sender;
         private readonly ILogger _logger;
 
-        public UpdateYouTubeDlJob(IMailSender sender, ILogger<UpdateYouTubeDlJob> logger) {
+        public UpdateYouTubeDlJob (IMailSender sender, ILogger<ClientHeartbeatJob> logger) {
             _sender = sender;
             _logger = logger;
         }
 
-        public async Task<bool> Execute() {
-            return await Task.Run(() => {
-                _logger.LogInformation("Updating YoutubeDL");
+        public async Task<bool> Execute () {
+            return await Task.Run (() => {
+                _logger.LogInformation ("Updating YoutubeDL");
 
-                var yt = new YoutubeDL();
+                var yt = new YoutubeDL ();
                 yt.Options.GeneralOptions.Update = true;
-                yt.Download("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
+                yt.Download ("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
 
                 return true;
             });

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -36,7 +36,9 @@ namespace PodNoms.Common.Auth {
                 audience: _jwtOptions.Audience,
                 claims: claims,
                 notBefore: _jwtOptions.NotBefore,
-                expires: _jwtOptions.Expiration,
+                //TODO: This is suboptimal but required until we figure how to do proper auth between
+                //TODO: job server and SignalR hub
+                expires: _jwtOptions.Expiration.AddHours(24),
                 signingCredentials: _jwtOptions.SigningCredentials);
 
             var encodedJwt = new JwtSecurityTokenHandler ().WriteToken (jwt);
