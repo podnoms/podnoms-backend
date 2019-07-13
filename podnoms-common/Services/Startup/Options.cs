@@ -21,7 +21,6 @@ namespace PodNoms.Common.Services.Startup {
             services.Configure<ImageFileStorageSettings>(config.GetSection("ImageFileStorageSettings"));
             services.Configure<AudioFileStorageSettings>(config.GetSection("AudioFileStorageSettings"));
             services.Configure<JwtIssuerOptions>(config.GetSection("JwtIssuerOptions"));
-            services.Configure<ApplicationInsightsSettings>(config.GetSection("ApplicationInsightsSettings"));
             services.Configure<FormOptions>(options => {
                 // options.ValueCountLimit = 10;
                 options.ValueLengthLimit = int.MaxValue;

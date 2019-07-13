@@ -12,6 +12,7 @@
         <PackageReference Include="Hangfire.Core" Version="1.7.4" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />

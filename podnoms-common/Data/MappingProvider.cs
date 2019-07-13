@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 using System;
@@ -59,6 +60,9 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.GetThumbnailUrl(
                        _options.GetSection("StorageSettings")["ImageUrl"],
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.ProcessingStatus,
+                    e => e.MapFrom(m => m.Processed ? ProcessingStatus.Processed : m.ProcessingStatus))
                 .ForMember(
                     src => src.PodcastId,
                     e => e.MapFrom(m => m.Podcast.Id))

@@ -17,6 +17,7 @@ namespace PodNoms.Common.Services.Realtime {
             _logger = logger;
         }
         private async Task<bool> _initialiseConnection(string token) {
+            _logger.LogDebug($"Starting hub: {_hubUrl}");
             var handler = new HttpClientHandler {
                 ClientCertificateOptions = ClientCertificateOption.Manual,
                 ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true

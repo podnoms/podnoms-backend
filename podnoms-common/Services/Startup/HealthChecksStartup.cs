@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 namespace PodNoms.Common.Services.Startup {
     public static class HealthChecksStartup {
 
-        public static IServiceCollection AddPodNomsHealthChecks(this IServiceCollection services, 
+        public static IServiceCollection AddPodNomsHealthChecks(this IServiceCollection services,
                         IConfiguration Configuration) {
             services.AddHealthChecks()
                 .AddSqlServer(
@@ -21,9 +21,7 @@ namespace PodNoms.Common.Services.Startup {
                     healthQuery: "SELECT 1;",
                     name: "DATABASE",
                     failureStatus: HealthStatus.Degraded,
-                    tags: new string[] { "db", "sql", "sqlserver" })
-                // .AddUrlGroup(new Uri("https://www.podnoms.com"), "WWW", HealthStatus.Unhealthy)
-                .AddApplicationInsightsPublisher();
+                    tags: new string[] { "db", "sql", "sqlserver" });
 
             return services;
         }
@@ -45,13 +43,12 @@ namespace PodNoms.Common.Services.Startup {
             //         await context.Response.WriteAsync(result);
             //     }
             // });
-            app.UseHealthChecks("/hc", new HealthCheckOptions()
-            {
+            app.UseHealthChecks("/hc", new HealthCheckOptions() {
                 Predicate = _ => true,
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
 
-            app.UseHealthChecksUI(setup => { setup.ApiPath = "/hc"; setup.UIPath = "/healthcheckui";});
+            app.UseHealthChecksUI(setup => { setup.ApiPath = "/hc"; setup.UIPath = "/healthcheckui"; });
 
             return app;
         }

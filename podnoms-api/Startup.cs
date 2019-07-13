@@ -59,9 +59,6 @@ namespace PodNoms.Api {
             services.AddPodNomsMapping(Configuration);
             services.AddPodNomsOptions(Configuration);
             services.AddPodNomsHealthChecks(Configuration);
-            //services.AddPodNomsApplicationInsights (Configuration, Env.IsProduction ());
-
-
 
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(
@@ -228,7 +225,6 @@ namespace PodNoms.Api {
             app.UsePodNomsImaging();
             app.UsePodNomsSignalRRoutes();
             app.UsePodNomsHealthChecks("/healthcheck");
-            //app.UsePodNomsApplicationInsights (Configuration.GetSection ("ApplicationInsights"), Env.IsProduction ());
             app.UseSecureHeaders();
 
             app.UseMvc(routes => {
@@ -236,8 +232,6 @@ namespace PodNoms.Api {
                     name: "shared",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            JobBootstrapper.BootstrapJobs(Env.IsDevelopment());
         }
         private static void UpdateDatabase(IApplicationBuilder app) {
             using (var serviceScope = app.ApplicationServices
