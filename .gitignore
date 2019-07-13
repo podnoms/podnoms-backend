@@ -295,7 +295,6 @@ dev_push_subscriptions.db
 .vscode
 out/
 keys
-appsettings.Production.json
 .config
 podnoms-api/wwwroot/is-cache
 podnoms-api/wwwroot/.pn-cache
