@@ -33,6 +33,7 @@ using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
+using reCAPTCHA.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace PodNoms.Api {
@@ -157,6 +158,9 @@ namespace PodNoms.Api {
                 x.ValueLengthLimit = int.MaxValue;
                 x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
             });
+
+            services.Configure<RecaptchaSettings>(Configuration.GetSection("RecaptchaSettings"));
+            services.AddTransient<IRecaptchaService, RecaptchaService>();
 
             services.AddCors(options => {
                 options.AddPolicy("PodNomsClientPolicy",
