@@ -15,11 +15,10 @@ namespace PodNoms.Jobs {
                 .ConfigureAppConfiguration((context, config) => {
                     if (context.HostingEnvironment.IsProduction()) {
                         var builtConfig = config.Build();
-
                         config.AddAzureKeyVault(
-                            $"https://{builtConfig["Vault"]}.vault.azure.net/",
-                            builtConfig["ClientId"],
-                            builtConfig["ClientSecret"]);
+                            $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+                            builtConfig["KeyVaultSettings:ClientId"],
+                            builtConfig["KeyVaultSettings:ClientSecret"]);
                     }
                 })
                 .UseStartup<JobsStartup>();
