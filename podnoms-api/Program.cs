@@ -16,15 +16,22 @@ namespace PodNoms.Api {
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => {
-                    if (_isDevelopment) return;
-                    config.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false)
-                        .AddEnvironmentVariables("ASPNETCORE_");
-                    var builtConfig = config.Build();
-                    config.AddAzureKeyVault(
-                        $"https://{builtConfig["Vault"]}.vault.azure.net/",
-                        builtConfig["ClientId"],
-                        builtConfig["ClientSecret"]);
+                    if (!_isDevelopment) {
+                        config.SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", optional: false)
+                            .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
+                            .AddEnvironmentVariables("ASPNETCORE_");
+                        var builtConfig = config.Build();
+
+                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:Vault"]}");
+                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:ClientId"]}");
+                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:ClientSecret"]}");
+
+                        config.AddAzureKeyVault(
+                            $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+                            builtConfig["KeyVaultSettings:ClientId"],
+                            builtConfig["KeyVaultSettings:ClientSecret"]);
+                    }
                 });
             var t = builder.UseStartup<Startup>()
                 .UseKestrel(options => { options.Limits.MaxRequestBodySize = 1073741824; });

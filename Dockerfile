@@ -39,4 +39,5 @@ RUN apk add --no-cache --update \
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
 RUN youtube-dl -U
+
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]
