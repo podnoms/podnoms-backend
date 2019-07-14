@@ -300,3 +300,5 @@ podnoms-api/wwwroot/is-cache
 podnoms-api/wwwroot/.pn-cache
 podnoms-debug
 scripts/create_jobs_webapp.sh
+podnoms-common/azurekeyvault.json
+.env
