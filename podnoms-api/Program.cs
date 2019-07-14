@@ -22,11 +22,6 @@ namespace PodNoms.Api {
                             .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
                             .AddEnvironmentVariables("ASPNETCORE_");
                         var builtConfig = config.Build();
-
-                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:Vault"]}");
-                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:ClientId"]}");
-                        Console.WriteLine($"WE READ SOME SETTING {builtConfig["KeyVaultSettings:ClientSecret"]}");
-
                         config.AddAzureKeyVault(
                             $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
                             builtConfig["KeyVaultSettings:ClientId"],
