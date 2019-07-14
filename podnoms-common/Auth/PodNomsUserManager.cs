@@ -38,6 +38,7 @@ namespace PodNoms.Common.Auth {
         }
         public override async Task<IdentityResult> CreateAsync(ApplicationUser user) {
             await _imageify(user);
+            _slugify(user);
             var result = await base.CreateAsync(user);
             if (result.Succeeded) {
                 try {
