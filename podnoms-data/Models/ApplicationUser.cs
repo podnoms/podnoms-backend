@@ -5,6 +5,10 @@ using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
+    public class ApplicationUserSlugRedirects {
+        public ApplicationUser ApplicationUser { get; set; }
+        public string OldSlug { get; set; }
+    }
     public class ApplicationUser : IdentityUser, ISluggedEntity {
         // Extended Properties
         public string FirstName { get; set; }
