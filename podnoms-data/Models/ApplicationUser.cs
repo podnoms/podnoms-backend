@@ -9,6 +9,9 @@ namespace PodNoms.Data.Models {
         public ApplicationUser ApplicationUser { get; set; }
         public string OldSlug { get; set; }
     }
+    //TODO: Perhaps this shouldn't be a slug, it's the most visible slug in the application
+    //TODO: And it causes confusion for users as it isn't an everyday term
+    //TODO: It's really just a unique username
     public class ApplicationUser : IdentityUser, ISluggedEntity {
         // Extended Properties
         public string FirstName { get; set; }
@@ -17,7 +20,7 @@ namespace PodNoms.Data.Models {
         public string PictureUrl { get; set; }
 
         public long? DiskQuota { get; set; }
-
+    
         [SlugField(sourceField: "FullName")] public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 

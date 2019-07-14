@@ -45,6 +45,10 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost]
         public async Task<ActionResult<ProfileViewModel>> Post([FromBody] ProfileViewModel item) {
+            if (!string.IsNullOrEmpty(_applicationUser.Slug) && !_applicationUser.Slug.Equals(item.Slug)) {
+                //item has changed, store the old slug for redirect purposes
+
+            }
             _applicationUser.Slug = item.Slug;
             _applicationUser.FirstName = item.FirstName;
             _applicationUser.LastName = item.LastName;
@@ -53,10 +57,11 @@ namespace PodNoms.Api.Controllers {
             return Ok(ret);
         }
 
+        [AllowAnonymous]
         [HttpGet("checkslug/{slug}")]
         public async Task<ActionResult<bool>> CheckSlug(string slug) {
             var slugValid = await _userManager.CheckSlug(slug) ||
-                (slug.Equals(_applicationUser.Slug));
+                (_applicationUser != null && (slug.Equals(_applicationUser.Slug)));
             return Ok(slugValid);
         }
         [HttpGet("needsredirect")]
