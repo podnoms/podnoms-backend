@@ -9,24 +9,25 @@ using Newtonsoft.Json;
 using PodNoms.Common.Services.Jobs;
 
 namespace PodNoms.Jobs.Services {
-
     public class PodNomsApiNotificationService : INotifyJobCompleteService {
         private readonly HttpClient _httpClient;
         private readonly ILogger<PodNomsApiNotificationService> _logger;
         private readonly IConfiguration _config;
-        private readonly string _remoteServiceBaseUrl;
 
-        public PodNomsApiNotificationService(IHttpClientFactory httpClientFactory, ILogger<PodNomsApiNotificationService> logger,
-        IConfiguration configuration) {
+        public PodNomsApiNotificationService(
+                IHttpClientFactory httpClientFactory,
+                ILogger<PodNomsApiNotificationService> logger,
+                IConfiguration configuration) {
             _httpClient = httpClientFactory.CreateClient("podnoms");
             _logger = logger;
             _config = configuration;
         }
 
-        public async Task NotifyUser(string token, string userId, string title, string body, string target, string image) {
+        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
             try {
+
                 var urlString = $"userId=userId&title={title}&body={body}&target={target}&image={image}";
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                // _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var result = await _httpClient.PostAsync(
                     $"notification/notifyuser?{urlString}",
                     null);
@@ -43,16 +44,16 @@ namespace PodNoms.Jobs.Services {
             }
         }
 
-        public async Task SendCustomNotifications(string token, Guid podcastId, string title, string body, string url) {
-            var payload = JsonConvert.SerializeObject(new {
-                podcastId = podcastId.ToString(),
-                title = title,
-                url = url
-            });
-            _logger.LogDebug("Sending message", payload);
+        public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {
             try {
+                var payload = JsonConvert.SerializeObject(new {
+                    podcastId = podcastId.ToString(),
+                    title = title,
+                    url = url
+                });
+                _logger.LogDebug("Sending message", payload);
                 var urlString = $"podcastId={podcastId}&title={title}&body={body}&url={url}";
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                // _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var result = await _httpClient.PostAsync(
                     $"notification/sendcustomnotifications?{urlString}",
                     null);

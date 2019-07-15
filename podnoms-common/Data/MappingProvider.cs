@@ -178,8 +178,12 @@ namespace PodNoms.Common.Data {
 
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
+                    e => e.Slug,
+                    map => map.MapFrom(vm => vm.Username))
+                .ForMember(
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
+
             CreateMap<ChatViewModel, ChatMessage>();
             CreateMap<NotificationViewModel, Notification>()
                 .ForMember(

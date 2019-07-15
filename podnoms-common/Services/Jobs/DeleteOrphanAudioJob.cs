@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.Server;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Logging;
@@ -26,7 +28,11 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger.CreateLogger<DeleteOrphanAudioJob>();
         }
 
-        public async Task<bool> Execute() {
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
             try {
                 var storageAccount = CloudStorageAccount.Parse(_storageSettings.ConnectionString);
                 var blobClient = storageAccount.CreateCloudBlobClient();
@@ -59,8 +65,8 @@ namespace PodNoms.Common.Services.Jobs {
                     continuationToken = blobs.ContinuationToken;
                 } while (continuationToken != null);
                 await _mailSender.SendEmailAsync(
-                    "fergal.moran@gmail.com", 
-                    $"DeleteOrphanAudioJob: Complete {blobCount}", 
+                    "fergal.moran@gmail.com",
+                    $"DeleteOrphanAudioJob: Complete {blobCount}",
                     string.Empty);
                 return true;
             } catch (Exception ex) {

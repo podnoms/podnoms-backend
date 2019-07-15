@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Hangfire;
+using Hangfire.Console;
+using Hangfire.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,12 +33,15 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger;
             _appSettings = appSettings.Value;
         }
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
 
-        public Task<bool> Execute() {
-            throw new System.NotImplementedException();
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
+            return await Task.Run(() => false);
         }
 
-        public async Task<bool> ProcessEntry(Guid entryId, string authToken) {
+        public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
@@ -52,21 +57,27 @@ namespace PodNoms.Common.Services.Jobs {
                 var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 
+                context.WriteLine($"Submitting notify events");
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
-                    j => j.NotifyUser(token, entry.Podcast.AppUser.Id, "PodNoms",
-                       $"{entry.Title} has finished processing",
-                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                       entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                    j => j.NotifyUser(
+                        entry.Podcast.AppUser.Id,
+                        "PodNoms",
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
+                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
                    ));
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
-                    j => j.SendCustomNotifications(token, entry.Podcast.Id, "PodNoms",
-                       $"{entry.Title} has finished processing",
-                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                    j => j.SendCustomNotifications(
+                        entry.Podcast.Id,
+                        "PodNoms",
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                     ));
 
                 return true;
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
+                context.WriteLine($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 await _unitOfWork.CompleteAsync();
                 return false;

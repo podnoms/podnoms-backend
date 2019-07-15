@@ -10,7 +10,7 @@ namespace PodNoms.Common.Services.Realtime {
     public class SignalRClientUpdater : IRealTimeUpdater {
         private HubConnection _connection;
         private readonly string _hubUrl;
-        private readonly ILogger<SignalRClientUpdater> _logger;
+        private readonly ILogger _logger;
 
         public SignalRClientUpdater(IConfiguration config, ILogger<SignalRClientUpdater> logger) {
             _hubUrl = config["JobHubs:AudioProcessingHub"];
@@ -49,6 +49,10 @@ namespace PodNoms.Common.Services.Realtime {
             //sends to the ASP.Net hub, which will then send to the 
             //appropriate user
             //userId is authToken
+            if (string.IsNullOrEmpty(userId)) {
+                _logger.LogInformation("User id was not supplied to SendProcessUpdate");
+                return false;
+            }
             try {
                 if (_connection == null || _connection.State != HubConnectionState.Connected) {
                     if (!await _initialiseConnection(userId)) {

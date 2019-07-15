@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using EasyNetQ;
+using EasyNetQ.Logging;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -24,17 +26,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Api.Providers;
 using PodNoms.Common.Auth;
-using PodNoms.Common.Data;
 using PodNoms.Common.Persistence;
+using PodNoms.Common.Services.Hosted;
 using PodNoms.Common.Services.Jobs;
-using PodNoms.Common.Services.Logging;
 using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 using reCAPTCHA.AspNetCore;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -67,8 +67,11 @@ namespace PodNoms.Api {
                     b => b.MigrationsAssembly("podnoms-common"));
             });
 
+            services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
+            services.AddHostedService<RabbitMQService>();
             services.AddHealthChecks();
             services.AddPodNomsHttpClients();
+            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             // Configure JwtIssuerOptions
@@ -189,7 +192,8 @@ namespace PodNoms.Api {
             services.AddPushNotificationService(Configuration);
 
             services.AddPodNomsSignalR();
-            services.AddDependencies();
+            services.AddDependencies()
+                .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>(); //register this on it's own as the job server does it's own thing here..
 
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
