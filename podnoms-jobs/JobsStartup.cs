@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using EasyNetQ;
+using EasyNetQ.Logging;
 using Hangfire;
 using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
@@ -28,13 +30,10 @@ namespace PodNoms.Jobs {
         }
 
         public void ConfigureServices(IServiceCollection services) {
-            Console.WriteLine($"ApiConnection: \n\t{Configuration.GetConnectionString("PodNomsConnection")}");
-            Console.WriteLine($"JobConnection: \n\t{Configuration.GetConnectionString("JobSchedulerConnection")}");
 
             Console.WriteLine($"Configuring services");
             services.AddHangfire(options => {
                 options.UseSqlServerStorage(Configuration.GetConnectionString("JobSchedulerConnection"));
-                options.UseColouredConsoleLogProvider();
                 options.UseSimpleAssemblyNameTypeSerializer();
                 options.UseRecommendedSerializerSettings();
                 options.UseConsole();
@@ -63,8 +62,10 @@ namespace PodNoms.Jobs {
                     options.UseSqlServer(Configuration.GetConnectionString("PodNomsConnection"));
                 })
                 .AddDependencies()
-                .AddTransient<INotifyJobCompleteService, PodNomsApiNotificationService>()
+                .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]))
+                .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
+            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env) {

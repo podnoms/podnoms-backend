@@ -112,7 +112,7 @@ namespace PodNoms.Api.Controllers {
             //as it doesn't have access the the sqlite registration store
             //TODO: we should probably move all the sqlite registration store
             //TODO: out of the API and into the job server
-            _jobCompleteNotificationService.NotifyUser(authToken, userId, "PodNoms",
+            _jobCompleteNotificationService.NotifyUser(userId, "PodNoms",
                 $"{title} has finished processing",
                 target,
                 image);
@@ -128,7 +128,7 @@ namespace PodNoms.Api.Controllers {
             //as it doesn't have access the the sqlite registration store
             //TODO: we should probably move all the sqlite registration store
             //TODO: out of the API and into the job server
-            _jobCompleteNotificationService.SendCustomNotifications(authToken, Guid.Parse(podcastId), "PodNoms",
+            _jobCompleteNotificationService.SendCustomNotifications(Guid.Parse(podcastId), "PodNoms",
                    $"{title} has finished processing",
                    url);
             return Accepted();
