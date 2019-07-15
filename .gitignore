@@ -302,3 +302,5 @@ podnoms-debug
 scripts/create_jobs_webapp.sh
 podnoms-common/azurekeyvault.json
 .env
+live.sql
+podnoms-api/azurekeyvault.json

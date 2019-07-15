@@ -9,26 +9,26 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
 
-    [Route ("[controller]")]
+    [Route("[controller]")]
     public class AccountsController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public AccountsController (UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<AccountsController> logger) : base (logger) {
+        public AccountsController(UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<AccountsController> logger) : base(logger) {
             _userManager = userManager;
             _mapper = mapper;
         }
         // POST api/accounts
         [HttpPost]
-        public async Task<IActionResult> Post ([FromBody] RegistrationViewModel model) {
+        public async Task<IActionResult> Post([FromBody] RegistrationViewModel model) {
             if (!ModelState.IsValid) {
-                return BadRequest (ModelState);
+                return BadRequest(ModelState);
             }
-            var userIdentity = _mapper.Map<RegistrationViewModel, ApplicationUser> (model);
-            var result = await _userManager.CreateAsync (userIdentity, model.Password);
+            var userIdentity = _mapper.Map<RegistrationViewModel, ApplicationUser>(model);
+            var result = await _userManager.CreateAsync(userIdentity, model.Password);
 
-            if (!result.Succeeded) return new BadRequestObjectResult (result);
-            return Ok (model);
+            if (!result.Succeeded) return new BadRequestObjectResult(result);
+            return Ok(model);
         }
     }
 }

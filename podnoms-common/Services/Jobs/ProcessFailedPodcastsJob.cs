@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Persistence.Repositories;
@@ -19,7 +21,11 @@ namespace PodNoms.Common.Services.Jobs {
             _processor = processor;
 
         }
-        public async Task<bool> Execute() {
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
             try {
                 var entries = await _entryRepository.GetAll()
                     .Include(e => e.Podcast)

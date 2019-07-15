@@ -4,6 +4,7 @@ using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Data.Models {
+
     public class Podcast : BaseEntity, ISluggedEntity {
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();

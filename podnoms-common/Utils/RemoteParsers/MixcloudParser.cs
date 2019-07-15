@@ -24,14 +24,14 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 var uri = new Uri(url);
                 if (uri.Host.EndsWith("mixcloud.com")) {
                     var path = uri.Segments[uri.Segments.Length - 1].ToString().TrimEnd(new[] { '/' });
-                    return (VALID_PATHS.Any(path.Equals)) || 
+                    return (VALID_PATHS.Any(path.Equals)) ||
                             uri.Segments.Where(s => s != "/").Count() == 1;
                 }
             } catch (Exception) {
             }
             return false;
         }
-        public async Task<List<ParsedItemResult>> GetEntries(string url) {
+        public async Task<List<ParsedItemResult>> GetEntries(string url, int count = 10) {
             try {
                 var path = new Uri(url).Segments.First(s => s != "/");
                 var newUrl = HttpUtils.UrlCombine(path, "cloudcasts");

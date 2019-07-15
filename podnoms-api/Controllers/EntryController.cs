@@ -139,7 +139,7 @@ namespace PodNoms.Api.Controllers {
                     await _repository.LoadPodcastAsync(entry);
                     if (succeeded) {
                         var authToken = _httpContext.Request.Headers["Authorization"].ToString();
-                        BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, authToken));
+                        BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, authToken, null));
                         return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     }
                 } catch (DbUpdateException e) {
@@ -189,7 +189,7 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
             if (entry.ProcessingStatus != ProcessingStatus.Processed) {
                 BackgroundJob.Enqueue<ProcessNewEntryJob>(e =>
-                   e.ProcessEntry(entry.Id, _httpContext.Request.Headers["Authorization"]));
+                   e.ProcessEntry(entry.Id, _httpContext.Request.Headers["Authorization"], null));
             }
 
             return Ok(entry);

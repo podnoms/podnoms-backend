@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -34,7 +35,12 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger;
         }
         [Mutex("PrunePlaylistJob")]
-        public async Task<bool> Execute() {
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
+
+        [Mutex("PrunePlaylistJob")]
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
             var playlists = _playlistRepository.GetOversubscribedPlaylists();
 
             if (playlists.Count() != 0) {
