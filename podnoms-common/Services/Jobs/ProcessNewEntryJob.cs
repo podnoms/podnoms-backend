@@ -38,7 +38,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            throw new System.NotImplementedException();
+            return await Task.Run(() => false);
         }
 
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {

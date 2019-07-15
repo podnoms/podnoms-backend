@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using EasyNetQ;
@@ -65,12 +66,12 @@ namespace PodNoms.Api {
                     Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common"));
             });
+
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddHostedService<RabbitMQService>();
             services.AddHealthChecks();
             services.AddPodNomsHttpClients();
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
-
 
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             // Configure JwtIssuerOptions

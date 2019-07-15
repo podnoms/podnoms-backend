@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,10 +21,6 @@ namespace PodNoms.Jobs {
                             .AddJsonFile($"appsettings.Production.json", optional: true)
                             .AddEnvironmentVariables("ASPNETCORE_");
                         var builtConfig = config.Build();
-
-                        Console.WriteLine($"Vault: {builtConfig["KeyVaultSettings:Vault"]}");
-                        Console.WriteLine($"ClientId: {builtConfig["KeyVaultSettings:ClientId"]}");
-                        Console.WriteLine($"ClientSecret: {builtConfig["KeyVaultSettings:ClientSecret"]}");
 
                         config.AddAzureKeyVault(
                             $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
