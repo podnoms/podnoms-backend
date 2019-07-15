@@ -80,7 +80,9 @@ namespace PodNoms.Common.Services.Jobs {
                 if (totalUsed >= quota) {
                     _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.FullName}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(string.Empty, playlist.Podcast.Id, "PodNoms",
+                        service => service.SendCustomNotifications(
+                            playlist.Podcast.Id,
+                            "PodNoms",
                             $"Failure processing playlist\n{playlist.Podcast.Title}\n" +
                             $"Your have exceeded your storage quota of {quota.Bytes().ToString()}",
                             playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
@@ -92,7 +94,9 @@ namespace PodNoms.Common.Services.Jobs {
                 if (playlist.PodcastEntries.Count > _storageSettings.DefaultEntryCount) {
                     _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(string.Empty, playlist.Podcast.Id, "PodNoms",
+                        service => service.SendCustomNotifications(
+                            playlist.Podcast.Id,
+                            "PodNoms",
                             $"Failure processing playlist\n{playlist.Podcast.Title}\n" +
                             $"Your quota of {_storageSettings.DefaultEntryCount} items per playlist has been exceeded",
                             playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)

@@ -59,15 +59,19 @@ namespace PodNoms.Common.Services.Jobs {
 
                 context.WriteLine($"Submitting notify events");
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
-                    j => j.NotifyUser(token, entry.Podcast.AppUser.Id, "PodNoms",
-                       $"{entry.Title} has finished processing",
-                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                       entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                    j => j.NotifyUser(
+                        entry.Podcast.AppUser.Id,
+                        "PodNoms",
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
+                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
                    ));
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
-                    j => j.SendCustomNotifications(token, entry.Podcast.Id, "PodNoms",
-                       $"{entry.Title} has finished processing",
-                       entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                    j => j.SendCustomNotifications(
+                        entry.Podcast.Id,
+                        "PodNoms",
+                        $"{entry.Title} has finished processing",
+                        entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                     ));
 
                 return true;
