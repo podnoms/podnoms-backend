@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -35,7 +37,11 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger.CreateLogger<CacheRemoteImageJob>();
         }
 
-        public async Task<bool> Execute() {
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
             var images = _entryRepository
                 .GetAll()
                 .Where(r => r.Processed == true)

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using Hangfire;
+using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -36,9 +37,11 @@ namespace PodNoms.Jobs {
                 options.UseColouredConsoleLogProvider();
                 options.UseSimpleAssemblyNameTypeSerializer();
                 options.UseRecommendedSerializerSettings();
+                options.UseConsole();
                 //TODO: unsure if this is needed - re-enable if we get DI issues
                 // options.UseActivator (new HangfireActivator (serviceProvider));
             });
+
             services.AddHttpClient("podnoms", c => {
                 c.BaseAddress = new Uri(Configuration["AppSettings:ApiUrl"]);
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -69,11 +72,9 @@ namespace PodNoms.Jobs {
                 app.UseDeveloperExceptionPage();
             }
             app.UseHangfireServer();
-            Console.WriteLine("Configuring dashboard auth");
             app.UseHangfireDashboard("/hangfire", new DashboardOptions {
                 Authorization = new[] { new HangFireAuthorizationFilter() }
             });
-
             JobBootstrapper.BootstrapJobs(false);
         }
     }

@@ -54,7 +54,7 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest("There was an error adding this playlist");
             }
 
-            BackgroundJob.Enqueue<ProcessPlaylistsJob>(job => job.Execute(playlist.Id));
+            BackgroundJob.Enqueue<ProcessPlaylistsJob>(job => job.Execute(playlist.Id, null));
             return _mapper.Map<Playlist, PlaylistViewModel>(playlist);
         }
     }

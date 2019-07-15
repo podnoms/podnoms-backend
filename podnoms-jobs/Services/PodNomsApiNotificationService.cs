@@ -14,10 +14,11 @@ namespace PodNoms.Jobs.Services {
         private readonly HttpClient _httpClient;
         private readonly ILogger<PodNomsApiNotificationService> _logger;
         private readonly IConfiguration _config;
-        private readonly string _remoteServiceBaseUrl;
 
-        public PodNomsApiNotificationService(IHttpClientFactory httpClientFactory, ILogger<PodNomsApiNotificationService> logger,
-        IConfiguration configuration) {
+        public PodNomsApiNotificationService(
+                IHttpClientFactory httpClientFactory,
+                ILogger<PodNomsApiNotificationService> logger,
+                IConfiguration configuration) {
             _httpClient = httpClientFactory.CreateClient("podnoms");
             _logger = logger;
             _config = configuration;

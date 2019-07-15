@@ -28,10 +28,10 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var result = regex.Match(url);
             return result.Success;
         }
-        public async Task<List<ParsedItemResult>> GetPlaylistEntriesForId(string id, int nCount = 10) {
+        public async Task<List<ParsedItemResult>> GetPlaylistEntriesForId(string id, int count = 10) {
             var playlistRequest = youtube.PlaylistItems.List("contentDetails");
             playlistRequest.PlaylistId = id;
-            playlistRequest.MaxResults = nCount;
+            playlistRequest.MaxResults = count;
             var plists = await playlistRequest.ExecuteAsync();
             return plists.Items
                 .Select(p => new ParsedItemResult {

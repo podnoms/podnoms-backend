@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
+using Hangfire.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -48,17 +49,20 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger;
         }
 
-        [Mutex("ProcessPlaylistItemJob")]
-        public async Task<bool> Execute() {
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute() { return await Execute(null); }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Execute(PerformContext context) {
             var items = await _playlistRepository.GetUnprocessedItems();
             foreach (var item in items) {
-                await Execute(item.VideoId, item.Playlist.Id);
+                await Execute(item.VideoId, item.Playlist.Id, null);
             }
             return true;
         }
 
         [Mutex("ProcessPlaylistItemJob")]
-        public async Task<bool> Execute(string itemId, Guid playlistId) {
+        public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
             var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
             if (item is null ||
                 string.IsNullOrEmpty(item.VideoType) ||
