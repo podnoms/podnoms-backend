@@ -29,6 +29,7 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("subscribe")]
         public async Task<IActionResult> StoreSubscription([FromBody]WP.PushSubscription subscription) {
             var subscriptionId = await _subscriptionStore.StoreSubscriptionAsync(_applicationUser.Id, subscription);
+            _logger.LogDebug($"Creating push registration for {_applicationUser.Id} with subscriptionId of {subscriptionId}");
             return Ok(new {
                     uid = subscriptionId,
                     status = true

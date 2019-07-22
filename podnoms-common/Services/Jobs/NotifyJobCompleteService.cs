@@ -39,7 +39,7 @@ namespace PodNoms.Common.Services.Jobs {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
-            _logger.LogDebug("Sending GCM messages to subscribers");
+            _logger.LogDebug($"Sending GCM messages to {userId}");
             await _subscriptionStore.ForEachSubscriptionAsync(userId,
                 subscription => {
                     _logger.LogDebug($"Sending to {target}");

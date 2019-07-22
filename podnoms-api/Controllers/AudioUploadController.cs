@@ -24,6 +24,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Enums;
+using PodNoms.Common.Services.Jobs;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -63,7 +64,7 @@ namespace PodNoms.Api.Controllers {
                 Title = Path.GetFileName(Path.GetFileNameWithoutExtension(file.FileName)),
                 ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png",
                 Processed = false,
-                ProcessingStatus = ProcessingStatus.Uploading,
+                ProcessingStatus = ProcessingStatus.Processing,
                 Podcast = podcast
             };
 
@@ -72,7 +73,9 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
 
             var authToken = _httpContext.Request.Headers["Authorization"].ToString();
-            BackgroundJob.Enqueue<IAudioUploadProcessService>(service => service.UploadAudio(authToken, entry.Id, localFile));
+            BackgroundJob.Enqueue<UploadAudioJob>(job =>
+                job.Execute(authToken, entry.Id, localFile, null));
+
             var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(ret);
         }

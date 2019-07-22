@@ -19,6 +19,7 @@ namespace PodNoms.Jobs {
                         config.SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.json", optional: false)
                             .AddJsonFile($"appsettings.Production.json", optional: true)
+                            .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
                             .AddEnvironmentVariables("ASPNETCORE_");
                         var builtConfig = config.Build();
 

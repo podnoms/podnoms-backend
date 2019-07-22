@@ -32,6 +32,8 @@ namespace PodNoms.Jobs {
         public void ConfigureServices(IServiceCollection services) {
 
             Console.WriteLine($"Configuring services");
+            Console.WriteLine($"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
+            Console.WriteLine($"RabbitMqConnection: {Configuration["RabbitMq:ExternalConnectionString"]}");
             services.AddHangfire(options => {
                 options.UseSqlServerStorage(Configuration.GetConnectionString("JobSchedulerConnection"));
                 options.UseSimpleAssemblyNameTypeSerializer();
@@ -59,10 +61,10 @@ namespace PodNoms.Jobs {
                 .AddSqlitePushSubscriptionStore(Configuration)
                 .AddPushServicePushNotificationService()
                 .AddDbContext<PodNomsDbContext>(options => {
-                    options.UseSqlServer(Configuration.GetConnectionString("PodNomsConnection"));
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 })
                 .AddDependencies()
-                .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]))
+                .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);

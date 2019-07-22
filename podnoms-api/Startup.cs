@@ -52,7 +52,9 @@ namespace PodNoms.Api {
         }
 
         public void ConfigureServices(IServiceCollection services) {
-            Console.WriteLine($"Configuring services: {Configuration}");
+            Console.WriteLine($"Configuring services");
+            Console.WriteLine($"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
+            Console.WriteLine($"RabbitMqConnection: {Configuration["RabbitMq:ConnectionString"]}");
 
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]

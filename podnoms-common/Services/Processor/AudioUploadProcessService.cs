@@ -2,6 +2,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
+using Hangfire.Console;
+using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -31,6 +33,8 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<bool> UploadAudio(string authToken, Guid entryId, string localFile) {
+
+            _logger.LogDebug($"Starting to upload audio for {entryId} - {localFile}");
 
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
