@@ -34,7 +34,7 @@ namespace PodNoms.Common.Services.Processor {
 
         public async Task<bool> UploadAudio(string authToken, Guid entryId, string localFile) {
 
-            _logger.LogDebug($"Starting to upload audio for {entryId} - {localFile}");
+            _logger.LogInformation($"Starting to upload audio for {entryId} - {localFile}");
 
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
@@ -53,8 +53,8 @@ namespace PodNoms.Common.Services.Processor {
                 return false;
             }
 
-            entry.ProcessingStatus = ProcessingStatus.Uploading;
             await _unitOfWork.CompleteAsync();
+            _logger.LogInformation($"Updated item status {entryId} - {localFile}");
             try {
                 // TODO
                 // bit messy but can't figure how to pass youtube-dl job result to this job
@@ -63,8 +63,10 @@ namespace PodNoms.Common.Services.Processor {
                     localFile = entry.AudioUrl;
 
                 if (File.Exists(localFile)) {
+                    _logger.LogInformation($"Local item exists {entryId} - {localFile}");
                     var fileInfo = new FileInfo(localFile);
-                    var fileName = fileInfo.Name;
+                    var fileName = $"{entry.Id.ToString()}{fileInfo.Extension}";
+
                     await _fileUploader.UploadFile(
                         localFile,
                         _audioStorageSettings.ContainerName,

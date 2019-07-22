@@ -12,7 +12,7 @@ namespace PodNoms.Common.Services.Startup {
                 .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
                 .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
-        public static IServiceCollection AddPodNomsHttpClients(this IServiceCollection services) {
+        public static IServiceCollection AddPodNomsHttpClients(this IServiceCollection services, bool isProduction) {
 
             services.AddHttpClient("mixcloud", c => {
                 c.BaseAddress = new Uri("https://api.mixcloud.com/");
@@ -20,7 +20,6 @@ namespace PodNoms.Common.Services.Startup {
             });
             services.AddHttpClient("StripeInvoices", c => {
                 c.DefaultRequestHeaders.Add("Accept", "text/html");
-
             }).AddPolicyHandler(GetRetryPolicy());
             services.AddHttpClient();
 

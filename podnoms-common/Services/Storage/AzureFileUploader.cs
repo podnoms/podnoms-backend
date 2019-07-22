@@ -13,10 +13,12 @@ using PodNoms.Common.Data.Settings;
 namespace PodNoms.Common.Services.Storage {
     public class AzureFileUploader : IFileUploader {
         private readonly CloudBlobClient _blobClient;
+        private readonly ILogger<AzureFileUploader> _logger;
 
-        public AzureFileUploader(IOptions<StorageSettings> settings) {
+        public AzureFileUploader(IOptions<StorageSettings> settings, ILogger<AzureFileUploader> logger) {
             var storageAccount = CloudStorageAccount.Parse(settings.Value.ConnectionString);
             _blobClient = storageAccount.CreateCloudBlobClient();
+            _logger = logger;
         }
 
         public async Task<bool> FileExists(string containerName, string fileName) {
@@ -29,6 +31,7 @@ namespace PodNoms.Common.Services.Storage {
 
         public async Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
             string contentType, Action<int, long> progressCallback) {
+            _logger.LogDebug($"Starting upload for {sourceFile} to {destinationFile}");
             var container = _blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
 
@@ -79,8 +82,9 @@ namespace PodNoms.Common.Services.Storage {
 
                 Console.WriteLine("Blob uploaded completely.");
             }
-
-            return $"{containerName}/{destinationFile}";
+            var responseFile = "{containerName}/{destinationFile}";
+            _logger.LogDebug($"Successfully uploaded {responseFile}");
+            return responseFile;
         }
     }
 }
