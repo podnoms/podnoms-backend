@@ -17,8 +17,8 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
     public class AudioUploadProcessService : RealtimeUpdatingProcessService, IAudioUploadProcessService {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IEntryRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IFileUploader _fileUploader;
         private readonly AudioFileStorageSettings _audioStorageSettings;
 

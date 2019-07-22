@@ -6,7 +6,7 @@ namespace PodNoms.Common.Data.ViewModels {
         public ProcessingProgress(object payload) {
             Payload = payload;
         }
-        
+
         public ProcessingStatus ProcessingStatus { get; set; }
         public string Progress { get; set; }
         public object Payload { get; set; }
