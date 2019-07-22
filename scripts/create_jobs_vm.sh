@@ -1,5 +1,5 @@
-az vm create \
-    --name podnoms-jobs \
-    --resource-group rg-podnoms-jobs \
-    --admin-username core \
-    --image CoreOS:CoreOS:Stable:latest
+docker-machine create \
+    --driver generic \
+    --generic-ip-address=podnoms-jobs.northeurope.cloudapp.azure.com \
+    --generic-ssh-user=fergalm --generic-ssh-key=/home/fergalm/.ssh/id_rsa \
+    podnoms-jobs-vm

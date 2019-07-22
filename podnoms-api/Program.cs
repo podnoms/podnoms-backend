@@ -19,13 +19,15 @@ namespace PodNoms.Api {
                     if (!_isDevelopment) {
                         config.SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.json", optional: false)
-                            .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                            .AddEnvironmentVariables("ASPNETCORE_");
+                            .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true);
                         var builtConfig = config.Build();
                         config.AddAzureKeyVault(
                             $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
                             builtConfig["KeyVaultSettings:ClientId"],
-                            builtConfig["KeyVaultSettings:ClientSecret"]);
+                            builtConfig["KeyVaultSettings:ClientSecret"])
+                            //add env vars last so they have highest precedence
+                            //this is useful when debugging prod
+                            .AddEnvironmentVariables("ASPNETCORE_");
                     }
                 });
             var t = builder.UseStartup<Startup>()

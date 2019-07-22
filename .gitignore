@@ -304,3 +304,4 @@ podnoms-common/azurekeyvault.json
 .env
 live.sql
 podnoms-api/azurekeyvault.json
+podnoms-jobs/azurekeyvault.json
