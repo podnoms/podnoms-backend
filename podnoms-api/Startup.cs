@@ -72,7 +72,7 @@ namespace PodNoms.Api {
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddHostedService<RabbitMQService>();
             services.AddHealthChecks();
-            services.AddPodNomsHttpClients();
+            services.AddPodNomsHttpClients(Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Startup;
@@ -66,6 +67,7 @@ namespace PodNoms.Jobs {
                 .AddDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
+                .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }

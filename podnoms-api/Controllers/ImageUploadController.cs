@@ -17,7 +17,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
-    [Route ("/podcast/{slug}/imageupload")]
+    [Route("/podcast/{slug}/imageupload")]
     public class ImageUploadController : BaseAuthController {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _entryRepository;
@@ -27,10 +27,10 @@ namespace PodNoms.Api.Controllers {
         public readonly IFileUploader _fileUploader;
         private readonly StorageSettings _storageSettings;
 
-        public ImageUploadController (IPodcastRepository repository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
+        public ImageUploadController(IPodcastRepository repository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base (contextAccessor, userManager, logger) {
+            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
 
             _fileUploader = fileUploader;
             _storageSettings = storageSettings.Value;
@@ -42,75 +42,75 @@ namespace PodNoms.Api.Controllers {
             _mapper = mapper;
         }
 
-        [HttpPost ("/podcast/{id}/imageupload")]
-        public async Task<ActionResult<string>> UploadPodcastImage (string id, IFormFile image) {
-            _logger.LogDebug ("Uploading new image");
+        [HttpPost("/podcast/{id}/imageupload")]
+        public async Task<ActionResult<string>> UploadPodcastImage(string id, IFormFile image) {
+            _logger.LogDebug("Uploading new image");
 
-            var podcast = await _podcastRepository.GetAsync (_applicationUser.Id, Guid.Parse (id));
+            var podcast = await _podcastRepository.GetAsync(_applicationUser.Id, Guid.Parse(id));
             if (podcast is null)
-                return NotFound ();
+                return NotFound();
             try {
-                var imageFile = await _commitImage (id, image, "podcast");
-                _podcastRepository.AddOrUpdate (podcast);
-                await _unitOfWork.CompleteAsync ();
+                var imageFile = await _commitImage(id, image, "podcast");
+                _podcastRepository.AddOrUpdate(podcast);
+                await _unitOfWork.CompleteAsync();
 
-                return Ok ($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
+                return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
             } catch (InvalidOperationException ex) {
-                return BadRequest (ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost ("/entry/{id}/imageupload")]
-        public async Task<ActionResult<PodcastEntryViewModel>> UploadEntryImage (string id, IFormFile image) {
-            _logger.LogDebug ("Uploading new entry image");
+        [HttpPost("/entry/{id}/imageupload")]
+        public async Task<ActionResult<PodcastEntryViewModel>> UploadEntryImage(string id, IFormFile image) {
+            _logger.LogDebug("Uploading new entry image");
 
-            var entry = await _entryRepository.GetAsync (_applicationUser.Id, id);
+            var entry = await _entryRepository.GetAsync(_applicationUser.Id, id);
             if (entry is null)
-                return NotFound ();
+                return NotFound();
             try {
-                var imageFile = await _commitImage (id, image, "entry");
+                var imageFile = await _commitImage(id, image, "entry");
                 entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageFile}";
-                _entryRepository.AddOrUpdate (entry);
-                await _unitOfWork.CompleteAsync ();
+                _entryRepository.AddOrUpdate(entry);
+                await _unitOfWork.CompleteAsync();
 
-                return Ok (_mapper.Map<PodcastEntry, PodcastEntryViewModel> (entry));
+                return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
             } catch (InvalidOperationException ex) {
-                return BadRequest (ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost ("/profile/{id}/imageupload")]
-        public async Task<ActionResult<string>> UploadProfileImage (string id, IFormFile image) {
+        [HttpPost("/profile/{id}/imageupload")]
+        public async Task<ActionResult<string>> UploadProfileImage(string id, IFormFile image) {
             //TODO: Cache this and remove CdnUrl from below
-            var imageFile = await _commitImage (id, image, "profile");
+            var imageFile = await _commitImage(id, image, "profile");
             _applicationUser.PictureUrl = $"{_storageSettings.CdnUrl}{_imageFileStorageSettings.ContainerName}/{imageFile}";
-            await _userManager.UpdateAsync (_applicationUser);
-            return Ok ($"\"{_applicationUser.PictureUrl}\"");
+            await _userManager.UpdateAsync(_applicationUser);
+            return Ok($"\"{_applicationUser.PictureUrl}\"");
         }
-        private async Task<string> _commitImage (string id, IFormFile image, string subDirectory) {
+        private async Task<string> _commitImage(string id, IFormFile image, string subDirectory) {
             if (image is null) {
-                throw new InvalidOperationException ("Image in stream is null");
+                throw new InvalidOperationException("Image in stream is null");
             }
             if (image is null || image.Length == 0) {
-                throw new InvalidOperationException ("Image in stream has zero length");
+                throw new InvalidOperationException("Image in stream has zero length");
             }
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) {
-                throw new InvalidOperationException ("Maximum file size exceeded");
+                throw new InvalidOperationException("Maximum file size exceeded");
             }
-            if (!_imageFileStorageSettings.IsSupported (image.FileName)) {
-                throw new InvalidOperationException ("Invalid file type");
+            if (!_imageFileStorageSettings.IsSupported(image.FileName)) {
+                throw new InvalidOperationException("Invalid file type");
             }
 
-            var cacheFile = await CachedFormFileStorage.CacheItem (image);
-            (var finishedFile, var extension) = ImageUtils.ConvertFile (cacheFile, id);
+            var cacheFile = await CachedFormFileStorage.CacheItem(System.IO.Path.GetTempPath(), image);
+            (var finishedFile, var extension) = ImageUtils.ConvertFile(cacheFile, id);
             var destinationFile = $"{subDirectory}/{id}.{extension}";
 
-            await _fileUploader.UploadFile (
+            await _fileUploader.UploadFile(
                 finishedFile,
                 _imageFileStorageSettings.ContainerName,
                 destinationFile,
                 "image/png",
-                (p, t) => _logger.LogDebug ($"Uploading image: {p} - {t}")
+                (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}")
             );
             return destinationFile;
         }

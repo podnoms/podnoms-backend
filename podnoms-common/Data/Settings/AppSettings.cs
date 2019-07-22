@@ -4,6 +4,7 @@ namespace PodNoms.Common.Data.Settings {
         public string SiteUrl { get; set; }
         public string CanonicalRssUrl { get; set; }
         public string RssUrl { get; set; }
+        public string ApiUrl { get; set; }
         public string GoogleApiKey { get; set; }
         public string IPStackKey { get; set; }
         public string Downloader { get; set; }

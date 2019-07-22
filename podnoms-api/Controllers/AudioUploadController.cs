@@ -25,6 +25,7 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Services.Jobs;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -33,20 +34,25 @@ namespace PodNoms.Api.Controllers {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _entryRepository;
         private IUnitOfWork _unitOfWork;
+        private readonly AppSettings _appsettings;
+        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         public IMapper _mapper { get; }
 
         public AudioUploadController(IPodcastRepository podcastRepository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
                         IOptions<AudioFileStorageSettings> settings, IOptions<StorageSettings> storageSettings,
-                        ILogger<AudioUploadController> logger, IMapper mapper,
+                        IOptions<AppSettings> appsettings,
+                        ILogger<AudioUploadController> logger, IMapper mapper, IHostingEnvironment hostingEnvironment,
                         UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _mapper = mapper;
             _audioFileStorageSettings = settings.Value;
+            _appsettings = appsettings.Value;
             _storageSettings = storageSettings.Value;
             _podcastRepository = podcastRepository;
             _entryRepository = entryRepository;
             _unitOfWork = unitOfWork;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpPost]
@@ -68,13 +74,18 @@ namespace PodNoms.Api.Controllers {
                 Podcast = podcast
             };
 
-            var localFile = await CachedFormFileStorage.CacheItem(file);
+            var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);
             _entryRepository.AddOrUpdate(entry);
             await _unitOfWork.CompleteAsync();
 
             var authToken = _httpContext.Request.Headers["Authorization"].ToString();
+
+            //convert uploaded file to extension
+            var audioUrl = localFile
+                .Replace(_hostingEnvironment.WebRootPath, string.Empty)
+                .Replace(@"\", "/");
             BackgroundJob.Enqueue<UploadAudioJob>(job =>
-                job.Execute(authToken, entry.Id, localFile, null));
+                job.Execute(authToken, entry.Id, audioUrl, new FileInfo(localFile).Extension, null));
 
             var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(ret);
