@@ -306,3 +306,4 @@ live.sql
 podnoms-api/azurekeyvault.json
 podnoms-jobs/azurekeyvault.json
 podnoms-api/wwwroot/.ul-cache
+podnoms-api/healthchecksdb

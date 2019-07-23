@@ -7,9 +7,12 @@ using Hangfire;
 using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Jobs;
@@ -70,6 +73,7 @@ namespace PodNoms.Jobs {
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
+
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }
 
@@ -80,6 +84,9 @@ namespace PodNoms.Jobs {
             app.UseHangfireServer();
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
                 Authorization = new[] { new HangFireAuthorizationFilter() }
+            });
+            app.Run(async (context) => {
+                await context.Response.WriteAsync("Hello World!");
             });
             JobBootstrapper.BootstrapJobs(false);
         }
