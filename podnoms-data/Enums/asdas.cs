@@ -8,6 +8,7 @@ namespace PodNoms.Data.Enums {
         Uploading, //5
         Processed, //6
         Failed, //7
-        Deferred //8
+        Deferred, //8
+        Caching //9
     }
 }
