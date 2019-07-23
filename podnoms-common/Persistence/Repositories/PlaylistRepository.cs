@@ -14,6 +14,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<List<ParsedPlaylistItem>> GetExpiredItems(string playlistId, int allowed = 10);
         Task<int> DeleteExpired(string playlistId, int allowed = 10);
         IEnumerable<Playlist> GetOversubscribedPlaylists(int limit = 10);
+        void DeletePlaylistItems(List<ParsedPlaylistItem> toDelete);
     }
     public class PlaylistRepository : GenericRepository<Playlist>, IPlaylistRepository {
 
@@ -74,6 +75,14 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Podcast)
                 .Include(u => u.Podcast.AppUser)
                 .Where(p => p.ParsedPlaylistItems.Count() > limit);
+        }
+
+        public void DeletePlaylistItems(List<ParsedPlaylistItem> toDelete) {
+            var entriesToDelete = GetContext()
+                .PodcastEntries
+                .Where(r => toDelete.Select(t => t.Id).Contains(r.Id));
+            GetContext().PodcastEntries.RemoveRange(entriesToDelete);
+            GetContext().ParsedPlaylistItems.RemoveRange(toDelete);
         }
     }
 }
