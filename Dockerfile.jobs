@@ -35,5 +35,7 @@ RUN apk add --no-cache --update \
     youtube-dl -U
     
 WORKDIR /app
+EXPOSE 80
+
 COPY --from=build /app/podnoms-jobs/out ./
 ENTRYPOINT ["dotnet", "podnoms-jobs.dll"]
