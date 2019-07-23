@@ -9,20 +9,25 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Data.ViewModels;
+using Microsoft.Extensions.Options;
+using PodNoms.Common.Data.Settings;
 
 namespace PodNoms.Common.Services.Processor {
     public class CachedAudioRetrievalService : RealtimeUpdatingProcessService {
         private readonly IEntryRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AppSettings _appSettings;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public CachedAudioRetrievalService(IEntryRepository repository, IUnitOfWork unitOfWork,
             ILogger<AudioUploadProcessService> logger,
+            IOptions<AppSettings> appSettings,
             IHttpClientFactory httpClientFactory,
             IRealTimeUpdater realtimeUpdater, IMapper mapper)
             : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
             _unitOfWork = unitOfWork;
+            _appSettings = appSettings.Value;
             _httpClientFactory = httpClientFactory;
         }
 
@@ -35,13 +40,18 @@ namespace PodNoms.Common.Services.Processor {
                     ProcessingStatus = ProcessingStatus.Converting,
                     Progress = "Retrieving cached file"
                 });
-
             string cacheFile = Path.Combine(
                     Path.GetTempPath(),
                     $"{System.Guid.NewGuid().ToString()}.{extension}"
                 );
-            using (var client = _httpClientFactory.CreateClient("podnoms")) {
-                using (HttpResponseMessage response = await client.GetAsync(remoteUrl)) {
+            _logger.LogInformation($"Starting cache of {remoteUrl} to {cacheFile}");
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => {
+                return true;
+            };
+            using (var client = new HttpClient(handler)) {
+                using (HttpResponseMessage response = await client.GetAsync($"{_appSettings.ApiUrl}/{remoteUrl}")) {
                     using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync()) {
                         using (Stream streamToWriteTo = File.Open(cacheFile, FileMode.Create)) {
                             await streamToReadFrom.CopyToAsync(streamToWriteTo);
