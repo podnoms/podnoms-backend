@@ -29,6 +29,7 @@ namespace PodNoms.Jobs {
                             builtConfig["KeyVaultSettings:ClientSecret"]);
                     }
                 })
-                .UseStartup<JobsStartup>();
+                .UseStartup<JobsStartup>()
+                .UseKestrel(options => { options.Limits.MaxRequestBodySize = 1073741824; });
     }
 }

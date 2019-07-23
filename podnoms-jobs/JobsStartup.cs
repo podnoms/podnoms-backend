@@ -78,7 +78,7 @@ namespace PodNoms.Jobs {
                 app.UseDeveloperExceptionPage();
             }
             app.UseHangfireServer();
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+            app.UseHangfireDashboard("/dashboard", new DashboardOptions {
                 Authorization = new[] { new HangFireAuthorizationFilter() }
             });
             JobBootstrapper.BootstrapJobs(false);

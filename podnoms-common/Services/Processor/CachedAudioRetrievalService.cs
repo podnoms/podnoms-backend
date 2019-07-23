@@ -11,6 +11,7 @@ using PodNoms.Data.Enums;
 using PodNoms.Common.Data.ViewModels;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Utils.Extensions;
 
 namespace PodNoms.Common.Services.Processor {
     public class CachedAudioRetrievalService : RealtimeUpdatingProcessService {
@@ -31,7 +32,8 @@ namespace PodNoms.Common.Services.Processor {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<string> RetrieveAudio(string authToken, Guid entryId, string remoteUrl, string extension) {
+
+        public async Task<string> RetrieveAudio(string authToken, Guid entryId, string url, string extension) {
             var entry = await _repository.GetAsync(entryId);
             await _sendProgressUpdate(
                 authToken,
@@ -44,6 +46,7 @@ namespace PodNoms.Common.Services.Processor {
                     Path.GetTempPath(),
                     $"{System.Guid.NewGuid().ToString()}.{extension}"
                 );
+            var remoteUrl = $"{_appSettings.ApiUrl}/{url}";
             _logger.LogInformation($"Starting cache of {remoteUrl} to {cacheFile}");
             var handler = new HttpClientHandler();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
@@ -51,22 +54,57 @@ namespace PodNoms.Common.Services.Processor {
                 return true;
             };
             using (var client = new HttpClient(handler)) {
-                using (HttpResponseMessage response = await client.GetAsync($"{_appSettings.ApiUrl}/{remoteUrl}")) {
-                    using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync()) {
-                        using (Stream streamToWriteTo = File.Open(cacheFile, FileMode.Create)) {
-                            await streamToReadFrom.CopyToAsync(streamToWriteTo);
+                var totalSize = await client.GetContentSizeAsync(remoteUrl);
+                using (HttpResponseMessage response = client.GetAsync(remoteUrl, HttpCompletionOption.ResponseHeadersRead).Result) {
+                    response.EnsureSuccessStatusCode();
+
+                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
+                            fileStream = new FileStream(cacheFile, FileMode.Create,
+                            FileAccess.Write, FileShare.None, 8192, true)) {
+                        var totalRead = 0L;
+                        var totalReads = 0L;
+                        var buffer = new byte[8192];
+                        var isMoreToRead = true;
+
+                        do {
+                            var read = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+                            if (read == 0) {
+                                isMoreToRead = false;
+                            } else {
+                                await fileStream.WriteAsync(buffer, 0, read);
+
+                                totalRead += read;
+                                totalReads += 1;
+
+                                if (totalReads % 2000 == 0) {
+                                    Console.WriteLine(string.Format("total bytes downloaded so far: {0:n0}", totalRead));
+                                    var percentDone = Math.Round(((double)totalRead / (double)totalSize) * 100, 2);
+                                    await _sendProgressUpdate(
+                                        authToken,
+                                        entry.Id.ToString(),
+                                        new ProcessingProgress(entry) {
+                                            ProcessingStatus = ProcessingStatus.Caching,
+                                            Progress = "Retrieving cached file",
+                                            Payload = new TransferProgress {
+                                                Percentage = percentDone,
+                                                TotalSize = totalSize.ToString()
+                                            }
+                                        });
+                                    _logger.LogInformation($"{percentDone}% done.");
+                                }
+                            }
                         }
-                        response.Content = null;
+                        while (isMoreToRead);
                     }
                 }
             }
             await _sendProgressUpdate(
-            authToken,
-            entry.Id.ToString(),
-            new ProcessingProgress(entry) {
-                ProcessingStatus = ProcessingStatus.Converting,
-                Progress = "Retrieved cached file"
-            });
+                authToken,
+                entry.Id.ToString(),
+                new ProcessingProgress(entry) {
+                    ProcessingStatus = ProcessingStatus.Processing,
+                    Progress = "Retrieved cached file"
+                });
             return cacheFile;
         }
     }
