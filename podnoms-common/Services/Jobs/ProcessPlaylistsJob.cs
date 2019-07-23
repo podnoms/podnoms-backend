@@ -57,8 +57,8 @@ namespace PodNoms.Common.Services.Jobs {
             _logger.LogDebug("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
 
-            var playlists = _playlistRepository.GetAll()
-                .Where(r => r.Id == Guid.Parse("0c6a947d-505a-4992-db12-08d6a4be70f7"));
+            var playlists = _playlistRepository.GetAll();
+            // .Where(r => r.Id == Guid.Parse("0c6a947d-505a-4992-db12-08d6a4be70f7"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
