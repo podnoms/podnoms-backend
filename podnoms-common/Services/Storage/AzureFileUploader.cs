@@ -60,7 +60,6 @@ namespace PodNoms.Common.Services.Storage {
 
                     var mre = new ManualResetEvent(false);
                     var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(index.ToString("d6")));
-                    Console.WriteLine("Now uploading block # " + index.ToString("d6"));
                     blockIds.Add(blockId);
                     await blockBlob.PutBlockAsync(blockId, new MemoryStream(blobContents), null);
                     bytesUploaded += bytesToRead;
@@ -68,7 +67,6 @@ namespace PodNoms.Common.Services.Storage {
                     startPosition += bytesToRead;
                     index++;
                     var percentComplete = (double)bytesUploaded / (double)fileSize;
-                    Console.WriteLine("Percent complete = " + percentComplete.ToString("P"));
                     if (progressCallback != null) progressCallback((int)(percentComplete * 100), bytesToUpload);
 
                     mre.Set();
