@@ -18,7 +18,7 @@ namespace PodNoms.Common.Services.Processor {
         protected readonly ILogger _logger;
 
         private readonly IRealTimeUpdater _realtime;
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
         protected RealtimeUpdatingProcessService(ILogger logger, IRealTimeUpdater realtimeUpdater, IMapper mapper) {
             _logger = logger;

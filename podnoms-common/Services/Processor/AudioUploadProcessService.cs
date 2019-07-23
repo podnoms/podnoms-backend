@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Realtime;
@@ -95,11 +96,13 @@ namespace PodNoms.Common.Services.Processor {
                     _logger.LogDebug($"AudioUrl is: {entry.AudioUrl}");
                     entry.AudioFileSize = fileInfo.Length;
                     await _unitOfWork.CompleteAsync();
+                    var vm = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     await _sendProgressUpdate(
                         authToken,
                         entry.Id.ToString(),
                         new ProcessingProgress(entry) {
-                            ProcessingStatus = ProcessingStatus.Processed
+                            ProcessingStatus = ProcessingStatus.Processed,
+                            Payload = vm
                         });
                     return true;
                 }
@@ -126,7 +129,6 @@ namespace PodNoms.Common.Services.Processor {
                         ProcessingStatus = ProcessingStatus.Failed
                     });
             }
-
             return false;
         }
     }
