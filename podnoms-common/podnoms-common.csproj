@@ -11,6 +11,8 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AspNetcore.HealthChecks.AzureStorage" Version="2.2.2" />
+        <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="2.2.2" />
+        <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="2.2.1" />
         <PackageReference Include="AspNetcore.HealthChecks.SqlServer" Version="2.2.1" />
 
         <PackageReference Include="AspNetcore.HealthChecks.UI" Version="2.2.32" />
