@@ -11,7 +11,7 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class DeleteOrphanAudioJob : IJob {
+    public class DeleteOrphanAudioJob : IHostedJob {
         public readonly IEntryRepository _entryRepository;
         public readonly StorageSettings _storageSettings;
         public readonly AudioFileStorageSettings _audioStorageSettings;
@@ -64,10 +64,6 @@ namespace PodNoms.Common.Services.Jobs {
                     }
                     continuationToken = blobs.ContinuationToken;
                 } while (continuationToken != null);
-                await _mailSender.SendEmailAsync(
-                    "fergal.moran@gmail.com",
-                    $"DeleteOrphanAudioJob: Complete {blobCount}",
-                    string.Empty);
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Error clearing orphans\n{ex.Message}");

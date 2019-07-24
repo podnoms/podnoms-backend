@@ -57,5 +57,15 @@ namespace PodNoms.Data.Models {
         public double? Longitude { get; set; }
 
         public NotificationOptions EmailNotificationOptions { get; set; }
+
+        public string GetBestGuessName() {
+            if (!string.IsNullOrEmpty(FullName?.Trim())) {
+                return FullName;
+            }
+            if (!string.IsNullOrEmpty(FirstName?.Trim()) || !string.IsNullOrEmpty(LastName?.Trim())) {
+                return $"{FirstName} {LastName}".Trim();
+            }
+            return Email.Split('@')[0];
+        }
     }
 }

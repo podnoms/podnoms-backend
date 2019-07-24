@@ -46,7 +46,7 @@ namespace PodNoms.Common.Services.Jobs {
         public double? longitude { get; set; }
         public Location location { get; set; }
     }
-    public class GeocodeUsersJob : IJob {
+    public class GeocodeUsersJob : IHostedJob {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly HttpClient _httpClient;
         private readonly ILogger _logger;

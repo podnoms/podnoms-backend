@@ -15,7 +15,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class CacheRemoteImageJob : IJob {
+    public class CacheRemoteImageJob : IHostedJob {
         private readonly IEntryRepository _entryRepository;
         private readonly IFileUploader _fileUploader;
         private readonly IUnitOfWork _unitOfWork;

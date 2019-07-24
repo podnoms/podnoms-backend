@@ -14,7 +14,7 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessNewEntryJob : IJob {
+    public class ProcessNewEntryJob : IHostedJob {
         private readonly IConfiguration _options;
         private readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -61,14 +61,16 @@ namespace PodNoms.Common.Services.Jobs {
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.NotifyUser(
                         entry.Podcast.AppUser.Id,
-                        "PodNoms",
+                        "New Podcast Entry Available",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer),
+                        NotificationOptions.UploadCompleted
                    ));
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.SendCustomNotifications(
                         entry.Podcast.Id,
+                        entry.Podcast.AppUser.GetBestGuessName(),
                         "PodNoms",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)

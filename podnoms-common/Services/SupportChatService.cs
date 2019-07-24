@@ -35,7 +35,7 @@ namespace PodNoms.Common.Services {
                 var user = await _userManager.FindByEmailAsync(_chatSettings.CurrentChatUser);
                 if (!string.IsNullOrEmpty(user?.Id)) {
                     message.ToUserId = user.Id;
-                    message.ToUserName = user.FullName;
+                    message.ToUserName = user.GetBestGuessName();
                     //send firebase message to notify via web worker
                     var pushMessage = new PushMessage(message.Message) {
                         Topic = "New support chat message",

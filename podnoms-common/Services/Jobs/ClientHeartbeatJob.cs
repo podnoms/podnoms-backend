@@ -4,7 +4,7 @@ using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ClientHeartbeatJob : IJob {
+    public class ClientHeartbeatJob : IHostedJob {
         private readonly ILogger<ClientHeartbeatJob> _logger;
 
         public ClientHeartbeatJob(ILogger<ClientHeartbeatJob> logger) {

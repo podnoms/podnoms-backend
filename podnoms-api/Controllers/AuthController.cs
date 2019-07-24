@@ -109,8 +109,17 @@ namespace PodNoms.Api.Controllers {
                 }
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                    new { resetLink = callbackUrl }, "forgot_password.html");
+                await _emailSender.SendEmailAsync(
+                    model.Email,
+                    "PodNoms Reset Password Request",
+                    new MailDropin {
+                        username = user.GetBestGuessName(),
+                        title = "Password Rest Request",
+                        message = @"Someone told us you forgot your password?<br />
+                                    <span style='color: #a8bf6f; font-size: 14px; line-height: 21px;'>Don't worry, it happens.</span>",
+                        buttonaction = callbackUrl,
+                        buttonmessage = "Reset Password"
+                    });
                 return Ok(model);
             }
             return BadRequest(model);

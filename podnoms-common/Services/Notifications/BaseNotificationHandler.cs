@@ -20,7 +20,7 @@ namespace PodNoms.Common.Services.Notifications {
             _httpClient = httpClient.CreateClient("Notifications");
         }
 
-        public abstract Task<string> SendNotification(Guid notificationId, string title, string message, string url);
+        public abstract Task<string> SendNotification(Guid notificationId, string userName, string title, string message, string url);
 
         protected async Task<Dictionary<string, string>> _getConfiguration(Guid notificationId) {
             var notification = await _notificationRepository.GetAsync(notificationId);

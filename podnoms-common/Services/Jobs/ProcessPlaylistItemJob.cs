@@ -16,7 +16,7 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessPlaylistItemJob : IJob {
+    public class ProcessPlaylistItemJob : IHostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AppSettings _appSettings;
@@ -106,11 +106,15 @@ namespace PodNoms.Common.Services.Jobs {
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                             entry.Podcast.GetThumbnailUrl(
                                 _storageSettings.CdnUrl,
-                                _imageStorageSettings.ContainerName)
+                                _imageStorageSettings.ContainerName),
+                            NotificationOptions.NewPlaylistEpisode
                         ));
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                        service => service.SendCustomNotifications(
+                            entry.Podcast.Id,
+                            entry.Podcast.AppUser.GetBestGuessName(),
+                            "PodNoms",
                             $"{entry.Title} has finished processing",
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                         ));
