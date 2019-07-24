@@ -21,7 +21,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> Execute(PerformContext context) {
             var message = new NotifyUserMessage {
-                UserId = "USERID",
+                UserId = "4f2b02b1-e568-4693-bcb0-e8410114ac78",
                 Title = "title",
                 Body = "body",
                 Target = "target",

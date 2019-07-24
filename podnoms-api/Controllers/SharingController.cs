@@ -58,9 +58,14 @@ namespace PodNoms.Api.Controllers {
                     var url = Flurl.Url.Combine(new string[] { _sharingSettings.BaseUrl, link.LinkId });
                     await this._mailSender.SendEmailAsync(
                         model.Email,
-                        $"{_applicationUser.FullName} shared a link with you",
-                        new { fromPerson = _applicationUser.FullName, shareLink = url, message = model.Message },
-                        "share_link.html");
+                        $"{_applicationUser.GetBestGuessName()} shared a link with you",
+                        new MailDropin {
+                            username = model.Email.Split('@')[0], //bite me!
+                            message = $"<p>{_applicationUser.GetBestGuessName()} wants to share an audio file with you!</p><br />" +
+                                      $"<p>{{message}}</p>",
+                            buttonmessage = "Let me at it!!",
+                            buttonaction = url
+                        });
                     return Ok();
                 }
             } catch (Exception e) {
@@ -77,8 +82,7 @@ namespace PodNoms.Api.Controllers {
             var share = await _entryRepository.CreateNewSharingLink(model);
             if (share != null) {
                 await _unitOfWork.CompleteAsync();
-                return Ok(new SharingResultViewModel
-                {
+                return Ok(new SharingResultViewModel {
                     Id = model.Id,
                     ValidFrom = model.ValidFrom,
                     ValidTo = model.ValidTo,

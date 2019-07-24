@@ -12,6 +12,7 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Utils;
 
 namespace PodNoms.Common.Services {
+
     public class MailgunSender : IMailSender {
         private readonly EmailSettings _emailSettings;
         private readonly ILogger _logger;
@@ -21,18 +22,18 @@ namespace PodNoms.Common.Services {
             _logger = logger;
         }
 
-        public async Task<bool> SendEmailAsync(string email, string subject, string message,
-            string templateName = "email.html") {
-            return await SendEmailAsync(email, subject, new {message}, templateName);
-        }
+        // public async Task<bool> SendEmailAsync(string email, string subject, string message,
+        //     string templateName = "email.html") {
+        //     return await SendEmailAsync(email, subject, new {message}, templateName);
+        // }
 
-        public async Task<bool> SendEmailAsync(string email, string subject, dynamic objectModel = null,
+        public async Task<bool> SendEmailAsync(string email, string subject, MailDropin objectModel = null,
             string templateName = "email.html") {
             var template = await ResourceReader.ReadResource(templateName);
 
             if (string.IsNullOrEmpty(template)) return false;
 
-            using (var client = new HttpClient {BaseAddress = new Uri(_emailSettings.ApiBaseUri)}) {
+            using (var client = new HttpClient { BaseAddress = new Uri(_emailSettings.ApiBaseUri) }) {
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic",
                         Convert.ToBase64String(Encoding.ASCII.GetBytes(_emailSettings.ApiKey)));
@@ -42,8 +43,7 @@ namespace PodNoms.Common.Services {
                 if (objectModel != null) {
                     var parser = Handlebars.Compile(template);
                     mailBody = parser(objectModel);
-                }
-                else {
+                } else {
                     mailBody = template;
                 }
 

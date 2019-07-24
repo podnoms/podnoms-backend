@@ -30,8 +30,8 @@ namespace PodNoms.Common.Services.Hosted {
                     Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
                     _jobCompleteNotificationService.NotifyUser(
                         message.UserId,
-                        "PodNoms",
-                        $"{message.Title} has finished processing",
+                        message.Title,
+                        message.Body,
                         message.Target,
                         message.Image, NotificationOptions.UploadCompleted);
                 }

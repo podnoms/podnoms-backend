@@ -42,7 +42,14 @@ namespace PodNoms.Common.Auth {
             var result = await base.CreateAsync(user);
             if (result.Succeeded) {
                 try {
-                    await _mailSender.SendEmailAsync("fergal.moran@gmail.com", "New user signup", $"{user.Email}\n{user.FirstName} {user.LastName}");
+                    await _mailSender.SendEmailAsync(
+                        "fergal.moran@gmail.com",
+                        "New user signup",
+                        new MailDropin {
+                            username = "Handsome Fucker",
+                            title = "New User Signup",
+                            message = $"{user.Email}\n{user.FirstName} {user.LastName}"
+                        });
                 } catch (Exception) { }
             } else {
                 Logger.LogError($"Error signing up user: {user.Email}");

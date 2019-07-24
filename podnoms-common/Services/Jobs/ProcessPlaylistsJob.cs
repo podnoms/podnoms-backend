@@ -82,7 +82,7 @@ namespace PodNoms.Common.Services.Jobs {
                     .Sum();
 
                 if (totalUsed >= quota) {
-                    _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.FullName}");
+                    _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
                         service => service.NotifyUser(
                             playlist.Podcast.AppUser.Id.ToString(),
@@ -146,7 +146,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         private async Task _trimPlaylist(Playlist playlist) {
             if (playlist.ParsedPlaylistItems.Count > _storageSettings.DefaultEntryCount) {
-                _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
+                _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
                 var toDelete = playlist.ParsedPlaylistItems
                     .OrderByDescending(o => o.CreateDate)
                     .Skip(_storageSettings.DefaultEntryCount + 1);

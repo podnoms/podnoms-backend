@@ -64,10 +64,6 @@ namespace PodNoms.Common.Services.Jobs {
                     }
                     continuationToken = blobs.ContinuationToken;
                 } while (continuationToken != null);
-                await _mailSender.SendEmailAsync(
-                    "fergal.moran@gmail.com",
-                    $"DeleteOrphanAudioJob: Complete {blobCount}",
-                    string.Empty);
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Error clearing orphans\n{ex.Message}");

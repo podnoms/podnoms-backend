@@ -111,7 +111,10 @@ namespace PodNoms.Common.Services.Jobs {
                         ));
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(entry.Podcast.Id, "PodNoms",
+                        service => service.SendCustomNotifications(
+                            entry.Podcast.Id,
+                            entry.Podcast.AppUser.GetBestGuessName(),
+                            "PodNoms",
                             $"{entry.Title} has finished processing",
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                         ));

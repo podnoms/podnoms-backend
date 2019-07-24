@@ -67,7 +67,7 @@ namespace PodNoms.Api {
             );
             services.AddPodNomsMapping(Configuration);
             services.AddPodNomsOptions(Configuration);
-            services.AddPodNomsHealthChecks(Configuration);
+            services.AddPodNomsHealthChecks(Configuration, Env.IsDevelopment());
 
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(
@@ -76,14 +76,13 @@ namespace PodNoms.Api {
             });
 
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
-            services.AddSingleton<AutoSubscriber>(provider => 
+            services.AddSingleton<AutoSubscriber>(provider =>
                 new AutoSubscriber(
-                    provider.GetRequiredService<IBus>(), 
+                    provider.GetRequiredService<IBus>(),
                     Assembly.GetExecutingAssembly().GetName().Name));
 
             services.AddHostedService<RabbitMQService>();
 
-            services.AddHealthChecks();
             services.AddPodNomsHttpClients(Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
@@ -248,8 +247,8 @@ namespace PodNoms.Api {
             });
             app.UsePodNomsImaging();
             app.UsePodNomsSignalRRoutes();
-            app.UsePodNomsHealthChecks("/healthcheck");
-            app.UseSecureHeaders();
+            app.UsePodNomsHealthChecks(Env.IsDevelopment());
+            app.UseSecureHeaders(Env.IsDevelopment());
 
             app.UseMvc(routes => {
                 routes.MapRoute(

@@ -61,7 +61,7 @@ namespace PodNoms.Common.Services.Jobs {
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.NotifyUser(
                         entry.Podcast.AppUser.Id,
-                        "PodNoms",
+                        "New Podcast Entry Available",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                         entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer),
@@ -70,6 +70,7 @@ namespace PodNoms.Common.Services.Jobs {
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.SendCustomNotifications(
                         entry.Podcast.Id,
+                        entry.Podcast.AppUser.GetBestGuessName(),
                         "PodNoms",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)

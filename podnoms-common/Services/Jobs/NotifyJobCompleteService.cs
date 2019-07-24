@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
@@ -60,16 +60,27 @@ namespace PodNoms.Common.Services.Jobs {
 
         private async Task<bool> _sendEmail(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             try {
+                _logger.LogDebug($"Locating services");
                 using (IServiceScope scope = _provider.CreateScope()) {
+                    _logger.LogDebug($"Finding user");
                     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                     var user = await userManager.FindByIdAsync(userId);
                     if (user != null && (user.EmailNotificationOptions & notificationType) != 0) {
+                        _logger.LogDebug($"User is {user.Email}");
                         //user has allowed this kinds of emails.
                         await _mailSender.SendEmailAsync(
                             user.Email,
-                            $"PodNoms: {title}",
-                            $"{body}\n\nFind it <a href='{target}'>here</a>!"
+                            $"New notification from PodNoms",
+                            new MailDropin {
+                                username = user.GetBestGuessName(),
+                                title = title,
+                                message = body,
+                                buttonaction = target,
+                                buttonmessage = "Check it out"
+                            }
                         );
+                    } else {
+                        _logger.LogError($"Unable to find user");
                     }
                 }
                 return true;
@@ -79,7 +90,7 @@ namespace PodNoms.Common.Services.Jobs {
             return false;
         }
 
-        public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {
+        public async Task SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
             var id = podcastId.ToString();
             _logger.LogDebug($"Finding custom notifications for {id}");
             var notifications = _notificationRepository.GetAll().Where(r => r.PodcastId == podcastId);
@@ -88,7 +99,12 @@ namespace PodNoms.Common.Services.Jobs {
                 var typeHandlers = _handlers.Where(h => h.Type == notification.Type);
                 foreach (var handler in typeHandlers) {
                     _logger.LogDebug($"Found handler: {notification.Type.ToString()}");
-                    var response = await handler.SendNotification(notification.Id, title, body, url);
+                    var response = await handler.SendNotification(
+                        notification.Id,
+                        userName,
+                        title,
+                        body,
+                        url);
                     _logger.LogInformation(response);
                     _notificationRepository.AddLog(notification, response);
                     await _unitOfWork.CompleteAsync();
