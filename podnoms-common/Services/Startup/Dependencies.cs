@@ -25,6 +25,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddTransient<IPageParser, DefaultPageParser>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
+                .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPodcastRepository, PodcastRepository>()
                 .AddScoped<IEntryRepository, EntryRepository>()
