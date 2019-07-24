@@ -66,6 +66,7 @@ namespace PodNoms.Api.Controllers {
             _applicationUser.Slug = item.Slug;
             _applicationUser.FirstName = item.FirstName;
             _applicationUser.LastName = item.LastName;
+            _applicationUser.EmailNotificationOptions = (NotificationOptions)item.EmailNotificationOptions;
             await _userManager.UpdateAsync(_applicationUser);
             var ret = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
             return Ok(ret);

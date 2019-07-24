@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
@@ -98,6 +99,11 @@ namespace PodNoms.Common.Persistence {
             modelBuilder.Entity<ParsedPlaylistItem>()
                 .HasIndex(p => new { p.VideoId, p.PlaylistId })
                 .IsUnique(true);
+
+            var converter = new EnumToNumberConverter<NotificationOptions, int>();
+            modelBuilder.Entity<ApplicationUser>()
+                        .Property(e => e.EmailNotificationOptions)
+                        .HasConversion(converter);
 
             foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
                 pb.ValueGeneratedOnAdd()
