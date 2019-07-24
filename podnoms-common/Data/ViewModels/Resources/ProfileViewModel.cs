@@ -13,7 +13,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Description { get; set; }
         public string ProfileImage { get; set; }
         public string ApiKey { get; set; }
-
+        public int EmailNotificationOptions { get; set; }
         public bool HasSubscribed { get; set; }
         public string SubscriptionType { get; set; }
         public bool SubscriptionValid { get; set; }

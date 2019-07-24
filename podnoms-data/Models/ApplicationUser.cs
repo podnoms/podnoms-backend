@@ -5,6 +5,15 @@ using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
+    [Flags]
+    public enum NotificationOptions {
+        NewPlaylistEpisode = 1,
+        UploadCompleted = 2,
+        RecommendedPodcasts = 4,
+        StorageExceeded = 8,
+        PlaylistEntryCountExceeded = 16
+    }
+
     public class ApplicationUserSlugRedirects : IEntity {
         public Guid Id { get; set; }
 
@@ -47,5 +56,6 @@ namespace PodNoms.Data.Models {
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
+        public NotificationOptions EmailNotificationOptions { get; set; }
     }
 }
