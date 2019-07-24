@@ -58,6 +58,7 @@ namespace PodNoms.Common.Services.Jobs {
             context.WriteLine("Starting playlist processing");
 
             var playlists = _playlistRepository.GetAll();
+            // .Where(r => r.Id == Guid.Parse("0c6a947d-505a-4992-db12-08d6a4be70f7"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
@@ -91,19 +92,6 @@ namespace PodNoms.Common.Services.Jobs {
                 }
 
                 //check for active subscription
-                if (playlist.PodcastEntries.Count > _storageSettings.DefaultEntryCount) {
-                    _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
-                    BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(
-                            playlist.Podcast.Id,
-                            "PodNoms",
-                            $"Failure processing playlist\n{playlist.Podcast.Title}\n" +
-                            $"Your quota of {_storageSettings.DefaultEntryCount} items per playlist has been exceeded",
-                            playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
-                        ));
-                    return false;
-                }
-
                 var resultList = new List<ParsedItemResult>();
                 var downloader = new AudioDownloader(playlist.SourceUrl, _helpersSettings.Downloader);
                 var info = downloader.GetInfo();
@@ -111,7 +99,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 if (string.IsNullOrEmpty(id)) return true;
 
-                var count = _storageSettings.DefaultEntryCount - playlist.PodcastEntries.Count;
+                var count = _storageSettings.DefaultEntryCount;// - playlist.ParsedPlaylistItems.Count;
                 if (YouTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     var searchTerm = (playlist.SourceUrl.Contains("/user/")) ? "forUsername" : "id";
                     var entries = await _youTubeParser.GetPlaylistEntriesForId(id, count);
@@ -134,6 +122,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                     _logger.LogDebug($"Processing playlist item: {item.Id}");
                     if (playlist.ParsedPlaylistItems.Any(p => p.VideoId == item.Id)) continue;
+                    await _trimPlaylist(playlist);
 
                     _logger.LogDebug($"Found missing item: {item.Id}");
                     playlist.ParsedPlaylistItems.Add(new ParsedPlaylistItem {
@@ -149,6 +138,18 @@ namespace PodNoms.Common.Services.Jobs {
                 context.WriteLine($"ERROR(ProcessPlayListJob): {ex.Message}");
             }
             return false;
+        }
+
+        private async Task _trimPlaylist(Playlist playlist) {
+            if (playlist.ParsedPlaylistItems.Count > _storageSettings.DefaultEntryCount) {
+                _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
+                var toDelete = playlist.ParsedPlaylistItems
+                    .OrderByDescending(o => o.CreateDate)
+                    .Skip(_storageSettings.DefaultEntryCount + 1);
+
+                _playlistRepository.DeletePlaylistItems(toDelete.ToList());
+                await _unitOfWork.CompleteAsync();
+            }
         }
     }
 }
