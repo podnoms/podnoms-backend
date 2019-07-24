@@ -43,7 +43,7 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<ChatViewModel>> Post([FromBody]ChatViewModel message) {
             //need to lookup the current support host and notify them
-            message.FromUserName = _applicationUser.FullName;
+            message.FromUserName = _applicationUser.GetBestGuessName();
             message.FromUserId = _applicationUser.Id;
             var chat = _mapper.Map<ChatMessage>(message);
             _chatRepository.AddOrUpdate(chat);

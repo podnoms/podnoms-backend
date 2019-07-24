@@ -17,9 +17,9 @@ namespace PodNoms.Common.Services.Notifications {
             : base(notificationRepository, httpClient) { }
 
         public override async Task<string>
-            SendNotification(Guid notificationId, string title, string message, string url) {
+            SendNotification(Guid notificationId, string userName, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config is null || !config.ContainsKey("AccessToken")) 
+            if (config is null || !config.ContainsKey("AccessToken"))
                 return "Access token missing in config";
 
             var payload = JsonConvert.SerializeObject(new {

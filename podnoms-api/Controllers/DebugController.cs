@@ -107,7 +107,13 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [HttpGet("sendmail")]
         public async Task<IActionResult> SendEmail(string email) {
-            await _mailSender.SendEmailAsync(email, "Debug Message", "Hello Sailor");
+            await _mailSender.SendEmailAsync(
+                email,
+                "Debug Message",
+                new MailDropin {
+                    username = "Handsome Fucker",
+                    message = "Hello Sailor"
+                });
             return Ok();
         }
 

@@ -52,8 +52,7 @@ namespace PodNoms.Api.Controllers {
             var payments = await _paymentRepository.GetAll()
                 .Where(r => r.AppUser.Id == _applicationUser.Id)
                 .OrderByDescending(e => e.CreateDate)
-                .Select(e => new PaymentLogViewModel
-                {
+                .Select(e => new PaymentLogViewModel {
                     Id = e.Id.ToString(),
                     TransactionId = e.TransactionId,
                     Amount = e.Amount,
@@ -78,16 +77,18 @@ namespace PodNoms.Api.Controllers {
                 _applicationUser.Id,
                 new object[] { _applicationUser.Email, payment.Token });
             if (payment.Type == AccountSubscriptionType.Free && result.Paid) {
-                this._donationRepository.AddOrUpdate(new Donation
-                {
+                this._donationRepository.AddOrUpdate(new Donation {
                     AppUser = _applicationUser,
                     Amount = payment.Amount,
                 });
                 await this._mailSender.SendEmailAsync(
                     _applicationUser.Email,
                     "Thank you so much!!!",
-                    $"Hey Thanks SO much for your donation {_applicationUser.FullName}, it really is appreciated!{Environment.NewLine}{Environment.NewLine}Kindest regards,{Environment.NewLine}Fergal"
-                );
+                    new MailDropin {
+                        username = _applicationUser.GetBestGuessName(),
+                        title = "New Notification",
+                        message = $"<p>Hey Thanks SO much for your donation {_applicationUser.GetBestGuessName()}, it really is appreciated!</p><p>Kindest regards,</p><p>Fergal</p>",
+                    });
             } else {
                 this._paymentRepository.AddPayment(
                     _applicationUser, orderId,

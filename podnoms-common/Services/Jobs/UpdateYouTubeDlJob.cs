@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.NYT;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class UpdateYouTubeDlJob : IJob {
+    public class UpdateYouTubeDlJob : IHostedJob {
         private readonly IMailSender _sender;
         private readonly ILogger _logger;
 

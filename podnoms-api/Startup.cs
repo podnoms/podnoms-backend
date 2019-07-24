@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EasyNetQ;
+using EasyNetQ.AutoSubscribe;
 using EasyNetQ.Logging;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -56,13 +59,15 @@ namespace PodNoms.Api {
             Console.WriteLine($"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
             Console.WriteLine($"RabbitMqConnection: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddApplicationInsightsTelemetry();
-            
+            if (Env.IsDevelopment()) {
+                TelemetryDebugWriter.IsTracingDisabled = true;
+            }
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]
             );
             services.AddPodNomsMapping(Configuration);
             services.AddPodNomsOptions(Configuration);
-            services.AddPodNomsHealthChecks(Configuration);
+            services.AddPodNomsHealthChecks(Configuration, Env.IsDevelopment());
 
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(
@@ -71,8 +76,13 @@ namespace PodNoms.Api {
             });
 
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
+            services.AddSingleton<AutoSubscriber>(provider =>
+                new AutoSubscriber(
+                    provider.GetRequiredService<IBus>(),
+                    Assembly.GetExecutingAssembly().GetName().Name));
+
             services.AddHostedService<RabbitMQService>();
-            services.AddHealthChecks();
+
             services.AddPodNomsHttpClients(Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
@@ -220,6 +230,8 @@ namespace PodNoms.Api {
             app.UseCustomDomainRewrites();
             app.UseStaticFiles();
 
+            app.UseMessageQueue("ClientMessageService", Assembly.GetExecutingAssembly());
+
             //use the forwarded headers from nginx, not the proxyy headers
             app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -235,8 +247,8 @@ namespace PodNoms.Api {
             });
             app.UsePodNomsImaging();
             app.UsePodNomsSignalRRoutes();
-            app.UsePodNomsHealthChecks("/healthcheck");
-            app.UseSecureHeaders();
+            app.UsePodNomsHealthChecks(Env.IsDevelopment());
+            app.UseSecureHeaders(Env.IsDevelopment());
 
             app.UseMvc(routes => {
                 routes.MapRoute(
@@ -252,6 +264,21 @@ namespace PodNoms.Api {
                     context.Database.Migrate();
                 }
             }
+        }
+    }
+    public static class MessagingExtensions {
+        public static IApplicationBuilder UseMessageQueue(this IApplicationBuilder appBuilder, string subscriptionIdPrefix, Assembly assembly) {
+            var services = appBuilder.ApplicationServices.CreateScope().ServiceProvider;
+
+            var lifeTime = services.GetService<IApplicationLifetime>();
+            var bus = services.GetService<IBus>();
+            lifeTime.ApplicationStarted.Register(() => {
+                var subscriber = new AutoSubscriber(bus, subscriptionIdPrefix);
+                subscriber.Subscribe(assembly);
+                subscriber.SubscribeAsync(assembly);
+            });
+            lifeTime.ApplicationStopped.Register(() => bus.Dispose());
+            return appBuilder;
         }
     }
 }

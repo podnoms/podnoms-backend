@@ -10,7 +10,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class UploadAudioJob : IJob {
+    public class UploadAudioJob : IHostedJob {
         private readonly IAudioUploadProcessService _uploadProcessService;
         private readonly CachedAudioRetrievalService _audioRetriever;
         private readonly ILogger _logger;

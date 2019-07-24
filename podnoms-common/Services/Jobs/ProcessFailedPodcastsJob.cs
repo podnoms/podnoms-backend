@@ -9,7 +9,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessFailedPodcastsJob : IJob {
+    public class ProcessFailedPodcastsJob : IHostedJob {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
         private readonly IAudioUploadProcessService _uploadService;

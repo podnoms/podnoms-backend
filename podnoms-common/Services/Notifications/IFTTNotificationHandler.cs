@@ -13,9 +13,9 @@ namespace PodNoms.Common.Services.Notifications {
         public IFTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)
             : base(notificationRepository, httpClient) { }
 
-        public override async Task<string> SendNotification(Guid notificationId, string title, string message, string url) {
+        public override async Task<string> SendNotification(Guid notificationId, string userName, string title, string message, string url) {
             var config = await _getConfiguration(notificationId);
-            if (config is null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event")) 
+            if (config is null || !config.ContainsKey("WebHookKey") || !config.ContainsKey("Event"))
                 return "WebHookKey or Event missing in config";
             var hookUrl = $"https://maker.ifttt.com/trigger/{config["Event"]}/with/key/{config["WebHookKey"]}";
             var response = await _httpClient.GetAsync(hookUrl);

@@ -17,7 +17,7 @@ using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessPlaylistsJob : IJob {
+    public class ProcessPlaylistsJob : IHostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IEntryRepository _entryRepository;
         private readonly HelpersSettings _helpersSettings;
@@ -27,6 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly YouTubeParser _youTubeParser;
         private readonly MixcloudParser _mixcloudParser;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ImageFileStorageSettings _imageFileStorageSettings;
 
         public ProcessPlaylistsJob(
             IPlaylistRepository playlistRepository,
@@ -34,12 +35,14 @@ namespace PodNoms.Common.Services.Jobs {
             IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<StorageSettings> storageSettings,
+            IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             ILoggerFactory logger,
 
             YouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) {
             _unitOfWork = unitOfWork;
+            _imageFileStorageSettings = imageFileStorageSettings.Value;
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
             _playlistRepository = playlistRepository;
@@ -79,14 +82,15 @@ namespace PodNoms.Common.Services.Jobs {
                     .Sum();
 
                 if (totalUsed >= quota) {
-                    _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.FullName}");
+                    _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(
-                            playlist.Podcast.Id,
-                            "PodNoms",
-                            $"Failure processing playlist\n{playlist.Podcast.Title}\n" +
+                        service => service.NotifyUser(
+                            playlist.Podcast.AppUser.Id.ToString(),
+                            $"Failure processing playlist\n{playlist.Podcast.Title}\n",
                             $"Your have exceeded your storage quota of {quota.Bytes().ToString()}",
-                            playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                            playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
+                            playlist.Podcast.GetThumbnailUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
+                            NotificationOptions.StorageExceeded
                         ));
                     return false;
                 }
@@ -142,7 +146,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         private async Task _trimPlaylist(Playlist playlist) {
             if (playlist.ParsedPlaylistItems.Count > _storageSettings.DefaultEntryCount) {
-                _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.FullName}");
+                _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
                 var toDelete = playlist.ParsedPlaylistItems
                     .OrderByDescending(o => o.CreateDate)
                     .Skip(_storageSettings.DefaultEntryCount + 1);

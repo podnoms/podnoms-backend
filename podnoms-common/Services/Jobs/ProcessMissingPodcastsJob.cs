@@ -12,7 +12,7 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessMissingPodcastsJob : IJob {
+    public class ProcessMissingPodcastsJob : IHostedJob {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
         private readonly IPlaylistRepository _playlistRepository;
