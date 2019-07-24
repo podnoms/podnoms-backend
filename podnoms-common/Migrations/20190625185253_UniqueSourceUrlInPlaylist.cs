@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PodNoms.Comon.Migrations
-{
-    public partial class UniqueSourceUrlInPlaylist : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+namespace PodNoms.Comon.Migrations {
+    public partial class UniqueSourceUrlInPlaylist : Migration {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AlterColumn<string>(
                 name: "SourceUrl",
                 table: "Playlists",
@@ -21,8 +18,7 @@ namespace PodNoms.Comon.Migrations
                 filter: "[SourceUrl] IS NOT NULL");
         }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropIndex(
                 name: "IX_Playlists_SourceUrl",
                 table: "Playlists");
