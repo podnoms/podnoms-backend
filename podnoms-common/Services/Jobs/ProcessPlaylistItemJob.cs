@@ -16,7 +16,7 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessPlaylistItemJob : IJob {
+    public class ProcessPlaylistItemJob : IHostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AppSettings _appSettings;

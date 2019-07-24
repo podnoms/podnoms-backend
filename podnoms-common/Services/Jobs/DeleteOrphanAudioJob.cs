@@ -11,7 +11,7 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class DeleteOrphanAudioJob : IJob {
+    public class DeleteOrphanAudioJob : IHostedJob {
         public readonly IEntryRepository _entryRepository;
         public readonly StorageSettings _storageSettings;
         public readonly AudioFileStorageSettings _audioStorageSettings;

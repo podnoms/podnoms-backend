@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class PrunePlaylistJob : IJob {
+    public class PrunePlaylistJob : IHostedJob {
 
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IPaymentRepository _paymentRepository;

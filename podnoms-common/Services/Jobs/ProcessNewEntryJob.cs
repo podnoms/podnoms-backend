@@ -14,7 +14,7 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessNewEntryJob : IJob {
+    public class ProcessNewEntryJob : IHostedJob {
         private readonly IConfiguration _options;
         private readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;

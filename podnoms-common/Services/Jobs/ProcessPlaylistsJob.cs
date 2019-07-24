@@ -17,7 +17,7 @@ using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessPlaylistsJob : IJob {
+    public class ProcessPlaylistsJob : IHostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IEntryRepository _entryRepository;
         private readonly HelpersSettings _helpersSettings;

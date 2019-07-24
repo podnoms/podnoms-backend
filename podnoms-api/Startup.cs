@@ -81,7 +81,7 @@ namespace PodNoms.Api {
                     provider.GetRequiredService<IBus>(), 
                     Assembly.GetExecutingAssembly().GetName().Name));
 
-            // services.AddHostedService<RabbitMQService>();
+            services.AddHostedService<RabbitMQService>();
 
             services.AddHealthChecks();
             services.AddPodNomsHttpClients(Env.IsProduction());
@@ -230,8 +230,6 @@ namespace PodNoms.Api {
 
             app.UseCustomDomainRewrites();
             app.UseStaticFiles();
-
-            app.ApplicationServices.GetRequiredServices<AutoSubscriber>().SubscribeAsync(Assembly.GetExecutingAssembly());
 
             app.UseMessageQueue("ClientMessageService", Assembly.GetExecutingAssembly());
 
