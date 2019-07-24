@@ -263,9 +263,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("ApplicationUserId");
-
-                    b.Property<string>("ApplicationUserId1");
+                    b.Property<string>("ApplicationUserId");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
@@ -279,7 +277,7 @@ namespace PodNoms.Comon.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId1");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("ApplicationUserSlugRedirects");
                 });
@@ -713,7 +711,7 @@ namespace PodNoms.Comon.Migrations
                 {
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId1");
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>

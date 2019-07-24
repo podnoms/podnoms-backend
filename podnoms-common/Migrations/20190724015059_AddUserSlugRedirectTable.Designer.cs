@@ -10,8 +10,8 @@ using PodNoms.Common.Persistence;
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    [Migration("20190724004456_AddUserIdToSlugRedirectTable")]
-    partial class AddUserIdToSlugRedirectTable
+    [Migration("20190724015059_AddUserSlugRedirectTable")]
+    partial class AddUserSlugRedirectTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -265,9 +265,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("ApplicationUserId");
-
-                    b.Property<string>("ApplicationUserId1");
+                    b.Property<string>("ApplicationUserId");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
@@ -281,7 +279,7 @@ namespace PodNoms.Comon.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId1");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("ApplicationUserSlugRedirects");
                 });
@@ -715,7 +713,7 @@ namespace PodNoms.Comon.Migrations
                 {
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId1");
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
