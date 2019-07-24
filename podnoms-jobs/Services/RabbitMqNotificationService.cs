@@ -4,6 +4,7 @@ using EasyNetQ;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.Messages;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Jobs.Services {
     public class RabbitMqNotificationService : INotifyJobCompleteService {
@@ -14,7 +15,8 @@ namespace PodNoms.Jobs.Services {
             _logger = logger;
             _bus = bus;
         }
-        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
+
+        public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             _logger.LogDebug($"Notifiying user");
             var message = new NotifyUserMessage {
                 UserId = userId,
@@ -31,6 +33,7 @@ namespace PodNoms.Jobs.Services {
                     _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
                 }
             });
+            return true;
         }
 
         public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {

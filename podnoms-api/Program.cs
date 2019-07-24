@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -37,10 +38,11 @@ namespace PodNoms.Api {
             var t = builder.UseStartup<Startup>()
                 .UseKestrel(options => {
                     options.Limits.MaxRequestBodySize = 1073741824;
-                    if (_isDevelopment) {
+                    if (_isDevelopment && RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
                         var c = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.Development.json", optional: false)
+                            .AddEnvironmentVariables("ASPNETCORE_")
                             .Build();
                         var certificate = new X509Certificate2(
                             c["DevSettings:CertificateFile"],

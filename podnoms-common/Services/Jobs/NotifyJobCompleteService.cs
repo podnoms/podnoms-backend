@@ -2,12 +2,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Notifications;
 using PodNoms.Common.Services.Push;
+using PodNoms.Data.Models;
 using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Common.Services.Jobs {
@@ -17,24 +19,32 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly INotificationRepository _notificationRepository;
 
         private readonly ILogger<NotifyJobCompleteService> _logger;
+        private readonly IMailSender _mailSender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationHandler[] _handlers;
-
+        private readonly IServiceScopeFactory _provider;
         public NotifyJobCompleteService(IPushSubscriptionStore subscriptionStore,
             IPushNotificationService notificationService,
             INotificationRepository notificationRepository,
             ILogger<NotifyJobCompleteService> logger,
             IServiceProvider serviceProvider,
+            IMailSender mailSender,
+            IServiceScopeFactory provider,
             IUnitOfWork unitOfWork) {
             _notificationService = notificationService;
             _subscriptionStore = subscriptionStore;
             _notificationRepository = notificationRepository;
+
             _logger = logger;
+            _mailSender = mailSender;
             _unitOfWork = unitOfWork;
+            _provider = provider;
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
 
-        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
+        public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
+            _logger.LogDebug($"Sending email messages to {userId}");
+            await _sendEmail(userId, title, body, target, image, notificationType);
             var pushMessage = new PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
@@ -45,6 +55,28 @@ namespace PodNoms.Common.Services.Jobs {
                     _logger.LogDebug($"Sending to {target}");
                     _notificationService.SendNotificationAsync(subscription, pushMessage, target);
                 });
+            return true;
+        }
+
+        private async Task<bool> _sendEmail(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
+            try {
+                using (IServiceScope scope = _provider.CreateScope()) {
+                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                    var user = await userManager.FindByIdAsync(userId);
+                    if (user != null && (user.EmailNotificationOptions & notificationType) != 0) {
+                        //user has allowed this kinds of emails.
+                        await _mailSender.SendEmailAsync(
+                            user.Email,
+                            $"PodNoms: {title}",
+                            $"{body}\n\nFind it <a href='{target}'>here</a>!"
+                        );
+                    }
+                }
+                return true;
+            } catch (Exception ex) {
+                _logger.LogError(119157, ex, $"Error sending Notification email");
+            }
+            return false;
         }
 
         public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {

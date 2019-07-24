@@ -27,6 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly YouTubeParser _youTubeParser;
         private readonly MixcloudParser _mixcloudParser;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ImageFileStorageSettings _imageFileStorageSettings;
 
         public ProcessPlaylistsJob(
             IPlaylistRepository playlistRepository,
@@ -34,12 +35,14 @@ namespace PodNoms.Common.Services.Jobs {
             IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<StorageSettings> storageSettings,
+            IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             ILoggerFactory logger,
 
             YouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) {
             _unitOfWork = unitOfWork;
+            _imageFileStorageSettings = imageFileStorageSettings.Value;
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
             _playlistRepository = playlistRepository;
@@ -81,12 +84,13 @@ namespace PodNoms.Common.Services.Jobs {
                 if (totalUsed >= quota) {
                     _logger.LogError($"Storage quota exceeded for {playlist.Podcast.AppUser.FullName}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                        service => service.SendCustomNotifications(
-                            playlist.Podcast.Id,
-                            "PodNoms",
-                            $"Failure processing playlist\n{playlist.Podcast.Title}\n" +
+                        service => service.NotifyUser(
+                            playlist.Podcast.AppUser.Id.ToString(),
+                            $"Failure processing playlist\n{playlist.Podcast.Title}\n",
                             $"Your have exceeded your storage quota of {quota.Bytes().ToString()}",
-                            playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
+                            playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
+                            playlist.Podcast.GetThumbnailUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
+                            NotificationOptions.StorageExceeded
                         ));
                     return false;
                 }

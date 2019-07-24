@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PodNoms.Common.Data.Messages;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Hosted {
     public class RabbitMQService : BackgroundService {
@@ -37,7 +38,7 @@ namespace PodNoms.Common.Services.Hosted {
                         "PodNoms",
                         $"{message.Title} has finished processing",
                         message.Target,
-                        message.Image);
+                        message.Image, NotificationOptions.UploadCompleted);
                 }
             );
             _bus.Subscribe<CustomNotificationMessage>(

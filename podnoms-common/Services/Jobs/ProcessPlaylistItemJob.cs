@@ -106,7 +106,8 @@ namespace PodNoms.Common.Services.Jobs {
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                             entry.Podcast.GetThumbnailUrl(
                                 _storageSettings.CdnUrl,
-                                _imageStorageSettings.ContainerName)
+                                _imageStorageSettings.ContainerName),
+                            NotificationOptions.NewPlaylistEpisode
                         ));
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(

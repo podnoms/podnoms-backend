@@ -115,7 +115,7 @@ namespace PodNoms.Api.Controllers {
             _jobCompleteNotificationService.NotifyUser(userId, "PodNoms",
                 $"{title} has finished processing",
                 target,
-                image);
+                image, NotificationOptions.UploadCompleted);
             return Accepted();
         }
         [HttpPost("sendcustomnotifications")]

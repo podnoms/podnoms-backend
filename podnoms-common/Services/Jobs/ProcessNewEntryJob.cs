@@ -64,7 +64,8 @@ namespace PodNoms.Common.Services.Jobs {
                         "PodNoms",
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer)
+                        entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer),
+                        NotificationOptions.UploadCompleted
                    ));
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.SendCustomNotifications(

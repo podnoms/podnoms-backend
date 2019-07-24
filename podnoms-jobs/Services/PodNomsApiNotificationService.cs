@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Jobs.Services {
     public class PodNomsApiNotificationService : INotifyJobCompleteService {
@@ -23,7 +24,7 @@ namespace PodNoms.Jobs.Services {
             _config = configuration;
         }
 
-        public async Task NotifyUser(string userId, string title, string body, string target, string image) {
+        public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             try {
 
                 var urlString = $"userId=userId&title={title}&body={body}&target={target}&image={image}";
@@ -35,6 +36,7 @@ namespace PodNoms.Jobs.Services {
                 _logger.LogDebug("Sending message", urlString);
                 if (result.StatusCode == System.Net.HttpStatusCode.Accepted) {
                     _logger.LogInformation($"User notifications for {userId} sent succesfully");
+                    return true;
                 } else {
                     _logger.LogError($"Error sending notification, API call produced {result.StatusCode} ");
                     _logger.LogError(result.ReasonPhrase);
@@ -42,6 +44,7 @@ namespace PodNoms.Jobs.Services {
             } catch (Exception ex) {
                 _logger.LogError($"Unable to send notification to user\n{ex.Message}\n\t{ex.InnerException.Message}");
             }
+            return false;
         }
 
         public async Task SendCustomNotifications(Guid podcastId, string title, string body, string url) {
