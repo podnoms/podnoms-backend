@@ -17,7 +17,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task DeleteAsync(Guid id);
     }
 
-    public abstract class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
         private PodNomsDbContext _context;
         private readonly ILogger<GenericRepository<TEntity>> _logger;
 

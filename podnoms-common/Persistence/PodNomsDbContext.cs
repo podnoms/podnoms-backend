@@ -21,6 +21,26 @@ namespace PodNoms.Common.Persistence {
         ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
         GO";
     }
+    public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
+        public PodNomsDbContext CreateDbContext(string[] args) {
+            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile($"appsettings.json")
+                .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            Console.WriteLine(configuration);
+
+            var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            builder.UseSqlServer(connectionString);
+
+            return new PodNomsDbContext(builder.Options);
+        }
+    }
+
 
     public sealed class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
         public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) : base(options) {
@@ -120,6 +140,7 @@ namespace PodNoms.Common.Persistence {
         }
 
         public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
+        public DbSet<ApplicationUserSlugRedirects> ApplicationUserSlugRedirects { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Donation> Donations { get; set; }

@@ -5,9 +5,16 @@ using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
-    public class ApplicationUserSlugRedirects {
+    public class ApplicationUserSlugRedirects : IEntity {
+        public Guid Id { get; set; }
+
+        public Guid ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+
         public string OldSlug { get; set; }
+
+        public DateTime CreateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
     }
     //TODO: Perhaps this shouldn't be a slug, it's the most visible slug in the application
     //TODO: And it causes confusion for users as it isn't an everyday term
@@ -20,7 +27,7 @@ namespace PodNoms.Data.Models {
         public string PictureUrl { get; set; }
 
         public long? DiskQuota { get; set; }
-    
+
         [SlugField(sourceField: "FullName")] public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
