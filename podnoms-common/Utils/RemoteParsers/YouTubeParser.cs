@@ -29,33 +29,44 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return result.Success;
         }
         public async Task<List<ParsedItemResult>> GetPlaylistEntriesForId(string id, int count = 10) {
-            var playlistRequest = youtube.PlaylistItems.List("contentDetails");
-            playlistRequest.PlaylistId = id;
-            playlistRequest.MaxResults = count;
-            var plists = await playlistRequest.ExecuteAsync();
-            return plists.Items
-                .Select(p => new ParsedItemResult {
-                    Id = p.ContentDetails.VideoId,
-                    VideoType = "youtube",
-                    UploadDate = p.ContentDetails.VideoPublishedAt
-                }).ToList();
-        }
-        public async Task<List<ParsedItemResult>> GetPlaylistEntriesForChannelName(string channelName, string searchType, int nCount = 10) {
+            using (var youtubeService = _getYouTubeService()) {
+                var searchListRequest = youtubeService.Search.List("snippet");
+                searchListRequest.ChannelId = id;
+                searchListRequest.MaxResults = count;
+                searchListRequest.Type = "youtube#video";
+                searchListRequest.Order = SearchResource.ListRequest.OrderEnum.Date;
+                var searchListResponse = await searchListRequest.ExecuteAsync();
 
-            var request = youtube.Channels.List("contentDetails");
-            if (searchType.Equals("id"))
-                request.Id = channelName;
-            else
-                request.ForUsername = channelName;
-            request.MaxResults = 1;
-            var resp = await request.ExecuteAsync();
-            if (resp.Items.Count == 1) {
-                var uploadListId = resp.Items[0].ContentDetails.RelatedPlaylists.Uploads;
-                if (!string.IsNullOrEmpty(uploadListId)) {
-                    return await GetPlaylistEntriesForId(uploadListId, nCount);
-                }
+                var results = searchListResponse
+                    .Items
+                    .Select(p => new ParsedItemResult {
+                        Id = p.Id.VideoId,
+                        VideoType = "youtube",
+                        UploadDate = p.Snippet.PublishedAt
+                    })
+                    .OrderBy(r => r.UploadDate)
+                    .ToList();
+                return results;
             }
-            return null;
+        }
+
+        public async Task<List<ParsedItemResult>> GetPlaylistEntriesForChannelName(string channelName, string searchType, int nCount = 10) {
+            using (var youtubeService = _getYouTubeService()) {
+                var request = youtube.Channels.List("contentDetails");
+                if (searchType.Equals("id"))
+                    request.Id = channelName;
+                else
+                    request.ForUsername = channelName;
+                request.MaxResults = 1;
+                var resp = await request.ExecuteAsync();
+                if (resp.Items.Count == 1) {
+                    var uploadListId = resp.Items[0].ContentDetails.RelatedPlaylists.Uploads;
+                    if (!string.IsNullOrEmpty(uploadListId)) {
+                        return await GetPlaylistEntriesForId(uploadListId, nCount);
+                    }
+                }
+                return null;
+            }
         }
     }
 }

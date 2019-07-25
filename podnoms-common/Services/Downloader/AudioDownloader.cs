@@ -53,12 +53,7 @@ namespace PodNoms.Common.Services.Downloader {
             }
         }
 
-        public AudioType GetInfo() {
-            var ret = AudioType.Invalid;
-
-            if (_url.Contains("drive.google.com")) {
-                return AudioType.Valid;
-            }
+        public DownloadInfo __getInfo() {
 
             var yt = new YoutubeDL { VideoUrl = _url };
             var info = yt.GetDownloadInfo();
@@ -68,8 +63,23 @@ namespace PodNoms.Common.Services.Downloader {
                 (info.GetType() == typeof(PlaylistDownloadInfo) &&
                     !MixcloudParser.ValidateUrl(_url) &&
                     !YouTubeParser.ValidateUrl(_url))) {
-                return ret;
+                return info;
             }
+            return null;
+        }
+
+        public string GetChannelId() {
+            var info = __getInfo();
+            return info.Id;
+        }
+
+        public AudioType GetInfo() {
+            var ret = AudioType.Invalid;
+
+            if (_url.Contains("drive.google.com")) {
+                return AudioType.Valid;
+            }
+            var info = __getInfo();
 
             RawProperties = info;
             switch (info) {

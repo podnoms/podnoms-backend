@@ -61,7 +61,6 @@ namespace PodNoms.Common.Services.Jobs {
             context.WriteLine("Starting playlist processing");
 
             var playlists = _playlistRepository.GetAll();
-            // .Where(r => r.Id == Guid.Parse("0c6a947d-505a-4992-db12-08d6a4be70f7"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
@@ -98,8 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
                 var downloader = new AudioDownloader(playlist.SourceUrl, _helpersSettings.Downloader);
-                var info = downloader.GetInfo();
-                var id = ((PlaylistDownloadInfo)downloader.RawProperties)?.Id;
+                var id = downloader.GetChannelId();
 
                 if (string.IsNullOrEmpty(id)) return true;
 
