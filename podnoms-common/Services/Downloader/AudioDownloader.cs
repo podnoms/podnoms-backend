@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
+using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.NYT;
 using PodNoms.Common.Services.NYT.Helpers;
@@ -13,8 +15,8 @@ using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
-        private readonly string _url;
         private readonly string _downloader;
+        private readonly IYouTubeParser _youTubeParser;
 
         public VideoDownloadInfo Properties => RawProperties is VideoDownloadInfo info ? info : null;
         public DownloadInfo RawProperties { get; private set; }
@@ -22,12 +24,13 @@ namespace PodNoms.Common.Services.Downloader {
         private const string DOWNLOADRATESTRING = "iB/s";
         private const string DOWNLOADSIZESTRING = "iB";
         protected const string OFSTRING = "of";
+        private readonly HelpersSettings _helpersSettings;
 
         public event EventHandler<ProcessingProgress> DownloadProgress;
 
-        public AudioDownloader(string url, string downloader) {
-            _url = url;
-            _downloader = downloader;
+        public AudioDownloader(IYouTubeParser youTubeParser, IOptions<HelpersSettings> helpersSettings) {
+            _helpersSettings = helpersSettings.Value;
+            _youTubeParser = youTubeParser;
         }
 
         public static string GetVersion(string downloader) {
@@ -53,33 +56,37 @@ namespace PodNoms.Common.Services.Downloader {
             }
         }
 
-        public DownloadInfo __getInfo() {
+        public DownloadInfo __getInfo(string url) {
+            try {
+                var yt = new YoutubeDL { VideoUrl = url };
+                var info = yt.GetDownloadInfo();
 
-            var yt = new YoutubeDL { VideoUrl = _url };
-            var info = yt.GetDownloadInfo();
-
-            if (info is null ||
-                info.Errors.Count != 0 ||
-                (info.GetType() == typeof(PlaylistDownloadInfo) &&
-                    !MixcloudParser.ValidateUrl(_url) &&
-                    !YouTubeParser.ValidateUrl(_url))) {
-                return info;
+                if (info is null ||
+                    info.Errors.Count != 0 ||
+                    (info.GetType() == typeof(PlaylistDownloadInfo) &&
+                        !MixcloudParser.ValidateUrl(url) &&
+                        !_youTubeParser.ValidateUrl(url))) {
+                    return info;
+                }
+            } catch (Exception e) {
+                Console.WriteLine($"Error geting info for {url}");
+                Console.WriteLine(e.Message);
             }
             return null;
         }
 
-        public string GetChannelId() {
-            var info = __getInfo();
-            return info.Id;
+        public string GetChannelId(string url) {
+            var info = __getInfo(url);
+            return info?.Id;
         }
 
-        public AudioType GetInfo() {
+        public AudioType GetInfo(string url) {
             var ret = AudioType.Invalid;
 
-            if (_url.Contains("drive.google.com")) {
+            if (url.Contains("drive.google.com")) {
                 return AudioType.Valid;
             }
-            var info = __getInfo();
+            var info = __getInfo(url);
 
             RawProperties = info;
             switch (info) {
@@ -95,12 +102,12 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public string DownloadAudio(Guid id) {
+        public string DownloadAudio(Guid id, string url) {
             var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
 
-            if (_url.Contains("drive.google.com")) {
-                return _downloadFileDirect(_url, outputFile);
+            if (url.Contains("drive.google.com")) {
+                return _downloadFileDirect(url, outputFile);
             }
 
             var yt = new YoutubeDL();
@@ -108,7 +115,7 @@ namespace PodNoms.Common.Services.Downloader {
             yt.Options.PostProcessingOptions.ExtractAudio = true;
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
 
-            yt.VideoUrl = _url;
+            yt.VideoUrl = url;
 
             yt.StandardOutputEvent += (sender, output) => {
                 if (output.Contains("%")) {

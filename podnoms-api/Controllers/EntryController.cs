@@ -34,6 +34,7 @@ namespace PodNoms.Api.Controllers {
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IYouTubeParser _youTubeParser;
         private readonly AppSettings _appSettings;
         private readonly IUrlProcessService _processor;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
@@ -44,6 +45,7 @@ namespace PodNoms.Api.Controllers {
             IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
             IOptions<AppSettings> appSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
+            IYouTubeParser youTubeParser,
             IConfiguration options,
             IUrlProcessService processor,
             ILogger<EntryController> logger,
@@ -57,6 +59,7 @@ namespace PodNoms.Api.Controllers {
             _unitOfWork = unitOfWork;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
             _mapper = mapper;
+            _youTubeParser = youTubeParser;
             _processor = processor;
         }
 
@@ -146,7 +149,7 @@ namespace PodNoms.Api.Controllers {
                     _logger.LogError(e.Message);
                     return BadRequest(item);
                 }
-            } else if ((status == AudioType.Playlist && YouTubeParser.ValidateUrl(item.SourceUrl)) ||
+            } else if ((status == AudioType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
                 MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
