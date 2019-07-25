@@ -24,6 +24,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly StorageSettings _storageSettings;
         private readonly ImageFileStorageSettings _imageStorageSettings;
         private readonly HelpersSettings _helpersSettings;
+        private readonly AudioDownloader _audioDownloader;
         private readonly ILogger<ProcessPlaylistItemJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -36,6 +37,7 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<StorageSettings> storageSettings,
             IOptions<HelpersSettings> helpersSettings,
             IUnitOfWork unitOfWork,
+            AudioDownloader audioDownloader,
             ILogger<ProcessPlaylistItemJob> logger) {
 
             _unitOfWork = unitOfWork;
@@ -47,6 +49,7 @@ namespace PodNoms.Common.Services.Jobs {
             _imageStorageSettings = imageStorageSettings.Value;
             _helpersSettings = helpersSettings.Value;
             _logger = logger;
+            _audioDownloader = audioDownloader;
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -74,21 +77,20 @@ namespace PodNoms.Common.Services.Jobs {
             if (string.IsNullOrEmpty(url)) {
                 _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
             } else {
-                var downloader = new AudioDownloader(url, _helpersSettings.Downloader);
-                var info = downloader.GetInfo();
+                var info = _audioDownloader.GetInfo(url);
                 if (info == AudioType.Valid) {
                     var podcast = await _podcastRepository.GetAsync(item.Playlist.PodcastId);
                     var uid = Guid.NewGuid();
-                    var file = downloader.DownloadAudio(uid);
+                    var file = _audioDownloader.DownloadAudio(uid, url);
 
                     if (!File.Exists(file)) return true;
 
                     //we have the file so lets create the entry and ship to CDN
                     var entry = new PodcastEntry {
-                        Title = downloader.Properties?.Title,
-                        Description = downloader.Properties?.Description,
+                        Title = _audioDownloader.Properties?.Title,
+                        Description = _audioDownloader.Properties?.Description,
                         ProcessingStatus = ProcessingStatus.Uploading,
-                        ImageUrl = downloader.Properties?.Thumbnail,
+                        ImageUrl = _audioDownloader.Properties?.Thumbnail,
                         SourceUrl = url
                     };
                     podcast.PodcastEntries.Add(entry);

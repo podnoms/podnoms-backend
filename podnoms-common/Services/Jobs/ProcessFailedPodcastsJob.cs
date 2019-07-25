@@ -13,8 +13,8 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IUrlProcessService _processor;
         private readonly IEntryRepository _entryRepository;
         private readonly IAudioUploadProcessService _uploadService;
-        private readonly ILogger<ProcessFailedPodcastsJob> _logger;
-        public ProcessFailedPodcastsJob(ILogger<ProcessFailedPodcastsJob> logger, IUrlProcessService processor, IEntryRepository entryRepository, IAudioUploadProcessService uploadService) {
+        private readonly ILogger<ProcessFailedPlaylistEntryJob> _logger;
+        public ProcessFailedPodcastsJob(ILogger<ProcessFailedPlaylistEntryJob> logger, IUrlProcessService processor, IEntryRepository entryRepository, IAudioUploadProcessService uploadService) {
             _logger = logger;
             _uploadService = uploadService;
             _entryRepository = entryRepository;

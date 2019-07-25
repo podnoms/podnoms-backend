@@ -24,22 +24,24 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly StorageSettings _storageSettings;
         private readonly AppSettings _appSettings;
         private readonly ILogger<ProcessPlaylistsJob> _logger;
-        private readonly YouTubeParser _youTubeParser;
+        private readonly IYouTubeParser _youTubeParser;
         private readonly MixcloudParser _mixcloudParser;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AudioDownloader _downloader;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
 
         public ProcessPlaylistsJob(
             IPlaylistRepository playlistRepository,
             IEntryRepository entryRepository,
             IUnitOfWork unitOfWork,
+            IYouTubeParser ytParser,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
+            AudioDownloader downloader,
             ILoggerFactory logger,
-
-            YouTubeParser youTubeParser,
+            IYouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) {
             _unitOfWork = unitOfWork;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
@@ -50,6 +52,7 @@ namespace PodNoms.Common.Services.Jobs {
             _helpersSettings = helpersSettings.Value;
             _storageSettings = storageSettings.Value;
             _appSettings = appSettings.Value;
+            _downloader = downloader;
             _logger = logger.CreateLogger<ProcessPlaylistsJob>();
         }
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -61,7 +64,6 @@ namespace PodNoms.Common.Services.Jobs {
             context.WriteLine("Starting playlist processing");
 
             var playlists = _playlistRepository.GetAll();
-            // .Where(r => r.Id == Guid.Parse("0c6a947d-505a-4992-db12-08d6a4be70f7"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
@@ -97,21 +99,11 @@ namespace PodNoms.Common.Services.Jobs {
 
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-                var downloader = new AudioDownloader(playlist.SourceUrl, _helpersSettings.Downloader);
-                var info = downloader.GetInfo();
-                var id = ((PlaylistDownloadInfo)downloader.RawProperties)?.Id;
 
-                if (string.IsNullOrEmpty(id)) return true;
 
                 var count = _storageSettings.DefaultEntryCount;// - playlist.ParsedPlaylistItems.Count;
-                if (YouTubeParser.ValidateUrl(playlist.SourceUrl)) {
-                    var searchTerm = (playlist.SourceUrl.Contains("/user/")) ? "forUsername" : "id";
-                    var entries = await _youTubeParser.GetPlaylistEntriesForId(id, count);
-                    resultList = entries
-                        .OrderBy(r => r.UploadDate)
-                        .ToList();
-                    //make sure the items are sorted in ascending date order
-                    //so they will be processed in the order they were created
+                if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
+                    resultList = await _youTubeParser.GetPlaylistItems(playlist.SourceUrl, count);
                 } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
                     var entries = await _mixcloudParser
                             .GetEntries(playlist.SourceUrl, count);

@@ -18,6 +18,7 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Processor {
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AudioDownloader _downloader;
         private readonly IEntryRepository _repository;
 
         private readonly HelpersSettings _helpersSettings;
@@ -25,11 +26,13 @@ namespace PodNoms.Common.Services.Processor {
         public UrlProcessService(
             IEntryRepository repository, IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
+            AudioDownloader downloader,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
             _helpersSettings = helpersSettings.Value;
             _repository = repository;
             _unitOfWork = unitOfWork;
+            _downloader = downloader;
         }
 
         private async Task __downloader_progress(string userId, string uid, ProcessingProgress e) {
@@ -59,21 +62,20 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<AudioType> GetInformation(PodcastEntry entry) {
-            var downloader = new AudioDownloader(entry.SourceUrl, _helpersSettings.Downloader);
 
-            var ret = downloader.GetInfo();
+            var ret = _downloader.GetInfo(entry.SourceUrl);
             if (ret != AudioType.Valid) return ret;
 
-            if (!string.IsNullOrEmpty(downloader.Properties?.Title) &&
+            if (!string.IsNullOrEmpty(_downloader.Properties?.Title) &&
                 string.IsNullOrEmpty(entry.Title)) {
-                entry.Title = downloader.Properties?.Title;
+                entry.Title = _downloader.Properties?.Title;
             }
 
-            entry.Description = downloader.Properties?.Description;
-            entry.ImageUrl = downloader.Properties?.Thumbnail;
+            entry.Description = _downloader.Properties?.Description;
+            entry.ImageUrl = _downloader.Properties?.Thumbnail;
             entry.ProcessingStatus = ProcessingStatus.Processing;
             try {
-                entry.Author = downloader.Properties?.Uploader;
+                entry.Author = _downloader.Properties?.Uploader;
             } catch (Exception) {
                 _logger.LogWarning($"Unable to extract downloader info for: {entry.SourceUrl}");
             }
@@ -98,11 +100,10 @@ namespace PodNoms.Common.Services.Processor {
                         ProcessingStatus = ProcessingStatus.Processing
                     }
                 );
-                var downloader = new AudioDownloader(entry.SourceUrl, _helpersSettings.Downloader);
                 var outputFile =
                     Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString()}.mp3");
 
-                downloader.DownloadProgress += async (s, e) => {
+                _downloader.DownloadProgress += async (s, e) => {
                     try {
                         await __downloader_progress(
                             authToken,
@@ -114,7 +115,7 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = downloader.DownloadAudio(entry.Id);
+                var sourceFile = _downloader.DownloadAudio(entry.Id, entry.SourceUrl);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
                 //TODO: This needs to be removed - stop using AudioUrl as a proxy

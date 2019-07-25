@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Gravatar;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Middleware;
@@ -46,8 +47,9 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<INotificationHandler, TwitterNotificationHandler>()
                 .AddScoped<INotificationHandler, EmailNotificationHandler>()
                 .AddScoped<IPaymentProcessor, StripePaymentProcessor>()
-                .AddScoped<YouTubeParser>()
+                .AddScoped<IYouTubeParser, YouTubeQueryService>()
                 .AddScoped<MixcloudParser>()
+                .AddScoped<AudioDownloader>()
                 .AddScoped<UserLoggingFilter>()
                 .AddScoped<SlackSupportClient>()
                 .AddHttpClient<GravatarHttpClient>();
