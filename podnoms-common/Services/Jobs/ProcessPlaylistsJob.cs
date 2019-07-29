@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.Console;
 using Hangfire.Server;
 using Humanizer;
@@ -12,9 +8,13 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
-using PodNoms.Common.Services.NYT.Models;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistsJob : IHostedJob {
@@ -62,13 +62,18 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             _logger.LogDebug("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
-
-            var playlists = _playlistRepository.GetAll();
+            await File.AppendAllTextAsync
+                (@"c:\temp\joblog.csv",
+                $"\"ItemId\",\"PodcastId\",PlaylistId\",\"SourceUrl\",\"PodcastUrl\"{Environment.NewLine}"
+            );
+            var playlists = _playlistRepository.GetAll()
+                .Where(p => p.PodcastId == Guid.Parse("d2d9e1b5-817e-41dd-ebb1-08d622cc9a76"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
             return true;
         }
+        [Mutex("ProcessPlaylistId_Job")]
         public async Task<bool> Execute(Guid playlistId, PerformContext context) {
             _logger.LogDebug($"Starting playlist processing for {playlistId}");
             context.WriteLine($"Starting playlist processing for {playlistId}");
@@ -99,8 +104,6 @@ namespace PodNoms.Common.Services.Jobs {
 
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-
-
                 var count = _storageSettings.DefaultEntryCount;// - playlist.ParsedPlaylistItems.Count;
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     resultList = await _youTubeParser.GetPlaylistItems(playlist.SourceUrl, count);
@@ -121,14 +124,26 @@ namespace PodNoms.Common.Services.Jobs {
                     await _trimPlaylist(playlist);
 
                     _logger.LogDebug($"Found missing item: {item.Id}");
+
                     playlist.ParsedPlaylistItems.Add(new ParsedPlaylistItem {
                         VideoId = item.Id,
                         VideoType = item.VideoType
                     });
                     await _unitOfWork.CompleteAsync();
-                    BackgroundJob.Enqueue<ProcessPlaylistItemJob>(service => service.Execute(item.Id, playlist.Id, null));
+                    _logger.LogDebug($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
+                    await File.AppendAllTextAsync
+                        (@"c:\temp\joblog.csv",
+                        $"\"{item.Id}\",\"{playlist.Podcast.Id}\",\"{playlist.Id}\",\"{playlist.SourceUrl}\",\"{playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)}\"{Environment.NewLine}"
+                    );
+                    BackgroundJob
+                        .Enqueue<ProcessPlaylistItemJob>(
+                            service => service.Execute(item.Id, playlist.Id, null)
+                    );
                 }
                 return true;
+            } catch (PlaylistExpiredException e) {
+                //TODO: Remove playlist and notify user
+                _logger.LogInformation($"Playlist: {playlistId} cannot be found");
             } catch (Exception ex) {
                 _logger.LogError(ex.Message);
                 context.WriteLine($"ERROR(ProcessPlayListJob): {ex.Message}");

@@ -1,19 +1,16 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Services;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]

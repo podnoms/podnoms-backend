@@ -1,10 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.Server;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -14,6 +9,10 @@ using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistItemJob : IHostedJob {

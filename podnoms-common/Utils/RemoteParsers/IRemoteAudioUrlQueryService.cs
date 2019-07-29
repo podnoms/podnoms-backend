@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
@@ -9,7 +9,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
     }
     public interface IYouTubeParser : IRemoteAudioUrlQueryService {
         Task<string> GetChannelId(string channelName);
-        string GetChannelName(string url);
+        string GetChannelIdentifier(string url);
     }
     public interface IMixCloudParser : IRemoteAudioUrlQueryService {
 
