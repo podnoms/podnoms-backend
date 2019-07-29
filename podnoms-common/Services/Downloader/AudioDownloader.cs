@@ -66,8 +66,9 @@ namespace PodNoms.Common.Services.Downloader {
                     (info.GetType() == typeof(PlaylistDownloadInfo) &&
                         !MixcloudParser.ValidateUrl(url) &&
                         !_youTubeParser.ValidateUrl(url))) {
-                    return info;
+                    return null;
                 }
+                return info;
             } catch (Exception e) {
                 Console.WriteLine($"Error geting info for {url}");
                 Console.WriteLine(e.Message);
