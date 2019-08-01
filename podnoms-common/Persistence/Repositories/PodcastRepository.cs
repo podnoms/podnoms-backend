@@ -61,7 +61,9 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Subcategories)
                 .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
-            ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
+            if (ret != null && ret.PodcastEntries != null) {
+                ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
+            }
             return ret;
         }
 
