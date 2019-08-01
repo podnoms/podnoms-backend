@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace PodNoms.Data.Models {
     public class Playlist : BaseEntity {
@@ -8,16 +9,5 @@ namespace PodNoms.Data.Models {
         public Guid PodcastId { get; set; }
         public Podcast Podcast { get; set; }
         public List<PodcastEntry> PodcastEntries { get; set; }
-        public List<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
-        public Playlist () {
-            ParsedPlaylistItems = new List<ParsedPlaylistItem> ();
-        }
-    }
-    public class ParsedPlaylistItem : BaseEntity {
-        public string VideoId { get; set; }
-        public string VideoType { get; set; }
-        public bool IsProcessed { get; set; }
-        public Guid PlaylistId { get; set; }
-        public Playlist Playlist { get; set; }
     }
 }

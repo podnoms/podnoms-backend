@@ -1,3 +1,4 @@
+USE [PodNoms]
 INSERT [dbo].[Categories] ([Id], [CreateDate], [UpdateDate], [Description]) VALUES (N'29c0716a-94bc-4b79-bb7a-1acb2d872101', CAST(N'2018-08-09T21:46:46.8966667' AS DateTime2), CAST(N'2018-08-09T21:46:46.8966667' AS DateTime2), N'Comedy')
                                             INSERT [dbo].[Categories] ([Id], [CreateDate], [UpdateDate], [Description]) VALUES (N'db829bfe-a8fe-458e-9b67-2b00f4794750', CAST(N'2018-08-09T21:46:47.2866667' AS DateTime2), CAST(N'2018-08-09T21:46:47.2866667' AS DateTime2), N'Technology')
                                             INSERT [dbo].[Categories] ([Id], [CreateDate], [UpdateDate], [Description]) VALUES (N'50495352-2339-4498-aad3-3f8c85f6ac69', CAST(N'2018-08-09T21:46:47.1933333' AS DateTime2), CAST(N'2018-08-09T21:46:47.1933333' AS DateTime2), N'Science & Medicine')

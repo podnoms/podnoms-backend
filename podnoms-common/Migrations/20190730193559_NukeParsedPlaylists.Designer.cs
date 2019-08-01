@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190730193559_NukeParsedPlaylists")]
+    partial class NukeParsedPlaylists
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -520,8 +522,6 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("ShareOptions");
 
                     b.Property<DateTime?>("SourceCreateDate");
-
-                    b.Property<string>("SourceItemId");
 
                     b.Property<string>("SourceUrl");
 

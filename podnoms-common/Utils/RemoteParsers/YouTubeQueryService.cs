@@ -12,6 +12,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
 
         private readonly YoutubeClient _client = new YoutubeClient();
+
         public YouTubeQueryService() {
 
         }
@@ -40,7 +41,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return string.Empty;
         }
 
-        public async Task<List<ParsedItemResult>> GetPlaylistItems(string url, int count = 10) {
+        public async Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10) {
 
             //need to do a little dance here.. URL can be
             //  1. User
@@ -49,13 +50,22 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             //all of which can translate to a PodNoms playlist
             try {
                 var channelType = GetUrlType(url);
+                List<ParsedItemResult> results = null;
                 switch (channelType) {
                     case RemoteUrlType.Channel:
-                        return await _getChannelItems(url, count);
+                        results = await _getChannelItems(url, count);
+                        break;
                     case RemoteUrlType.Playlist:
-                        return await _getPlaylistItems(url, count);
+                        results = await _getPlaylistItems(url, count);
+                        break;
                     case RemoteUrlType.User:
-                        return await _getUserItems(url, count);
+                        results = await _getUserItems(url, count);
+                        break;
+                }
+                if (results != null) {
+                    return results
+                        // .Where(r => r.UploadDate >= cutoffDate)
+                        .ToList();
                 }
             } catch (HttpRequestException e) {
                 if (e.Message.Contains("400 (Bad Request)")) {
@@ -67,15 +77,18 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         private async Task<List<ParsedItemResult>> _getPlaylistItems(string url, int count = 10) {
             if (YoutubeClient.TryParsePlaylistId(url, out var playlistId)) {
                 var playlist = await _client.GetPlaylistAsync(playlistId, 1);
-                return playlist.Videos
+                //Can't get date added to playlist
+                //but items appear to be returned in order 
+                var results = playlist.Videos
                     .Select(r => new ParsedItemResult {
                         Id = r.Id,
+                        Title = r.Title,
                         VideoType = "YouTube",
                         UploadDate = r.UploadDate.Date
                     })
-                    .OrderByDescending(r => r.UploadDate)
+                    .Reverse()
                     .Take(count).ToList();
-
+                return results;
             }
             throw new YoutubeChannelParseException($"Unable to parse channel id from channel {url}");
         }
@@ -101,6 +114,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return videos
                 .Select(r => new ParsedItemResult {
                     Id = r.Id,
+                    Title = r.Title,
                     VideoType = "YouTube",
                     UploadDate = r.UploadDate.Date
                 })

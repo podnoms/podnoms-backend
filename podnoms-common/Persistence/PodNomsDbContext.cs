@@ -96,9 +96,7 @@ namespace PodNoms.Common.Persistence {
             modelBuilder.Entity<Playlist>()
                 .HasIndex(p => new { p.SourceUrl })
                 .IsUnique(true);
-            modelBuilder.Entity<ParsedPlaylistItem>()
-                .HasIndex(p => new { p.VideoId, p.PlaylistId })
-                .IsUnique(true);
+
 
             var converter = new EnumToNumberConverter<NotificationOptions, int>();
             modelBuilder.Entity<ApplicationUser>()
@@ -152,7 +150,6 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Donation> Donations { get; set; }
         public DbSet<NotificationLog> NotificationLogs { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<ParsedPlaylistItem> ParsedPlaylistItems { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PodcastEntry> PodcastEntries { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }

@@ -32,10 +32,11 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var playlistRequest = youtube.PlaylistItems.List("contentDetails");
             playlistRequest.PlaylistId = id;
             playlistRequest.MaxResults = count;
-            var plists = await playlistRequest.ExecuteAsync();
-            return plists.Items
+            var playlists = await playlistRequest.ExecuteAsync();
+            return playlists.Items
                 .Select(p => new ParsedItemResult {
                     Id = p.ContentDetails.VideoId,
+                    Title = p.Snippet.Title,
                     VideoType = "youtube",
                     UploadDate = p.ContentDetails.VideoPublishedAt
                 }).ToList();

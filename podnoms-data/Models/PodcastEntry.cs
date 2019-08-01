@@ -22,6 +22,9 @@ namespace PodNoms.Data.Models {
         public string ImageUrl { get; set; }
         public string ProcessingPayload { get; set; }
         public ProcessingStatus ProcessingStatus { get; set; } = ProcessingStatus.Accepted;
+        public DateTime? SourceCreateDate { get; set; }
+        public string SourceItemId { get; set; }
+
         public int ShareOptions { get; set; }
         public bool Processed { get; set; }
         public Guid PodcastId { get; set; }

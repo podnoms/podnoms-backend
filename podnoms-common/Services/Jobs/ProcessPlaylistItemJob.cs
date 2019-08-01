@@ -7,6 +7,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using System;
@@ -56,29 +57,28 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            var items = await _playlistRepository.GetUnprocessedItems();
-            foreach (var item in items) {
-                await Execute(item.VideoId, item.Playlist.Id, null);
-            }
             return true;
         }
 
         [Mutex("ProcessPlaylistItemJob")]
-        public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
-            var item = await _playlistRepository.GetParsedItem(itemId, playlistId);
-            if (item is null ||
-                string.IsNullOrEmpty(item.VideoType) ||
-                (!item.VideoType.Equals("youtube") && !item.VideoType.Equals("mixcloud")))
-                return true;
+        // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
+        public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
+            if (item is null || string.IsNullOrEmpty(item.VideoType)) {
+                return false;
+            }
 
-            var url = item.VideoType.Equals("youtube") ? $"https://www.youtube.com/watch?v={item.VideoId}" :
-                item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.VideoId}" : string.Empty;
+            var playlist = await _playlistRepository.GetAsync(playlistId);
+            var url = item.VideoType.ToLower().Equals("youtube") ?
+                $"https://www.youtube.com/watch?v={item.Id}" :
+                item.VideoType.Equals("mixcloud") ?
+                    $"https://mixcloud.com/{item.Id}" :
+                    string.Empty;
             if (string.IsNullOrEmpty(url)) {
-                _logger.LogError($"Unknown video type for ParsedItem: {itemId} - {playlistId}");
+                _logger.LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
                 var info = _audioDownloader.GetInfo(url);
                 if (info == AudioType.Valid) {
-                    var podcast = await _podcastRepository.GetAsync(item.Playlist.PodcastId);
+                    var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
                     var file = _audioDownloader.DownloadAudio(uid, url);
 
@@ -90,15 +90,23 @@ namespace PodNoms.Common.Services.Jobs {
                         Description = _audioDownloader.Properties?.Description,
                         ProcessingStatus = ProcessingStatus.Uploading,
                         ImageUrl = _audioDownloader.Properties?.Thumbnail,
+                        SourceCreateDate = item.UploadDate,
+                        SourceItemId = item.Id,
                         SourceUrl = url
                     };
                     podcast.PodcastEntries.Add(entry);
+                    playlist.PodcastEntries.Add(entry);
                     await _unitOfWork.CompleteAsync();
 
                     var uploaded = await _uploadService.UploadAudio(string.Empty, entry.Id, file);
-                    if (!uploaded) return true;
+                    if (!uploaded) {
+                        entry.ProcessingStatus = ProcessingStatus.Failed;
+                        await _unitOfWork.CompleteAsync();
+                        return true;
+                    }
 
-                    item.IsProcessed = true;
+                    entry.ProcessingStatus = ProcessingStatus.Processed;
+                    entry.Processed = true;
                     await _unitOfWork.CompleteAsync();
 
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
@@ -120,7 +128,7 @@ namespace PodNoms.Common.Services.Jobs {
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                         ));
                 } else {
-                    _logger.LogError($"Processing playlist item {itemId} failed");
+                    _logger.LogError($"Processing playlist item {item.Id} failed");
                     return false;
                 }
             }

@@ -66,8 +66,8 @@ namespace PodNoms.Common.Services.Jobs {
                 (@"c:\temp\joblog.csv",
                 $"\"ItemId\",\"PodcastId\",PlaylistId\",\"SourceUrl\",\"PodcastUrl\"{Environment.NewLine}"
             );
-            var playlists = _playlistRepository.GetAll()
-                .Where(p => p.PodcastId == Guid.Parse("d2d9e1b5-817e-41dd-ebb1-08d622cc9a76"));
+            var playlists = _playlistRepository.GetAll();
+
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
@@ -79,6 +79,7 @@ namespace PodNoms.Common.Services.Jobs {
             context.WriteLine($"Starting playlist processing for {playlistId}");
             try {
                 var playlist = await _playlistRepository.GetAsync(playlistId);
+                var cutoffDate = await _playlistRepository.GetCutoffDate(playlistId);
                 if (playlist is null)
                     return false;
 
@@ -104,44 +105,32 @@ namespace PodNoms.Common.Services.Jobs {
 
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-                var count = _storageSettings.DefaultEntryCount;// - playlist.ParsedPlaylistItems.Count;
+                var count = _storageSettings.DefaultEntryCount;
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
-                    resultList = await _youTubeParser.GetPlaylistItems(playlist.SourceUrl, count);
+                    resultList = await _youTubeParser
+                        .GetPlaylistItems(playlist.SourceUrl, cutoffDate, count);
                 } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
                     var entries = await _mixcloudParser
                             .GetEntries(playlist.SourceUrl, count);
                     resultList = entries
                         .OrderBy(r => r.UploadDate)
+                        .Take(_storageSettings.DefaultEntryCount)
                         .ToList();
                 }
 
-                if (resultList is null) return true;
                 //order in reverse so the newest item is added first
                 foreach (var item in resultList) {
-
-                    _logger.LogDebug($"Processing playlist item: {item.Id}");
-                    if (playlist.ParsedPlaylistItems.Any(p => p.VideoId == item.Id)) continue;
+                    if (playlist.PodcastEntries.Any(e => e.SourceItemId == item.Id))
+                        continue;
                     await _trimPlaylist(playlist);
-
-                    _logger.LogDebug($"Found missing item: {item.Id}");
-
-                    playlist.ParsedPlaylistItems.Add(new ParsedPlaylistItem {
-                        VideoId = item.Id,
-                        VideoType = item.VideoType
-                    });
-                    await _unitOfWork.CompleteAsync();
                     _logger.LogDebug($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
-                    await File.AppendAllTextAsync
-                        (@"c:\temp\joblog.csv",
-                        $"\"{item.Id}\",\"{playlist.Podcast.Id}\",\"{playlist.Id}\",\"{playlist.SourceUrl}\",\"{playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)}\"{Environment.NewLine}"
-                    );
                     BackgroundJob
                         .Enqueue<ProcessPlaylistItemJob>(
-                            service => service.Execute(item.Id, playlist.Id, null)
+                            service => service.Execute(item, playlist.Id, null)
                     );
                 }
                 return true;
-            } catch (PlaylistExpiredException e) {
+            } catch (PlaylistExpiredException) {
                 //TODO: Remove playlist and notify user
                 _logger.LogInformation($"Playlist: {playlistId} cannot be found");
             } catch (Exception ex) {
@@ -152,13 +141,16 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         private async Task _trimPlaylist(Playlist playlist) {
-            if (playlist.ParsedPlaylistItems.Count > _storageSettings.DefaultEntryCount) {
+            var currentCount = playlist.PodcastEntries.Count(r => playlist.PodcastEntries.Contains(r));
+            if (currentCount >= _storageSettings.DefaultEntryCount) {
                 _logger.LogError($"Entry count exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
-                var toDelete = playlist.ParsedPlaylistItems
-                    .OrderByDescending(o => o.CreateDate)
-                    .Skip(_storageSettings.DefaultEntryCount + 1);
+                var toDelete = playlist.PodcastEntries
+                    .OrderByDescending(o => o.SourceCreateDate)
+                    .Take(currentCount - _storageSettings.DefaultEntryCount + 1);
 
-                _playlistRepository.DeletePlaylistItems(toDelete.ToList());
+                foreach (var item in toDelete) {
+                    await _entryRepository.DeleteAsync(item.Id);
+                }
                 await _unitOfWork.CompleteAsync();
             }
         }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190729202453_AddDateToPlaylistParse")]
+    partial class AddDateToPlaylistParse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,6 +410,40 @@ namespace PodNoms.Comon.Migrations
                     b.ToTable("NotificationLogs");
                 });
 
+            modelBuilder.Entity("PodNoms.Data.Models.ParsedPlaylistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<bool>("IsProcessed");
+
+                    b.Property<Guid>("PlaylistId");
+
+                    b.Property<DateTime>("PlaylistItemDate");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("VideoId");
+
+                    b.Property<string>("VideoType");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.HasIndex("VideoId", "PlaylistId")
+                        .IsUnique()
+                        .HasFilter("[VideoId] IS NOT NULL");
+
+                    b.ToTable("ParsedPlaylistItems");
+                });
+
             modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
                 {
                     b.Property<Guid>("Id")
@@ -518,10 +554,6 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("ProcessingStatus");
 
                     b.Property<int>("ShareOptions");
-
-                    b.Property<DateTime?>("SourceCreateDate");
-
-                    b.Property<string>("SourceItemId");
 
                     b.Property<string>("SourceUrl");
 
@@ -719,6 +751,14 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Notifications.Notification", "Notification")
                         .WithMany()
                         .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ParsedPlaylistItem", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.Playlist", "Playlist")
+                        .WithMany("ParsedPlaylistItems")
+                        .HasForeignKey("PlaylistId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

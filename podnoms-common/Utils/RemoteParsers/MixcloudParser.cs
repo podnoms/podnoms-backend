@@ -44,6 +44,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                     var data = typed.Data.OrderByDescending(p => p.UpdatedTime)
                         .Select(c => new ParsedItemResult {
                             Id = c.Key,
+                            Title = c.Name,
                             VideoType = "mixcloud",
                             UploadDate = c.UpdatedTime.DateTime
                         }).Take(10).ToList();
