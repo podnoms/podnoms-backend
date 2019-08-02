@@ -102,6 +102,17 @@ namespace PodNoms.Common.Services.Downloader {
             var info = __getInfo(url);
 
             RawProperties = info;
+            var parsed = info as VideoDownloadInfo;
+
+            Properties = new RemoteVideoInfo {
+                Title = parsed?.Title,
+                Description = parsed?.Description,
+                Thumbnail = parsed?.Thumbnails[0].Url,
+                Uploader = parsed?.Description,
+                UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToLongDateString()),
+                VideoId = parsed?.Id
+            };
+
             switch (info) {
                 // have to dump playlist handling for now
                 case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
@@ -122,13 +133,14 @@ namespace PodNoms.Common.Services.Downloader {
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);
             }
+            var cleanedUrl = _normaliseUrl(url);
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
             yt.Options.PostProcessingOptions.ExtractAudio = true;
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
 
-            yt.VideoUrl = url;
+            yt.VideoUrl = cleanedUrl;
 
             yt.StandardOutputEvent += (sender, output) => {
                 if (output.Contains("%")) {
@@ -153,6 +165,13 @@ namespace PodNoms.Common.Services.Downloader {
             var yp = yt.Download();
             yp.WaitForExit();
             return File.Exists(outputFile) ? outputFile : string.Empty;
+        }
+
+        private string _normaliseUrl(string url) {
+            if (_youTubeParser.ValidateUrl(url)) {
+                return $"https://www.youtube.com/watch?v={_youTubeParser.GetVideoId(url)}";
+            }
+            return url;
         }
 
         private string _statusLineToNarrative(string output) {

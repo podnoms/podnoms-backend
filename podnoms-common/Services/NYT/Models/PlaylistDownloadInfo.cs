@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
@@ -69,15 +70,18 @@ namespace PodNoms.Common.Services.NYT.Models {
         }
 
         internal override void ParseOutput(object sender, string output) {
-            if (output.Contains(VIDEOSTRING) && output.Contains(OFSTRING)) {
-                var regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                var match = regex.Match(output);
-                if (match.Success) {
-                    VideoIndex = int.Parse(match.Groups[1].ToString());
-                    CurrentVideo = Videos[videoIndex - 1];
+            try {
+                if (output.Contains(VIDEOSTRING) && output.Contains(OFSTRING)) {
+                    var regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var match = regex.Match(output);
+                    if (match.Success) {
+                        VideoIndex = int.Parse(match.Groups[1].ToString());
+                        CurrentVideo = Videos[videoIndex - 1];
+                    }
                 }
+            } catch (Exception e) {
+                Console.WriteLine($"Error parsing output.\n\t{e.Message}");
             }
-
             CurrentVideo?.ParseOutput(sender, output);
             base.ParseOutput(sender, output);
         }

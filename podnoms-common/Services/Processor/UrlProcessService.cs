@@ -65,8 +65,6 @@ namespace PodNoms.Common.Services.Processor {
         public async Task<RemoteUrlType> GetInformation(PodcastEntry entry) {
 
             var ret = await _downloader.GetInfo(entry.SourceUrl);
-            if (ret != RemoteUrlType.Invalid) return ret;
-
             if (!string.IsNullOrEmpty(_downloader.Properties?.Title) &&
                 string.IsNullOrEmpty(entry.Title)) {
                 entry.Title = _downloader.Properties?.Title;

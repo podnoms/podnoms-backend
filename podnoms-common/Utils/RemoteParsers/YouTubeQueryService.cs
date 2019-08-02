@@ -24,7 +24,12 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var result = regex.Match(url);
             return result.Success;
         }
-
+        public string GetVideoId(string url) {
+            if (YoutubeClient.TryParseVideoId(url, out var videoId)) {
+                return videoId;
+            }
+            return string.Empty;
+        }
         public async Task<string> GetChannelId(string channelName) {
             return await _client.GetChannelIdAsync(channelName);
         }
@@ -125,15 +130,17 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 .OrderByDescending(r => r.UploadDate)
                 .Take(count).ToList();
         }
+
         public async Task<RemoteVideoInfo> GetInformation(string url) {
             var videoId = url;
             if (url.StartsWith("http")) {
-                if (!YoutubeClient.TryParseVideoId(url, out videoId)) {
+                videoId = GetVideoId(url);
+                if (string.IsNullOrEmpty(videoId)) {
                     return null;
                 }
             }
             if (!string.IsNullOrEmpty(videoId)) {
-                try{
+                try {
                     var info = await _client.GetVideoAsync(videoId);
                     if (info != null) {
                         return new RemoteVideoInfo {
@@ -145,7 +152,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                             UploadDate = info.UploadDate.Date
                         };
                     }
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     _logger.LogError($"Error parsing video {url}");
                     _logger.LogError(ex.Message);
                 }

@@ -117,6 +117,8 @@ namespace PodNoms.Api.Controllers {
             }
 
             //we're adding a new entry
+            //TODO: This should return the properties bundle
+            //with the status as a member
             var status = await _processor.GetInformation(entry);
             if (status != RemoteUrlType.Invalid) {
                 // check user quota
