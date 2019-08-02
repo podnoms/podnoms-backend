@@ -109,7 +109,7 @@ namespace PodNoms.Common.Services.Downloader {
                 Description = parsed?.Description,
                 Thumbnail = parsed?.Thumbnails[0].Url,
                 Uploader = parsed?.Description,
-                UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToLongDateString()),
+                UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToString()),
                 VideoId = parsed?.Id
             };
 

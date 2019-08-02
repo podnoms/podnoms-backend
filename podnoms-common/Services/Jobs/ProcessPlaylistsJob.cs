@@ -69,7 +69,6 @@ namespace PodNoms.Common.Services.Jobs {
             }
             return true;
         }
-        [Mutex("ProcessPlaylistId_Job")]
         public async Task<bool> Execute(Guid playlistId, PerformContext context) {
             _logger.LogDebug($"Starting playlist processing for {playlistId}");
             context.WriteLine($"Starting playlist processing for {playlistId}");

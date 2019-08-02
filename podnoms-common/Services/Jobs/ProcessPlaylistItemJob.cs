@@ -60,7 +60,6 @@ namespace PodNoms.Common.Services.Jobs {
             return true;
         }
 
-        [Mutex("ProcessPlaylistItemJob")]
         // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
