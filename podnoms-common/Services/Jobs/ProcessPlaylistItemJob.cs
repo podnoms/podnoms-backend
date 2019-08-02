@@ -76,8 +76,8 @@ namespace PodNoms.Common.Services.Jobs {
             if (string.IsNullOrEmpty(url)) {
                 _logger.LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
-                var info = _audioDownloader.GetInfo(url);
-                if (info == AudioType.Valid) {
+                var info = await _audioDownloader.GetInfo(url);
+                if (info != RemoteUrlType.Invalid) {
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
                     var file = _audioDownloader.DownloadAudio(uid, url);

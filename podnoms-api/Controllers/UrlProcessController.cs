@@ -8,6 +8,7 @@ using PodNoms.Common.Services;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,9 +48,9 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("validate")]
         [AllowAnonymous]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
-            var fileType = _downloader.GetInfo(url);
+            var fileType = await _downloader.GetInfo(url);
 
-            if (fileType == AudioType.Invalid) {
+            if (fileType == RemoteUrlType.Invalid) {
                 await _parser.Initialise(url);
                 var title = _parser.GetPageTitle();
                 var links = await _parser.GetAllAudioLinks();

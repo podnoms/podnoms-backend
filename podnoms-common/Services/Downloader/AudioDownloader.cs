@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.Settings;
@@ -18,7 +19,9 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly string _downloader;
         private readonly IYouTubeParser _youTubeParser;
 
-        public VideoDownloadInfo Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        public RemoteVideoInfo Properties { get; set; }
+
         public DownloadInfo RawProperties { get; private set; }
 
         private const string DOWNLOADRATESTRING = "iB/s";
@@ -81,22 +84,31 @@ namespace PodNoms.Common.Services.Downloader {
             return info?.Id;
         }
 
-        public AudioType GetInfo(string url) {
-            var ret = AudioType.Invalid;
+        public async Task<RemoteUrlType> GetInfo(string url) {
+            var ret = RemoteUrlType.Invalid;
 
             if (url.Contains("drive.google.com")) {
-                return AudioType.Valid;
+                return RemoteUrlType.SingleItem;
             }
+            if (_youTubeParser.ValidateUrl(url)) {
+                //we're youtube. bypass youtube_dl for info - it's very slow
+                var urlType = _youTubeParser.GetUrlType(url);
+                if (urlType == RemoteUrlType.SingleItem) {
+                    Properties = await _youTubeParser.GetInformation(url);
+                }
+                return urlType;
+            }
+
             var info = __getInfo(url);
 
             RawProperties = info;
             switch (info) {
                 // have to dump playlist handling for now
                 case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
-                    ret = AudioType.Playlist;
+                    ret = RemoteUrlType.Playlist;
                     break;
                 case VideoDownloadInfo _:
-                    ret = AudioType.Valid;
+                    ret = RemoteUrlType.SingleItem;
                     break;
             }
 

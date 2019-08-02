@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
     public interface IUrlProcessService {
 
-        Task<AudioType> GetInformation(string entryId);
-        Task<AudioType> GetInformation(PodcastEntry entry);
+        Task<RemoteUrlType> GetInformation(string entryId);
+        Task<RemoteUrlType> GetInformation(PodcastEntry entry);
         Task<bool> DownloadAudio(string authToken, Guid entryId);
     }
 }

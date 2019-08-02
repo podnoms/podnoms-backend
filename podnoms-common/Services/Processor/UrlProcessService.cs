@@ -12,6 +12,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Realtime;
+using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
@@ -44,27 +45,27 @@ namespace PodNoms.Common.Services.Processor {
             }
         }
 
-        public async Task<AudioType> GetInformation(string entryId) {
+        public async Task<RemoteUrlType> GetInformation(string entryId) {
             var entry = await _repository.GetAsync(entryId);
             if (entry is null || string.IsNullOrEmpty(entry.SourceUrl)) {
                 _logger.LogError("Unable to process item");
-                return AudioType.Invalid;
+                return RemoteUrlType.Invalid;
             }
 
             if (entry.SourceUrl.EndsWith(".mp3") ||
                 entry.SourceUrl.EndsWith(".wav") ||
                 entry.SourceUrl.EndsWith(".aiff") ||
                 entry.SourceUrl.EndsWith(".aif")) {
-                return AudioType.Valid;
+                return RemoteUrlType.SingleItem;
             }
 
             return await GetInformation(entry);
         }
 
-        public async Task<AudioType> GetInformation(PodcastEntry entry) {
+        public async Task<RemoteUrlType> GetInformation(PodcastEntry entry) {
 
-            var ret = _downloader.GetInfo(entry.SourceUrl);
-            if (ret != AudioType.Valid) return ret;
+            var ret = await _downloader.GetInfo(entry.SourceUrl);
+            if (ret != RemoteUrlType.Invalid) return ret;
 
             if (!string.IsNullOrEmpty(_downloader.Properties?.Title) &&
                 string.IsNullOrEmpty(entry.Title)) {
