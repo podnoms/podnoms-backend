@@ -18,11 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
-namespace PodNoms.Common.Services.NYT.Models
-{
+namespace PodNoms.Common.Services.NYT.Models {
     #region Using
 
     #endregion
@@ -30,18 +30,15 @@ namespace PodNoms.Common.Services.NYT.Models
     /// <summary>
     ///     Class holding information about a playlist being downloaded
     /// </summary>
-    public class PlaylistDownloadInfo : DownloadInfo
-    {
+    public class PlaylistDownloadInfo : DownloadInfo {
         private VideoDownloadInfo currentVideo;
 
         private int videoIndex = 1;
 
-        public PlaylistDownloadInfo(PlaylistInfo info)
-        {
+        public PlaylistDownloadInfo(PlaylistInfo info) {
             Id = info.id;
             Title = info.title;
-            foreach (var videoInfo in info.entries)
-            {
+            foreach (var videoInfo in info.entries) {
                 Videos.Add(new VideoDownloadInfo(videoInfo));
             }
         }
@@ -49,8 +46,7 @@ namespace PodNoms.Common.Services.NYT.Models
         /// <summary>
         ///     The current video downloading
         /// </summary>
-        public VideoDownloadInfo CurrentVideo
-        {
+        public VideoDownloadInfo CurrentVideo {
             get => currentVideo;
             set => SetField(ref currentVideo, value);
         }
@@ -58,8 +54,7 @@ namespace PodNoms.Common.Services.NYT.Models
         /// <summary>
         ///     The index of the downloading video
         /// </summary>
-        public int VideoIndex
-        {
+        public int VideoIndex {
             get => videoIndex;
             set => SetField(ref videoIndex, value);
         }
@@ -69,25 +64,24 @@ namespace PodNoms.Common.Services.NYT.Models
         /// </summary>
         public ObservableCollection<VideoDownloadInfo> Videos { get; } = new ObservableCollection<VideoDownloadInfo>();
 
-        internal override void ParseError(object sender, string error)
-        {
+        internal override void ParseError(object sender, string error) {
             currentVideo?.ParseError(sender, error);
             base.ParseError(sender, error);
         }
 
-        internal override void ParseOutput(object sender, string output)
-        {
-            if (output.Contains(VIDEOSTRING) && output.Contains(OFSTRING))
-            {
-                var regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                var match = regex.Match(output);
-                if (match.Success)
-                {
-                    VideoIndex = int.Parse(match.Groups[1].ToString());
-                    CurrentVideo = Videos[videoIndex - 1];
+        internal override void ParseOutput(object sender, string output) {
+            try {
+                if (output.Contains(VIDEOSTRING) && output.Contains(OFSTRING)) {
+                    var regex = new Regex(".*?(\\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var match = regex.Match(output);
+                    if (match.Success) {
+                        VideoIndex = int.Parse(match.Groups[1].ToString());
+                        CurrentVideo = Videos[videoIndex - 1];
+                    }
                 }
+            } catch (Exception e) {
+                Console.WriteLine($"Error parsing output.\n\t{e.Message}");
             }
-
             CurrentVideo?.ParseOutput(sender, output);
             base.ParseOutput(sender, output);
         }

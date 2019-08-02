@@ -60,8 +60,6 @@ namespace PodNoms.Common.Services.Realtime {
                     }
                 }
                 if (_connection.State == HubConnectionState.Connected) {
-                    _logger.LogDebug("Connected to hub");
-
                     await _connection.InvokeAsync(
                         "Send", channel, data
                     );

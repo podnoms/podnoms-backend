@@ -7,19 +7,28 @@ using YoutubeExplode;
 namespace PodNoms.Common.Utils.RemoteParsers {
     using System;
     using System.Net.Http;
+    using Microsoft.Extensions.Logging;
+    using PodNoms.Common.Services.NYT.Models;
 
     public class YouTubeQueryService : IYouTubeParser {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
 
         private readonly YoutubeClient _client = new YoutubeClient();
+        private readonly ILogger<YouTubeQueryService> _logger;
 
-        public YouTubeQueryService() {
-
+        public YouTubeQueryService(ILogger<YouTubeQueryService> logger) {
+            this._logger = logger;
         }
         public bool ValidateUrl(string url) {
             var regex = new Regex(URL_REGEX);
             var result = regex.Match(url);
             return result.Success;
+        }
+        public string GetVideoId(string url) {
+            if (YoutubeClient.TryParseVideoId(url, out var videoId)) {
+                return videoId;
+            }
+            return string.Empty;
         }
         public async Task<string> GetChannelId(string channelName) {
             return await _client.GetChannelIdAsync(channelName);
@@ -122,16 +131,36 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 .Take(count).ToList();
         }
 
-        public RemoteUrlType GetUrlType(string url) {
-            // Playlist ID
-            if (YoutubeClient.ValidatePlaylistId(url)) {
-                return RemoteUrlType.Playlist;
+        public async Task<RemoteVideoInfo> GetInformation(string url) {
+            var videoId = url;
+            if (url.StartsWith("http")) {
+                videoId = GetVideoId(url);
+                if (string.IsNullOrEmpty(videoId)) {
+                    return null;
+                }
             }
+            if (!string.IsNullOrEmpty(videoId)) {
+                try {
+                    var info = await _client.GetVideoAsync(videoId);
+                    if (info != null) {
+                        return new RemoteVideoInfo {
+                            VideoId = info.Id,
+                            Title = info.Title,
+                            Description = info.Description,
+                            Thumbnail = info.Thumbnails.StandardResUrl,
+                            Uploader = info.Author,
+                            UploadDate = info.UploadDate.Date
+                        };
+                    }
+                } catch (Exception ex) {
+                    _logger.LogError($"Error parsing video {url}");
+                    _logger.LogError(ex.Message);
+                }
+            }
+            return null;
+        }
 
-            // Playlist URL
-            if (YoutubeClient.TryParsePlaylistId(url, out var playlistId)) {
-                return RemoteUrlType.Playlist;
-            }
+        public RemoteUrlType GetUrlType(string url) {
 
             // Video ID
             if (YoutubeClient.ValidateVideoId(url)) {
@@ -141,6 +170,16 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             // Video URL
             if (YoutubeClient.TryParseVideoId(url, out var videoId)) {
                 return RemoteUrlType.SingleItem;
+            }
+
+            // Playlist ID
+            if (YoutubeClient.ValidatePlaylistId(url)) {
+                return RemoteUrlType.Playlist;
+            }
+
+            // Playlist URL
+            if (YoutubeClient.TryParsePlaylistId(url, out var playlistId)) {
+                return RemoteUrlType.Playlist;
             }
 
             // Channel ID

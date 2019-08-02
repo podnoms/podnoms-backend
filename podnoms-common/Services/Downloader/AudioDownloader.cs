@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.Settings;
@@ -18,7 +19,9 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly string _downloader;
         private readonly IYouTubeParser _youTubeParser;
 
-        public VideoDownloadInfo Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        public RemoteVideoInfo Properties { get; set; }
+
         public DownloadInfo RawProperties { get; private set; }
 
         private const string DOWNLOADRATESTRING = "iB/s";
@@ -81,22 +84,42 @@ namespace PodNoms.Common.Services.Downloader {
             return info?.Id;
         }
 
-        public AudioType GetInfo(string url) {
-            var ret = AudioType.Invalid;
+        public async Task<RemoteUrlType> GetInfo(string url) {
+            var ret = RemoteUrlType.Invalid;
 
             if (url.Contains("drive.google.com")) {
-                return AudioType.Valid;
+                return RemoteUrlType.SingleItem;
             }
+            if (_youTubeParser.ValidateUrl(url)) {
+                //we're youtube. bypass youtube_dl for info - it's very slow
+                var urlType = _youTubeParser.GetUrlType(url);
+                if (urlType == RemoteUrlType.SingleItem) {
+                    Properties = await _youTubeParser.GetInformation(url);
+                }
+                return urlType;
+            }
+
             var info = __getInfo(url);
 
             RawProperties = info;
+            var parsed = info as VideoDownloadInfo;
+
+            Properties = new RemoteVideoInfo {
+                Title = parsed?.Title,
+                Description = parsed?.Description,
+                Thumbnail = parsed?.Thumbnails[0].Url,
+                Uploader = parsed?.Description,
+                UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToLongDateString()),
+                VideoId = parsed?.Id
+            };
+
             switch (info) {
                 // have to dump playlist handling for now
                 case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
-                    ret = AudioType.Playlist;
+                    ret = RemoteUrlType.Playlist;
                     break;
                 case VideoDownloadInfo _:
-                    ret = AudioType.Valid;
+                    ret = RemoteUrlType.SingleItem;
                     break;
             }
 
@@ -110,13 +133,14 @@ namespace PodNoms.Common.Services.Downloader {
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);
             }
+            var cleanedUrl = _normaliseUrl(url);
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
             yt.Options.PostProcessingOptions.ExtractAudio = true;
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
 
-            yt.VideoUrl = url;
+            yt.VideoUrl = cleanedUrl;
 
             yt.StandardOutputEvent += (sender, output) => {
                 if (output.Contains("%")) {
@@ -141,6 +165,13 @@ namespace PodNoms.Common.Services.Downloader {
             var yp = yt.Download();
             yp.WaitForExit();
             return File.Exists(outputFile) ? outputFile : string.Empty;
+        }
+
+        private string _normaliseUrl(string url) {
+            if (_youTubeParser.ValidateUrl(url)) {
+                return $"https://www.youtube.com/watch?v={_youTubeParser.GetVideoId(url)}";
+            }
+            return url;
         }
 
         private string _statusLineToNarrative(string output) {

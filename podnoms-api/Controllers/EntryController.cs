@@ -117,8 +117,10 @@ namespace PodNoms.Api.Controllers {
             }
 
             //we're adding a new entry
+            //TODO: This should return the properties bundle
+            //with the status as a member
             var status = await _processor.GetInformation(entry);
-            if (status == AudioType.Valid) {
+            if (status != RemoteUrlType.Invalid) {
                 // check user quota
                 var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
                 var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
@@ -149,7 +151,7 @@ namespace PodNoms.Api.Controllers {
                     _logger.LogError(e.Message);
                     return BadRequest(item);
                 }
-            } else if ((status == AudioType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
+            } else if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
                 MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);

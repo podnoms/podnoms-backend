@@ -62,12 +62,8 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             _logger.LogDebug("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
-            await File.AppendAllTextAsync
-                (@"c:\temp\joblog.csv",
-                $"\"ItemId\",\"PodcastId\",PlaylistId\",\"SourceUrl\",\"PodcastUrl\"{Environment.NewLine}"
-            );
-            var playlists = _playlistRepository.GetAll();
-
+            var playlists = _playlistRepository.GetAll()
+                .Where(p => p.Id == Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
