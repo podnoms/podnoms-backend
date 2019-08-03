@@ -76,7 +76,6 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<List<PodcastEntry>> GetMissingWaveforms() {
             return await GetContext()
                 .PodcastEntries.Where(r => r.WaveformGenerated == false)
-                .Where(r => r.Id == Guid.Parse("6336bfb8-5279-4864-5245-08d6d7d01a5e"))
                 .ToListAsync();
         }
         /// <summary>
