@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using CliWrap;
 using PodNoms.Common.Utils;
@@ -33,14 +34,18 @@ namespace PodNoms.Common.Services.Waveforms {
                     .SetArguments($"-i {tempFile} -o {jsonFile} -b 8 --pixels-per-second 20")
                     .ExecuteAsync();
 
-                var pngResult = await command
-                    .SetArguments($"-i {tempFile} -o {pngFile} -b 8 --no-axis-labels --colors audition --waveform-color baacf1FF --background-color 00000000")
-                    .ExecuteAsync();
+                try {
+                    var pngResult = await command
+                        .SetArguments($"-i {tempFile} -o {pngFile} -b 8 --no-axis-labels --colors audition --waveform-color baacf1FF --background-color 00000000")
+                        .ExecuteAsync();
+                } catch (Exception e) {
 
+                }
                 return (
-                    datResult.ExitCode == 0 ? datFile : string.Empty,
-                    jsonResult.ExitCode == 0 ? jsonFile : string.Empty,
-                    pngResult.ExitCode == 0 ? pngFile : string.Empty);
+                    File.Exists(datFile) ? datFile : string.Empty,
+                    File.Exists(jsonFile) ? jsonFile : string.Empty,
+                    File.Exists(pngFile) ? pngFile : string.Empty
+                );
             }
             return (string.Empty, string.Empty, string.Empty);
         }

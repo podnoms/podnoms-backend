@@ -23,7 +23,7 @@ COPY podnoms-data/. ./podnoms-data/
 WORKDIR /app/podnoms-jobs
 RUN dotnet publish -c Release -o out
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
+FROM fergalmoran/podnoms-alpine-dotnet  AS runtime
 RUN apk add --no-cache --update \
     python \
     ffmpeg \

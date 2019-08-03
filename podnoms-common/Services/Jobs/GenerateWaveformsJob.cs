@@ -41,6 +41,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             _logger.LogInformation("Starting processing missing waveforms");
             var missingWaveforms = await _entryRepository.GetMissingWaveforms();
+
             foreach (var item in missingWaveforms) {
                 _logger.LogInformation($"Processing waveform for: {item.Id}");
                 BackgroundJob.Enqueue<GenerateWaveformsJob>(r => r.ExecuteForEntry(item.Id, context));
