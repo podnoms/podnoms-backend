@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -41,12 +43,13 @@ namespace PodNoms.Common.Services.Jobs {
             var missingWaveforms = await _entryRepository.GetMissingWaveforms();
             foreach (var item in missingWaveforms) {
                 _logger.LogInformation($"Processing waveform for: {item.Id}");
-                await ExecuteForEntry(item.Id, context);
+                BackgroundJob.Enqueue<GenerateWaveformsJob>(r => r.ExecuteForEntry(item.Id, context));
             }
             return true;
         }
 
-        private async Task<bool> ExecuteForEntry(Guid entryId, PerformContext context) {
+        public async Task<bool> ExecuteForEntry(Guid entryId, PerformContext context) {
+            context.WriteLine($"Processing entry: {entryId}");
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
                 _logger.LogInformation($"Generating waveform for: {entry.Id}");
