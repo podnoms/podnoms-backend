@@ -62,14 +62,13 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             _logger.LogDebug("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
-            var playlists = _playlistRepository.GetAll()
-                .Where(p => p.Id == Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10"));
+            var playlists = _playlistRepository.GetAll();
+            // .Where(p => p.Id == Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10"));
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
             return true;
         }
-        [Mutex("ProcessPlaylistId_Job")]
         public async Task<bool> Execute(Guid playlistId, PerformContext context) {
             _logger.LogDebug($"Starting playlist processing for {playlistId}");
             context.WriteLine($"Starting playlist processing for {playlistId}");

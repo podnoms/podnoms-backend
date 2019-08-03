@@ -20,6 +20,7 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Startup;
+using PodNoms.Common.Services.Waveforms;
 using PodNoms.Jobs.Services;
 
 namespace PodNoms.Jobs {
@@ -70,6 +71,7 @@ namespace PodNoms.Jobs {
                 })
                 .AddDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
+                .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
                 .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();

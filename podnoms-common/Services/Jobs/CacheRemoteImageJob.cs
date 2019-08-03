@@ -91,7 +91,7 @@ namespace PodNoms.Common.Services.Jobs {
                     sourceFile,
                     _imageFileStorageSettings.ContainerName,
                     $"entry/{destUid}.jpg",
-                    "image/jpeg", null);
+                    "image/jpeg");
 
                 return remoteFile;
             } catch (Exception ex) {

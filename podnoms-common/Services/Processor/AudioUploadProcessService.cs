@@ -85,8 +85,8 @@ namespace PodNoms.Common.Services.Processor {
                                         }) {
                                             ProcessingStatus = ProcessingStatus.Uploading
                                         });
-                                } catch (Exception) {
-                                    Console.WriteLine("🤷‍♀");
+                                } catch (Exception e) {
+                                    _logger.LogError($"Error sending progress update.\n\t{e.Message}");
                                 }
                             }
                         });

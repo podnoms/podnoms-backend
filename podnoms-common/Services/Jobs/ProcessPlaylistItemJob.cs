@@ -57,10 +57,9 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            return true;
+            return await Task.Factory.StartNew(() => true);
         }
 
-        [Mutex("ProcessPlaylistItemJob")]
         // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {

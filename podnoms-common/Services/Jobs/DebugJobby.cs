@@ -16,14 +16,16 @@ namespace PodNoms.Common.Services.Jobs {
             this._bus = job;
         }
 
-        public Task<bool> Execute() {
-            return Execute(null);
+        public async Task<bool> Execute() {
+            return await Execute(null);
         }
 
         public async Task<bool> Execute(PerformContext context) {
-            Guid playlistId = Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10");
-            BackgroundJob.Enqueue<ProcessPlaylistsJob>(r => r.Execute(playlistId, context));
-            return true;
+            return await Task.Factory.StartNew(() => {
+                Guid playlistId = Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10");
+                BackgroundJob.Enqueue<ProcessPlaylistsJob>(r => r.Execute(playlistId, context));
+                return true;
+            });
         }
     }
 }
