@@ -11,12 +11,12 @@ namespace PodNoms.Common.Services.Middleware {
         private readonly RequestDelegate _next;
         private readonly AppSettings _appSettings;
         private readonly SharingSettings _sharingSettings;
-        private readonly ILogger<CustomDomainRedirectMiddleware> _logger;
+        private readonly ILogger _logger;
 
         public SharingLinkRedirectMiddleware(RequestDelegate next,
             IOptions<AppSettings> appSettings,
             IOptions<SharingSettings> sharingSettings,
-            ILogger<CustomDomainRedirectMiddleware> logger) {
+            ILogger<SharingLinkRedirectMiddleware> logger) {
             _next = next;
             _appSettings = appSettings.Value;
             _sharingSettings = sharingSettings.Value;

@@ -65,6 +65,7 @@ namespace PodNoms.Common.Services.Jobs {
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
                 return false;
             }
+            _logger.LogDebug($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
 
             var playlist = await _playlistRepository.GetAsync(playlistId);
             var url = item.VideoType.ToLower().Equals("youtube") ?

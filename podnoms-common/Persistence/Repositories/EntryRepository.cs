@@ -76,7 +76,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<List<PodcastEntry>> GetMissingWaveforms() {
             return await GetContext()
                 .PodcastEntries.Where(r => r.WaveformGenerated == false)
-                .ToListAsync();
+            .ToListAsync();
         }
         /// <summary>
         /// Base36 encode the model's ID with extra parity bit

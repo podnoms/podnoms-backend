@@ -44,6 +44,8 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
+                //TODO: This is part of the horrid using the AudioUrl to proxy the local file name
+                var localFile = entry.AudioUrl;
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                    r => r.CacheImage(entry.Id));
                 var token = authToken.Replace("Bearer ", string.Empty);
@@ -52,12 +54,17 @@ namespace PodNoms.Common.Services.Jobs {
 
                 //TODO: Don't run this if IUrlProcessService fails
                 var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
-                    extractJobId, r => r.UploadAudio(authToken, entry.Id, entry.AudioUrl));
+                    extractJobId, r => r.UploadAudio(authToken, entry.Id, localFile));
 
+                //if we wait until everything is done, we can delete the local file
+                BackgroundJob.ContinueJobWith<GenerateWaveformsJob>(
+                    uploadJobId,
+                    r => r.ExecuteForEntry(entry.Id, localFile, null));
                 var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 
                 context.WriteLine($"Submitting notify events");
+
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.NotifyUser(
                         entry.Podcast.AppUser.Id,

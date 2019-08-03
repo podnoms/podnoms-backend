@@ -13,6 +13,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Storage;
+using PodNoms.Common.Utils;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
@@ -87,6 +88,9 @@ namespace PodNoms.Common.Services.Processor {
                                         });
                                 } catch (Exception e) {
                                     _logger.LogError($"Error sending progress update.\n\t{e.Message}");
+                                    _logger.LogError($"p:\np\n\n\n");
+                                    _logger.LogError($"t:\n{ObjectDumper.Dump(t)}\n\n\n");
+                                    _logger.LogError(ObjectDumper.Dump(entry));
                                 }
                             }
                         });
