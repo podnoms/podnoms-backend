@@ -16,7 +16,6 @@ using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
-        private readonly string _downloader;
         private readonly IYouTubeParser _youTubeParser;
 
         private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;

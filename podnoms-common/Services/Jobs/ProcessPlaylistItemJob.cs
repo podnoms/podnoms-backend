@@ -57,7 +57,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            return true;
+            return await Task.Factory.StartNew(() => true);
         }
 
         // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {

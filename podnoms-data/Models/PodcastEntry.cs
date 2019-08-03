@@ -27,6 +27,7 @@ namespace PodNoms.Data.Models {
 
         public int ShareOptions { get; set; }
         public bool Processed { get; set; }
+        public bool WaveformGenerated { get; set; }
         public Guid PodcastId { get; set; }
 
         [JsonIgnore]

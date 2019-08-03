@@ -85,6 +85,10 @@ namespace PodNoms.Common.Persistence {
                 .HasMany(e => e.SharingLinks)
                 .WithOne(e => e.PodcastEntry)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PodcastEntry>()
+                .Property(p => p.WaveformGenerated)
+                .IsRequired()
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<PodcastEntrySharingLink>()
                 .HasIndex(l => l.LinkIndex)

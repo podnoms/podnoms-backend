@@ -6,6 +6,6 @@ namespace PodNoms.Common.Services.Storage {
         Task<bool> FileExists(string containerName, string fileName);
 
         Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
-            string contentType, Action<int, long> progressCallback);
+            string contentType, Action<int, long> progressCallback = null);
     }
 }

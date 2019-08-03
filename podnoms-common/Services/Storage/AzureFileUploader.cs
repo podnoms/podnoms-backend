@@ -30,7 +30,7 @@ namespace PodNoms.Common.Services.Storage {
         }
 
         public async Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
-            string contentType, Action<int, long> progressCallback) {
+            string contentType, Action<int, long> progressCallback = null) {
             _logger.LogDebug($"Starting upload for {sourceFile} to {destinationFile}");
             var container = _blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();

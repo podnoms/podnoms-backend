@@ -20,6 +20,7 @@ namespace PodNoms.Common.Services.Startup {
             services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
             services.Configure<ImageFileStorageSettings>(config.GetSection("ImageFileStorageSettings"));
             services.Configure<AudioFileStorageSettings>(config.GetSection("AudioFileStorageSettings"));
+            services.Configure<WaveformDataFileStorageSettings>(config.GetSection("WaveformDataFileStorageSettings"));
             services.Configure<JwtIssuerOptions>(config.GetSection("JwtIssuerOptions"));
             services.Configure<FormOptions>(options => {
                 // options.ValueCountLimit = 10;

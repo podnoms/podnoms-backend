@@ -10,6 +10,7 @@ namespace PodNoms.Common.Services.Jobs {
                 RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Yearly(1));
                 RecurringJob.AddOrUpdate<CacheRemoteImageJob>(x => x.Execute(), Cron.Daily(3, 10));
                 RecurringJob.AddOrUpdate<DebugJobby>(x => x.Execute(), Cron.Yearly(1));
+                RecurringJob.AddOrUpdate<GenerateWaveformsJob>(x => x.Execute(), Cron.Yearly(1));
             }
         }
     }

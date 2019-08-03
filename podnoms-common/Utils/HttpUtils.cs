@@ -1,10 +1,20 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace PodNoms.Common.Utils {
     public static class HttpUtils {
+        public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
+            using (var client = new HttpClient()) {
+                client.DefaultRequestHeaders
+                    .Accept
+                    .Add(new MediaTypeWithQualityHeaderValue(contentType));
+                var data = await client.GetStringAsync(url);
+                return data;
+            }
+        }
         public static async Task<string> DownloadFile(string url, string file = "") {
 
             using (var client = new HttpClient()) {
