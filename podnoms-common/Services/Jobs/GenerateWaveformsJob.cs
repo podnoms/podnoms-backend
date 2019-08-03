@@ -37,8 +37,10 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute() { return await Execute(null); }
 
         public async Task<bool> Execute(PerformContext context) {
+            _logger.LogInformation("Starting processing missing waveforms");
             var missingWaveforms = await _entryRepository.GetMissingWaveforms();
             foreach (var item in missingWaveforms) {
+                _logger.LogInformation($"Processing waveform for: {item.Id}");
                 await ExecuteForEntry(item.Id, context);
             }
             return true;
@@ -47,9 +49,11 @@ namespace PodNoms.Common.Services.Jobs {
         private async Task<bool> ExecuteForEntry(Guid entryId, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
+                _logger.LogInformation($"Generating waveform for: {entry.Id}");
                 var (dat, json, png) =
                     await _waveFormGenerator.GenerateWaveformRemoteFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}");
                 if (!string.IsNullOrEmpty(dat)) {
+                    _logger.LogInformation("Uploading .dat");
                     await _fileUploader.UploadFile(
                         dat,
                         _waveformStorageSettings.ContainerName,
@@ -57,6 +61,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "application/x-binary", null);
                 }
                 if (!string.IsNullOrEmpty(json)) {
+                    _logger.LogInformation("Uploading .json");
                     await _fileUploader.UploadFile(
                         json,
                         _waveformStorageSettings.ContainerName,
@@ -64,6 +69,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "application/json", null);
                 }
                 if (!string.IsNullOrEmpty(png)) {
+                    _logger.LogInformation("Uploading .png");
                     await _fileUploader.UploadFile(
                         png,
                         _waveformStorageSettings.ContainerName,
@@ -71,6 +77,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "image/png", null);
                 }
                 entry.WaveformGenerated = true;
+                _logger.LogInformation("Updating context");
                 await _unitOfWork.CompleteAsync();
                 return true;
             }
