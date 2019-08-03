@@ -75,11 +75,17 @@ namespace PodNoms.Common.Services.Jobs {
             if (string.IsNullOrEmpty(url)) {
                 _logger.LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
+                _logger.LogDebug($"Getting info");
                 var info = await _audioDownloader.GetInfo(url);
                 if (info != RemoteUrlType.Invalid) {
+
+                    _logger.LogDebug($"URL is valid");
+
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
+                    _logger.LogDebug($"Downloading audio");
                     var file = _audioDownloader.DownloadAudio(uid, url);
+                    _logger.LogDebug($"Downloaded audio");
 
                     if (!File.Exists(file)) return true;
 

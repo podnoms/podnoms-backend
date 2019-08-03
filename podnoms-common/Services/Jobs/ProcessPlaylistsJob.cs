@@ -79,6 +79,7 @@ namespace PodNoms.Common.Services.Jobs {
                     return false;
 
                 //first check quotas
+                _logger.LogDebug("Checking quotas");
                 var quota = playlist.Podcast.AppUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
                 var totalUsed = (await _entryRepository.GetAllForUserAsync(playlist.Podcast.AppUser.Id))
                     .Select(x => x.AudioFileSize)
@@ -97,14 +98,17 @@ namespace PodNoms.Common.Services.Jobs {
                         ));
                     return false;
                 }
+                _logger.LogDebug("Quotas passed");
 
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
                 var count = _storageSettings.DefaultEntryCount;
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
+                    _logger.LogDebug("Parsing YouTube");
                     resultList = await _youTubeParser
                         .GetPlaylistItems(playlist.SourceUrl, cutoffDate, count);
                 } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
+                    _logger.LogDebug("Parsing MixCloud");
                     var entries = await _mixcloudParser
                             .GetEntries(playlist.SourceUrl, count);
                     resultList = entries
@@ -112,6 +116,7 @@ namespace PodNoms.Common.Services.Jobs {
                         .Take(_storageSettings.DefaultEntryCount)
                         .ToList();
                 }
+                _logger.LogDebug($"Found {resultList.Count} candidates");
 
                 //order in reverse so the newest item is added first
                 foreach (var item in resultList) {
@@ -124,6 +129,7 @@ namespace PodNoms.Common.Services.Jobs {
                             service => service.Execute(item, playlist.Id, null)
                     );
                 }
+                _logger.LogDebug($"Finished playlists");
                 return true;
             } catch (PlaylistExpiredException) {
                 //TODO: Remove playlist and notify user
