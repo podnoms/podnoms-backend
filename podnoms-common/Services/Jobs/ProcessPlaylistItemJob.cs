@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,7 +17,37 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class ProcessPlaylistItemJob : IHostedJob {
+    public abstract class HostedJob : IHostedJob {
+        private PerformContext _context;
+        private readonly ILogger _logger;
+
+        public HostedJob(ILogger logger) {
+            _logger = logger;
+        }
+
+        public Task<bool> Execute() {
+            return Execute(null);
+        }
+        public abstract Task<bool> Execute(PerformContext context);
+        protected void _setContext(PerformContext context) {
+            this._context = context;
+        }
+        protected void Log(string message) {
+            _logger.LogInformation(message);
+            if (_context != null) {
+                _context.WriteLine(message);
+            }
+        }
+        protected void LogError(string message) {
+            _logger.LogError(message);
+            if (_context != null) {
+                _context.WriteLine(message);
+                _context.SetTextColor(ConsoleTextColor.Red);
+                _context.ResetTextColor();
+            }
+        }
+    }
+    public class ProcessPlaylistItemJob : HostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AppSettings _appSettings;
@@ -25,7 +56,6 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly ImageFileStorageSettings _imageStorageSettings;
         private readonly HelpersSettings _helpersSettings;
         private readonly AudioDownloader _audioDownloader;
-        private readonly ILogger<ProcessPlaylistItemJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
         public ProcessPlaylistItemJob(
@@ -38,7 +68,7 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<HelpersSettings> helpersSettings,
             IUnitOfWork unitOfWork,
             AudioDownloader audioDownloader,
-            ILogger<ProcessPlaylistItemJob> logger) {
+            ILogger<ProcessPlaylistItemJob> logger) : base(logger) {
 
             _unitOfWork = unitOfWork;
             _playlistRepository = playlistRepository;
@@ -48,24 +78,23 @@ namespace PodNoms.Common.Services.Jobs {
             _storageSettings = storageSettings.Value;
             _imageStorageSettings = imageStorageSettings.Value;
             _helpersSettings = helpersSettings.Value;
-            _logger = logger;
             _audioDownloader = audioDownloader;
+
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute() { return await Execute(null); }
-
-        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute(PerformContext context) {
+        public override async Task<bool> Execute(PerformContext context) {
+            _setContext(context);
             return await Task.Factory.StartNew(() => true);
         }
 
         // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
+            _setContext(context);
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
                 return false;
             }
-            _logger.LogDebug($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
+            Log($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
 
             var playlist = await _playlistRepository.GetAsync(playlistId);
             var url = item.VideoType.ToLower().Equals("youtube") ?
@@ -74,19 +103,19 @@ namespace PodNoms.Common.Services.Jobs {
                     $"https://mixcloud.com/{item.Id}" :
                     string.Empty;
             if (string.IsNullOrEmpty(url)) {
-                _logger.LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
+                LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
-                _logger.LogDebug($"Getting info");
+                Log($"Getting info");
                 var info = await _audioDownloader.GetInfo(url);
                 if (info != RemoteUrlType.Invalid) {
 
-                    _logger.LogDebug($"URL is valid");
+                    Log($"URL is valid");
 
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
-                    _logger.LogDebug($"Downloading audio");
+                    Log($"Downloading audio");
                     var file = _audioDownloader.DownloadAudio(uid, url);
-                    _logger.LogDebug($"Downloaded audio");
+                    Log($"Downloaded audio");
 
                     if (!File.Exists(file)) return true;
 
@@ -134,7 +163,7 @@ namespace PodNoms.Common.Services.Jobs {
                             entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                         ));
                 } else {
-                    _logger.LogError($"Processing playlist item {item.Id} failed");
+                    LogError($"Processing playlist item {item.Id} failed");
                     return false;
                 }
             }
