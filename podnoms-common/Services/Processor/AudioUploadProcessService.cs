@@ -13,6 +13,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Storage;
+using PodNoms.Common.Utils;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
@@ -33,7 +34,7 @@ namespace PodNoms.Common.Services.Processor {
             _audioStorageSettings = audioStorageSettings.Value;
         }
 
-        public async Task<bool> UploadAudio(string authToken, Guid entryId, string localFile) {
+        public async Task<bool> UploadAudio(string userId, Guid entryId, string localFile) {
 
             _logger.LogInformation($"Starting to upload audio for {entryId} - {localFile}");
 
@@ -44,7 +45,7 @@ namespace PodNoms.Common.Services.Processor {
             }
             entry.ProcessingStatus = ProcessingStatus.Uploading;
             await _sendProgressUpdate(
-                    authToken,
+                    userId,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
                         ProcessingStatus = ProcessingStatus.Uploading
@@ -77,7 +78,7 @@ namespace PodNoms.Common.Services.Processor {
                             if (p % 1 == 0) {
                                 try {
                                     await _sendProgressUpdate(
-                                        entry.Podcast.AppUser.Id,
+                                        userId,
                                         entry.Id.ToString(),
                                         new ProcessingProgress(new TransferProgress {
                                             Percentage = p,
@@ -87,6 +88,9 @@ namespace PodNoms.Common.Services.Processor {
                                         });
                                 } catch (Exception e) {
                                     _logger.LogError($"Error sending progress update.\n\t{e.Message}");
+                                    _logger.LogError($"p:\np\n\n\n");
+                                    _logger.LogError($"t:\n{ObjectDumper.Dump(t)}\n\n\n");
+                                    _logger.LogError(ObjectDumper.Dump(entry));
                                 }
                             }
                         });
@@ -98,7 +102,7 @@ namespace PodNoms.Common.Services.Processor {
                     await _unitOfWork.CompleteAsync();
                     var vm = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     await _sendProgressUpdate(
-                        authToken,
+                        userId,
                         entry.Id.ToString(),
                         new ProcessingProgress(entry) {
                             ProcessingStatus = ProcessingStatus.Processed,
@@ -112,7 +116,7 @@ namespace PodNoms.Common.Services.Processor {
                 entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
                 await _unitOfWork.CompleteAsync();
                 await _sendProgressUpdate(
-                    authToken,
+                    userId,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
                         ProcessingStatus = ProcessingStatus.Failed
@@ -123,7 +127,7 @@ namespace PodNoms.Common.Services.Processor {
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();
                 await _sendProgressUpdate(
-                    authToken,
+                    userId,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
                         ProcessingStatus = ProcessingStatus.Failed

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using PodNoms.Data.Annotations;
 using PodNoms.Data.Enums;
+using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     public enum ShareOptions {
@@ -10,7 +12,9 @@ namespace PodNoms.Data.Models {
         Download = (1 << 2)
     }
 
-    public class PodcastEntry : BaseEntity {
+    public class PodcastEntry : BaseEntity, ISluggedEntity {
+
+        [SlugField(sourceField: "Title")] public string Slug { get; set; }
 
         public string Author { get; set; }
         public string Title { get; set; }

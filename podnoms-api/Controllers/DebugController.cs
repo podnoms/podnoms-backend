@@ -29,6 +29,7 @@ using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
 using System.Threading;
+using PodNoms.Common.Persistence;
 
 namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -43,8 +44,10 @@ namespace PodNoms.Api.Controllers {
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         private readonly IPushSubscriptionStore _subscriptionStore;
+        private readonly IEntryRepository _entryRepository;
         private readonly IPushNotificationService _notificationService;
         private readonly IPodcastRepository _podcastRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public readonly AppSettings _appSettings;
         private readonly IMailSender _mailSender;
 
@@ -56,11 +59,13 @@ namespace PodNoms.Api.Controllers {
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<JwtIssuerOptions> jwtIssuerOptions,
             IPushSubscriptionStore subscriptionStore,
+            IEntryRepository entryRepository,
             UserManager<ApplicationUser> userManager,
             ILogger<DebugController> logger,
             IMapper mapper,
             IPushNotificationService notificationService,
             IPodcastRepository podcastRepository,
+            IUnitOfWork unitOfWork,
             IHttpContextAccessor contextAccessor,
             IMailSender mailSender) : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
@@ -73,8 +78,10 @@ namespace PodNoms.Api.Controllers {
             _config = config;
             _mapper = mapper;
             _subscriptionStore = subscriptionStore;
+            _entryRepository = entryRepository;
             _notificationService = notificationService;
             _podcastRepository = podcastRepository;
+            _unitOfWork = unitOfWork;
             _mailSender = mailSender;
         }
 
@@ -103,7 +110,16 @@ namespace PodNoms.Api.Controllers {
 
             return Ok();
         }
-
+        [AllowAnonymous]
+        [HttpGet("updateentryslugs")]
+        public async Task<IActionResult> UpdateEntrySlugs() {
+            var entries = _entryRepository.GetAll();
+            foreach (var entry in entries) {
+                entry.UpdateDate = System.DateTime.Today;
+            }
+            await _unitOfWork.CompleteAsync();
+            return Ok();
+        }
         [AllowAnonymous]
         [HttpGet("sendmail")]
         public async Task<IActionResult> SendEmail(string email) {

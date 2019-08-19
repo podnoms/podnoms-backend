@@ -41,19 +41,22 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             _logger.LogInformation("Starting processing missing waveforms");
             var missingWaveforms = await _entryRepository.GetMissingWaveforms();
+
             foreach (var item in missingWaveforms) {
                 _logger.LogInformation($"Processing waveform for: {item.Id}");
-                BackgroundJob.Enqueue<GenerateWaveformsJob>(r => r.ExecuteForEntry(item.Id, context));
+                BackgroundJob.Enqueue<GenerateWaveformsJob>(
+                    r => r.ExecuteForEntry(item.Id, string.Empty, context));
             }
             return true;
         }
 
-        public async Task<bool> ExecuteForEntry(Guid entryId, PerformContext context) {
+        public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
             context.WriteLine($"Processing entry: {entryId}");
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
                 _logger.LogInformation($"Generating waveform for: {entry.Id}");
-                var (dat, json, png) =
+                var (dat, json, png) = !string.IsNullOrEmpty(localFile) ?
+                   await _waveFormGenerator.GenerateWaveformLocalFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}") :
                     await _waveFormGenerator.GenerateWaveformRemoteFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}");
                 if (!string.IsNullOrEmpty(dat)) {
                     _logger.LogInformation("Uploading .dat");

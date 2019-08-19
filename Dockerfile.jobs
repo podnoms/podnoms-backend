@@ -23,30 +23,7 @@ COPY podnoms-data/. ./podnoms-data/
 WORKDIR /app/podnoms-jobs
 RUN dotnet publish -c Release -o out
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
-RUN apk add --no-cache --update \
-    python \
-    ffmpeg \
-    libuv \
-    curl \
-    curl-dev && \
-    curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl && \
-    chmod a+rx /usr/local/bin/youtube-dl && \
-    youtube-dl -U
-
-RUN apk add --no-cache git make cmake gcc g++ libmad-dev libid3tag-dev libsndfile-dev gd-dev boost-dev \
-    && git clone https://github.com/bbcrd/audiowaveform.git \
-    && cd audiowaveform \
-    && wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz \
-    && tar xzf release-1.8.0.tar.gz \
-    && ln -s googletest-release-1.8.0/googletest googletest \
-    && ln -s googletest-release-1.8.0/googlemock googlemock \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-    && make install \
-    && cd ..
-RUN rm -rf audiowaveform
+FROM fergalmoran/podnoms-alpine-dotnet  AS runtime
 
 WORKDIR /app
 EXPOSE 80

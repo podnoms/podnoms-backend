@@ -50,7 +50,7 @@ namespace PodNoms.Common.Services.Realtime {
             //appropriate user
             //userId is authToken
             if (string.IsNullOrEmpty(userId)) {
-                _logger.LogInformation("User id was not supplied to SendProcessUpdate");
+                _logger.LogDebug("User id was not supplied to SendProcessUpdate");
                 return false;
             }
             try {

@@ -4,7 +4,6 @@ using EasyNetQ;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Messaging.Contracts;
 
 namespace PodNoms.Common.Services.Jobs {
     public class DebugJobby : IHostedJob {
