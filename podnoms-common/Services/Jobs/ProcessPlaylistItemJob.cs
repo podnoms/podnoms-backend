@@ -1,5 +1,4 @@
 ﻿using Hangfire;
-using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,37 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
-    public abstract class HostedJob : IHostedJob {
-        private PerformContext _context;
-        private readonly ILogger _logger;
-
-        public HostedJob(ILogger logger) {
-            _logger = logger;
-        }
-
-        public Task<bool> Execute() {
-            return Execute(null);
-        }
-        public abstract Task<bool> Execute(PerformContext context);
-        protected void _setContext(PerformContext context) {
-            this._context = context;
-        }
-        protected void Log(string message) {
-            _logger.LogInformation(message);
-            if (_context != null) {
-                _context.WriteLine(message);
-            }
-        }
-        protected void LogError(string message) {
-            _logger.LogError(message);
-            if (_context != null) {
-                _context.WriteLine(message);
-                _context.SetTextColor(ConsoleTextColor.Red);
-                _context.ResetTextColor();
-            }
-        }
-    }
-    public class ProcessPlaylistItemJob : HostedJob {
+    public class ProcessPlaylistItemJob : AbstractHostedJob {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AppSettings _appSettings;
@@ -117,8 +86,10 @@ namespace PodNoms.Common.Services.Jobs {
                     var file = _audioDownloader.DownloadAudio(uid, url);
                     Log($"Downloaded audio");
 
-                    if (!File.Exists(file)) return true;
-
+                    if (!File.Exists(file)) {
+                        LogError("Downloaded file does not exist");
+                        return true;
+                    }
                     //we have the file so lets create the entry and ship to CDN
                     var entry = new PodcastEntry {
                         Title = _audioDownloader.Properties?.Title,
@@ -130,7 +101,6 @@ namespace PodNoms.Common.Services.Jobs {
                         SourceUrl = url
                     };
                     podcast.PodcastEntries.Add(entry);
-                    playlist.PodcastEntries.Add(entry);
                     await _unitOfWork.CompleteAsync();
 
                     var uploaded = await _uploadService.UploadAudio(string.Empty, entry.Id, file);
