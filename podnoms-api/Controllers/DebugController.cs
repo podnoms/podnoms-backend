@@ -116,8 +116,8 @@ namespace PodNoms.Api.Controllers {
             var entries = _entryRepository.GetAll();
             foreach (var entry in entries) {
                 entry.UpdateDate = System.DateTime.Today;
-                await _unitOfWork.CompleteAsync();
             }
+            await _unitOfWork.CompleteAsync();
             return Ok();
         }
         [AllowAnonymous]

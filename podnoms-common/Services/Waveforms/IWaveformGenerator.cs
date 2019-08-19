@@ -44,14 +44,13 @@ namespace PodNoms.Common.Services.Waveforms {
                     .SetArguments($"-i {localFile} -o {pngFile} -b 8 --no-axis-labels --colors audition --waveform-color baacf1FF --background-color 00000000")
                     .ExecuteAsync();
             } catch (Exception e) {
-
+                Console.WriteLine(e.Message);
             }
             return (
                 File.Exists(datFile) ? datFile : string.Empty,
                 File.Exists(jsonFile) ? jsonFile : string.Empty,
                 File.Exists(pngFile) ? pngFile : string.Empty
             );
-            return (string.Empty, string.Empty, string.Empty);
         }
     }
 }

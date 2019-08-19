@@ -6,7 +6,7 @@ using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PodNoms.Common.Messaging.Contracts;
+using PodNoms.Common.Data.Messages;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 

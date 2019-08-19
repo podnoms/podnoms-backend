@@ -142,6 +142,9 @@ namespace PodNoms.Common.Services.Downloader {
             yt.VideoUrl = cleanedUrl;
 
             yt.StandardOutputEvent += (sender, output) => {
+                if (output.StartsWith("ERROR:")) {
+                    throw new AudioDownloadException(output);
+                }
                 if (output.Contains("%")) {
                     try {
                         var progress = _parseProgress(output);
