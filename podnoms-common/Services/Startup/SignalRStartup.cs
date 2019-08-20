@@ -7,13 +7,15 @@ namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {
         public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
             services.AddSignalR()
-                .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver =
-                   new DefaultContractResolver() {
-                       NamingStrategy = new CamelCaseNamingStrategy() {
-                           ProcessDictionaryKeys = true
-                       }
-                   });
-
+                .AddJsonProtocol(
+                   //NCA3
+                   //options => options.PayloadSerializerOptions.ContractResolver =
+                   //new DefaultContractResolver() {
+                   //        NamingStrategy = new CamelCaseNamingStrategy() {
+                   //            ProcessDictionaryKeys = true
+                   //        }
+                   //    }
+                   );
             return services;
         }
 

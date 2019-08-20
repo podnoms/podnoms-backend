@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +12,10 @@ using Hangfire.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +23,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using PodNoms.Api.Providers;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
@@ -47,9 +43,9 @@ namespace PodNoms.Api {
         _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
         public static IConfiguration Configuration { get; private set; }
-        public IHostingEnvironment Env { get; }
+        public IHostEnvironment Env { get; }
 
-        public Startup(IHostingEnvironment env, IConfiguration configuration) {
+        public Startup(IHostEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
             Env = env;
         }
@@ -155,15 +151,8 @@ namespace PodNoms.Api {
                     .OfType<StringOutputFormatter>()
                     .Single().SupportedMediaTypes.Add("text/html");
             })
-                .SetCompatibilityVersion(CompatibilityVersion.Latest)
-                .AddJsonOptions(options => {
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                })
-                .AddXmlSerializerFormatters()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+            .AddXmlSerializerFormatters()
+            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PodNoms.API", Version = "v1" });
@@ -205,7 +194,8 @@ namespace PodNoms.Api {
             services.AddPushNotificationService(Configuration);
 
             services.AddPodNomsSignalR();
-            services.AddDependencies()
+            services.AddSharedDependencies()
+                .AddScoped<UserLoggingFilter>()
                 .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>(); //register this on it's own as the job server does it's own thing here..
 
             //register the codepages (required for slugify)
@@ -214,7 +204,7 @@ namespace PodNoms.Api {
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-            IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime) {
 
             UpdateDatabase(app);
 
@@ -270,7 +260,7 @@ namespace PodNoms.Api {
         public static IApplicationBuilder UseMessageQueue(this IApplicationBuilder appBuilder, string subscriptionIdPrefix, Assembly assembly) {
             var services = appBuilder.ApplicationServices.CreateScope().ServiceProvider;
 
-            var lifeTime = services.GetService<IApplicationLifetime>();
+            var lifeTime = services.GetService<IHostApplicationLifetime>();
             var bus = services.GetService<IBus>();
             lifeTime.ApplicationStarted.Register(() => {
                 var subscriber = new AutoSubscriber(bus, subscriptionIdPrefix);

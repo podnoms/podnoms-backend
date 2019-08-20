@@ -6,7 +6,7 @@ using EasyNetQ.Logging;
 using Hangfire;
 using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Internal;
 using Microsoft.EntityFrameworkCore;
@@ -26,10 +26,10 @@ using PodNoms.Jobs.Services;
 namespace PodNoms.Jobs {
     public class JobsStartup {
         public static IConfiguration Configuration { get; private set; }
-        public IHostingEnvironment Env { get; }
+        public IHostEnvironment Env { get; }
         private WebProxy localDebuggingProxy = new WebProxy("http://localhost:9537");
 
-        public JobsStartup(IHostingEnvironment env, IConfiguration configuration) {
+        public JobsStartup(IHostEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
             Env = env;
         }
@@ -69,7 +69,7 @@ namespace PodNoms.Jobs {
                 .AddDbContext<PodNomsDbContext>(options => {
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 })
-                .AddDependencies()
+                .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
@@ -79,7 +79,7 @@ namespace PodNoms.Jobs {
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure(IApplicationBuilder app, IHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
