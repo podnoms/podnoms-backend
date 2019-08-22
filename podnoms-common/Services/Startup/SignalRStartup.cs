@@ -20,14 +20,14 @@ namespace PodNoms.Common.Services.Startup {
         }
 
         public static IApplicationBuilder UsePodNomsSignalRRoutes(
-            this IApplicationBuilder builder) {
-            builder.UseSignalR(routes => {
+            this IApplicationBuilder app) {
+            app.UseEndpoints(routes => {
                 routes.MapHub<AudioProcessingHub>("/hubs/audioprocessing");
                 routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
                 routes.MapHub<DebugHub>("/hubs/debug");
                 routes.MapHub<ChatHub>("/hubs/chat");
             });
-            return builder;
+            return app;
         }
     }
 }

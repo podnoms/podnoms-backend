@@ -8,11 +8,11 @@ using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Jobs;
@@ -21,6 +21,7 @@ using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Services.Waveforms;
+using PodNoms.Data.Models;
 using PodNoms.Jobs.Services;
 
 namespace PodNoms.Jobs {
@@ -35,9 +36,9 @@ namespace PodNoms.Jobs {
         }
 
         public void ConfigureServices(IServiceCollection services) {
-
             Console.WriteLine($"Configuring services");
-            Console.WriteLine($"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
+            Console.WriteLine(
+                $"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
             Console.WriteLine($"RabbitMqConnection: {Configuration["RabbitMq:ExternalConnectionString"]}");
             Console.WriteLine($"ApiUrl: {Configuration["AppSettings:ApiUrl"]}");
             services.AddHangfire(options => {
@@ -69,6 +70,7 @@ namespace PodNoms.Jobs {
                 .AddDbContext<PodNomsDbContext>(options => {
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 })
+                .AddPodnomsSecurity(Configuration)
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
@@ -83,9 +85,10 @@ namespace PodNoms.Jobs {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseHangfireServer();
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
-                Authorization = new[] { new HangFireAuthorizationFilter() }
+                Authorization = new[] {new HangFireAuthorizationFilter()}
             });
             app.Run(async (context) => {
                 await context.Response.WriteAsync("Hello World!");

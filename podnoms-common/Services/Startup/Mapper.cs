@@ -10,7 +10,7 @@ namespace PodNoms.Common.Services.Startup {
         private static Mutex mutex = new Mutex();
         public static IServiceCollection AddPodNomsMapping(this IServiceCollection services, IConfiguration config) {
             mutex.WaitOne();
-            Mapper.Reset();
+            // Mapper.Reset();
             services.AddAutoMapper(
                 e => { e.AddProfile(new MappingProvider(config)); },
                 AppDomain.CurrentDomain.GetAssemblies());
