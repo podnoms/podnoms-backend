@@ -5,27 +5,31 @@ using PodNoms.Common.Services.Hubs;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {
-        public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
-            services.AddSignalR()
-                .AddJsonProtocol(options => options.PayloadSerializerSettings.ContractResolver =
-                   new DefaultContractResolver() {
-                       NamingStrategy = new CamelCaseNamingStrategy() {
-                           ProcessDictionaryKeys = true
-                       }
-                   });
-
+        public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services, bool isDevelopment) {
+            services.AddSignalR(options => {
+                options.EnableDetailedErrors = isDevelopment;
+            })
+                .AddJsonProtocol(
+                   //NCA3
+                   //options => options.PayloadSerializerOptions.ContractResolver =
+                   //new DefaultContractResolver() {
+                   //        NamingStrategy = new CamelCaseNamingStrategy() {
+                   //            ProcessDictionaryKeys = true
+                   //        }
+                   //    }
+                   );
             return services;
         }
 
         public static IApplicationBuilder UsePodNomsSignalRRoutes(
-            this IApplicationBuilder builder) {
-            builder.UseSignalR(routes => {
+            this IApplicationBuilder app) {
+            app.UseEndpoints(routes => {
                 routes.MapHub<AudioProcessingHub>("/hubs/audioprocessing");
                 routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
                 routes.MapHub<DebugHub>("/hubs/debug");
                 routes.MapHub<ChatHub>("/hubs/chat");
             });
-            return builder;
+            return app;
         }
     }
 }

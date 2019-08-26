@@ -67,6 +67,8 @@ namespace PodNoms.Common.Services.Realtime {
                 }
             } catch (Exception ex) {
                 _logger.LogError($"Error sending process update\n{ex?.Message}\n{ex?.InnerException.Message}");
+                //return true here as we don't want any signalr errors interfering with audio processing.
+                return true;
             }
             return false;
         }

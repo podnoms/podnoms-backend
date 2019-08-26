@@ -2,15 +2,14 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
-using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
@@ -95,7 +94,7 @@ namespace PodNoms.Common.Services.Processor {
                 await __downloader_progress(
                     authToken,
                     entry.Id.ToString(),
-                    new ProcessingProgress(entry) {
+                    new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
                         ProcessingStatus = ProcessingStatus.Processing
                     }
                 );

@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Persistence;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Api.Providers {
     public static class WebHostExtensions {

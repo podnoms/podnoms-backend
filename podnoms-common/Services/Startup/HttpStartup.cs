@@ -1,6 +1,13 @@
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using PodNoms.Common.Auth;
+using PodNoms.Common.Persistence;
+using PodNoms.Data.Models;
 using Polly;
 using Polly.Extensions.Http;
 
