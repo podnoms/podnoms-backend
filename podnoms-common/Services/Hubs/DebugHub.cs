@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Common.Services.Hubs {
-
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class DebugHub : Hub {
         private readonly ILogger _logger;
 

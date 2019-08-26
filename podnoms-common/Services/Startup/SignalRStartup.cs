@@ -5,8 +5,10 @@ using PodNoms.Common.Services.Hubs;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {
-        public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services) {
-            services.AddSignalR()
+        public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services, bool isDevelopment) {
+            services.AddSignalR(options => {
+                options.EnableDetailedErrors = isDevelopment;
+            })
                 .AddJsonProtocol(
                    //NCA3
                    //options => options.PayloadSerializerOptions.ContractResolver =

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,8 @@ namespace PodNoms.Common.Services.Processor {
     /// which provide realtime updates 
     /// /// </summary>
     public class RealtimeUpdatingProcessService {
+        static SemaphoreSlim __lockObj = new SemaphoreSlim(1, 1);
+
         protected readonly ILogger _logger;
 
         private readonly IRealTimeUpdater _realtime;
@@ -27,10 +30,19 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         protected async Task<bool> _sendProgressUpdate(string authToken, string channelName, ProcessingProgress data) {
-            return await _realtime.SendProcessUpdate(
-                authToken,
-                channelName,
-                data);
+            var result = false;
+            await __lockObj.WaitAsync();
+            try {
+                result = await _realtime.SendProcessUpdate(
+                    authToken,
+                    channelName,
+                    data);
+            } catch (Exception e) {
+                _logger.LogError($"Error in _sendProgressUpdate{Environment.NewLine}{e.Message}");
+            } finally {
+                __lockObj.Release();
+            }
+            return result;
         }
     }
 }

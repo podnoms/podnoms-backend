@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace PodNoms.Common.Services.Hubs {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class AudioProcessingHub : Hub {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();

@@ -81,6 +81,7 @@ namespace PodNoms.Api {
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
             services.AddPodnomsSecurity(Configuration);
+            services.AddPodNomsSignalR(Env.IsDevelopment());
 
             services.AddMvc(options => {
                 //TODO: This needs to be investigated
@@ -112,7 +113,6 @@ namespace PodNoms.Api {
             services.AddPushSubscriptionStore(Configuration);
             services.AddPushNotificationService(Configuration);
 
-            services.AddPodNomsSignalR();
             services.AddSharedDependencies()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddScoped<UserLoggingFilter>()

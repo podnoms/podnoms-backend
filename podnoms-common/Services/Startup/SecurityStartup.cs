@@ -51,11 +51,13 @@ namespace PodNoms.Common.Services.Startup {
                 configureOptions.SaveToken = true;
                 configureOptions.Events = new JwtBearerEvents {
                     OnMessageReceived = context => {
-                        if (context.Request.Path.Value.StartsWith("/hubs/") &&
-                            context.Request.Query.TryGetValue("token", out var token)) {
-                            context.Token = token;
+                        var accessToken = context.Request.Query["token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/hubs"))) {
+                            Console.WriteLine($"WE GOT THE TOKEN: {accessToken}");
+                            context.Token = accessToken[0];
                         }
-
                         return Task.CompletedTask;
                     }
                 };
@@ -67,12 +69,12 @@ namespace PodNoms.Common.Services.Startup {
             });
             // add identity
             services.AddIdentityCore<ApplicationUser>(o => {
-                    // configure identity options
-                    o.Password.RequireDigit = false;
-                    o.Password.RequireLowercase = false;
-                    o.Password.RequireUppercase = false;
-                    o.Password.RequireNonAlphanumeric = false;
-                })
+                // configure identity options
+                o.Password.RequireDigit = false;
+                o.Password.RequireLowercase = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequireNonAlphanumeric = false;
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders()
                 .AddUserManager<PodNomsUserManager>();

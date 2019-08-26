@@ -47,7 +47,7 @@ namespace PodNoms.Common.Services.Processor {
             await _sendProgressUpdate(
                     userId,
                     entry.Id.ToString(),
-                    new ProcessingProgress(entry) {
+                    new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
                         ProcessingStatus = ProcessingStatus.Uploading
                     });
             if (entry is null) {
