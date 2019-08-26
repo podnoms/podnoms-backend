@@ -109,6 +109,7 @@ namespace PodNoms.Api.Controllers {
 
             return Ok();
         }
+
         [AllowAnonymous]
         [HttpGet("updateentryslugs")]
         public async Task<IActionResult> UpdateEntrySlugs() {
@@ -116,9 +117,11 @@ namespace PodNoms.Api.Controllers {
             foreach (var entry in entries) {
                 entry.UpdateDate = System.DateTime.Today;
             }
+
             await _unitOfWork.CompleteAsync();
             return Ok();
         }
+
         [AllowAnonymous]
         [HttpGet("sendmail")]
         public async Task<IActionResult> SendEmail(string email) {
@@ -136,8 +139,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] { $"User {User.Identity.Name}: {message}" });
-            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
+                new string[] {$"User {User.Identity.Name}: {message}"});
+            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
             return Ok(message);
         }
 
@@ -171,6 +174,7 @@ namespace PodNoms.Api.Controllers {
             var response = _mapper.Map<Podcast, PodcastViewModel>(podcast);
             return response;
         }
+
         [HttpGet("longrunningrequest")]
         [AllowAnonymous]
         public async Task<IActionResult> LongRunningRequest([FromQuery] int delay) {

@@ -129,13 +129,11 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.SubscriptionValidUntil,
                     map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
-                );
-                
-//NCA3
-//                .ForMember(
-//                    src => src.Roles,
-//                    map => map.MapFrom<UserRolesResolver>()
-//                )
+                )
+               .ForMember(
+                   src => src.Roles,
+                   map => map.MapFrom<UserRolesResolver>()
+               );
 
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
