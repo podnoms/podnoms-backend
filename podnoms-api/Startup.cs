@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +12,10 @@ using Hangfire.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +23,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using PodNoms.Api.Providers;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
@@ -38,18 +34,16 @@ using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 using reCAPTCHA.AspNetCore;
+using PodNoms.Common.Services;
+using PodNoms.Common.Services.Realtime;
 
 namespace PodNoms.Api {
     public class Startup {
-        private const string SecretKey = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
-
-        private readonly SymmetricSecurityKey
-        _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
         public static IConfiguration Configuration { get; private set; }
-        public IHostingEnvironment Env { get; }
+        public IHostEnvironment Env { get; }
 
-        public Startup(IHostingEnvironment env, IConfiguration configuration) {
+        public Startup(IHostEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
             Env = env;
         }
@@ -86,65 +80,8 @@ namespace PodNoms.Api {
             services.AddPodNomsHttpClients(Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
-            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
-            // Configure JwtIssuerOptions
-            services.Configure<JwtIssuerOptions>(options => {
-                //TODO: Remove this in production, only for testing
-                options.ValidFor = TimeSpan.FromDays(28);
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
-            });
-            var tokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer = true,
-                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
-
-                ValidateAudience = true,
-                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
-
-                RequireExpirationTime = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-            services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(configureOptions => {
-                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                configureOptions.TokenValidationParameters = tokenValidationParameters;
-                configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents {
-                    OnMessageReceived = context => {
-                        if (context.Request.Path.Value.StartsWith("/hubs/") &&
-                            context.Request.Query.TryGetValue("token", out var token)) {
-                            context.Token = token;
-                        }
-
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-
-            services.AddAuthorization(j => {
-                j.AddPolicy("ApiUser", policy => policy.RequireClaim(
-                   Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
-            });
-            // add identity
-            var identityBuilder = services.AddIdentityCore<ApplicationUser>(o => {
-                // configure identity options
-                o.Password.RequireDigit = false;
-                o.Password.RequireLowercase = false;
-                o.Password.RequireUppercase = false;
-                o.Password.RequireNonAlphanumeric = false;
-            }).AddRoles<IdentityRole>();
-
-            identityBuilder =
-                new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
-            identityBuilder.AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders();
-            identityBuilder.AddUserManager<PodNomsUserManager>();
+            services.AddPodnomsSecurity(Configuration);
+            services.AddPodNomsSignalR(Env.IsDevelopment());
 
             services.AddMvc(options => {
                 //TODO: This needs to be investigated
@@ -155,15 +92,8 @@ namespace PodNoms.Api {
                     .OfType<StringOutputFormatter>()
                     .Single().SupportedMediaTypes.Add("text/html");
             })
-                .SetCompatibilityVersion(CompatibilityVersion.Latest)
-                .AddJsonOptions(options => {
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                })
-                .AddXmlSerializerFormatters()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+            .AddXmlSerializerFormatters()
+            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PodNoms.API", Version = "v1" });
@@ -178,34 +108,15 @@ namespace PodNoms.Api {
             services.Configure<RecaptchaSettings>(Configuration.GetSection("RecaptchaSettings"));
             services.AddTransient<IRecaptchaService, RecaptchaService>();
 
-            services.AddCors(options => {
-                options.AddPolicy("PodNomsClientPolicy",
-                    builder => builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .WithOrigins(
-                        "https://localhost:4200",
-                        "http://localhost:8080",
-                        "http://localhost:4200",
-                        "http://10.1.1.5:9999",
-                        "https://dev.podnoms.com:4200",
-                        "https://podnoms.local:4200",
-                        "https://podnoms.com",
-                        "https://pages.podnoms.com",
-                        "https://www.podnoms.com")
-                    .AllowCredentials());
-                options.AddPolicy("BrowserExtensionPolicy",
-                    builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod());
-            });
+            services.AddPodNomsCors(Configuration);
             services.AddPodNomsImaging(Configuration);
             services.AddPushSubscriptionStore(Configuration);
             services.AddPushNotificationService(Configuration);
 
-            services.AddPodNomsSignalR();
-            services.AddDependencies()
+            services.AddSharedDependencies()
+                .AddTransient<IRealTimeUpdater, SignalRUpdater>()
+                .AddScoped<UserLoggingFilter>()
+                .AddScoped<ISupportChatService, SupportChatService>()
                 .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>(); //register this on it's own as the job server does it's own thing here..
 
             //register the codepages (required for slugify)
@@ -214,7 +125,7 @@ namespace PodNoms.Api {
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-            IServiceProvider serviceProvider, IApplicationLifetime lifetime) {
+            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime) {
 
             UpdateDatabase(app);
 
@@ -227,6 +138,8 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
+            app.UseRouting();
+            app.UseAuthorization();
             app.UseCustomDomainRewrites();
             app.UseStaticFiles();
 
@@ -238,7 +151,7 @@ namespace PodNoms.Api {
             });
             app.UseAuthentication();
 
-            app.UseCors("PodNomsClientPolicy");
+            app.UsePodNomsCors();
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {
@@ -270,7 +183,7 @@ namespace PodNoms.Api {
         public static IApplicationBuilder UseMessageQueue(this IApplicationBuilder appBuilder, string subscriptionIdPrefix, Assembly assembly) {
             var services = appBuilder.ApplicationServices.CreateScope().ServiceProvider;
 
-            var lifeTime = services.GetService<IApplicationLifetime>();
+            var lifeTime = services.GetService<IHostApplicationLifetime>();
             var bus = services.GetService<IBus>();
             lifeTime.ApplicationStarted.Register(() => {
                 var subscriber = new AutoSubscriber(bus, subscriptionIdPrefix);

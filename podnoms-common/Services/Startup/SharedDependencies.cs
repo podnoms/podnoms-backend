@@ -19,10 +19,9 @@ using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Common.Services.Startup {
-    public static class Dependencies {
-        public static IServiceCollection AddDependencies(this IServiceCollection services) {
+    public static class SharedDependencies {
+        public static IServiceCollection AddSharedDependencies(this IServiceCollection services) {
             services.AddTransient<IFileUploader, AzureFileUploader>()
-                .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddTransient<IPageParser, DefaultPageParser>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
@@ -38,7 +37,6 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IDonationRepository, DonationRepository>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
-                .AddScoped<ISupportChatService, SupportChatService>()
                 .AddScoped<IMailSender, MailgunSender>()
                 .AddScoped<IFileUtilities, AzureFileUtilities>()
                 .AddScoped<INotificationHandler, SlackNotificationHandler>()
@@ -50,7 +48,6 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IYouTubeParser, YouTubeQueryService>()
                 .AddScoped<MixcloudParser>()
                 .AddScoped<AudioDownloader>()
-                .AddScoped<UserLoggingFilter>()
                 .AddScoped<SlackSupportClient>()
                 .AddHttpClient<GravatarHttpClient>();
             services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor>();

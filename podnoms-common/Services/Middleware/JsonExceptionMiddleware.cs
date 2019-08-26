@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -12,11 +12,11 @@ using PodNoms.Common.Data.ViewModels;
 namespace PodNoms.Common.Services.Middleware {
     public class JsonExceptionMiddleware {
         public const string DefaultErrorMessage = "A server error occurred.";
-        private readonly IHostingEnvironment _env;
+        private readonly IHostEnvironment _env;
         private readonly JsonSerializer _serializer;
 
 
-        public JsonExceptionMiddleware(IHostingEnvironment env) {
+        public JsonExceptionMiddleware(IHostEnvironment env) {
             _env = env;
             _serializer = new JsonSerializer();
             _serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -36,7 +36,7 @@ namespace PodNoms.Common.Services.Middleware {
                 await writer.FlushAsync().ConfigureAwait(false);
             }
         }
-        private static ApiError BuildError(Exception ex, IHostingEnvironment env) {
+        private static ApiError BuildError(Exception ex, IHostEnvironment env) {
             var error = new ApiError();
             if (env.IsDevelopment()) {
                 error.Message = ex.Message;
