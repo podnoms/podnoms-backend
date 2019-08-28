@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-preview9-alpine3.10 AS build
 
 WORKDIR /app
 EXPOSE 80
@@ -25,7 +25,7 @@ WORKDIR /app/podnoms-api
 RUN dotnet publish -c Release -o out
 
 # spin up the runtime
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0.0-preview9-alpine3.9 AS runtime
 RUN apk add --no-cache --update \
     python \
     ffmpeg \
