@@ -1,6 +1,7 @@
 using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace PodNoms.Common.Services.Jobs {
@@ -32,6 +33,10 @@ namespace PodNoms.Common.Services.Jobs {
                 _context.SetTextColor(ConsoleTextColor.Red);
                 _context.ResetTextColor();
             }
+        }
+        protected void LogError(string message, Exception ex) {
+            LogError(message);
+            LogError(ex.Message);
         }
     }
 }
