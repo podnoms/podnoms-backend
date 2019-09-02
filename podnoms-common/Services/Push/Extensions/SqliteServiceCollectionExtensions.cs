@@ -7,7 +7,9 @@ namespace PodNoms.Common.Services.Push.Extensions {
     public static class SqliteServiceCollectionExtensions {
         private const string SQLITE_CONNECTION_STRING_NAME = "PushSubscriptionSqliteDatabase";
 
-        public static IServiceCollection AddSqlitePushSubscriptionStore(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddSqlitePushSubscriptionStore(
+                    this IServiceCollection services,
+                    IConfiguration configuration) {
             services.AddDbContext<PushSubscriptionContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString(SQLITE_CONNECTION_STRING_NAME))
             );

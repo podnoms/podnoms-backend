@@ -17,7 +17,7 @@ namespace PodNoms.Common.Services.Startup {
     public static class HealthChecksStartup {
 
         public static IServiceCollection AddPodNomsHealthChecks(this IServiceCollection services, IConfiguration Configuration, bool isDevelopment) {
-            if (!isDevelopment) {
+            if (!isDevelopment && false) {
                 services.AddHealthChecksUI();
                 services.AddHealthChecks()
                     .AddSqlServer(
@@ -48,7 +48,7 @@ namespace PodNoms.Common.Services.Startup {
         }
 
         public static IApplicationBuilder UsePodNomsHealthChecks(this IApplicationBuilder app, bool isDevelopment) {
-            if (!isDevelopment) {
+            if (!isDevelopment && false) {
                 app.UseHealthChecks("/hc", new HealthCheckOptions {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

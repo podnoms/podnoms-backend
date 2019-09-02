@@ -77,7 +77,7 @@ namespace PodNoms.Api {
 
             services.AddHostedService<RabbitMQService>();
 
-            services.AddPodNomsHttpClients(Env.IsProduction());
+            services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
             services.AddPodnomsSecurity(Configuration);

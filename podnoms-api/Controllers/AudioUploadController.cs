@@ -26,6 +26,7 @@ using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Services.Jobs;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -35,16 +36,23 @@ namespace PodNoms.Api.Controllers {
         private readonly IEntryRepository _entryRepository;
         private IUnitOfWork _unitOfWork;
         private readonly AppSettings _appsettings;
-        private readonly IHostEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         public IMapper _mapper { get; }
 
-        public AudioUploadController(IPodcastRepository podcastRepository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
-                        IOptions<AudioFileStorageSettings> settings, IOptions<StorageSettings> storageSettings,
+        public AudioUploadController(
+                        IPodcastRepository podcastRepository,
+                        IEntryRepository entryRepository,
+                        IUnitOfWork unitOfWork,
+                        IOptions<AudioFileStorageSettings> settings,
+                        IOptions<StorageSettings> storageSettings,
                         IOptions<AppSettings> appsettings,
-                        ILogger<AudioUploadController> logger, IMapper mapper, IHostEnvironment hostingEnvironment,
-                        UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+                        ILogger<AudioUploadController> logger,
+                        IMapper mapper,
+                        IWebHostEnvironment hostingEnvironment,
+                        UserManager<ApplicationUser> userManager,
+                        IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _mapper = mapper;
             _audioFileStorageSettings = settings.Value;
             _appsettings = appsettings.Value;
@@ -74,7 +82,7 @@ namespace PodNoms.Api.Controllers {
                 Podcast = podcast
             };
 
-            var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.ContentRootPath, file);
+            var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);
             _entryRepository.AddOrUpdate(entry);
             await _unitOfWork.CompleteAsync();
 
@@ -82,7 +90,7 @@ namespace PodNoms.Api.Controllers {
 
             //convert uploaded file to extension
             var audioUrl = localFile
-                .Replace(_hostingEnvironment.ContentRootPath, string.Empty)
+                .Replace(_hostingEnvironment.WebRootPath, string.Empty)
                 .Replace(@"\", "/");
             BackgroundJob.Enqueue<UploadAudioJob>(job =>
                 job.Execute(authToken, entry.Id, audioUrl, new FileInfo(localFile).Extension, null));
