@@ -28,7 +28,6 @@ namespace PodNoms.Jobs {
     public class JobsStartup {
         public static IConfiguration Configuration { get; private set; }
         public IHostEnvironment Env { get; }
-        private WebProxy localDebuggingProxy = new WebProxy("http://localhost:9537");
 
         public JobsStartup(IHostEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
@@ -50,17 +49,6 @@ namespace PodNoms.Jobs {
                 // options.UseActivator (new HangfireActivator (serviceProvider));
             });
 
-            services.AddHttpClient("podnoms", c => {
-                c.BaseAddress = new Uri(Configuration["AppSettings:ApiUrl"]);
-                c.DefaultRequestHeaders.Add("Accept", "application/json");
-                c.DefaultRequestHeaders.Add("User-Agent", "PodNoms-JobProcessor");
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
-                Proxy = localDebuggingProxy,
-                ClientCertificateOptions = ClientCertificateOption.Manual,
-                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => {
-                    return true;
-                }
-            });
             services
                 .AddLogging()
                 .AddPodNomsOptions(Configuration)
@@ -71,6 +59,7 @@ namespace PodNoms.Jobs {
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 })
                 .AddPodnomsSecurity(Configuration)
+                .AddPodNomsHttpClients(Configuration, Env.IsProduction())
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
@@ -88,7 +77,7 @@ namespace PodNoms.Jobs {
 
             app.UseHangfireServer();
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
-                Authorization = new[] {new HangFireAuthorizationFilter()}
+                Authorization = new[] { new HangFireAuthorizationFilter() }
             });
             app.Run(async (context) => {
                 await context.Response.WriteAsync("Hello World!");
