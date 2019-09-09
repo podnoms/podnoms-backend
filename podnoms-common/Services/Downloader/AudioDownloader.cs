@@ -60,21 +60,23 @@ namespace PodNoms.Common.Services.Downloader {
 
         public DownloadInfo __getInfo(string url) {
             try {
-                var yt = new YoutubeDL { VideoUrl = url };
+                var yt = new YoutubeDL {VideoUrl = url};
                 var info = yt.GetDownloadInfo();
 
                 if (info is null ||
                     info.Errors.Count != 0 ||
                     (info.GetType() == typeof(PlaylistDownloadInfo) &&
-                        !MixcloudParser.ValidateUrl(url) &&
-                        !_youTubeParser.ValidateUrl(url))) {
+                     !MixcloudParser.ValidateUrl(url) &&
+                     !_youTubeParser.ValidateUrl(url))) {
                     return null;
                 }
+
                 return info;
             } catch (Exception e) {
                 Console.WriteLine($"Error geting info for {url}");
                 Console.WriteLine(e.Message);
             }
+
             return null;
         }
 
@@ -86,15 +88,18 @@ namespace PodNoms.Common.Services.Downloader {
         public async Task<RemoteUrlType> GetInfo(string url) {
             var ret = RemoteUrlType.Invalid;
 
-            if (url.Contains("drive.google.com")) {
+            if (url.Contains("drive.google.com") || 
+                url.Contains("dl.dropboxusercontent.com")) {
                 return RemoteUrlType.SingleItem;
             }
+
             if (_youTubeParser.ValidateUrl(url)) {
                 //we're youtube. bypass youtube_dl for info - it's very slow
                 var urlType = _youTubeParser.GetUrlType(url);
                 if (urlType == RemoteUrlType.SingleItem) {
                     Properties = await _youTubeParser.GetInformation(url);
                 }
+
                 return urlType;
             }
 
@@ -132,6 +137,7 @@ namespace PodNoms.Common.Services.Downloader {
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);
             }
+
             var cleanedUrl = _normaliseUrl(url);
 
             var yt = new YoutubeDL();
@@ -145,6 +151,7 @@ namespace PodNoms.Common.Services.Downloader {
                 if (output.StartsWith("ERROR:")) {
                     throw new AudioDownloadException(output);
                 }
+
                 if (output.Contains("%")) {
                     try {
                         var progress = _parseProgress(output);
@@ -156,7 +163,8 @@ namespace PodNoms.Common.Services.Downloader {
                     DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
                         ProcessingStatus = ProcessingStatus.Converting,
                         Progress = _statusLineToNarrative(output)
-                    }); ;
+                    });
+                    ;
                     Console.WriteLine(output);
                 }
             };
@@ -173,6 +181,7 @@ namespace PodNoms.Common.Services.Downloader {
             if (_youTubeParser.ValidateUrl(url)) {
                 return $"https://www.youtube.com/watch?v={_youTubeParser.GetVideoId(url)}";
             }
+
             return url;
         }
 
@@ -181,6 +190,7 @@ namespace PodNoms.Common.Services.Downloader {
             if (output.Contains(":")) {
                 return output.Split(':')[1];
             }
+
             return "Transmogrifying";
         }
 
@@ -204,6 +214,7 @@ namespace PodNoms.Common.Services.Downloader {
                     output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
                 result.Progress = rateString;
             }
+
             return result;
         }
 
