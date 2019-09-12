@@ -1,4 +1,5 @@
 @model SharingPublicViewModel
+
 @section metatags {
     <meta property="og:image" content="@Model.ImageUrl">
     <meta property="og:title" content="@Model.Title">
@@ -9,25 +10,13 @@
     <meta property="fb:app_id" content="1887182031397435">
 
 }
-@section css{
-    <link rel="stylesheet" href="~/css/style.css" />
-    <link rel="stylesheet" href="~/css/player.css" />
-}
-@section scripts{
-    <script src="/scripts/jquery.min.js"></script>
-    <script src="/scripts/jplayer.min.js"></script>
-    <script nonce="bnpSSz7KFQ4cm9ah8bIPug3tAwHD4C3VbFDFe5h8gGLvM89zPNDNvLjXMDesmACWVAP63mcdWJou0nbsm3tvyGz033Hw1yd3y3h1yyA5HDYhwvN15Lm7jmtBVsKpBREP">
-    $(document).ready(function(){
-        $("#jquery_jplayer_1").jPlayer({
-        ready: function () {
-            $(this).jPlayer("setMedia", {
-                mp3: "@Model.AudioUrl",
-            });
-        },
-        supplied: "mp3"
-        });
-    });
 
+@section css{
+    <link rel="stylesheet" href="~/css/sharing/style.css"/>
+}
+
+@section scripts{
+    <script>
     function downloadShareLink(link){
         var filename = "@Model.Title" + ".mp3"; // link.substring(link.lastIndexOf("/") + 1).split("?")[0];
         var xhr = new XMLHttpRequest();
@@ -46,6 +35,7 @@
     }
     </script>
 }
+
 <main id="main-container">
     <div class="bg-image">
         <div class="hero bg-black-op">
@@ -63,43 +53,12 @@
                                 @Model.Title
                             </h2>
                             <div class="mb-20">
-            <div id="jquery_jplayer_1" class="jp-jplayer"></div>
-            <div id="jp_container_1" class="jp-audio" role="application" aria-label="media player">
-                <div class="jp-type-single">
-                    <div class="jp-gui jp-interface">
-                        <div class="jp-controls">
-                            <a class="jp-play"><i class="fa fa-play"></i></a>
-                            <a class="jp-pause"><i class="fa fa-pause"></i></a>
-                            <a class="jp-stop"><i class="fa fa-stop"></i></a>
-                        </div>
-                        <div class="jp-progress">
-                            <div class="jp-seek-bar">
-                                <div class="jp-play-bar"></div>
+                                <button class="btn btn-hero btn-noborder btn-rounded btn-outline-warning"
+                                        onclick="downloadShareLink('@Model.AudioUrl')">
+                                    <i class="fa fa-cloud-download mr-10"></i>
+                                    Download
+                                </button>
                             </div>
-                        </div>
-                        <div class="jp-volume-controls">
-                            <a class="jp-mute"><i class="fa fa-volume-off"></i></a>
-                            <a class="jp-volume-max"><i class="fa fa-volume-up"></i></a>
-                            <div class="jp-volume-bar">
-                                <div class="jp-volume-bar-value"></div>
-                            </div>
-                        </div>
-                        <div class="jp-time-holder">
-                            <div class="jp-current-time" role="timer" aria-label="time">&nbsp;</div>
-                            <div class="jp-duration" role="timer" aria-label="duration">&nbsp;</div>
-                        </div>
-                    </div>
-                    <div class="jp-no-solution">
-                        <span>Update Required</span>
-                        To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
-                    </div>
-                </div>
-            </div>                            </div>
-                            <button class="btn btn-hero btn-noborder btn-rounded btn-outline-warning"
-                                    onclick="downloadShareLink('@Model.AudioUrl')">
-                                <i class="fa fa-cloud-download mr-10"></i>
-                                Download
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -107,3 +66,18 @@
         </div>
     </div>
 </main>
+
+<footer class="footer">
+        <audio-player audio-url="@Model.AudioUrl"
+                      pcm-url="@Model.PeakDataUrl"
+                      title="@Model.Title"
+                      sub-title="@Model.Description"
+                      image-url="@Model.ImageUrl"
+                      background-colour="000000"
+                      title-colour="000000"
+                      sub-title-colour="FFFFFF"
+                      wave-colour="FFFFFF"
+                      wave-colour-progress="7F6F67">
+        </audio-player>
+        <script src="https://cdn.podnoms.com/player/player.js?cb=28161682-b08f-46da-8614-9776d30d17b5"></script>
+</footer>

@@ -12,13 +12,19 @@ namespace PodNoms.Api.Controllers.Public {
     [Route("pub/sharing")]
     public class PublicSharingController : Controller {
         private readonly IEntryRepository _entryRepository;
+        private readonly StorageSettings _storageSettings;
+        private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
         private readonly SharingSettings _sharingSettings;
         private readonly IMapper _mapper;
 
         public PublicSharingController(IEntryRepository entryRepository,
-                                        IOptions<SharingSettings> sharingSettings,
+                        IOptions<StorageSettings> storageSettings,
+                        IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
+                        IOptions<SharingSettings> sharingSettings,
             IMapper mapper) {
             _entryRepository = entryRepository;
+            _storageSettings = storageSettings.Value;
+            _waveformStorageSettings = waveformStorageSettings.Value;
             _sharingSettings = sharingSettings.Value;
             _mapper = mapper;
         }
@@ -30,6 +36,7 @@ namespace PodNoms.Api.Controllers.Public {
             if (entry != null) {
                 var model = _mapper.Map<PodcastEntry, SharingPublicViewModel>(entry);
                 model.Url = Flurl.Url.Combine(_sharingSettings.BaseUrl, shareId);
+                model.PeakDataUrl = $"{_storageSettings.CdnUrl}{_waveformStorageSettings.ContainerName}/{entry.Id}.json";
                 return View(model);
             }
             return NotFound();
