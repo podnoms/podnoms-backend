@@ -15,7 +15,7 @@
         <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="2.2.1" />
         <PackageReference Include="AspNetcore.HealthChecks.SqlServer" Version="2.2.1" />
 
-        <PackageReference Include="AspNetcore.HealthChecks.UI" Version="2.2.33" />
+        <PackageReference Include="AspNetcore.HealthChecks.UI" Version="2.2.34" />
         <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="2.2.3" />
         <PackageReference Include="CliWrap" Version="2.3.1" />
         <PackageReference Include="DNS" Version="5.0.0" />
@@ -24,18 +24,18 @@
         <PackageReference Include="flurl" Version="2.8.2" />
         <PackageReference Include="Handlebars.Net" Version="1.10.1" />
         <PackageReference Include="Hangfire.Console" Version="1.4.2" />
-        <PackageReference Include="Hangfire.MemoryStorage" Version="1.6.1" />
+        <PackageReference Include="Hangfire.MemoryStorage" Version="1.6.3" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.12" />
-        <PackageReference Include="Humanizer.Core" Version="2.6.2" />
-        <PackageReference Include="LtGt" Version="1.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0-preview8.19405.7" />
+        <PackageReference Include="Humanizer.Core" Version="2.7.2" />
+        <PackageReference Include="LtGt" Version="1.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0-preview9.19424.4" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0-preview8.19405.7" />
-        <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.0.0" />
-        <PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.3.1663" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.40.3" />
-        <PackageReference Include="Google.Apis.Plus.v1" Version="1.40.3.1627" />
-        <PackageReference Include="FluentValidation.AspNetCore" Version="8.5.0-preview4" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0-preview9.19424.4" />
+        <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.0.1" />
+        <PackageReference Include="Google.Apis.YouTube.v3" Version="1.41.1.1699" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.41.1" />
+        <PackageReference Include="Google.Apis.Plus.v1" Version="1.41.1.1627" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="8.5.0-preview5" />
 
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.6" />
@@ -52,19 +52,19 @@
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0" />
-        <PackageReference Include="Polly" Version="7.1.0" />
+        <PackageReference Include="Polly" Version="7.1.1" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
         <PackageReference Include="RestSharp" Version="106.6.10" />
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
         <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-dev000217" />
         <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000217" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
-        <PackageReference Include="Stripe.net" Version="28.2.0" />
+        <PackageReference Include="Stripe.net" Version="29.1.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.18" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.19" />
         <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
-        <PackageReference Include="TweetinviAPI" Version="4.0.1" />
+        <PackageReference Include="TweetinviAPI" Version="4.0.2" />
         <PackageReference Include="WebPush" Version="1.0.11" />
         <PackageReference Include="YoutubeExplode" Version="4.7.9" />
         <PackageReference Include="zxcvbn-core" Version="2.1.44" />
