@@ -133,7 +133,7 @@ namespace PodNoms.Common.Services.Startup {
                         .FrameAncestors(s => s.Self())
                         .ImageSources(s => s.Self())
                         .ImageSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
-                        .ScriptSources(s => s.Self())
+                        .ScriptSources(s => s.Self().CustomSources("https://cdn.podnoms.com/player/"))
                         .ScriptSources(s => s.UnsafeInline()) //TODO: Look into removing this
                 );
             }

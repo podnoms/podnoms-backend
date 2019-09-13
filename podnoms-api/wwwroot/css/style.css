@@ -1,9 +1,0 @@
-.bg-image {
-    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
-        url('https://podnomscdn.blob.core.windows.net/static/images/robothand.jpg');
-    background-size: 100% 100%;
-}
-
-audio {
-    width: 100%;
-}
