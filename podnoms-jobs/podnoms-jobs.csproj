@@ -11,7 +11,7 @@
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.6" />
         <PackageReference Include="Hangfire.Core" Version="1.7.6" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0-preview8.19405.7" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0-preview9.19424.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
     </ItemGroup>
     <ItemGroup>

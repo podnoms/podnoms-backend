@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-preview9-alpine3.10 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview9-alpine3.9 AS build
 WORKDIR /app
 EXPOSE 80
 
@@ -29,4 +29,6 @@ WORKDIR /app
 EXPOSE 80
 
 COPY --from=build /app/podnoms-jobs/out ./
+RUN youtube-dl -U
+
 ENTRYPOINT ["dotnet", "podnoms-jobs.dll"]
