@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
@@ -42,7 +43,8 @@ namespace PodNoms.Api.Controllers {
 
         public EntryController(IEntryRepository repository,
             IPodcastRepository podcastRepository,
-            IUnitOfWork unitOfWork, IMapper mapper, IOptions<StorageSettings> storageSettings,
+            IUnitOfWork unitOfWork, IMapper mapper,
+            IOptions<StorageSettings> storageSettings,
             IOptions<AppSettings> appSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IYouTubeParser youTubeParser,
@@ -201,16 +203,16 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("downloadurl/{entryId}")]
-        public async Task<ActionResult<string>> GetDownloadUrl(string entryId) {
+        public async Task<ActionResult<AudioDownloadInfoViewModel>> GetDownloadUrl(string entryId) {
             var entry = await _repository.GetAsync(entryId);
 
             if (entry is null) {
                 return NotFound();
             }
 
-            return Ok(new {
-                url = $"{_storageSettings.CdnUrl}{entry.AudioUrl}",
-                title = entry.Title
+            return Ok(new AudioDownloadInfoViewModel {
+                Url = entry.GetInternalStorageUrl(_storageSettings.CdnUrl),
+                Filename = $"{entry.Title}.mp3"
             });
         }
     }

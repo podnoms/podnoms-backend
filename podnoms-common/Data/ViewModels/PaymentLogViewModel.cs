@@ -2,6 +2,10 @@ using System;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data.ViewModels {
+    public class AudioDownloadInfoViewModel {
+        public string Url { get; set; }
+        public string Filename { get; set; }
+    }
     public class PaymentLogViewModel {
         public string Id { get; set; }
         public string TransactionId { get; set; }
