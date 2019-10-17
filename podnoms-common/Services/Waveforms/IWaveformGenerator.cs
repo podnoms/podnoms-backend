@@ -36,7 +36,7 @@ namespace PodNoms.Common.Services.Waveforms {
                 .ExecuteAsync();
 
             var jsonResult = await command
-                .SetArguments($"-i {localFile} -o {jsonFile} -b 8 --pixels-per-second 20")
+                .SetArguments($"-i {localFile} -o {jsonFile} --pixels-per-second 3 -b 8")
                 .ExecuteAsync();
 
             try {

@@ -52,6 +52,11 @@ namespace PodNoms.Data.Models {
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=32&height=32";
         }
-
+        public string GetInternalStorageUrl(string cdnUrl) {
+            return $"{cdnUrl}{AudioUrl}";
+        }
+        public string GetFileDownloadName() {
+            return $"{Title}.mp3";
+        }
     }
 }

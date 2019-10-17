@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Services;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
@@ -46,7 +45,6 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
-        [AllowAnonymous]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
             var fileType = await _downloader.GetInfo(url);
 
@@ -59,6 +57,12 @@ namespace PodNoms.Api.Controllers {
                         type = "proxied",
                         title = title,
                         data = links
+                        .GroupBy(r => r.Key)     // note to future me
+                        .Select(g => g.First())  // these lines dedupe on key - neato!!
+                        .Select(r => new {
+                            key = r.Key,
+                            value = r.Value
+                        })
                     });
                 }
                 return BadRequest();

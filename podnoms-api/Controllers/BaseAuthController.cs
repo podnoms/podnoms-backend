@@ -14,6 +14,11 @@ namespace PodNoms.Api.Controllers {
         protected readonly UserManager<ApplicationUser> _userManager;
         protected readonly string _userId;
         protected readonly ApplicationUser _applicationUser;
+        //TODO: IMPORTANT
+        //This should be the IHttpContextAccessor 
+        //and should be used like _httpContextAccessor.HttpContext AT POINT OF USE
+        protected readonly IHttpContextAccessor _httpContextAccessor;
+        //TO BE CLEAR... delete the below and use the above instead ^^ 
         protected readonly HttpContext _httpContext;
         public BaseAuthController(IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
@@ -21,6 +26,7 @@ namespace PodNoms.Api.Controllers {
             _caller = contextAccessor.HttpContext.User;
             _userManager = userManager;
             _httpContext = contextAccessor.HttpContext;
+            _httpContextAccessor = contextAccessor;
             try {
                 if (!_caller.Identity.IsAuthenticated) {
                     return;
