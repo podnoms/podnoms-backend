@@ -36,6 +36,10 @@ using PodNoms.Data.Models;
 using reCAPTCHA.AspNetCore;
 using PodNoms.Common.Services;
 using PodNoms.Common.Services.Realtime;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -105,6 +109,11 @@ namespace PodNoms.Api {
                 x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
             });
 
+            services.Configure<JsonOptions>(options => {
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            });
+
             services.Configure<RecaptchaSettings>(Configuration.GetSection("RecaptchaSettings"));
             services.AddTransient<IRecaptchaService, RecaptchaService>();
 
@@ -162,6 +171,11 @@ namespace PodNoms.Api {
             app.UsePodNomsSignalRRoutes();
             app.UsePodNomsHealthChecks(Env.IsDevelopment());
             app.UseSecureHeaders(Env.IsDevelopment());
+
+            //TODO: Remove this and move to native JSON support
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
 
             app.UseMvc(routes => {
                 routes.MapRoute(

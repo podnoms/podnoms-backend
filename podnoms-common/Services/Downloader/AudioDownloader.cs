@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -60,7 +61,7 @@ namespace PodNoms.Common.Services.Downloader {
 
         public DownloadInfo __getInfo(string url) {
             try {
-                var yt = new YoutubeDL {VideoUrl = url};
+                var yt = new YoutubeDL { VideoUrl = url };
                 var info = yt.GetDownloadInfo();
 
                 if (info is null ||
@@ -88,8 +89,9 @@ namespace PodNoms.Common.Services.Downloader {
         public async Task<RemoteUrlType> GetInfo(string url) {
             var ret = RemoteUrlType.Invalid;
 
-            if (url.Contains("drive.google.com") || 
-                url.Contains("dl.dropboxusercontent.com")) {
+            if (url.Contains("drive.google.com") ||
+                    url.Contains("dl.dropboxusercontent.com") ||
+                    url.EndsWith(".mp3")) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -111,7 +113,7 @@ namespace PodNoms.Common.Services.Downloader {
             Properties = new RemoteVideoInfo {
                 Title = parsed?.Title,
                 Description = parsed?.Description,
-                Thumbnail = parsed?.Thumbnails[0].Url,
+                Thumbnail = parsed?.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
                 Uploader = parsed?.Description,
                 UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToString()),
                 VideoId = parsed?.Id
