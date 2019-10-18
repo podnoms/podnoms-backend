@@ -138,14 +138,17 @@ namespace PodNoms.Common.Data {
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
-                    map => map.MapFrom(r => r.Options.Select(o => new NotificationOptionViewModel {
-                        Value = o.Value.Value,
-                        Key = o.Value.Key,
-                        Label = o.Value.Label,
-                        Description = o.Value.Description,
-                        Required = o.Value.Required,
-                        ControlType = o.Value.ControlType
-                    })));
+                    map => map.MapFrom(r => r.Options.Select(
+                        o => new NotificationOptionViewModel {
+                            Value = o.Value.Value,
+                            Key = o.Value.Key,
+                            Label = o.Value.Label,
+                            Description = o.Value.Description,
+                            Required = o.Value.Required,
+                            ControlType = o.Value.ControlType
+                        }
+                    ))
+                );
 
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(

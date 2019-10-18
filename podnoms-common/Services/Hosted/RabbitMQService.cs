@@ -6,6 +6,7 @@ using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.Messages;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
@@ -13,11 +14,13 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Hosted {
     public class RabbitMQService : BackgroundService {
         private readonly IBus _bus;
+        private readonly ILogger<RabbitMQService> _logger;
         private readonly INotifyJobCompleteService _jobCompleteNotificationService;
         private readonly AutoSubscriber _subscriber;
 
-        public RabbitMQService(IBus bus, IServiceScopeFactory serviceScopeFactory) {
+        public RabbitMQService(IBus bus, IServiceScopeFactory serviceScopeFactory, ILogger<RabbitMQService> logger) {
             _bus = bus;
+            _logger = logger;
             using (var scope = serviceScopeFactory.CreateScope()) {
                 _jobCompleteNotificationService =
                     scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
@@ -36,17 +39,18 @@ namespace PodNoms.Common.Services.Hosted {
                         message.Image, NotificationOptions.UploadCompleted);
                 }
             );
-            //_bus.Subscribe<CustomNotificationMessage>(
-            //    "podnoms_message_customnotification",
-            //    message => {
-            //        Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
-            //        _jobCompleteNotificationService.SendCustomNotifications(
-            //            message.PodcastId,
-            //            "PodNoms",
-            //            $"{message.Title} has finished processing",
-            //            message.Url);
-            //    }
-            //);
+            _bus.Subscribe<CustomNotificationMessage>(
+               "podnoms_message_customnotification",
+               message => {
+                   _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
+                   _jobCompleteNotificationService.SendCustomNotifications(
+                       message.PodcastId,
+                       "YOU NEED TO CHANGE THIS",
+                       "PodNoms",
+                       $"{message.Title} has finished processing",
+                       message.Url);
+               }
+            );
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {

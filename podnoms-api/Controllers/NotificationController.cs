@@ -103,7 +103,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost("notifyuser")]
-        public ActionResult NotifyUser(string userId, string title, string body, string target, string image) {
+        public async Task<ActionResult> NotifyUser(string userId, string title, string body, string target, string image) {
             var authToken = _httpContext.Request.Headers["Authorization"]
                 .ToString()
                 .Replace("Bearer", string.Empty);
@@ -112,7 +112,7 @@ namespace PodNoms.Api.Controllers {
             //as it doesn't have access the the sqlite registration store
             //TODO: we should probably move all the sqlite registration store
             //TODO: out of the API and into the job server
-            _jobCompleteNotificationService.NotifyUser(userId, "PodNoms",
+            await _jobCompleteNotificationService.NotifyUser(userId, "PodNoms",
                 $"{title} has finished processing",
                 target,
                 image, NotificationOptions.UploadCompleted);

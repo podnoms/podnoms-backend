@@ -36,7 +36,7 @@ namespace PodNoms.Jobs.Services {
             return true;
         }
 
-        public async Task SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
+        public async Task<bool> SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
             _logger.LogDebug($"Sending custom notification");
             var message = new CustomNotificationMessage {
                 PodcastId = podcastId,
@@ -53,6 +53,7 @@ namespace PodNoms.Jobs.Services {
                        _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
                    }
                });
+            return true;
         }
     }
 

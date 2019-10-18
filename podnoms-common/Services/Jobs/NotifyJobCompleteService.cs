@@ -41,7 +41,9 @@ namespace PodNoms.Common.Services.Jobs {
             _provider = provider;
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
-
+        ~NotifyJobCompleteService() {
+            _logger.LogError("We should not be here");
+        }
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             _logger.LogDebug($"Sending email messages to {userId}");
             await _sendEmail(userId, title, body, target, image, notificationType);
@@ -90,26 +92,31 @@ namespace PodNoms.Common.Services.Jobs {
             return false;
         }
 
-        public async Task SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
-            var id = podcastId.ToString();
-            _logger.LogDebug($"Finding custom notifications for {id}");
-            var notifications = _notificationRepository.GetAll().Where(r => r.PodcastId == podcastId);
-            foreach (var notification in notifications) {
-                _logger.LogDebug($"Found notification: {notification.Type.ToString()}");
-                var typeHandlers = _handlers.Where(h => h.Type == notification.Type);
-                foreach (var handler in typeHandlers) {
-                    _logger.LogDebug($"Found handler: {notification.Type.ToString()}");
-                    var response = await handler.SendNotification(
-                        notification.Id,
-                        userName,
-                        title,
-                        body,
-                        url);
-                    _logger.LogInformation(response);
-                    _notificationRepository.AddLog(notification, response);
-                    await _unitOfWork.CompleteAsync();
+        public async Task<bool> SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
+            try {
+                _logger.LogDebug($"Finding custom notifications for {podcastId}");
+                var notifications = _notificationRepository.GetAll().Where(r => r.PodcastId == podcastId);
+                foreach (var notification in notifications) {
+                    _logger.LogDebug($"Found notification: {notification.Type.ToString()}");
+                    var typeHandlers = _handlers.Where(h => h.Type == notification.Type);
+                    foreach (var handler in typeHandlers) {
+                        _logger.LogDebug($"Found handler: {notification.Type.ToString()}");
+                        var response = await handler.SendNotification(
+                            notification.Id,
+                            userName,
+                            title,
+                            body,
+                            url);
+                        _logger.LogInformation(response);
+                        _notificationRepository.AddLog(notification, response);
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
+                return true;
+            } catch (Exception ex) {
+                _logger.LogError(ex.Message);
             }
+            return false;
         }
     }
 }
