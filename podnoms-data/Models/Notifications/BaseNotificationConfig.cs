@@ -29,8 +29,8 @@ namespace PodNoms.Data.Models.Notifications {
             switch (type) {
                 case "Slack":
                     return new SlackNotificationConfig();
-                case "IFTT":
-                    return new IFTTNotificationConfig();
+                case "IFTTT":
+                    return new IFTTTNotificationConfig();
                 case "Email":
                     return new EmailNotificationConfig();
                 case "Facebook":

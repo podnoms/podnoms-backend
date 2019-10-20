@@ -40,7 +40,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IMailSender, MailgunSender>()
                 .AddScoped<IFileUtilities, AzureFileUtilities>()
                 .AddScoped<INotificationHandler, SlackNotificationHandler>()
-                .AddScoped<INotificationHandler, IFTTNotificationHandler>()
+                .AddScoped<INotificationHandler, IFTTTNotificationHandler>()
                 .AddScoped<INotificationHandler, PushBulletNotificationHandler>()
                 .AddScoped<INotificationHandler, TwitterNotificationHandler>()
                 .AddScoped<INotificationHandler, EmailNotificationHandler>()

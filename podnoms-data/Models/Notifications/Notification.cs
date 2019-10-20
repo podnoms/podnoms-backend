@@ -4,7 +4,7 @@ namespace PodNoms.Data.Models.Notifications {
     public class Notification : BaseEntity {
         public enum NotificationType {
             Slack,
-            IFTT,
+            IFTTT,
             Email,
             Twitter,
             Facebook,

@@ -25,7 +25,7 @@ namespace PodNoms.Common.Services.Hosted {
                 _jobCompleteNotificationService =
                     scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
             }
-            _subscriber = new AutoSubscriber(_bus, "my_applications_subscriptionId_prefix");
+            _subscriber = new AutoSubscriber(_bus, "_applications_subscriptionId_prefix");
             _subscriber.Subscribe(Assembly.GetExecutingAssembly());
             _bus.Subscribe<NotifyUserMessage>(
                 "podnoms_message_notifyuser",
