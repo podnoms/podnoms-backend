@@ -39,8 +39,7 @@ namespace PodNoms.Data.Extensions {
                 context.Database.OpenConnection();
 
                 using (var reader = command.ExecuteReader()) {
-                    var result = reader.Select(r => new T
-                    {
+                    var result = reader.Select(r => new T {
                         Slug = r["Slug"] is DBNull ? string.Empty : r["Slug"].ToString()
                     });
                     return result.ToList();
@@ -59,7 +58,7 @@ namespace PodNoms.Data.Extensions {
                         .FirstOrDefault();
 
                     var t = entity.GetType();
-                    var tableName = context.Model.FindEntityType(t).SqlServer().TableName;
+                    var tableName = context.Model.FindEntityType(t).GetTableName();
                     if (!string.IsNullOrEmpty(tableName)) {
                         var sourceField = (attribute as SlugFieldAttribute)?.SourceField;
 

@@ -79,9 +79,11 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("logs")]
-        public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId) {
+        public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId, int take = 10) {
             var logs = await _notificationRepository.GetLogsAsync(notificationId);
-            return logs.ToList();
+            return logs
+                .Take(take)
+                .ToList();
         }
 
         [HttpGet("types")]

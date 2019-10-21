@@ -23,5 +23,6 @@ namespace PodNoms.Data.Models.Notifications {
         public Guid NotificationId { get; set; }
         public Notification Notification { get; set; }
         public string Log { get; set; }
+        public bool Succeeded { get; set; }
     }
 }
