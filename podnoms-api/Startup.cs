@@ -54,8 +54,6 @@ namespace PodNoms.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
-            Console.WriteLine($"JobSchedulerConnectionString: {Configuration.GetConnectionString("JobSchedulerConnection")}");
-            Console.WriteLine($"RabbitMqConnection: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddApplicationInsightsTelemetry();
             if (Env.IsDevelopment()) {
                 TelemetryDebugWriter.IsTracingDisabled = true;
@@ -73,14 +71,15 @@ namespace PodNoms.Api {
                     b => b.MigrationsAssembly("podnoms-common"));
             });
 
+            
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
                 new AutoSubscriber(
                     provider.GetRequiredService<IBus>(),
                     Assembly.GetExecutingAssembly().GetName().Name));
-
+#if !DISABLERABBIT
             services.AddHostedService<RabbitMQService>();
-
+#endif
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 

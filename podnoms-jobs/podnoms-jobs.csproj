@@ -4,6 +4,7 @@
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <RootNamespace>PodNoms.Jobs</RootNamespace>
         <LangVersion>latest</LangVersion>
+        <Configurations>Debug;Release;Debug_Live</Configurations>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="EasyNetQ" Version="3.7.1" />

@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <RootNamespace>PodNoms.Data</RootNamespace>
+        <Configurations>Debug;Release;Debug_Live</Configurations>
     </PropertyGroup>
 
 

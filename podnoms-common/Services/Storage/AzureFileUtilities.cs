@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.Storage;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 
 namespace PodNoms.Common.Services.Storage {
+
     public class AzureFileUtilities : IFileUtilities {
         private readonly StorageSettings _settings;
         public AzureFileUtilities(IOptions<StorageSettings> settings) {

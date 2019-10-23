@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,11 +27,13 @@ namespace PodNoms.Api.Controllers {
         private readonly ILogger _logger;
         private readonly AppSettings _appOptions;
         private readonly StorageSettings _storageOptions;
-        private readonly ImageFileStorageSettings _imageOptions;
+        private readonly ImageFileStorageSettings _imageStorageOptions;
+        private readonly AudioFileStorageSettings _audioStorageOptions;
 
         public RssController(IPodcastRepository podcastRespository,
             IOptions<AppSettings> appOptions,
-            IOptions<ImageFileStorageSettings> imageOptions,
+            IOptions<ImageFileStorageSettings> imageStorageOptions,
+            IOptions<AudioFileStorageSettings> audioStorageOptions,
             IOptions<StorageSettings> storageOptions,
             UserManager<ApplicationUser> userManager,
             IRepository<ApplicationUserSlugRedirects> redirectsRepository,
@@ -42,7 +44,8 @@ namespace PodNoms.Api.Controllers {
             _redirectsRepository = redirectsRepository;
             _contextAccessor = contextAccessor;
             _appOptions = appOptions.Value;
-            _imageOptions = imageOptions.Value;
+            _imageStorageOptions = imageStorageOptions.Value;
+            _audioStorageOptions = audioStorageOptions.Value;
             _storageOptions = storageOptions.Value;
             _logger = loggerFactory.CreateLogger<RssController>();
         }
@@ -81,7 +84,7 @@ namespace PodNoms.Api.Controllers {
                     Title = podcast.Title,
                     Description = podcast.Description,
                     Author = "PodNoms Podcasts",
-                    Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageOptions.ContainerName)
+                    Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName)
                         .Replace("https://", "http://"),
                     Link = $"{_appOptions.RssUrl}{user.Slug}/{podcast.Slug}",
                     PublishDate = podcast.CreateDate.ToRFC822String(),
@@ -100,7 +103,9 @@ namespace PodNoms.Api.Controllers {
                             Description = e.Description.StripNonXmlChars(),
                             Author = e.Author.StripNonXmlChars(),
                             UpdateDate = e.CreateDate.ToRFC822String(),
-                            AudioUrl = $"{_storageOptions.CdnUrl}{e.AudioUrl}".Replace("https://", "http://"),
+                            AudioUrl = e.GetAudioUrl(
+                                _storageOptions.CdnUrl,
+                                _audioStorageOptions.ContainerName),
                             AudioFileSize = e.AudioFileSize
                         }
                     ).ToList()

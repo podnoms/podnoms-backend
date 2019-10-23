@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Common.Services.Jobs {
     public class DeleteOrphanAudioJob : IHostedJob {
@@ -37,6 +38,7 @@ namespace PodNoms.Common.Services.Jobs {
                 var storageAccount = CloudStorageAccount.Parse(_storageSettings.ConnectionString);
                 var blobClient = storageAccount.CreateCloudBlobClient();
                 var container = blobClient.GetContainerReference(_audioStorageSettings.ContainerName);
+                short deletedCount = 0;
                 short blobCount = 0;
                 BlobContinuationToken continuationToken = null;
                 do {
@@ -50,20 +52,28 @@ namespace PodNoms.Common.Services.Jobs {
                         operationContext: null);
                     foreach (CloudBlockBlob blob in blobs.Results) {
                         try {
-                            Console.WriteLine(blob.StorageUri);
-                            var url = $"{_audioStorageSettings.ContainerName}/{blob.Name}";
-                            var entry = _entryRepository.GetAll()
-                                .Where(r => r.AudioUrl == url);
-                            if (entry is null) {
-                                await blob.DeleteIfExistsAsync();
-                                blobCount++;
+                            if (blob.Name.Contains("backup/")) {
+                                continue;
                             }
+
+                            var url = $"{_audioStorageSettings.ContainerName}/{blob.Name}";
+                            var id = blob.Name.Split('.').First();
+
+                            var entry = await _entryRepository.GetAsync(Guid.Parse(id));
+                            if (entry is null) {
+                                await container.RenameAsync(blob.Name, $"backup/{blob.Name}");
+                                //await blob.DeleteIfExistsAsync();
+                                deletedCount++;
+                            }
+                            blobCount++;
+                            Console.WriteLine($"{id} : {blobCount} processed, {deletedCount} deleted.");
                         } catch (Exception e) {
                             _logger.LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
                         }
                     }
                     continuationToken = blobs.ContinuationToken;
                 } while (continuationToken != null);
+                _logger.LogDebug($"Succesfully processed orphans, {blobCount} visited, {deletedCount} deleted.");
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Error clearing orphans\n{ex.Message}");

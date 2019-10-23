@@ -61,6 +61,11 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("StorageSettings")["ImageUrl"],
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
+                    src => src.AudioUrl,
+                    e => e.MapFrom(m => m.GetAudioUrl(
+                       _options.GetSection("StorageSettings")["CdnUrl"], 
+                       _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     src => src.ProcessingStatus,
                     e => e.MapFrom(m => m.Processed ? ProcessingStatus.Processed : m.ProcessingStatus))
                 .ForMember(

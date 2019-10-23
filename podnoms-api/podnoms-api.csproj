@@ -4,6 +4,10 @@
         <UserSecretsId>aspnet-PodNoms.Api-1E27B6DE-BA4B-4F75-BBF8-CA34FB4D260A</UserSecretsId>
         <LangVersion>latest</LangVersion>
         <RootNamespace>PodNoms.Api</RootNamespace>
+        <Configurations>Debug;Release;Debug_Live</Configurations>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DefineConstants>TRACE;TRACE DISABLERABBIT</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="EasyNetQ" Version="3.7.1" />

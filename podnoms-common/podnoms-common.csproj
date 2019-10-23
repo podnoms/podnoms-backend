@@ -3,6 +3,7 @@
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <RootNamespace>PodNoms.Common</RootNamespace>
         <LangVersion>latest</LangVersion>
+        <Configurations>Debug;Release;Debug_Live</Configurations>
     </PropertyGroup>
     <ItemGroup>
         <EmbeddedResource Include="Resources/*.xml" />
@@ -58,8 +59,8 @@
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
         <PackageReference Include="RestSharp" Version="106.6.10" />
         <PackageReference Include="runtime.linux-x64.CoreCompat.System.Drawing" Version="1.0.0-beta009" />
-        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-dev000217" />
-        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000217" />
+        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-dev000246" />
+        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000246" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
         <PackageReference Include="Stripe.net" Version="32.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />

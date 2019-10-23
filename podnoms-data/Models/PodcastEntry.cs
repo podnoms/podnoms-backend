@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using PodNoms.Data.Annotations;
@@ -42,21 +42,17 @@ namespace PodNoms.Data.Models {
 
         private string extension => "jpg";
 
-        public string GetImageUrl(string cdnUrl, string containerName) {
-            return ImageUrl.StartsWith("http") ?
+        public string GetAudioUrl(string cdnUrl, string containerName) => GetAudioUrl(cdnUrl, containerName, "mp3");
+        public string GetAudioUrl(string cdnUrl, string containerName, string extension) => $"{cdnUrl}{containerName}/{Id}.{extension}";
+
+        public string GetImageUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=725&height=748";
-        }
-        public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return ImageUrl.StartsWith("http") ?
+        public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=32&height=32";
-        }
-        public string GetInternalStorageUrl(string cdnUrl) {
-            return $"{cdnUrl}{AudioUrl}";
-        }
-        public string GetFileDownloadName() {
-            return $"{Title}.mp3";
-        }
+        public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}{AudioUrl}";
+        
+        public string GetFileDownloadName() => $"{Title}.mp3";
     }
 }
