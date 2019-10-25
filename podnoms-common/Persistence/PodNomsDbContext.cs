@@ -47,9 +47,9 @@ namespace PodNoms.Common.Persistence {
         public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) : base(options) {
             Database.SetCommandTimeout(360);
         }
-        public override void Dispose() {
-            Console.WriteLine("Should not be here");
-        }
+        // public override void Dispose() {
+        //     Console.WriteLine("Should not be here");
+        // }
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
                 .GetEntityTypes()

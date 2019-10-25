@@ -124,17 +124,23 @@ namespace PodNoms.Common.Services.Startup {
                 app.UseXfo(options => options.Deny());
                 app.UseCsp(opts => opts
                         .BlockAllMixedContent()
-                        .StyleSources(s => s.Self())
-                        .StyleSources(s => s.UnsafeInline())
-                        .StyleSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
-                        .FontSources(s => s.Self())
-                        .FontSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                        .StyleSources(s => s
+                            .Self()
+                            .UnsafeInline()
+                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                        .FontSources(s => s
+                            .Self()
+                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
                         .FormActions(s => s.Self())
                         .FrameAncestors(s => s.Self())
-                        .ImageSources(s => s.Self())
-                        .ImageSources(s => s.CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
-                        .ScriptSources(s => s.Self().CustomSources("https://cdn.podnoms.com/player/"))
-                        .ScriptSources(s => s.UnsafeInline())
+                        .ImageSources(s => s.Self()
+                            .CustomSources("https://cdn.podnoms.com/")
+                            .CustomSources("https://cdn-l.podnoms.com/")
+                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                        .ScriptSources(s => s
+                            .Self()
+                            .CustomSources("https://cdn.podnoms.com/player/")
+                            .UnsafeInline())
                 );
             }
 
