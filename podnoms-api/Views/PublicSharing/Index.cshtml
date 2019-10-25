@@ -1,4 +1,4 @@
-@model SharingPublicViewModel
+@model PublicSharingViewModel
 
 @section metatags {
     <meta property="og:image" content="@Model.ImageUrl">
@@ -8,7 +8,7 @@
     <meta property="og:type" content="music.song">
     <meta property="og:description" content="@Model.Description">
     <meta property="fb:app_id" content="1887182031397435">
-
+    <title>@Model.Title</title>
 }
 
 @section css{
@@ -18,6 +18,9 @@
 @section scripts{
     <script>
     function downloadShareLink(link){
+
+        document.getElementById('__dlf_@Model.DownloadNonce').src = link;
+        /*
         var filename = "@Model.Title" + ".mp3"; // link.substring(link.lastIndexOf("/") + 1).split("?")[0];
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
@@ -32,6 +35,7 @@
         };
         xhr.open('GET', link);
         xhr.send();
+        */
     }
     </script>
 }
@@ -54,7 +58,7 @@
                             </h2>
                             <div class="mb-20">
                                 <button class="btn btn-hero btn-noborder btn-rounded btn-outline-warning"
-                                        onclick="downloadShareLink('@Model.AudioUrl')">
+                                        onclick="downloadShareLink('@Model.DownloadUrl')">
                                     <i class="fa fa-cloud-download mr-10"></i>
                                     Download
                                 </button>
@@ -70,14 +74,16 @@
 <footer class="footer">
         <audio-player audio-url="@Model.AudioUrl"
                       pcm-url="@Model.PeakDataUrl"
-                      title="@Model.Title"
-                      sub-title="@Model.Description"
+                      title="@Model.Author"
+                      sub-title="@Model.Title"
                       image-url="@Model.ImageUrl"
-                      background-colour="000000"
-                      title-colour="000000"
-                      sub-title-colour="FFFFFF"
-                      wave-colour="929050"
-                      wave-colour-progress="51451A">
+                      background-colour=""
+                      title-colour="#DBA345"
+                      sub-title-colour="#88873F"
+                      wave-colour="#F76031"
+                      wave-colour-progress="#1D5F5A">
         </audio-player>
-        <script src="https://player.fergl.ie/player.js?cb=28161682-b08f-46da-8614-9776d30d17b5"></script>
+        <script src="https://cdn.podnoms.com/player/podnoms-player.js?cb=a63cb3b6-be4d-4815-b096-3aa78ddbdd23"></script>
 </footer>
+
+<iframe id="__dlf_@Model.DownloadNonce" style="display:none;"></iframe>

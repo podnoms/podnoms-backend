@@ -47,10 +47,6 @@ namespace PodNoms.Common.Data {
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
-                    src => src.AudioUrl,
-                    e => e.MapFrom(m =>
-                       $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
-                .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
                        _options.GetSection("StorageSettings")["ImageUrl"],
@@ -63,7 +59,7 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.AudioUrl,
                     e => e.MapFrom(m => m.GetAudioUrl(
-                       _options.GetSection("StorageSettings")["CdnUrl"], 
+                       _options.GetSection("StorageSettings")["CdnUrl"],
                        _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ProcessingStatus,
@@ -78,13 +74,24 @@ namespace PodNoms.Common.Data {
                     src => src.PodcastTitle,
                     e => e.MapFrom(m => m.Podcast.Title));
 
-            CreateMap<PodcastEntry, SharingPublicViewModel>()
+            CreateMap<PodcastEntry, PublicSharingViewModel>()
+                .ForMember(
+                    src => src.DownloadNonce,
+                    e => e.MapFrom(m => System.Guid.NewGuid().ToString()))
                 .ForMember(
                     src => src.Title,
                     e => e.MapFrom(m => m.Title))
                 .ForMember(
+                    src => src.Author,
+                    e => e.MapFrom(m => m.Podcast.Title))
+                .ForMember(
+                    src => src.DownloadUrl,
+                    e => e.MapFrom(m => m.GetDownloadUrl(_options.GetSection("AppSettings")["DownloadUrl"])))
+                .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => $"{_options.GetSection("StorageSettings")["CdnUrl"]}{m.AudioUrl}"))
+                    e => e.MapFrom(m => m.GetAudioUrl(
+                       _options.GetSection("StorageSettings")["CdnUrl"],
+                       _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m =>

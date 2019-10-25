@@ -31,10 +31,10 @@ namespace PodNoms.Api.Controllers.Public {
 
         [AllowAnonymous]
         [HttpGet("{shareId}")]
-        public async Task<IActionResult> Index(string shareId) {
+        public async Task<ActionResult<PublicSharingViewModel>> Index(string shareId) {
             var entry = await this._entryRepository.GetEntryForShareId(shareId);
             if (entry != null) {
-                var model = _mapper.Map<PodcastEntry, SharingPublicViewModel>(entry);
+                var model = _mapper.Map<PodcastEntry, PublicSharingViewModel>(entry);
                 model.Url = Flurl.Url.Combine(_sharingSettings.BaseUrl, shareId);
                 model.PeakDataUrl = $"{_storageSettings.CdnUrl}{_waveformStorageSettings.ContainerName}/{entry.Id}.json";
                 return View(model);
@@ -43,12 +43,13 @@ namespace PodNoms.Api.Controllers.Public {
         }
         [AllowAnonymous]
         [HttpGet("details/{shareId}")]
-        public async Task<ActionResult<SharingPublicViewModel>> GetDetails(string shareId) {
+        public async Task<ActionResult<PublicSharingViewModel>> GetDetails(string shareId) {
             var entry = await this._entryRepository.GetEntryForShareId(shareId);
             if (entry != null)
-                return Ok(_mapper.Map<PodcastEntry, SharingPublicViewModel>(entry));
+                return Ok(_mapper.Map<PodcastEntry, PublicSharingViewModel>(entry));
 
             return NotFound();
         }
+        
     }
 }

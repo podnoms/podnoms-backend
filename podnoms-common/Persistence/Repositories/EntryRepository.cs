@@ -117,6 +117,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<PodcastEntry> GetEntryForShareId(string sharingId) {
             var entry = await GetAll()
+                .Include(e => e.Podcast)
                 .Where(e => e.SharingLinks.Any(l => l.LinkId == sharingId))
                 .FirstOrDefaultAsync();
             return entry;

@@ -1,6 +1,6 @@
 .bg-image {
     background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
-    url('https://podnomscdn.blob.core.windows.net/static/images/robothand.jpg');
+        url('https://podnomscdn.blob.core.windows.net/static/images/robothand.jpg');
     background-size: 100% 100%;
 }
 
@@ -10,8 +10,8 @@
 
 .footer {
     position: absolute;
-    bottom: 0;
+    bottom: 10px;
     width: 100%;
-    height: 62px;
-    line-height: 90px;
+    padding-left: 6px;
+    padding-right: 6px;
 }

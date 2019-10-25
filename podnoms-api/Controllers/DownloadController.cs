@@ -35,14 +35,15 @@ namespace PodNoms.Api.Controllers {
             _repository = repository;
         }
         [AllowAnonymous]
-        [HttpGet]
+        [HttpGet("{entryId}")]
         public async Task<IActionResult> DownloadFile(string entryId) {
             try {
                 var entry = await _repository.GetAsync(entryId);
                 var storageUrl = entry.GetInternalStorageUrl(_storageSettings.CdnUrl);
                 var stream = await _fileUtilities.GetRemoteFileStream(_audioStorageSettings.ContainerName, $"{entry.Id}.mp3");
                 Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{entry.GetFileDownloadName()}\"");
-                return File(stream, "audio/mpeg", false);
+                Response.Headers.Add("Content-Type", $"application/octet-stream");
+                return File(stream, "application/octet-stream", false);
             } catch (InvalidOperationException e) {
                 _logger.LogError(e.Message);
                 return NotFound();

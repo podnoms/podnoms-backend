@@ -13,12 +13,15 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Url { get; set; }
     }
 
-    public class SharingPublicViewModel {
+    public class PublicSharingViewModel {
+        public string Author { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string DownloadUrl { get; set; }
         public string AudioUrl { get; set; }
         public string ImageUrl { get; set; }
         public string PeakDataUrl { get; set; }
         public string Url { get; set; }
+        public string DownloadNonce { get; internal set; }
     }
 }

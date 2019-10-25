@@ -42,6 +42,7 @@ namespace PodNoms.Data.Models {
 
         private string extension => "jpg";
 
+        public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";
         public string GetAudioUrl(string cdnUrl, string containerName) => GetAudioUrl(cdnUrl, containerName, "mp3");
         public string GetAudioUrl(string cdnUrl, string containerName, string extension) => $"{cdnUrl}{containerName}/{Id}.{extension}";
 
