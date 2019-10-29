@@ -58,9 +58,7 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => m.GetAudioUrl(
-                       _options.GetSection("StorageSettings")["CdnUrl"],
-                       _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
+                    e => e.MapFrom(m => m.GetAudioUrl()))
                 .ForMember(
                     src => src.ProcessingStatus,
                     e => e.MapFrom(m => m.Processed ? ProcessingStatus.Processed : m.ProcessingStatus))
@@ -89,13 +87,12 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.GetDownloadUrl(_options.GetSection("AppSettings")["DownloadUrl"])))
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => m.GetAudioUrl(
-                       _options.GetSection("StorageSettings")["CdnUrl"],
-                       _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
+                    e => e.MapFrom(m => m.GetAudioUrl()))
                 .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m =>
-                       m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrll"],
+                       m.GetThumbnailUrl(
+                           _options.GetSection("StorageSettings")["CdnUrll"],
                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Playlist, PlaylistViewModel>();

@@ -103,9 +103,7 @@ namespace PodNoms.Api.Controllers {
                             Description = e.Description.StripNonXmlChars(),
                             Author = e.Author.StripNonXmlChars(),
                             UpdateDate = e.CreateDate.ToRFC822String(),
-                            AudioUrl = e.GetAudioUrl(
-                                _storageOptions.CdnUrl,
-                                _audioStorageOptions.ContainerName),
+                            AudioUrl = e.GetRssAudioUrl(),
                             AudioFileSize = e.AudioFileSize
                         }
                     ).ToList()
