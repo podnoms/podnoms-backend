@@ -31,7 +31,6 @@
         <PackageReference Include="Humanizer.Core" Version="2.7.9" />
         <PackageReference Include="LtGt" Version="1.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0" />
         <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.0" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.41.1.1699" />
