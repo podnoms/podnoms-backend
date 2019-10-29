@@ -22,6 +22,6 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string ImageUrl { get; set; }
         public string PeakDataUrl { get; set; }
         public string Url { get; set; }
-        public string DownloadNonce { get; internal set; }
+        public string DownloadNonce { get; set; }
     }
 }

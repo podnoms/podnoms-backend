@@ -127,16 +127,18 @@ namespace PodNoms.Common.Services.Startup {
                         .StyleSources(s => s
                             .Self()
                             .UnsafeInline()
-                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                            .CustomSources("https://cdn.podnoms.com/"))
                         .FontSources(s => s
                             .Self()
-                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                            .CustomSources("https://cdn.podnoms.com/"))
                         .FormActions(s => s.Self())
-                        .FrameAncestors(s => s.Self())
+                        .FrameAncestors(s => s.Self().
+                            CustomSources("https://dl.pdnm.be/"))
                         .ImageSources(s => s.Self()
-                            .CustomSources("https://cdn.podnoms.com/")
-                            .CustomSources("https://cdn-l.podnoms.com/")
-                            .CustomSources("https://podnomscdn.blob.core.windows.net/static/"))
+                            .CustomSources(
+                                "https://cdn.podnoms.com/",
+                                "https://cdn-l.podnoms.com/",
+                                "https://podnomscdn.blob.core.windows.net/static/"))
                         .ScriptSources(s => s
                             .Self()
                             .CustomSources("https://cdn.podnoms.com/player/")
