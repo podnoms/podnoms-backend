@@ -58,7 +58,7 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => m.GetAudioUrl()))
+                    e => e.MapFrom(m => m.GetAudioUrl(_options.GetSection("AppSettings")["AudioUrl"])))
                 .ForMember(
                     src => src.ProcessingStatus,
                     e => e.MapFrom(m => m.Processed ? ProcessingStatus.Processed : m.ProcessingStatus))
@@ -87,7 +87,7 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.GetDownloadUrl(_options.GetSection("AppSettings")["DownloadUrl"])))
                 .ForMember(
                     src => src.AudioUrl,
-                    e => e.MapFrom(m => m.GetAudioUrl()))
+                    e => e.MapFrom(m => m.GetAudioUrl(_options.GetSection("AppSettings")["AudioUrl"])))
                 .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m =>

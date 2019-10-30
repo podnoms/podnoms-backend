@@ -10,13 +10,11 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("/podcast/{slug}/audioupload")]
     public class AudioStreamController : BaseAuthController {
-        private readonly IEntryRepository _entryRepository;
 
         public AudioStreamController(
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger, IEntryRepository entryRepository) : base(contextAccessor, userManager, logger) {
-            _entryRepository = entryRepository;
+            ILogger logger) : base(contextAccessor, userManager, logger) {
         }
     }
 }
