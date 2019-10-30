@@ -29,6 +29,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPodcastRepository, PodcastRepository>()
                 .AddScoped<IEntryRepository, EntryRepository>()
+                .AddScoped<IActivityLogPodcastEntryRepository, ActivityLogPodcastEntryRepository>()
                 .AddScoped<ICategoryRepository, CategoryRepository>()
                 .AddScoped<IPlaylistRepository, PlaylistRepository>()
                 .AddScoped<IChatRepository, ChatRepository>()

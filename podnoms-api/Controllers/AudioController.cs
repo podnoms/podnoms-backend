@@ -14,6 +14,7 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     public class AudioController : BaseAuthController {
         private readonly IEntryRepository _entryRepository;
+        private readonly IActivityLogPodcastEntryRepository _activityRepository;
         private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioStorageSettings;
@@ -25,9 +26,11 @@ namespace PodNoms.Api.Controllers {
             IEntryRepository entryRepository,
             IOptions<AppSettings> appSettings,
             IOptions<StorageSettings> storageSettings,
+            IActivityLogPodcastEntryRepository activityRepository,
             IOptions<AudioFileStorageSettings> audioStorageSettings
             ) : base(contextAccessor, userManager, logger) {
             _entryRepository = entryRepository;
+            _activityRepository = activityRepository;
             _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
@@ -37,6 +40,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<string>> Get(string entryId) {
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
+                await _activityRepository.AddLogEntry(entry, HttpContext.Connection.RemoteIpAddress.ToString());
                 return Redirect($"{_storageSettings.CdnUrl}{_audioStorageSettings.ContainerName}/{entry.Id}.mp3");
             }
             return NotFound();

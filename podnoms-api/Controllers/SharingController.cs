@@ -62,7 +62,7 @@ namespace PodNoms.Api.Controllers {
                         new MailDropin {
                             username = model.Email.Split('@')[0], //bite me!
                             message = $"<p>{_applicationUser.GetBestGuessName()} wants to share an audio file with you!</p><br />" +
-                                      $"<p>{{message}}</p>",
+                                      $"<p>{model.Message}</p>",
                             buttonmessage = "Let me at it!!",
                             buttonaction = url
                         });
