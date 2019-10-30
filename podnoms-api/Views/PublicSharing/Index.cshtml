@@ -1,7 +1,7 @@
 @model PublicSharingViewModel
 
 @section metatags {
-    <meta property="og:image" content="@Model.ImageUrl">
+    <meta property="og:image" content="@Model.LargeImageUrl">
     <meta property="og:title" content="@Model.Title">
     <meta property="og:url" content="@Model.Url">
 
@@ -59,7 +59,7 @@
                       pcm-url="@Model.PeakDataUrl"
                       title="@Model.Author"
                       sub-title="@Model.Title"
-                      image-url="@Model.ImageUrl"
+                      image-url="@Model.ThumbnailUrl"
                       background-colour=""
                       title-colour="#DBA345"
                       sub-title-colour="#88873F"

@@ -52,6 +52,7 @@ namespace PodNoms.Data.Models {
         public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=64&height=64";
+        
         public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}{AudioUrl}";
         
         public string GetFileDownloadName() => $"{Title}.mp3";

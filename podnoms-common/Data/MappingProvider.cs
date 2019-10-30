@@ -93,9 +93,14 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("StorageSettings")["CdnUrl"],
                        _options.GetSection("AudioFileStorageSettings")["ContainerName"])))
                 .ForMember(
-                    src => src.ImageUrl,
+                    src => src.LargeImageUrl,
                     e => e.MapFrom(m =>
-                       m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrll"],
+                       m.GetImageUrl(_options.GetSection("StorageSettings")["CdnUrl"],
+                           _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.ThumbnailUrl,
+                    e => e.MapFrom(m =>
+                       m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrl"],
                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Playlist, PlaylistViewModel>();

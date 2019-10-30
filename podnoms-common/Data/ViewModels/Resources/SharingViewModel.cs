@@ -19,7 +19,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Description { get; set; }
         public string DownloadUrl { get; set; }
         public string AudioUrl { get; set; }
-        public string ImageUrl { get; set; }
+        public string LargeImageUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
         public string PeakDataUrl { get; set; }
         public string Url { get; set; }
         public string DownloadNonce { get; set; }
