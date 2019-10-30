@@ -21,7 +21,8 @@ namespace PodNoms.Api.Controllers {
         public AudioController(
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger, IEntryRepository entryRepository,
+            ILogger<AudioController> logger,
+            IEntryRepository entryRepository,
             IOptions<AppSettings> appSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioStorageSettings
@@ -31,12 +32,12 @@ namespace PodNoms.Api.Controllers {
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
         }
-
+        [AllowAnonymous]
         [HttpGet("{entryId}")]
         public async Task<ActionResult<string>> Get(string entryId) {
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
-                return $"{_storageSettings.CdnUrl}{_audioStorageSettings.ContainerName}/{entry.Id}.mp3";
+                return Redirect($"{_storageSettings.CdnUrl}{_audioStorageSettings.ContainerName}/{entry.Id}.mp3");
             }
             return NotFound();
         }
