@@ -47,6 +47,11 @@ namespace PodNoms.Common.Data {
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
+                    src => src.PcmUrl,
+                    e => e.MapFrom(m => m.GetPcmUrl(
+                        _options.GetSection("StorageSettings")["CdnUrl"],
+                       _options.GetSection("WaveformDataFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
                        _options.GetSection("StorageSettings")["ImageUrl"],

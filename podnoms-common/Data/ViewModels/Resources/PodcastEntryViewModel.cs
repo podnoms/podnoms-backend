@@ -11,6 +11,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Description { get; set; }
         public string SourceUrl { get; set; }
         public string AudioUrl { get; set; }
+        public string PcmUrl { get; set; }
         public float AudioLength { get; set; }
         public long AudioFileSize { get; set; }
         public string ImageUrl { get; set; }

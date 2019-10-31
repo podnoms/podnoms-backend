@@ -45,6 +45,7 @@ namespace PodNoms.Api.Controllers.Public {
 
         [HttpGet("{podcastId}/featured")]
         public async Task<ActionResult<PodcastEntryViewModel>> GetFeaturedEpisode(string podcastId) {
+            //TODO: This should definitely have its own ViewModel
             var podcast = await _podcastRepository.GetAsync(podcastId);
             if (podcast is null) return NotFound();
 
