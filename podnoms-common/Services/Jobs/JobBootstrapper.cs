@@ -6,11 +6,12 @@ namespace PodNoms.Common.Services.Jobs {
         public static void BootstrapJobs(bool isDevelopment) {
             if (!isDevelopment) {
                 RecurringJob.AddOrUpdate<DeleteOrphanAudioJob>(x => x.Execute(), Cron.Daily(1));
-                RecurringJob.AddOrUpdate<CheckAudioExistsJob>(x => x.Execute(), Cron.Daily(1));
-                RecurringJob.AddOrUpdate<UpdateYouTubeDlJob>(x => x.Execute(), Cron.Daily(1, 30));
-                RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Yearly(1));
-                RecurringJob.AddOrUpdate<CacheRemoteImageJob>(x => x.Execute(), Cron.Daily(3, 10));
-                RecurringJob.AddOrUpdate<ProcessMissingPodcastsJob>(x => x.Execute(), Cron.Daily(4, 10));
+                RecurringJob.AddOrUpdate<CheckAudioExistsJob>(x => x.Execute(), Cron.Daily(1, 30));
+                RecurringJob.AddOrUpdate<UpdateYouTubeDlJob>(x => x.Execute(), Cron.Daily(2));
+                RecurringJob.AddOrUpdate<CacheRemoteImageJob>(x => x.Execute(), Cron.Daily(2, 30));
+                RecurringJob.AddOrUpdate<ProcessMissingPodcastsJob>(x => x.Execute(), Cron.Daily(3));
+
+                // RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Yearly(1));
                 RecurringJob.AddOrUpdate<DebugJobby>(x => x.Execute(), Cron.Yearly(1));
                 RecurringJob.AddOrUpdate<GenerateWaveformsJob>(x => x.Execute(), Cron.Yearly(1));
             }
