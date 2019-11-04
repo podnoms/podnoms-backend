@@ -44,7 +44,7 @@ namespace PodNoms.Data.Models {
         public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";
         public string GetPcmUrl(string cdnUrl, string containerName) => $"{cdnUrl}{containerName}/{Id}.json";
         public string GetAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, string.Empty);
-        public string GetAudioUrl(string audioUrl, string extension) => $"{audioUrl}{Id}{extension}";
+        public string GetAudioUrl(string audioUrl, string extension) => $"{audioUrl}/{Id}{extension}?ngsw-bypass";
         public string GetRssAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, ".mp3");
         // public string GetAudioUrl(string cdnUrl, string containerName) => GetAudioUrl(cdnUrl, containerName, "mp3");
         public string GetRawAudioUrl(string cdnUrl, string containerName, string extension) => $"{cdnUrl}{containerName}/{Id}.{extension}";
