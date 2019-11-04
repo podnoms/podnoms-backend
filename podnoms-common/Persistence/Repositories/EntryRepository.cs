@@ -13,6 +13,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IEnumerable<PodcastEntry>> GetAllForSlugAsync(string podcastSlug);
         Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId);
         Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast);
+        Task<PodcastEntry> GetForUserAndPodcast(string user, string podcast, string entry);
         Task LoadPodcastAsync(PodcastEntry entry);
         Task<PodcastEntrySharingLink> CreateNewSharingLink(SharingViewModel model);
         Task<string> GetIdForShareLink(string sharingId);
@@ -72,6 +73,15 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .OrderByDescending(e => e.UpdateDate)
                 .FirstOrDefaultAsync(e => e.Podcast == podcast);
         }
+        public async Task<PodcastEntry> GetForUserAndPodcast(string user, string podcast, string entry) {
+            return await GetContext()
+                .PodcastEntries
+                .Where(r => r.Podcast.AppUser.Slug == user)
+                .Where(r => r.Podcast.Slug == user)
+                .Where(r => r.Slug == user)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<PodcastEntry>> GetMissingWaveforms() {
             return await GetContext()
                 .PodcastEntries.Where(r => r.WaveformGenerated == false)

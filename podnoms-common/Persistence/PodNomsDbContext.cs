@@ -24,24 +24,28 @@ namespace PodNoms.Common.Persistence {
     }
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext(string[] args) {
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.json")
-                .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
-                .Build();
 
-            Console.WriteLine(configuration);
 
+            // var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            // var configuration = new ConfigurationBuilder()
+            //     .SetBasePath(Directory.GetCurrentDirectory())
+            //     .AddJsonFile($"appsettings.json")#
+            //     .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
+            //     .Build();
+
+            // Console.WriteLine(configuration);
+            //have to replace the above with the below because EF CORE IS SO FUCKING SHITTY
+            var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            var connectionString = TEMP_CONN;
             builder.UseSqlServer(connectionString);
 
             return new PodNomsDbContext(builder.Options);
         }
     }
-
 
     public sealed class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
         public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) : base(options) {

@@ -15,22 +15,25 @@ namespace PodNoms.Comon.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -47,14 +50,18 @@ namespace PodNoms.Comon.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RoleId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -67,14 +74,18 @@ namespace PodNoms.Comon.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -85,14 +96,18 @@ namespace PodNoms.Comon.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ProviderKey");
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ProviderDisplayName");
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -103,9 +118,11 @@ namespace PodNoms.Comon.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("RoleId");
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -116,13 +133,17 @@ namespace PodNoms.Comon.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Value");
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -132,31 +153,42 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("Amount");
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("AppUserId");
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("EndDate");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ReceiptURL");
+                    b.Property<string>("ReceiptURL")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("TransactionId");
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<bool>("WasSuccessful");
+                    b.Property<bool>("WasSuccessful")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -165,83 +197,147 @@ namespace PodNoms.Comon.Migrations
                     b.ToTable("AccountSubscriptions");
                 });
 
+            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("ExtraInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PodcastEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PodcastEntryId");
+
+                    b.ToTable("ActivityLogPodcastEntry");
+                });
+
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AccessFailedCount");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
-                    b.Property<string>("City");
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryCode");
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryName");
+                    b.Property<string>("CountryName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("DiskQuota");
+                    b.Property<long?>("DiskQuota")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Email")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<bool>("EmailConfirmed");
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("EmailNotificationOptions");
+                    b.Property<int>("EmailNotificationOptions")
+                        .HasColumnType("int");
 
-                    b.Property<long?>("FacebookId");
+                    b.Property<long?>("FacebookId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("FirstName");
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IpAddress");
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAdmin")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastSeen")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<double?>("Latitude");
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
 
-                    b.Property<bool>("LockoutEnabled");
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd");
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<double?>("Longitude");
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<string>("PasswordHash");
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhoneNumber");
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("PhoneNumberConfirmed");
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("PictureUrl");
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionCode");
+                    b.Property<string>("RegionCode")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionName");
+                    b.Property<string>("RegionName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecurityStamp");
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Slug");
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("TwoFactorEnabled");
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<string>("Zip");
+                    b.Property<string>("Zip")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -263,18 +359,23 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ApplicationUserId");
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("OldSlug");
+                    b.Property<string>("OldSlug")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -287,16 +388,20 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -307,22 +412,29 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("FromUserId");
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Message");
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("MessageSeen");
+                    b.Property<DateTime?>("MessageSeen")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ToUserId");
+                    b.Property<string>("ToUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -337,18 +449,23 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("Amount");
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("AppUserId");
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -361,20 +478,26 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Config");
+                    b.Property<string>("Config")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid>("PodcastId");
+                    b.Property<Guid>("PodcastId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -387,18 +510,26 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Log");
+                    b.Property<string>("Log")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("NotificationId");
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Succeeded")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -411,18 +542,23 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid>("PodcastId");
+                    b.Property<Guid>("PodcastId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("SourceUrl");
+                    b.Property<string>("SourceUrl")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -439,38 +575,51 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AppUserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte[]>("AuthPassword");
+                    b.Property<byte[]>("AuthPassword")
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<byte[]>("AuthPasswordSalt");
+                    b.Property<byte[]>("AuthPasswordSalt")
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("AuthUserName");
+                    b.Property<string>("AuthUserName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("CategoryId");
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("CustomDomain");
+                    b.Property<string>("CustomDomain")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("Private")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("Slug");
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -489,52 +638,73 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("AudioFileSize");
+                    b.Property<long>("AudioFileSize")
+                        .HasColumnType("bigint");
 
-                    b.Property<float>("AudioLength");
+                    b.Property<float>("AudioLength")
+                        .HasColumnType("real");
 
-                    b.Property<string>("AudioUrl");
+                    b.Property<string>("AudioUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Author");
+                    b.Property<string>("Author")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl");
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PlaylistId");
+                    b.Property<Guid?>("PlaylistId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PodcastId");
+                    b.Property<Guid>("PodcastId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Processed");
+                    b.Property<bool>("Processed")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("ProcessingPayload");
+                    b.Property<string>("ProcessingPayload")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProcessingStatus");
+                    b.Property<int>("ProcessingStatus")
+                        .HasColumnType("int");
 
-                    b.Property<int>("ShareOptions");
+                    b.Property<int>("ShareOptions")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Slug");
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("SourceCreateDate");
+                    b.Property<DateTime?>("SourceCreateDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("SourceItemId");
+                    b.Property<string>("SourceItemId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SourceUrl");
+                    b.Property<string>("SourceUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<bool>("WaveformGenerated")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.HasKey("Id");
@@ -549,27 +719,35 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("LinkId");
+                    b.Property<string>("LinkId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("LinkIndex")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid?>("PodcastEntryId");
+                    b.Property<Guid?>("PodcastEntryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime?>("ValidFrom");
+                    b.Property<DateTime?>("ValidFrom")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ValidTo");
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -588,19 +766,24 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.ServerConfig", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Key");
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Value");
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -610,20 +793,26 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PodcastId");
+                    b.Property<Guid?>("PodcastId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
@@ -637,47 +826,53 @@ namespace PodNoms.Comon.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser")
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser")
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser")
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser")
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
@@ -685,6 +880,13 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithMany("AccountSubscriptions")
                         .HasForeignKey("AppUserId");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
+                        .WithMany()
+                        .HasForeignKey("PodcastEntryId");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>
@@ -717,7 +919,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
                         .WithMany("Notifications")
                         .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b =>
@@ -725,7 +928,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Notifications.Notification", "Notification")
                         .WithMany()
                         .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
@@ -733,7 +937,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
                         .WithMany()
                         .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
@@ -741,7 +946,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithMany("Podcasts")
                         .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("PodNoms.Data.Models.Category", "Category")
                         .WithMany()
@@ -750,14 +956,15 @@ namespace PodNoms.Comon.Migrations
 
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.Playlist")
+                    b.HasOne("PodNoms.Data.Models.Playlist", null)
                         .WithMany("PodcastEntries")
                         .HasForeignKey("PlaylistId");
 
                     b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
                         .WithMany("PodcastEntries")
                         .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
@@ -773,9 +980,10 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Category", "Category")
                         .WithMany("Subcategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("PodNoms.Data.Models.Podcast")
+                    b.HasOne("PodNoms.Data.Models.Podcast", null)
                         .WithMany("Subcategories")
                         .HasForeignKey("PodcastId");
                 });
