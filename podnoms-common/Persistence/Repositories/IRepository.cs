@@ -19,7 +19,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
     public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
         private PodNomsDbContext _context;
-        private readonly ILogger<GenericRepository<TEntity>> _logger;
+        protected readonly ILogger<GenericRepository<TEntity>> _logger;
 
         public GenericRepository(PodNomsDbContext context, ILogger<GenericRepository<TEntity>> logger) {
             _context = context;

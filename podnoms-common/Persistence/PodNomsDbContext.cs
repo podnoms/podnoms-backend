@@ -47,7 +47,7 @@ namespace PodNoms.Common.Persistence {
         public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) : base(options) {
             Database.SetCommandTimeout(360);
         }
-         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
+        private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
                 .GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
@@ -155,6 +155,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PodcastEntry> PodcastEntries { get; set; }
+        public DbSet<ActivityLogPodcastEntry> ActivityLogPodcastEntry { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
 
         public DbSet<Podcast> Podcasts { get; set; }

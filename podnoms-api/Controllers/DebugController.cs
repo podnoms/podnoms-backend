@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,9 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PodNoms.Data.Models;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
@@ -27,7 +22,6 @@ using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
-using System.Threading;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Api.Controllers {
@@ -139,8 +133,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] {$"User {User.Identity.Name}: {message}"});
-            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
+                new string[] { $"User {User.Identity.Name}: {message}" });
+            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
             return Ok(message);
         }
 

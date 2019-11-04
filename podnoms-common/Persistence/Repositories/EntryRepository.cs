@@ -19,7 +19,6 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<List<PodcastEntry>> GetMissingWaveforms();
         Task<PodcastEntry> GetEntryForShareId(string sharingId);
     }
-
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
         public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) { }
 

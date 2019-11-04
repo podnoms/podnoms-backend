@@ -11,7 +11,6 @@ namespace PodNoms.Data.Models {
         Private = (1 << 1),
         Download = (1 << 2)
     }
-
     public class PodcastEntry : BaseEntity, ISluggedEntity {
 
         [SlugField(sourceField: "Title")] public string Slug { get; set; }
@@ -44,8 +43,11 @@ namespace PodNoms.Data.Models {
 
         public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";
         public string GetPcmUrl(string cdnUrl, string containerName) => $"{cdnUrl}{containerName}/{Id}.json";
-        public string GetAudioUrl(string cdnUrl, string containerName) => GetAudioUrl(cdnUrl, containerName, "mp3");
-        public string GetAudioUrl(string cdnUrl, string containerName, string extension) => $"{cdnUrl}{containerName}/{Id}.{extension}";
+        public string GetAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, string.Empty);
+        public string GetAudioUrl(string audioUrl, string extension) => $"{audioUrl}{Id}{extension}";
+        public string GetRssAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, ".mp3");
+        // public string GetAudioUrl(string cdnUrl, string containerName) => GetAudioUrl(cdnUrl, containerName, "mp3");
+        public string GetRawAudioUrl(string cdnUrl, string containerName, string extension) => $"{cdnUrl}{containerName}/{Id}.{extension}";
 
         public string GetImageUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
@@ -53,9 +55,9 @@ namespace PodNoms.Data.Models {
         public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
                 $"{cdnUrl}{containerName}/entry/{Id}.{extension}?width=64&height=64";
-        
+
         public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}{AudioUrl}";
-        
+
         public string GetFileDownloadName() => $"{Title}.mp3";
     }
 }

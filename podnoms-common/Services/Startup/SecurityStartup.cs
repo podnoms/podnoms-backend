@@ -137,8 +137,7 @@ namespace PodNoms.Common.Services.Startup {
                         .ImageSources(s => s.Self()
                             .CustomSources(
                                 "https://cdn.podnoms.com/",
-                                "https://cdn-l.podnoms.com/",
-                                "https://podnomscdn.blob.core.windows.net/static/"))
+                                "https://cdn-l.podnoms.com/"))
                         .ScriptSources(s => s
                             .Self()
                             .CustomSources("https://cdn.podnoms.com/player/")

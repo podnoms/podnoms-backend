@@ -13,13 +13,13 @@
     <ItemGroup>
         <PackageReference Include="AspNetcore.HealthChecks.AzureStorage" Version="3.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="3.0.0" />
-        <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="3.0.0" />
+        <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="3.0.1" />
         <PackageReference Include="AspNetcore.HealthChecks.SqlServer" Version="3.0.0" />
 
         <PackageReference Include="AspNetcore.HealthChecks.UI" Version="3.0.0" />
         <PackageReference Include="AspNetcore.HealthChecks.UI.Client" Version="3.0.0" />
         <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="3.0.0" />
-        <PackageReference Include="CliWrap" Version="2.4.0" />
+        <PackageReference Include="CliWrap" Version="2.5.0" />
         <PackageReference Include="DNS" Version="5.0.0" />
         <PackageReference Include="DnsClient" Version="1.2.0" />
         <PackageReference Include="EasyNetQ" Version="3.7.1" />
@@ -38,8 +38,8 @@
         <PackageReference Include="Google.Apis.Plus.v1" Version="1.41.1.1627" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="8.5.0" />
 
-        <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.6" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.7.7" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.7" />
 
         <PackageReference Include="Lib.Net.Http.WebPush" Version="2.2.0" />
         <PackageReference Include="AutoMapper" Version="9.0.0" />
@@ -61,7 +61,7 @@
         <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-dev000246" />
         <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-dev000246" />
         <PackageReference Include="Slack.Webhooks" Version="1.0.6" />
-        <PackageReference Include="Stripe.net" Version="32.0.0" />
+        <PackageReference Include="Stripe.net" Version="32.1.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.19" />

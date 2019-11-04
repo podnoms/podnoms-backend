@@ -3,6 +3,7 @@ namespace PodNoms.Common.Data.Settings {
         public string Version { get; set; }
         public string SiteUrl { get; set; }
         public string DownloadUrl { get; set; }
+        public string AudioUrl { get; set; }
         public string CanonicalRssUrl { get; set; }
         public string RssUrl { get; set; }
         public string ApiUrl { get; set; }
