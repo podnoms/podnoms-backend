@@ -12,28 +12,21 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class DeleteOrphanAudioJob : IHostedJob {
-        public readonly IEntryRepository _entryRepository;
-        public readonly StorageSettings _storageSettings;
-        public readonly AudioFileStorageSettings _audioStorageSettings;
-        private readonly ILogger<DeleteOrphanAudioJob> _logger;
-        private readonly IMailSender _mailSender;
+    public class DeleteOrphanAudioJob : AbstractHostedJob {
+        private readonly IEntryRepository _entryRepository;
+        private readonly StorageSettings _storageSettings;
+        private readonly AudioFileStorageSettings _audioStorageSettings;
 
         public DeleteOrphanAudioJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, ILoggerFactory logger, IMailSender mailSender) {
-            _mailSender = mailSender;
+            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<DeleteOrphanAudioJob> logger) : base(logger) {
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
             _entryRepository = entryRepository;
-
-            _logger = logger.CreateLogger<DeleteOrphanAudioJob>();
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute() { return await Execute(null); }
-
-        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute(PerformContext context) {
+        public override async Task<bool> Execute(PerformContext context) {
+            _setContext(context);
             try {
                 var storageAccount = CloudStorageAccount.Parse(_storageSettings.ConnectionString);
                 var blobClient = storageAccount.CreateCloudBlobClient();
@@ -66,18 +59,21 @@ namespace PodNoms.Common.Services.Jobs {
                                 deletedCount++;
                             }
                             blobCount++;
-                            Console.WriteLine($"{id} : {blobCount} processed, {deletedCount} deleted.");
+                            Log($"{id} : {blobCount} processed, {deletedCount} deleted.");
                         } catch (Exception e) {
-                            _logger.LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
+                            LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
                         }
                     }
+
                     continuationToken = blobs.ContinuationToken;
                 } while (continuationToken != null);
-                _logger.LogDebug($"Succesfully processed orphans, {blobCount} visited, {deletedCount} deleted.");
+
+                Log($"Successfully processed orphans, {blobCount} visited, {deletedCount} deleted.");
                 return true;
             } catch (Exception ex) {
-                _logger.LogError($"Error clearing orphans\n{ex.Message}");
+                LogError($"Error clearing orphans\n{ex.Message}");
             }
+
             return false;
         }
     }
