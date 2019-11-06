@@ -45,7 +45,7 @@ namespace PodNoms.Api.Controllers {
             var entry = await _entryRepository.GetAsync(cleanedId);
             if (entry != null) {
                 await _activityRepository.AddLogEntry(entry, HttpContext.Connection.RemoteIpAddress.ToString());
-                return Redirect($"{_storageSettings.CdnUrl}/{_audioStorageSettings.ContainerName}/{entry.Id}.mp3");
+                return Redirect($"{_storageSettings.CdnUrl}/{_audioStorageSettings.ContainerName}/{entry.Id}.mp3?ngsw-bypass");
             }
 
             return NotFound();
