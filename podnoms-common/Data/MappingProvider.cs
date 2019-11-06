@@ -22,7 +22,7 @@ namespace PodNoms.Common.Data {
             CreateMap<Podcast, PodcastViewModel>()
                 .ForMember(
                     v => v.RssUrl,
-                    e => e.MapFrom(m => $"{_options.GetSection("AppSettings")["RssUrl"]}{m.AppUser.Slug}/{m.Slug}"))
+                    e => e.MapFrom(m => $"{_options.GetSection("AppSettings")["RssUrl"]}/{m.AppUser.Slug}/{m.Slug}"))
                 .ForMember(
                     v => v.User,
                     e => e.MapFrom(m => m.AppUser.Slug))
