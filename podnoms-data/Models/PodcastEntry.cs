@@ -39,6 +39,9 @@ namespace PodNoms.Data.Models {
         [JsonIgnore]
         public List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
+        [JsonIgnore]
+        public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
+
         private string extension => "jpg";
 
         public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";

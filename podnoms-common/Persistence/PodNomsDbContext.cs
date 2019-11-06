@@ -84,8 +84,13 @@ namespace PodNoms.Common.Persistence {
                 .Property(p => p.Private)
                 .IsRequired()
                 .HasDefaultValue(false);
+
             modelBuilder.Entity<PodcastEntry>()
                 .HasMany(e => e.SharingLinks)
+                .WithOne(e => e.PodcastEntry)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PodcastEntry>()
+                .HasMany(e => e.ActivityLogs)
                 .WithOne(e => e.PodcastEntry)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PodcastEntry>()

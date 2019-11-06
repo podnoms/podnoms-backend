@@ -36,7 +36,7 @@ namespace PodNoms.Api.Controllers.Public {
             if (entry != null) {
                 var model = _mapper.Map<PodcastEntry, PublicSharingViewModel>(entry);
                 model.Url = Flurl.Url.Combine(_sharingSettings.BaseUrl, shareId);
-                model.PeakDataUrl = $"{_storageSettings.CdnUrl}{_waveformStorageSettings.ContainerName}/{entry.Id}.json";
+                model.PeakDataUrl = $"{_storageSettings.CdnUrl}/{_waveformStorageSettings.ContainerName}/{entry.Id}.json";
                 return View(model);
             }
             return NotFound();

@@ -885,8 +885,9 @@ namespace PodNoms.Comon.Migrations
             modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
                 {
                     b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
-                        .WithMany()
-                        .HasForeignKey("PodcastEntryId");
+                        .WithMany("ActivityLogs")
+                        .HasForeignKey("PodcastEntryId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>

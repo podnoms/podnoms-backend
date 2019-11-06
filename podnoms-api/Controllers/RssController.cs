@@ -86,14 +86,14 @@ namespace PodNoms.Api.Controllers {
                     Author = "PodNoms Podcasts",
                     Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName)
                         .Replace("https://", "http://"),
-                    Link = $"{_appOptions.RssUrl}{user.Slug}/{podcast.Slug}",
+                    Link = $"{_appOptions.RssUrl}/{user.Slug}/{podcast.Slug}",
                     PublishDate = podcast.CreateDate.ToRFC822String(),
                     Category = podcast.Category?.Description,
                     Language = "en-IE",
                     Copyright = $"© {DateTime.Now.Year} PodNoms",
                     Owner = $"{user.FirstName} {user.LastName}",
                     OwnerEmail = user.Email,
-                    ShowUrl = $"{_appOptions.SiteUrl}rss/{user.Slug}/{podcast.Slug}",
+                    ShowUrl = $"{_appOptions.SiteUrl}/rss/{user.Slug}/{podcast.Slug}",
 
                     Items = (
                         from e in podcast.PodcastEntries
