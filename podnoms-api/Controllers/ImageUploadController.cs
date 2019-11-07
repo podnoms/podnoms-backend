@@ -78,14 +78,12 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpPost("/profile/{id}/imageupload")]
-        public async Task<ActionResult<string>> UploadProfileImage(string id, IFormFile image) {
-            //TODO: Cache this and remove CdnUrl from below
+        public async Task<ActionResult<ProfileViewModel>> UploadProfileImage(string id, IFormFile image) {
             var imageFile = await _commitImage(id, image, "profile");
-            _applicationUser.PictureUrl = $"{_storageSettings.CdnUrl}{_imageFileStorageSettings.ContainerName}/{imageFile}";
+            _applicationUser.PictureUrl = string.Empty; //Image is cached
             await _userManager.UpdateAsync(_applicationUser);
-            return Ok($"\"{_applicationUser.PictureUrl}\"");
+            return Ok(_mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser));
         }
         private async Task<string> _commitImage(string id, IFormFile image, string subDirectory) {
             if (image is null) {
