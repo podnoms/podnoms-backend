@@ -39,8 +39,14 @@ namespace PodNoms.Api.Controllers {
                 //no need for us to be doing this heavy lifting 
                 // var pcm = await HttpUtils.DownloadText(url, "application/json");
                 return Ok(new WaveformViewModel {
-                    PeakDataJsonUrl = Flurl.Url.Combine(_storageSettings.CdnUrl, _waveformStorageSettings.ContainerName, $"{entry.Id}.json"),
-                    PeakDataUrl = Flurl.Url.Combine(_storageSettings.CdnUrl, _waveformStorageSettings.ContainerName, $"{entry.Id}.json"),
+                    PeakDataJsonUrl = Flurl.Url.Combine(
+                        _storageSettings.CdnUrl,
+                        _waveformStorageSettings.ContainerName,
+                        $"{entry.Id}.json"),
+                    PeakDataUrl = Flurl.Url.Combine(
+                        _storageSettings.CdnUrl,
+                        _waveformStorageSettings.ContainerName,
+                        $"{entry.Id}.json"),
                 });
             }
             return NotFound();

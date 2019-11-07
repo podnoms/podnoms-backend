@@ -86,7 +86,7 @@ namespace PodNoms.Api.Controllers {
                     Id = model.Id,
                     ValidFrom = model.ValidFrom,
                     ValidTo = model.ValidTo,
-                    Url = Flurl.Url.Combine(new string[] { _sharingSettings.BaseUrl, share.LinkId })
+                    Url = Flurl.Url.Combine(_sharingSettings.BaseUrl, share.LinkId)
                 });
             }
             return BadRequest();

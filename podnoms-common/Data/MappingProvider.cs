@@ -130,8 +130,15 @@ namespace PodNoms.Common.Data {
                     src => src.Name,
                     map => map.MapFrom(s => $"{s.FirstName} {s.LastName}"))
                 .ForMember(
-                    src => src.ProfileImage,
-                    map => map.MapFrom(s => s.PictureUrl))
+                    src => src.ProfileImageUrl,
+                    map => map.MapFrom(s => s.GetImageUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.ThumbnailImageUrl,
+                    map => map.MapFrom(s => s.GetThumbnailUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.HasSubscribed,
                     map => map.MapFrom<ProfileHasSubscribedResolver>()

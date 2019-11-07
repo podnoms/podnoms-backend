@@ -67,5 +67,18 @@ namespace PodNoms.Data.Models {
             }
             return Email.Split('@')[0];
         }
+        public string GetImageUrl(string cdnUrl, string containerName) =>
+            GetImageUrl(cdnUrl, containerName, "jpg");
+        public string GetImageUrl(string cdnUrl, string containerName, string extension) =>
+            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com") ? //TODO: <-- this is temporary
+                PictureUrl :
+                $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=725&height=748";
+
+        public string GetThumbnailUrl(string cdnUrl, string containerName) =>
+            GetThumbnailUrl(cdnUrl, containerName, "jpg");
+        public string GetThumbnailUrl(string cdnUrl, string containerName, string extension) =>
+            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com") ? //TODO: <-- this is temporary
+                PictureUrl :
+                $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=64&height=64";
     }
 }

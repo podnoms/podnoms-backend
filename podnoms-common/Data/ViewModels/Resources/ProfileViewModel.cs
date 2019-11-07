@@ -11,7 +11,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Description { get; set; }
-        public string ProfileImage { get; set; }
+        public string ProfileImageUrl { get; set; }
+        public string ThumbnailImageUrl { get; set; }
         public string ApiKey { get; set; }
         public int EmailNotificationOptions { get; set; }
         public bool HasSubscribed { get; set; }
