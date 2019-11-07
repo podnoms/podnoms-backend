@@ -139,6 +139,7 @@ namespace PodNoms.Common.Services.Startup {
                         .ImageSources(s => s.Self()
                             .CustomSources(
                                 "https://cdn.podnoms.com/",
+                                "https://i.pdnm.be/",
                                 "https://cdn-l.podnoms.com/"))
                         .ScriptSources(s => s
                             .Self()
