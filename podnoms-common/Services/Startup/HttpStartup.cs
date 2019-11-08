@@ -32,6 +32,14 @@ namespace PodNoms.Common.Services.Startup {
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
+            services.AddHttpClient("unsplash", c => {
+                c.BaseAddress = new Uri("https://api.unsplash.com/");
+                c.DefaultRequestHeaders.Add(
+                    "Authorization",
+                    $"Client-ID {config.GetSection("ImageSettings")["UnsplashAccessKey"]}");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
             services.AddHttpClient("StripeInvoices", c => {
                 c.DefaultRequestHeaders.Add("Accept", "text/html");
             }).AddPolicyHandler(GetRetryPolicy());
