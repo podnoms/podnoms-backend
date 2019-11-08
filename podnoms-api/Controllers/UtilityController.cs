@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using DNS.Client;
 using DNS.Protocol;
@@ -17,9 +18,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Data.ViewModels.Remote;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Common.Utils;
@@ -56,8 +60,7 @@ namespace PodNoms.Api.Controllers {
                     var sql = $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
                     var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
                     if (result != null) {
-                        return Ok(new CheckValueResult
-                        {
+                        return Ok(new CheckValueResult {
                             IsValid = false,
                             Value = value,
                             ResponseMessage = result.ResponseMessage
@@ -66,8 +69,7 @@ namespace PodNoms.Api.Controllers {
                 } catch (Exception ex) {
                     _logger.LogError($"Error checking for dupes\n{ex.Message}\n\tTable: {table}\n\tField: {field}\n\tValue: {value}\n\tNarrative: {narrative}");
                 }
-                return Ok(new CheckValueResult
-                {
+                return Ok(new CheckValueResult {
                     Value = value,
                     IsValid = true,
                     ResponseMessage = "No duplicates found"
@@ -119,6 +121,22 @@ namespace PodNoms.Api.Controllers {
             using (var client = _httpClientFactory.CreateClient()) {
                 return await client.GetContentSizeAsync(url);
             }
+        }
+
+        [HttpGet("randomimage")]
+        public async Task<ActionResult> GetRandomImage() {
+            var client = _httpClientFactory.CreateClient("unsplash");
+
+            var response = await client.GetAsync("/photos/random");
+            if (response.IsSuccessStatusCode) {
+                var body = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(body)) {
+                    var imageData = JsonConvert.DeserializeObject<UnsplashViewModel>(body);
+                    var base64 = await ImageUtils.GetRemoteImageAsBase64(imageData.urls.regular);
+                    return Content(base64, "text/plain", Encoding.UTF8);
+                }
+            }
+            return new NotFoundResult();
         }
     }
 }
