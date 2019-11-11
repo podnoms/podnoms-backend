@@ -180,6 +180,26 @@ namespace PodNoms.Common.Data {
                     dest => dest.Options,
                     map => map.MapFrom<NotificationOptionsResolver>()
                 );
+            CreateMap<ActivityLogPodcastEntry, ActivityLogPodcastEntryViewModel>()
+                .ForMember(
+                    dest => dest.DateAccessed,
+                    map => map.MapFrom(src => src.CreateDate)
+                )
+                .ForMember(
+                    dest => dest.IncomingUrl,
+                    map => map.MapFrom(src => src.Referrer)
+                )
+                .ForMember(
+                    dest => dest.IncomingHost,
+                    map => map.MapFrom(src => src.UserAgent)
+                )
+                .ForMember(
+                    dest => dest.PodcastSlug,
+                    map => map.MapFrom(src => src.PodcastEntry.Slug)
+                )
+                .ForMember(
+                    dest => dest.PodcastTitle,
+                    map => map.MapFrom(src => src.PodcastEntry.Title));
 
             CreateMap<ChatMessage, ChatViewModel>();
 
