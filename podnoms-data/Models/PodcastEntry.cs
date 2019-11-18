@@ -54,10 +54,11 @@ namespace PodNoms.Data.Models {
 
         public string GetImageUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
-                $"{cdnUrl}/{containerName}/entry/{Id}.{extension}?width=725&height=748";
+                Flurl.Url.Combine(cdnUrl, containerName, $"entry/{Id}.{extension}?width=725&height=748");
+
         public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
                 ImageUrl :
-                $"{cdnUrl}/{containerName}/entry/{Id}.{extension}?width=64&height=64";
+                Flurl.Url.Combine(cdnUrl, containerName, $"entry/{Id}.{extension}?width=64&height=64");
 
         public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}/{AudioUrl}";
 

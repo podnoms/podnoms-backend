@@ -6,28 +6,25 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace PodNoms.Common.Utils {
     public static class HttpUtils {
+        public static string UrlCombine(params string[] parts) => Flurl.Url.Combine(parts);
         public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
-            using (var client = new HttpClient()) {
-                client.DefaultRequestHeaders
-                    .Accept
-                    .Add(new MediaTypeWithQualityHeaderValue(contentType));
-                var data = await client.GetStringAsync(url);
-                return data;
-            }
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue(contentType));
+            var data = await client.GetStringAsync(url);
+            return data;
         }
         public static async Task<string> DownloadFile(string url, string file = "") {
 
-            using (var client = new HttpClient()) {
-                using (var response = await client.GetAsync(url)) {
-                    if (response.StatusCode == HttpStatusCode.OK) {
-                        using (var content = response.Content) {
-                            if (string.IsNullOrEmpty(file))
-                                file = System.IO.Path.GetTempFileName();
-                            var result = await content.ReadAsByteArrayAsync();
-                            System.IO.File.WriteAllBytes(file, result);
-                        }
-                    }
-                }
+            using var client = new HttpClient();
+            using var response = await client.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.OK) {
+                using var content = response.Content;
+                if (string.IsNullOrEmpty(file))
+                    file = System.IO.Path.GetTempFileName();
+                var result = await content.ReadAsByteArrayAsync();
+                System.IO.File.WriteAllBytes(file, result);
             }
             return file;
         }
@@ -40,20 +37,6 @@ namespace PodNoms.Common.Utils {
             return handler;
         }
 
-        public static string UrlCombine(string url1, string url2) {
-            if (url1.Length == 0) {
-                return url2;
-            }
-
-            if (url2.Length == 0) {
-                return url1;
-            }
-
-            url1 = url1.TrimEnd('/', '\\');
-            url2 = url2.TrimStart('/', '\\');
-
-            return string.Format("{0}/{1}", url1, url2);
-        }
         public static async Task<string> GetUrlExtension(string url) {
             using (var client = new HttpClient()) {
                 var request = new HttpRequestMessage(HttpMethod.Head, url);
