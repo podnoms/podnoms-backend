@@ -55,7 +55,6 @@ namespace PodNoms.Common.Services.Startup {
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken) &&
                             (path.StartsWithSegments("/hubs"))) {
-                            Console.WriteLine($"WE GOT THE TOKEN: {accessToken}");
                             context.Token = accessToken[0];
                         }
                         return Task.CompletedTask;
