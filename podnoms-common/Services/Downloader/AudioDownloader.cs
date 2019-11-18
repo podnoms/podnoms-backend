@@ -21,7 +21,6 @@ namespace PodNoms.Common.Services.Downloader {
 
         private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
         public RemoteVideoInfo Properties { get; set; }
-
         public DownloadInfo RawProperties { get; private set; }
 
         private const string DOWNLOADRATESTRING = "iB/s";
@@ -115,7 +114,7 @@ namespace PodNoms.Common.Services.Downloader {
                 Description = parsed?.Description,
                 Thumbnail = parsed?.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
                 Uploader = parsed?.Description,
-                UploadDate = DateTime.Parse(parsed?.UploadDate ?? System.DateTime.Now.ToString()),
+                UploadDate = (parsed?.UploadDate ?? System.DateTime.Now.ToString()).ParseBest(),
                 VideoId = parsed?.Id
             };
 
