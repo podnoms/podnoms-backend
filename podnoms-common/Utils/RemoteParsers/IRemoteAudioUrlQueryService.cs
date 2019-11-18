@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PodNoms.Common.Services.NYT.Models;
+using NYoutubeDL.Models;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     public interface IRemoteAudioUrlQueryService {

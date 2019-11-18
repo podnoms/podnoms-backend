@@ -14,6 +14,10 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string User { get; set; }
         public DateTime CreateDate { get; set; }
 
+        public string PublicTitle { get; set; }
+        public string FacebookUrl { get; set; }
+        public string TwitterUrl { get; set; }
+
         public bool Private { get; set; }
         public string AuthUserName { get; set; }
         public string AuthPassword { get; set; }

@@ -3,12 +3,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YoutubeExplode;
+using System;
+using System.Net.Http;
+using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
-    using System;
-    using System.Net.Http;
-    using Microsoft.Extensions.Logging;
-    using PodNoms.Common.Services.NYT.Models;
 
     public class YouTubeQueryService : IYouTubeParser {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";

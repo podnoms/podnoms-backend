@@ -8,9 +8,9 @@ using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
-using PodNoms.Common.Services.NYT;
-using PodNoms.Common.Services.NYT.Helpers;
-using PodNoms.Common.Services.NYT.Models;
+using NYoutubeDL;
+using NYoutubeDL.Models;
+using NYoutubeDL.Helpers;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
@@ -83,7 +83,7 @@ namespace PodNoms.Common.Services.Downloader {
 
         public string GetChannelId(string url) {
             var info = __getInfo(url);
-            return info?.Id;
+            return info?.Title;
         }
 
         public async Task<RemoteUrlType> GetInfo(string url) {
@@ -132,7 +132,7 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public string DownloadAudio(Guid id, string url) {
+        public async Task<string> DownloadAudio(Guid id, string url) {
             var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
 
@@ -174,8 +174,7 @@ namespace PodNoms.Common.Services.Downloader {
             Console.WriteLine(commandText);
             Console.WriteLine(yt.RunCommand);
 
-            var yp = yt.Download();
-            yp.WaitForExit();
+            await yt.DownloadAsync();
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 

@@ -113,7 +113,7 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = _downloader.DownloadAudio(entry.Id, entry.SourceUrl);
+                var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
                 //TODO: This needs to be removed - stop using AudioUrl as a proxy

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Services.NYT;
+using NYoutubeDL;
 
 namespace PodNoms.Common.Services.Jobs {
     public class UpdateYouTubeDlJob : IHostedJob {

@@ -58,6 +58,7 @@
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0" />
+        <PackageReference Include="NYoutubeDL" Version="0.10.8" />
         <PackageReference Include="Polly" Version="7.1.1" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
         <PackageReference Include="RestSharp" Version="106.6.10" />

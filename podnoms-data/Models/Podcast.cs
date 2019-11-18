@@ -23,6 +23,10 @@ namespace PodNoms.Data.Models {
         public List<Subcategory> Subcategories { get; set; }
         public List<Notification> Notifications { get; set; }
 
+        public string PublicTitle { get; set; }
+        public string FacebookUrl { get; set; }
+        public string TwitterUrl { get; set; }
+
         #region AuthStuff
 
         public bool? Private { get; set; } = false;
