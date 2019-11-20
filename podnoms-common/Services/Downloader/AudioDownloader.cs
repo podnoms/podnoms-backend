@@ -131,9 +131,11 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public async Task<string> DownloadAudio(Guid id, string url) {
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
-            var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
+        public async Task<string> DownloadAudio(Guid id, string url, string outputFile="") {
+            
+            var templateFile = string.IsNullOrEmpty(outputFile) ? 
+                    Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
+                outputFile;
 
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);

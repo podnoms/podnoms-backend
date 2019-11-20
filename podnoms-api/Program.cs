@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using System.Collections;
 
 namespace PodNoms.Api {
     public class Program {
@@ -18,21 +19,20 @@ namespace PodNoms.Api {
         }
 
         private static IWebHost BuildWebHost(string[] args) {
-
             var builder = WebHost.CreateDefaultBuilder(args)
                       .ConfigureAppConfiguration((context, config) => {
                           if (!_isDevelopment) {
                               config.SetBasePath(Directory.GetCurrentDirectory())
                                   .AddJsonFile("appsettings.json", optional: false)
-                                  .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true);
+                                  .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
+                                  .AddEnvironmentVariables("ASPNETCORE_");
                               var builtConfig = config.Build();
+                              Console.WriteLine($"Bootstrapping prod");
+
                               config.AddAzureKeyVault(
                                   $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
                                   builtConfig["KeyVaultSettings:ClientId"],
-                                  builtConfig["KeyVaultSettings:ClientSecret"])
-                                  //add env vars last so they have highest precedence
-                                  //this is useful when debugging prod
-                                  .AddEnvironmentVariables("ASPNETCORE_");
+                                  builtConfig["KeyVaultSettings:ClientSecret"]);
                           }
                       });
 

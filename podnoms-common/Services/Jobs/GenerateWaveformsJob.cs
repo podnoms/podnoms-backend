@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Console;
@@ -16,6 +17,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly ILogger _logger;
         private readonly IEntryRepository _entryRepository;
         private readonly IFileUploader _fileUploader;
+        private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageSettings;
         private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
         private readonly IWaveformGenerator _waveFormGenerator;
@@ -24,6 +26,7 @@ namespace PodNoms.Common.Services.Jobs {
         public GenerateWaveformsJob(ILogger<GenerateWaveformsJob> logger,
                                     IEntryRepository entryRepository,
                                     IFileUploader fileUploader,
+                                    IOptions<AppSettings> appSettings,
                                     IOptions<StorageSettings> storageSettings,
                                     IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
                                     IWaveformGenerator waveFormGenerator,
@@ -31,6 +34,7 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger;
             _entryRepository = entryRepository;
             _fileUploader = fileUploader;
+            _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
             _waveformStorageSettings = waveformStorageSettings.Value;
             _waveFormGenerator = waveFormGenerator;
@@ -45,19 +49,27 @@ namespace PodNoms.Common.Services.Jobs {
             foreach (var item in missingWaveforms) {
                 _logger.LogInformation($"Processing waveform for: {item.Id}");
                 BackgroundJob.Enqueue<GenerateWaveformsJob>(
-                    r => r.ExecuteForEntry(item.Id, string.Empty, context));
+                    r => r.ExecuteForEntry(item.Id, string.Empty, null)
+                );
             }
             return true;
         }
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
             context.WriteLine($"Processing entry: {entryId}");
+            if (!string.IsNullOrEmpty(localFile) && !File.Exists(localFile)) {
+                _logger.LogError($"FileNotFound: {localFile}");
+                return false;
+            }
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
                 _logger.LogInformation($"Generating waveform for: {entry.Id}");
+
                 var (dat, json, png) = !string.IsNullOrEmpty(localFile) ?
-                   await _waveFormGenerator.GenerateWaveformLocalFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}") :
-                    await _waveFormGenerator.GenerateWaveformRemoteFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}");
+                    await _waveFormGenerator.GenerateWaveformLocalFile(localFile) :
+                    await _waveFormGenerator.GenerateWaveformRemoteFile(entry.GetAudioUrl(
+                        _appSettings.AudioUrl, "mp3"));
+
                 if (!string.IsNullOrEmpty(dat)) {
                     _logger.LogInformation("Uploading .dat");
                     await _fileUploader.UploadFile(

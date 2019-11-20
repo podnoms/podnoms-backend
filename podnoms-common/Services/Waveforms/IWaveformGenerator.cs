@@ -29,7 +29,7 @@ namespace PodNoms.Common.Services.Waveforms {
             var jsonFile = $"{System.IO.Path.GetTempPath() + Guid.NewGuid().ToString()}.json";
             var pngFile = $"{System.IO.Path.GetTempPath() + Guid.NewGuid().ToString()}.png";
 
-            var command = Cli.Wrap("audiowaveform");
+            var command = Cli.Wrap("/home/fergalm/dotfiles/bin/audiowaveform");
 
             var datResult = await command
                 .SetArguments($"-i {localFile} -o {datFile} -b 8")

@@ -8,6 +8,6 @@ namespace PodNoms.Common.Services.Processor {
 
         Task<RemoteUrlType> GetInformation(string entryId);
         Task<RemoteUrlType> GetInformation(PodcastEntry entry);
-        Task<bool> DownloadAudio(string authToken, Guid entryId);
+        Task<bool> DownloadAudio(string authToken, Guid entryId, string outputFile);
     }
 }

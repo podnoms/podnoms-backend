@@ -92,8 +92,11 @@ namespace PodNoms.Api.Controllers {
             var audioUrl = localFile
                 .Replace(_hostingEnvironment.WebRootPath, string.Empty)
                 .Replace(@"\", "/");
+
             BackgroundJob.Enqueue<UploadAudioJob>(job =>
                 job.Execute(authToken, entry.Id, audioUrl, new FileInfo(localFile).Extension, null));
+            BackgroundJob.Enqueue<GenerateWaveformsJob>(job =>
+                job.ExecuteForEntry(entry.Id, localFile, null));
 
             var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(ret);

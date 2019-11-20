@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
@@ -69,7 +70,8 @@ namespace PodNoms.Common.Services.Jobs {
                     await _fileUtils.CheckFileExists(audioUrl.Split('/')[0], audioUrl.Split('/')[1]);
             if (!audioExists) {
                 Log($"Missing audio for: {id}");
-                var processed = await _processor.DownloadAudio(string.Empty, id);
+                var localFile =  Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+                var processed = await _processor.DownloadAudio(string.Empty, id, localFile);
                 if (processed) {
                     Log($"Processed: {id}");
                     Log($"Uploading audio for: {id}");

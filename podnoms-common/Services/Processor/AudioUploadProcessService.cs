@@ -61,8 +61,6 @@ namespace PodNoms.Common.Services.Processor {
                 // TODO
                 // bit messy but can't figure how to pass youtube-dl job result to this job
                 // so using AudioUrl as a proxy
-                if (string.IsNullOrEmpty(localFile))
-                    localFile = entry.AudioUrl;
 
                 if (File.Exists(localFile)) {
                     _logger.LogInformation($"Local item exists {entryId} - {localFile}");
