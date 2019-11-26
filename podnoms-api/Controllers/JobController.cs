@@ -43,5 +43,13 @@ namespace PodNoms.Api.Controllers {
             var infoJobId = BackgroundJob.Enqueue<UpdateYouTubeDlJob>(service => service.Execute());
             return Ok();
         }
+        [HttpGet("processpodcastjob")]
+        public IActionResult UpdateYouTubeDl([FromQuery]string entryId) {
+            _logger.LogDebug($"Creating job for {entryId}");
+            var infoJobId = BackgroundJob.Enqueue<ProcessMissingPodcastsJob>(
+                service => service.ExecuteForEntry(entryId, null)
+            );
+            return Ok();
+        }
     }
 }

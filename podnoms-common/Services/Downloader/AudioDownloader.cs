@@ -131,11 +131,11 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public async Task<string> DownloadAudio(Guid id, string url, string outputFile="") {
-            
-            var templateFile = string.IsNullOrEmpty(outputFile) ? 
+        public async Task<string> DownloadAudio(Guid id, string url, string outputFile = "") {
+
+            var templateFile = string.IsNullOrEmpty(outputFile) ?
                     Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
-                outputFile;
+                outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
 
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);
@@ -147,6 +147,7 @@ namespace PodNoms.Common.Services.Downloader {
             yt.Options.FilesystemOptions.Output = templateFile;
             yt.Options.PostProcessingOptions.ExtractAudio = true;
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
+            yt.Options.PostProcessingOptions.AudioQuality = "0";
 
             yt.VideoUrl = cleanedUrl;
 

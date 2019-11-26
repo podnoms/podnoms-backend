@@ -39,15 +39,18 @@ namespace PodNoms.Api {
             var t = builder.UseStartup<Startup>()
                 .UseKestrel(options => {
                     options.Limits.MaxRequestBodySize = 1073741824;
-                    if (_isDevelopment && RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                    if (_isDevelopment) {
+
                         var c = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.Development.json", optional: false)
                             .AddEnvironmentVariables("ASPNETCORE_")
                             .Build();
+
                         var certificate = new X509Certificate2(
-                            c["DevSettings:CertificateFile"],
+                            c[$"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
                             c["DevSettings:CertificateSecret"]);
+
                         options.Listen(IPAddress.Loopback, 5001, listenOptions => {
                             listenOptions.UseHttps(certificate);
                         });
