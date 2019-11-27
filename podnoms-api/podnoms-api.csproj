@@ -10,6 +10,7 @@
       <DefineConstants>TRACE;TRACE DISABLERABBIT</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <!-- Fucking MegaSync -->
         <PackageReference Include="EasyNetQ" Version="3.7.1" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.8.2" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.7" />

@@ -85,7 +85,7 @@ namespace PodNoms.Common.Services.Processor {
             return ret;
         }
 
-        public async Task<bool> DownloadAudio(string authToken, Guid entryId) {
+        public async Task<bool> DownloadAudio(string authToken, Guid entryId, string outputFile) {
             var entry = await _repository.GetAsync(entryId);
 
             if (entry is null)
@@ -98,8 +98,6 @@ namespace PodNoms.Common.Services.Processor {
                         ProcessingStatus = ProcessingStatus.Processing
                     }
                 );
-                var outputFile =
-                    Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString()}.mp3");
 
                 _downloader.DownloadProgress += async (s, e) => {
                     try {
@@ -113,14 +111,13 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl);
+                var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl, outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
-                //TODO: This needs to be removed - stop using AudioUrl as a proxy
+                
                 entry.ProcessingStatus = ProcessingStatus.Parsing;
-
-                entry.AudioUrl = sourceFile;
                 await _unitOfWork.CompleteAsync();
+                
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Entry: {entryId}\n{ex.Message}");

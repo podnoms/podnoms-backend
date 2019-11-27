@@ -77,8 +77,8 @@ namespace PodNoms.Common.Persistence.Repositories {
             return await GetContext()
                 .PodcastEntries
                 .Where(r => r.Podcast.AppUser.Slug == user)
-                .Where(r => r.Podcast.Slug == user)
-                .Where(r => r.Slug == user)
+                .Where(r => r.Podcast.Slug == podcast)
+                .Where(r => r.Slug == entry)
                 .FirstOrDefaultAsync();
         }
 

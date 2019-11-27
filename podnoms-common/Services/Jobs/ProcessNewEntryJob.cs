@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Console;
@@ -44,22 +45,24 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
-                //TODO: This is part of the horrid using the AudioUrl to proxy the local file name
-                var localFile = entry.AudioUrl;
+                var localFile =  Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                    r => r.CacheImage(entry.Id));
+
                 var token = authToken.Replace("Bearer ", string.Empty);
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
-                    r => r.DownloadAudio(authToken, entry.Id));
+                    r => r.DownloadAudio(authToken, entry.Id, localFile));
 
                 //TODO: Don't run this if IUrlProcessService fails
                 var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
-                    extractJobId, r => r.UploadAudio(authToken, entry.Id, localFile));
+                    extractJobId,
+                    r => r.UploadAudio(authToken, entry.Id, localFile));
 
                 //if we wait until everything is done, we can delete the local file
-                BackgroundJob.ContinueJobWith<GenerateWaveformsJob>(
-                    uploadJobId,
+                var waveformJobId = BackgroundJob.ContinueJobWith<GenerateWaveformsJob>(
+                    extractJobId,
                     r => r.ExecuteForEntry(entry.Id, localFile, null));
+
                 var cdnUrl = _options.GetSection("StorageSettings")["CdnUrl"];
                 var imageContainer = _options.GetSection("ImageFileStorageSettings")["ContainerName"];
 

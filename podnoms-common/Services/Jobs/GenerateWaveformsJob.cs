@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Console;
@@ -12,10 +13,11 @@ using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Services.Waveforms;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class GenerateWaveformsJob : IHostedJob {
-        private readonly ILogger _logger;
+    public class GenerateWaveformsJob : AbstractHostedJob {
         private readonly IEntryRepository _entryRepository;
         private readonly IFileUploader _fileUploader;
+        private readonly AppSettings _appSettings;
+        private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
         private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
         private readonly IWaveformGenerator _waveFormGenerator;
@@ -24,42 +26,55 @@ namespace PodNoms.Common.Services.Jobs {
         public GenerateWaveformsJob(ILogger<GenerateWaveformsJob> logger,
                                     IEntryRepository entryRepository,
                                     IFileUploader fileUploader,
+                                    IOptions<AppSettings> appSettings,
                                     IOptions<StorageSettings> storageSettings,
+                                    IOptions<AudioFileStorageSettings> audioFileStorageSettings,
                                     IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
                                     IWaveformGenerator waveFormGenerator,
-                                    IUnitOfWork unitOfWork) {
-            _logger = logger;
+                                    IUnitOfWork unitOfWork) : base(logger) {
             _entryRepository = entryRepository;
             _fileUploader = fileUploader;
+            _appSettings = appSettings.Value;
+            _audioFileStorageSettings = audioFileStorageSettings.Value;
             _storageSettings = storageSettings.Value;
             _waveformStorageSettings = waveformStorageSettings.Value;
             _waveFormGenerator = waveFormGenerator;
             _unitOfWork = unitOfWork;
         }
-        public async Task<bool> Execute() { return await Execute(null); }
 
-        public async Task<bool> Execute(PerformContext context) {
-            _logger.LogInformation("Starting processing missing waveforms");
+        public override async Task<bool> Execute(PerformContext context) {
+            _setContext(context);
+            Log("Starting processing missing waveforms");
             var missingWaveforms = await _entryRepository.GetMissingWaveforms();
 
             foreach (var item in missingWaveforms) {
-                _logger.LogInformation($"Processing waveform for: {item.Id}");
+                Log($"Processing waveform for: {item.Id}");
                 BackgroundJob.Enqueue<GenerateWaveformsJob>(
-                    r => r.ExecuteForEntry(item.Id, string.Empty, context));
+                    r => r.ExecuteForEntry(item.Id, string.Empty, null)
+                );
             }
             return true;
         }
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
             context.WriteLine($"Processing entry: {entryId}");
+            if (!string.IsNullOrEmpty(localFile) && !File.Exists(localFile)) {
+                LogError($"FileNotFound: {localFile}");
+                return false;
+            }
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
-                _logger.LogInformation($"Generating waveform for: {entry.Id}");
+                Log($"Generating waveform for: {entry.Id}");
+
                 var (dat, json, png) = !string.IsNullOrEmpty(localFile) ?
-                   await _waveFormGenerator.GenerateWaveformLocalFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}") :
-                    await _waveFormGenerator.GenerateWaveformRemoteFile($"{_storageSettings.CdnUrl}{entry.AudioUrl}");
+                    await _waveFormGenerator.GenerateWaveformLocalFile(localFile) :
+                    await _waveFormGenerator.GenerateWaveformRemoteFile(
+                        entry.GetRawAudioUrl(_storageSettings.CdnUrl, _audioFileStorageSettings.ContainerName, "mp3")
+                    );
+
+                Log($"Dat: {dat}\nJSON: {json}\nPNG: {png}");
                 if (!string.IsNullOrEmpty(dat)) {
-                    _logger.LogInformation("Uploading .dat");
+                    Log("Uploading .dat");
                     await _fileUploader.UploadFile(
                         dat,
                         _waveformStorageSettings.ContainerName,
@@ -67,7 +82,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "application/x-binary", null);
                 }
                 if (!string.IsNullOrEmpty(json)) {
-                    _logger.LogInformation("Uploading .json");
+                    Log("Uploading .json");
                     await _fileUploader.UploadFile(
                         json,
                         _waveformStorageSettings.ContainerName,
@@ -75,7 +90,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "application/json", null);
                 }
                 if (!string.IsNullOrEmpty(png)) {
-                    _logger.LogInformation("Uploading .png");
+                    Log("Uploading .png");
                     await _fileUploader.UploadFile(
                         png,
                         _waveformStorageSettings.ContainerName,
@@ -83,7 +98,7 @@ namespace PodNoms.Common.Services.Jobs {
                         "image/png", null);
                 }
                 entry.WaveformGenerated = true;
-                _logger.LogInformation("Updating context");
+                Log("Updating context");
                 await _unitOfWork.CompleteAsync();
                 return true;
             }
