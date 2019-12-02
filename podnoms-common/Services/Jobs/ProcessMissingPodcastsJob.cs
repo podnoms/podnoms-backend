@@ -20,6 +20,8 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IEntryRepository _entryRepository;
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IFileUtilities _fileUtils;
+        private readonly IFileUploader _fileUploader;
+        private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AudioFileStorageSettings _audioStorageSettings;
         private readonly ILogger<ProcessMissingPodcastsJob> _logger;
@@ -31,6 +33,8 @@ namespace PodNoms.Common.Services.Jobs {
             IEntryRepository entryRepository,
             IPlaylistRepository playlistRepository,
             IFileUtilities fileUtils,
+            IFileUploader fileUploader,
+            IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
             IAudioUploadProcessService uploadService) : base(logger) {
             _audioStorageSettings = audioStorageSettings.Value;
             _logger = logger;
@@ -38,17 +42,27 @@ namespace PodNoms.Common.Services.Jobs {
             _entryRepository = entryRepository;
             _playlistRepository = playlistRepository;
             _fileUtils = fileUtils;
+            _fileUploader = fileUploader;
+            _waveformStorageSettings = waveformStorageSettings.Value;
             _processor = processor;
             _waveFormGenerator = waveFormGenerator;
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        public async Task<bool> Debuggle(PerformContext context) {
+            return await ExecuteForEntry("fde16ed1-2b56-4b38-7369-08d76d58dfa1", null);
+        }
+
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> ExecuteForEntry(string entryId, PerformContext context) {
+            Log($"ExecuteForEntry: starting for entry {entryId}");
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
-                await _process(entry.Id, entry.AudioUrl);
+                Log($"ExecuteForEntry: located entry {entryId}");
+                await _process(entry.Id, entry.AudioUrl, true);
                 return true;
             }
+            Log($"ExecuteForEntry: failed to locate {entryId}");
             return false;
         }
 
@@ -80,27 +94,41 @@ namespace PodNoms.Common.Services.Jobs {
             return false;
         }
 
-        private async Task _process(Guid id, string audioUrl) {
+        private async Task _process(Guid entryId, string audioUrl, bool forceReprocess = false) {
             var audioExists = !string.IsNullOrEmpty(audioUrl) &&
                     await _fileUtils.CheckFileExists(audioUrl.Split('/')[0], audioUrl.Split('/')[1]);
-            if (!audioExists) {
-                Log($"Missing audio for: {id}");
+            if (!audioExists || forceReprocess) {
+                //TODO: This is all largely a duplicate of ProcessEntryJob, should call into that...
+                Log($"_process: Missing audio for: {entryId}");
                 var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
-                var processed = await _processor.DownloadAudio(string.Empty, id, localFile);
+                var processed = await _processor.DownloadAudio(string.Empty, entryId, localFile);
                 if (processed) {
-                    Log($"Processed: {id}");
-                    Log($"Uploading audio for: {id}");
-                    var uploaded = await _uploadService.UploadAudio(string.Empty, id, localFile);
+                    Log($"_process: Processed: {entryId}");
+                    Log($"_process: Uploading audio for: {entryId}");
+                    var uploaded = await _uploadService.UploadAudio(string.Empty, entryId, localFile);
                     if (!uploaded) {
-                        LogError($"Error uploading audio from {id}");
+                        LogError($"Error uploading audio from {entryId}");
                     }
-                    var (json, dat, png) = await _waveFormGenerator.GenerateWaveformLocalFile(localFile);
+                    Log($"_process: Generating waveform for: {entryId}");
+                    var (dat, json, png) = await _waveFormGenerator.GenerateWaveformLocalFile(localFile);
                     if (!File.Exists(json)) {
-                        LogError($"Error json does not exist {json}");
+                        LogError($"_process: Error json does not exist {json}");
+                    } else {
+                        Log($"_process: Uploading waveform for: {entryId}");
+                        var result = await _fileUploader.UploadFile(
+                            json,
+                            _waveformStorageSettings.ContainerName,
+                            $"{entryId}.json",
+                            "application/x-binary",
+                            null);
+                        Log($"_process: Uploaded waveform for: {entryId}\n\tResult: {result}");
                     }
+                    Log($"_process: Completed processing of: {entryId}");
                 } else {
-                    LogError($"Unable to process podcast entry: {id}");
+                    LogError($"_process: Unable to process podcast entry: {entryId}");
                 }
+            } else {
+                Log($"_process: Audio exists, not processing");
             }
         }
     }

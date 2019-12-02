@@ -136,7 +136,7 @@ namespace PodNoms.Api.Controllers {
                     return BadRequest("Failed to create podcast entry");
 
                 if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                    entry.ImageUrl = $"{_storageSettings.CdnUrl}static/images/default-entry.png";
+                    entry.ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png";
                 }
 
                 entry.Processed = false;

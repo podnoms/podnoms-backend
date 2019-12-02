@@ -6,6 +6,7 @@ namespace PodNoms.Common.Data.Settings {
         public string AudioUrl { get; set; }
         public string CanonicalRssUrl { get; set; }
         public string RssUrl { get; set; }
+        public string PagesUrl { get; set; }
         public string ApiUrl { get; set; }
         public string JobServerUrl { get; set; }
         public string GoogleApiKey { get; set; }

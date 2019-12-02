@@ -31,7 +31,7 @@ namespace PodNoms.Common.Services.Storage {
 
         public async Task<string> UploadFile(string sourceFile, string containerName, string destinationFile,
             string contentType, Action<int, long> progressCallback = null) {
-            _logger.LogDebug($"Starting upload for {sourceFile} to {destinationFile}");
+            _logger.LogInformation($"Starting upload for {sourceFile} to {destinationFile}");
             var container = _blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
 
@@ -61,24 +61,26 @@ namespace PodNoms.Common.Services.Storage {
                     var mre = new ManualResetEvent(false);
                     var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(index.ToString("d6")));
                     blockIds.Add(blockId);
+
                     await blockBlob.PutBlockAsync(blockId, new MemoryStream(blobContents), null);
                     bytesUploaded += bytesToRead;
                     bytesToUpload -= bytesToRead;
                     startPosition += bytesToRead;
                     index++;
+
                     var percentComplete = (double)bytesUploaded / (double)fileSize;
-                    if (progressCallback != null) progressCallback((int)(percentComplete * 100), bytesToUpload);
+                    progressCallback?.Invoke((int)(percentComplete * 100), bytesToUpload);
 
                     mre.Set();
                     mre.WaitOne();
                 } while (bytesToUpload > 0);
 
-                Console.WriteLine("Now committing block list");
+                _logger.LogDebug("Now committing block list");
                 await blockBlob.PutBlockListAsync(blockIds);
                 blockBlob.Properties.ContentType = contentType;
                 await blockBlob.SetPropertiesAsync();
 
-                Console.WriteLine("Blob uploaded completely.");
+                _logger.LogDebug("Blob uploaded completely.");
             }
             var responseFile = "{containerName}/{destinationFile}";
             _logger.LogDebug($"Successfully uploaded {responseFile}");
