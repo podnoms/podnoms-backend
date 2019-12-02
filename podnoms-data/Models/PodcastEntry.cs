@@ -63,5 +63,7 @@ namespace PodNoms.Data.Models {
         public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}/{AudioUrl}";
 
         public string GetFileDownloadName() => $"{Title}.mp3";
+
+        public object GetPagesUrl(string pagesUrl) => Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
     }
 }

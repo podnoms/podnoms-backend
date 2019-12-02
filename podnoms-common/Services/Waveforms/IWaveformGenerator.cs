@@ -44,22 +44,25 @@ namespace PodNoms.Common.Services.Waveforms {
             var pngFile = $"{Path.GetTempPath() + Guid.NewGuid().ToString()}.png";
 
             var command = Cli.Wrap(_helpersSettings.WaveformGenerator);
-
             _logger.LogInformation($"Command is {command.ToString()}");
             var datResult = await command
                 .SetArguments($"-i {localFile} -o {datFile} -b 8")
                 .ExecuteAsync();
+            _logger.LogInformation($"DAT result is {datResult.StandardOutput}");
 
             var jsonArgs = $"-i {localFile} -o {jsonFile} --pixels-per-second 3 -b 8";
             _logger.LogInformation($"JSON args {jsonArgs}");
             var jsonResult = await command
                 .SetArguments(jsonArgs)
                 .ExecuteAsync();
+            _logger.LogInformation($"JSON result is {jsonResult.StandardOutput}");
 
             try {
                 var pngResult = await command
                     .SetArguments($"-i {localFile} -o {pngFile} -b 8 --no-axis-labels --colors audition --waveform-color baacf1FF --background-color 00000000")
                     .ExecuteAsync();
+                _logger.LogInformation($"PNG result is {jsonResult.StandardOutput}");
+                _logger.LogInformation($"PNG error is {jsonResult.StandardError}");
             } catch (Exception e) {
                 _logger.LogDebug(e.Message);
             }

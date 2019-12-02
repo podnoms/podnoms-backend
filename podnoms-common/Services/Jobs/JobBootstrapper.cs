@@ -16,6 +16,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 RecurringJob.AddOrUpdate<DebugJobby>(x => x.Execute(null), Cron.Yearly(1));
                 RecurringJob.AddOrUpdate<GenerateWaveformsJob>(x => x.Execute(null), Cron.Yearly(1));
+                RecurringJob.AddOrUpdate<ProcessMissingPodcastsJob>(x => x.Debuggle(null), Cron.Yearly(1));
             }
         }
     }

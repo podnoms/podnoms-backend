@@ -20,10 +20,12 @@ namespace PodNoms.Jobs {
         public static IHostBuilder CreateWebHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => {
+                    var platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "Linux";
                     if (context.HostingEnvironment.IsProduction()) {
                         Console.WriteLine("Production instance bootstrapping");
                         config.SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.json", optional: false)
+                            .AddJsonFile($"appsettings.{platform}.json", optional: true)
                             .AddJsonFile($"appsettings.Production.json", optional: true)
                             .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
                             .AddEnvironmentVariables("ASPNETCORE_");

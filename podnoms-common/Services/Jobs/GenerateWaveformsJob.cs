@@ -16,7 +16,6 @@ namespace PodNoms.Common.Services.Jobs {
     public class GenerateWaveformsJob : AbstractHostedJob {
         private readonly IEntryRepository _entryRepository;
         private readonly IFileUploader _fileUploader;
-        private readonly AppSettings _appSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
         private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
@@ -26,7 +25,6 @@ namespace PodNoms.Common.Services.Jobs {
         public GenerateWaveformsJob(ILogger<GenerateWaveformsJob> logger,
                                     IEntryRepository entryRepository,
                                     IFileUploader fileUploader,
-                                    IOptions<AppSettings> appSettings,
                                     IOptions<StorageSettings> storageSettings,
                                     IOptions<AudioFileStorageSettings> audioFileStorageSettings,
                                     IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
@@ -34,7 +32,6 @@ namespace PodNoms.Common.Services.Jobs {
                                     IUnitOfWork unitOfWork) : base(logger) {
             _entryRepository = entryRepository;
             _fileUploader = fileUploader;
-            _appSettings = appSettings.Value;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
             _storageSettings = storageSettings.Value;
             _waveformStorageSettings = waveformStorageSettings.Value;

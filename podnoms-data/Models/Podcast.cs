@@ -36,15 +36,13 @@ namespace PodNoms.Data.Models {
 
         #endregion
 
-        public string GetImageUrl(string cdnUrl, string containerName) {
-            return Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=725&height=748");
-        }
-        public string GetThumbnailUrl(string cdnUrl, string containerName) {
-            return Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=32&height=32");
-        }
-
-        public string GetAuthenticatedUrl(string siteUrl) {
-            return Flurl.Url.Combine(siteUrl, $"/podcasts/{Slug}");
-        }
+        public string GetImageUrl(string cdnUrl, string containerName) =>
+            Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=725&height=748");
+        public string GetThumbnailUrl(string cdnUrl, string containerName) =>
+            Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=32&height=32");
+        public string GetAuthenticatedUrl(string siteUrl) =>
+            Flurl.Url.Combine(siteUrl, $"/podcasts/{Slug}");
+        public string GetPagesUrl(string pagesUrl) =>
+            Flurl.Url.Combine(pagesUrl, this.AppUser.Slug, this.Slug);
     }
 }
