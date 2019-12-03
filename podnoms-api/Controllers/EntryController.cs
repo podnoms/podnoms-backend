@@ -93,6 +93,11 @@ namespace PodNoms.Api.Controllers {
             return Ok(result);
         }
 
+        [HttpPost("remoteurl")]
+        public async Task<ActionResult<PodcastEntryViewModel>> PostFromRemoteUrl([FromBody] PodcastEntryViewModel item) {
+
+            return await Post(item);
+        }
         [HttpPost]
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
