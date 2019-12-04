@@ -69,8 +69,8 @@ namespace PodNoms.Common.Services.Processor {
                 entry.Title = _downloader.Properties?.Title;
             }
 
-            entry.Description = _downloader.Properties?.Description;
-            entry.ImageUrl = _downloader.Properties?.Thumbnail;
+            entry.Description = _downloader.Properties?.Description ?? entry.Description;
+            entry.ImageUrl = _downloader.Properties?.Thumbnail ?? entry.ImageUrl;
             entry.ProcessingStatus = ProcessingStatus.Processing;
             try {
                 entry.Author = _downloader.Properties?.Uploader;
@@ -114,10 +114,10 @@ namespace PodNoms.Common.Services.Processor {
                 var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl, outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
-                
+
                 entry.ProcessingStatus = ProcessingStatus.Parsing;
                 await _unitOfWork.CompleteAsync();
-                
+
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Entry: {entryId}\n{ex.Message}");

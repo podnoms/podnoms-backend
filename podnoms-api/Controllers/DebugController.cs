@@ -23,6 +23,7 @@ using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
 using PodNoms.Common.Persistence;
+using PodNoms.Common.Services.PageParser;
 
 namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -35,6 +36,7 @@ namespace PodNoms.Api.Controllers {
         private readonly JwtIssuerOptions _jwtIssuerOptions;
         private readonly HubLifetimeManager<DebugHub> _hub;
         private readonly IConfiguration _config;
+        private readonly IPageParser _pageParser;
         private readonly IMapper _mapper;
         private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IEntryRepository _entryRepository;
@@ -47,6 +49,7 @@ namespace PodNoms.Api.Controllers {
         public DebugController(IOptions<StorageSettings> settings, IOptions<AppSettings> appSettings,
             HubLifetimeManager<DebugHub> hub,
             IConfiguration config,
+            IPageParser pageParser,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
@@ -69,6 +72,7 @@ namespace PodNoms.Api.Controllers {
             _jwtIssuerOptions = jwtIssuerOptions.Value;
             _hub = hub;
             _config = config;
+            _pageParser = pageParser;
             _mapper = mapper;
             _subscriptionStore = subscriptionStore;
             _entryRepository = entryRepository;
@@ -94,7 +98,6 @@ namespace PodNoms.Api.Controllers {
             return Ok(config);
         }
 
-        [AllowAnonymous]
         [HttpGet("generatelogdata")]
         public IActionResult GenerateLogData() {
             for (var i = 0; i < 1000; i++) {
@@ -104,7 +107,6 @@ namespace PodNoms.Api.Controllers {
             return Ok();
         }
 
-        [AllowAnonymous]
         [HttpGet("updateentryslugs")]
         public async Task<IActionResult> UpdateEntrySlugs() {
             var entries = _entryRepository.GetAll();
@@ -116,7 +118,6 @@ namespace PodNoms.Api.Controllers {
             return Ok();
         }
 
-        [AllowAnonymous]
         [HttpGet("sendmail")]
         public async Task<IActionResult> SendEmail(string email) {
             await _mailSender.SendEmailAsync(
@@ -153,7 +154,6 @@ namespace PodNoms.Api.Controllers {
             return response.ToString();
         }
 
-        [AllowAnonymous]
         [HttpGet("exception")]
         public void ThrowException(string text) {
             throw new HttpStatusCodeException(500, text);
@@ -170,10 +170,27 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("longrunningrequest")]
-        [AllowAnonymous]
         public async Task<IActionResult> LongRunningRequest([FromQuery] int delay) {
             await Task.Delay(TimeSpan.FromSeconds(delay));
             return Ok();
+        }
+        [AllowAnonymous]
+        [HttpGet("readogtags")]
+        public async Task<IActionResult> ReadOgTags([FromQuery] string url) {
+            // var parser = await _pageParser.Create(url);
+            if (await _pageParser.Initialise(url)) {
+                var title = _pageParser.GetHeadTag("og:title");
+                var image = _pageParser.GetHeadTag("og:image");
+                var description = _pageParser.GetHeadTag("og:description");
+                if (!string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(image)) {
+                    return Ok(new {
+                        title = title,
+                        description = description,
+                        image = image
+                    });
+                }
+            }
+            return BadRequest("Invalid Url");
         }
     }
 }

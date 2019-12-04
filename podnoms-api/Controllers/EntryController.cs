@@ -19,6 +19,7 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services;
 using PodNoms.Common.Services.Jobs;
+using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
@@ -93,11 +94,6 @@ namespace PodNoms.Api.Controllers {
             return Ok(result);
         }
 
-        [HttpPost("remoteurl")]
-        public async Task<ActionResult<PodcastEntryViewModel>> PostFromRemoteUrl([FromBody] PodcastEntryViewModel item) {
-
-            return await Post(item);
-        }
         [HttpPost]
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
