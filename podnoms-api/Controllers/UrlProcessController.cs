@@ -29,40 +29,32 @@ namespace PodNoms.Api.Controllers {
             this._parser = parser;
         }
 
-        [HttpGet("__temp__naked__validate")]
-        [AllowAnonymous]
-        [DisableCors]
-        public async Task<ActionResult> ___ValidateUrl([FromQuery] string url) {
-            await _parser.Initialise(url);
-            var links = await _parser.GetAllAudioLinks();
-            if (links.Count > 0) {
-                return new OkObjectResult(new {
-                    type = "proxied",
-                    data = links
-                });
-            }
-            return BadRequest();
-        }
-
         [HttpGet("validate")]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
             var fileType = await _downloader.GetInfo(url);
 
             if (fileType == RemoteUrlType.Invalid) {
-                await _parser.Initialise(url);
+                if (!await _parser.Initialise(url)) {
+                    return BadRequest("Invalid url");
+                }
                 var title = _parser.GetPageTitle();
+                var image = _parser.GetHeadTag("og:image");
+                var description = _parser.GetHeadTag("og:description");
+
                 var links = await _parser.GetAllAudioLinks();
                 if (links.Count > 0) {
                     return new OkObjectResult(new {
                         type = "proxied",
-                        title = title,
+                        title,
+                        image,
+                        description,
                         data = links
-                        .GroupBy(r => r.Key)     // note to future me
-                        .Select(g => g.First())  // these lines dedupe on key - neato!!
-                        .Select(r => new {
-                            key = r.Key,
-                            value = r.Value
-                        })
+                            .GroupBy(r => r.Key)     // note to future me
+                            .Select(g => g.First())  // these lines dedupe on key - neato!!
+                            .Select(r => new {
+                                key = r.Key,
+                                value = r.Value
+                            })
                     });
                 }
                 return BadRequest();

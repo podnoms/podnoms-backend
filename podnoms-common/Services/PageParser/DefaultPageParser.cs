@@ -10,17 +10,33 @@ namespace PodNoms.Common.Services.PageParser {
     public class DefaultPageParser : IPageParser {
         private const string PARSER_REGEX = @"((https?|ftp|gopher|telnet|file|notes|ms-help):((//)|(\\\\))+[\w\d:#@%/;$()~_?\+-=\\\.&]*\.mp3)";
         private HtmlDocument _doc;
-        private string url;
-        public static async Task<DefaultPageParser> Create(string url) {
+        private string _url;
+
+        private static async Task<DefaultPageParser> __create(string url) {
             var cls = new DefaultPageParser();
             await cls.Initialise(url);
             return cls;
         }
+        public bool _validateUrl(string url) {
+            if (Uri.TryCreate(url, UriKind.Absolute, out var validatedUri)) {
+                return (validatedUri.Scheme == Uri.UriSchemeHttp || validatedUri.Scheme == Uri.UriSchemeHttps);
+            }
+            return false;
+        }
+        public async Task<bool> Initialise(string url) {
+            if (_validateUrl(url)) {
+                this._url = url;
+                HtmlWeb web = new HtmlWeb();
+                _doc = await web.LoadFromWebAsync(url);
+                return true;
+            }
+            return false;
+        }
 
-        public async Task Initialise(string url) {
-            this.url = url;
-            HtmlWeb web = new HtmlWeb();
-            _doc = await web.LoadFromWebAsync(url);
+        public string GetHeadTag(string tagName) {
+            return _doc.DocumentNode
+                .SelectSingleNode($"//meta[@property='{tagName}']")?
+                .Attributes["content"].Value ?? string.Empty;
         }
 
         public string GetPageTitle() {
@@ -75,7 +91,7 @@ namespace PodNoms.Common.Services.PageParser {
             if (iframes.Count() != 0) {
                 var response = await Task.WhenAll(
                     iframes
-                        .Select(async e => (await DefaultPageParser.Create(e)).GetAudioLinks())
+                        .Select(async e => (await DefaultPageParser.__create(e)).GetAudioLinks())
                 ).ConfigureAwait(false);
                 return response.SelectMany(r => r).ToList();
             }
@@ -98,14 +114,14 @@ namespace PodNoms.Common.Services.PageParser {
                )))
                 .Select(d => new KeyValuePair<string, string>(
                    Regex.Replace(d.InnerText, @"\s+", ""),
-                   _normaliseUrl(url, d.Attributes["href"].Value)
+                   _normaliseUrl(_url, d.Attributes["href"].Value)
                )) ?? empty;
 
             var audioSources = _doc.DocumentNode.Descendants("audio")
                 .Where(n => n.Attributes["src"] != null)
                 .Select(d => new KeyValuePair<string, string>(
                    Path.GetFileName(d.Attributes["src"].Value),
-                   _normaliseUrl(url, d.Attributes["src"].Value)
+                   _normaliseUrl(_url, d.Attributes["src"].Value)
                )) ?? empty;
 
             var embeddedAudioSources = _doc.DocumentNode.Descendants("audio")
@@ -122,7 +138,7 @@ namespace PodNoms.Common.Services.PageParser {
                ))
                 .Select(d => new KeyValuePair<string, string>(
                    Path.GetFileName(d.Attributes["src"].Value),
-                   _normaliseUrl(url, d.Attributes["src"].Value)
+                   _normaliseUrl(_url, d.Attributes["src"].Value)
                )) ?? empty;
 
             return hrefSources
