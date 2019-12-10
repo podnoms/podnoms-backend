@@ -11,7 +11,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public string RssUrl { get; set; }
-        public string PagesUrl { get; internal set; }
+        public string PagesUrl { get; set; }
         public string User { get; set; }
         public DateTime CreateDate { get; set; }
 
