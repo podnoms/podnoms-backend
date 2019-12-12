@@ -14,6 +14,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<Podcast> GetAsync(string userId, Guid id);
         new Task<Podcast> GetAsync(Guid id);
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
+        Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug);
         Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug);
         Task<string> GetActivePodcast(string userId);
     }
@@ -52,6 +53,20 @@ namespace PodNoms.Common.Persistence.Repositories {
             return ret;
         }
 
+        public async Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug) {
+            var ret = await GetAll()
+                .Where(r => r.AppUser.Id == userId.ToString() && r.Slug == podcastSlug)
+                .Include(p => p.AppUser)
+                .Include(p => p.PodcastEntries)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategories)
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync();
+            if (ret != null && ret.PodcastEntries != null) {
+                ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
+            }
+            return ret;
+        }
         public async Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug) {
             var ret = await GetAll()
                 .Where(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug)

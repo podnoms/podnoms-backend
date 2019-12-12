@@ -12,12 +12,12 @@
     <ItemGroup>
         <!-- Fucking MegaSync -->
         <PackageReference Include="EasyNetQ" Version="3.7.1" />
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.8.2" />
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.7" />
-        <PackageReference Include="Hangfire.Core" Version="1.7.7" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.8" />
+        <PackageReference Include="Hangfire.Core" Version="1.7.8" />
         <PackageReference Include="AutoMapper" Version="9.0.0" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="OpenSSL.X509Certificate2.Provider" Version="1.3.0" />
         <PackageReference Include="reCAPTCHA.AspNetCore" Version="2.2.3" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.19" />
