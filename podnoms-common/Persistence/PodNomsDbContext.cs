@@ -142,8 +142,7 @@ namespace PodNoms.Common.Persistence {
             return base.SaveChanges();
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
-            CancellationToken cancellationToken = default(CancellationToken)) {
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
             foreach (var entity in ChangeTracker.Entries()
                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
                     .Where(e => e.Entity is ISluggedEntity)
@@ -151,7 +150,6 @@ namespace PodNoms.Common.Persistence {
                     .Where(e => string.IsNullOrEmpty(e.Slug))) {
                 entity.Slug = entity.GenerateSlug(this);
             }
-
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
