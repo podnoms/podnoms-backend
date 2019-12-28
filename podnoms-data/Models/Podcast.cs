@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
@@ -44,5 +46,13 @@ namespace PodNoms.Data.Models {
             Flurl.Url.Combine(siteUrl, $"/podcasts/{Slug}");
         public string GetPagesUrl(string pagesUrl) =>
             Flurl.Url.Combine(pagesUrl, this.AppUser.Slug, this.Slug);
+
+        public DateTime GetLastEntryDate() {
+            var lastEntry = this.PodcastEntries
+                .OrderByDescending(e => e.UpdateDate)
+                .Select(r => r.UpdateDate)
+                .First();
+            return lastEntry;
+        }
     }
 }

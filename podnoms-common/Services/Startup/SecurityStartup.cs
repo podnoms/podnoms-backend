@@ -13,10 +13,10 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SecurityStartup {
-        private const string SecretKey = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
+        private const string SECRET_KEY = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
 
         private static readonly SymmetricSecurityKey
-            SigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+            _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SECRET_KEY));
 
         public static IServiceCollection AddPodnomsSecurity(this IServiceCollection services, IConfiguration config) {
             var jwtAppSettingOptions = config.GetSection(nameof(JwtIssuerOptions));
@@ -26,7 +26,7 @@ namespace PodNoms.Common.Services.Startup {
                 options.ValidFor = TimeSpan.FromDays(28);
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(SigningKey, SecurityAlgorithms.HmacSha256);
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
             var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
@@ -36,7 +36,7 @@ namespace PodNoms.Common.Services.Startup {
                 ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = SigningKey,
+                IssuerSigningKey = _signingKey,
 
                 RequireExpirationTime = false,
                 ValidateLifetime = true,
@@ -88,6 +88,7 @@ namespace PodNoms.Common.Services.Startup {
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .WithOrigins(
+                            //TODO: Will have to add all Podcast.CustomUrl values into here
                             "https://localhost:4200",
                             "http://localhost:8080",
                             "http://localhost:4200",
@@ -96,6 +97,7 @@ namespace PodNoms.Common.Services.Startup {
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.local:4200",
                             "https://podnoms.local:4201",
+                            "https://test.podnoms.local:4201",
                             "https://podnoms.com",
                             "https://pages.podnoms.com",
                             "https://www.podnoms.com")

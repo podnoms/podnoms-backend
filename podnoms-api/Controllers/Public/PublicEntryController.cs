@@ -12,7 +12,7 @@ namespace PodNoms.Api.Controllers.Public {
     [Route("pub/entry")]
     public class PublicEntryController : Controller {
         private readonly IEntryRepository _entryRepository;
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper;   
 
         public PublicEntryController(IEntryRepository entryRepository,
             IMapper mapper) {

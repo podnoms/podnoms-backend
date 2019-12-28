@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
@@ -83,10 +84,17 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
 
         public async Task<List<PodcastEntry>> GetMissingWaveforms() {
-            return await GetContext()
-                .PodcastEntries.Where(r => r.WaveformGenerated == false)
-            .ToListAsync();
+            var qry = GetContext()
+                .PodcastEntries
+                .Where(r => r.WaveformGenerated == false)
+                .Where(r => r.CreateDate <= System.DateTime.Now.AddMinutes(-60));
+
+            // var sql = qry.ToSql();
+            // Console.WriteLine(sql);
+
+            return await qry.ToListAsync();
         }
+
         /// <summary>
         /// Base36 encode the model's ID with extra parity bit
         /// </summary>

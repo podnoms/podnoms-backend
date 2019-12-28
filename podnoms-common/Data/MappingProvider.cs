@@ -46,7 +46,10 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.PagesUrl,
-                    e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"]))); ;
+                    e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])))
+                .ForMember(
+                    src => src.LastEntryDate,
+                    e => e.MapFrom(m => m.GetLastEntryDate()));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
