@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -10,6 +11,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/podcast")]
+    [EnableCors("PublicApiPolicy")]
     public class PublicPodcastController : Controller {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IEntryRepository _entryRepository;

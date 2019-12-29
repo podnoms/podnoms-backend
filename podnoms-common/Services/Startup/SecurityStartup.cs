@@ -102,6 +102,11 @@ namespace PodNoms.Common.Services.Startup {
                             "https://pages.podnoms.com",
                             "https://www.podnoms.com")
                         .AllowCredentials());
+                options.AddPolicy("PublicApiPolicy",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
                 options.AddPolicy("BrowserExtensionPolicy",
                     builder => builder
                         .AllowAnyOrigin()

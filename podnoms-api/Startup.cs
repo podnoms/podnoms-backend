@@ -71,7 +71,7 @@ namespace PodNoms.Api {
                     b => b.MigrationsAssembly("podnoms-common"));
             });
 
-            
+
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
                 new AutoSubscriber(
