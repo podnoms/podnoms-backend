@@ -24,7 +24,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
-    [Route ("[controller]")]
+    [Route("[controller]")]
     public class PodcastController : BaseAuthController {
         private readonly IPodcastRepository _repository;
         private readonly IMapper _mapper;
@@ -33,11 +33,11 @@ namespace PodNoms.Api.Controllers {
         private readonly ImageFileStorageSettings _fileStorageSettings;
         private readonly IFileUtilities _fileUtilities;
 
-        public PodcastController (IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork,
+        public PodcastController(IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork,
             ILogger<PodcastController> logger,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor,
             IOptions<StorageSettings> storageSettings, IOptions<ImageFileStorageSettings> fileStorageSettings,
-            IFileUtilities fileUtilities) : base (contextAccessor, userManager, logger) {
+            IFileUtilities fileUtilities) : base(contextAccessor, userManager, logger) {
             _uow = unitOfWork;
             _storageSettings = storageSettings.Value;
             _fileStorageSettings = fileStorageSettings.Value;
@@ -47,93 +47,94 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<PodcastViewModel>> Get () {
-            var podcasts = await _repository.GetAllForUserAsync (_applicationUser.Id);
-            var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>> (podcasts.ToList ());
-            return Ok (ret);
+        public async Task<ActionResult<PodcastViewModel>> Get() {
+            var podcasts = await _repository
+                .GetAllForUserAsync(_applicationUser.Id);
+            var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());
+            return Ok(ret);
         }
 
-        [HttpGet ("{slug}")]
-        public async Task<IActionResult> GetBySlug (string slug) {
-            var podcast = await _repository.GetForUserAndSlugAsync (Guid.Parse(_applicationUser.Id), slug);
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug) {
+            var podcast = await _repository.GetForUserAndSlugAsync(Guid.Parse(_applicationUser.Id), slug);
             if (podcast is null)
-                return NotFound ();
-            return Ok (_mapper.Map<Podcast, PodcastViewModel> (podcast));
+                return NotFound();
+            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
         }
 
-        [HttpGet ("active")]
-        public async Task<ActionResult<string>> GetActive () {
-            var item = await _repository.GetActivePodcast (_applicationUser.Id);
-            return Ok ($"\"{item}\"");
+        [HttpGet("active")]
+        public async Task<ActionResult<string>> GetActive() {
+            var item = await _repository.GetActivePodcast(_applicationUser.Id);
+            return Ok($"\"{item}\"");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post ([FromBody] PodcastViewModel vm) {
-            if (!ModelState.IsValid) return BadRequest ("Invalid podcast model");
+        public async Task<IActionResult> Post([FromBody] PodcastViewModel vm) {
+            if (!ModelState.IsValid) return BadRequest("Invalid podcast model");
 
-            var item = _mapper.Map<PodcastViewModel, Podcast> (vm);
+            var item = _mapper.Map<PodcastViewModel, Podcast>(vm);
 
-            var isNew = string.IsNullOrEmpty (vm.Id);
+            var isNew = string.IsNullOrEmpty(vm.Id);
             item.AppUser = _applicationUser;
-            var ret = _repository.AddOrUpdate (item);
+            var ret = _repository.AddOrUpdate(item);
             try {
-                await _uow.CompleteAsync ();
+                await _uow.CompleteAsync();
 
-                if (!isNew) return Ok (_mapper.Map<Podcast, PodcastViewModel> (ret));
+                if (!isNew) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
                 // TODO: Revisit this at some stage, horribly hacky & brittle
                 // TODO: This should be moved to the background cache images job
                 // TODO: And ultimately handled by imageresizer when they get their fucking docs in order
-                var rawImageFileName = vm.ImageUrl?.Replace (_storageSettings.CdnUrl, string.Empty).TrimStart ('/');
-                if (string.IsNullOrEmpty (rawImageFileName)) return Ok (_mapper.Map<Podcast, PodcastViewModel> (ret));
+                var rawImageFileName = vm.ImageUrl?.Replace(_storageSettings.CdnUrl, string.Empty).TrimStart('/');
+                if (string.IsNullOrEmpty(rawImageFileName)) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
-                var parts = rawImageFileName.Split ('/', 2);
-                if (parts.Length != 2) return Ok (_mapper.Map<Podcast, PodcastViewModel> (ret));
+                var parts = rawImageFileName.Split('/', 2);
+                if (parts.Length != 2) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
-                await _fileUtilities.CopyRemoteFile (
+                await _fileUtilities.CopyRemoteFile(
                     parts[0], parts[1],
                     _fileStorageSettings.ContainerName, $"podcast/{ret.Id.ToString()}.png");
 
-                return Ok (_mapper.Map<Podcast, PodcastViewModel> (ret));
+                return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
             } catch (GenerateSlugFailureException) {
-                return StatusCode (StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put ([FromBody] PodcastViewModel vm) {
-            if (!ModelState.IsValid || string.IsNullOrEmpty (vm.Id)) return BadRequest ("Invalid request data");
+        public async Task<IActionResult> Put([FromBody] PodcastViewModel vm) {
+            if (!ModelState.IsValid || string.IsNullOrEmpty(vm.Id)) return BadRequest("Invalid request data");
 
-            var podcast = _mapper.Map<PodcastViewModel, Podcast> (vm);
+            var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
             if (podcast.AppUser is null)
                 podcast.AppUser = _applicationUser;
 
-            _repository.AddOrUpdate (podcast);
-            await _uow.CompleteAsync ();
-            return Ok (_mapper.Map<Podcast, PodcastViewModel> (podcast));
+            _repository.AddOrUpdate(podcast);
+            await _uow.CompleteAsync();
+            return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
 
         }
 
-        [HttpDelete ("{id}")]
-        public async Task<IActionResult> Delete (string id) {
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id) {
             try {
-                await _repository.DeleteAsync (new Guid (id));
-                await _uow.CompleteAsync ();
-                return Ok ();
+                await _repository.DeleteAsync(new Guid(id));
+                await _uow.CompleteAsync();
+                return Ok();
             } catch (Exception ex) {
-                _logger.LogError ("Error deleting podcast");
-                _logger.LogError (ex.Message);
+                _logger.LogError("Error deleting podcast");
+                _logger.LogError(ex.Message);
             }
 
-            return BadRequest ("Unable to delete entry");
+            return BadRequest("Unable to delete entry");
         }
 
-        [HttpGet ("checkslug/{slug}")]
-        public async Task<ActionResult<string>> CheckSlug (string slug) {
-            var slugValid = (await _repository.GetAllForUserAsync (_applicationUser.Id))
-                .Where (r => r.Slug == slug);
-            var content = slugValid.Count () == 0 ? string.Empty : slugValid.First ().Title;
-            return base.Content (
+        [HttpGet("checkslug/{slug}")]
+        public async Task<ActionResult<string>> CheckSlug(string slug) {
+            var slugValid = (await _repository.GetAllForUserAsync(_applicationUser.Id))
+                .Where(r => r.Slug == slug);
+            var content = slugValid.Count() == 0 ? string.Empty : slugValid.First().Title;
+            return base.Content(
                 $"\"{content}\"",
                 "text/plain"
             );

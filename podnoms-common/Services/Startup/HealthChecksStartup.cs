@@ -16,9 +16,11 @@ using PodNoms.Common.Data.Settings;
 namespace PodNoms.Common.Services.Startup {
     public static class HealthChecksStartup {
 
-        public static IServiceCollection AddPodNomsHealthChecks(this IServiceCollection services, IConfiguration Configuration, bool isDevelopment) {
-            if (!isDevelopment && false) {
-                services.AddHealthChecksUI();
+        public static IServiceCollection AddPodNomsHealthChecks(
+                        this IServiceCollection services,
+                        IConfiguration Configuration, bool isDevelopment) {
+            if (!isDevelopment || true) {
+                // services.AddHealthChecksUI();
                 services.AddHealthChecks()
                     .AddSqlServer(
                         connectionString: Configuration["ConnectionStrings:DefaultConnection"],
@@ -48,15 +50,15 @@ namespace PodNoms.Common.Services.Startup {
         }
 
         public static IApplicationBuilder UsePodNomsHealthChecks(this IApplicationBuilder app, bool isDevelopment) {
-            if (!isDevelopment && false) {
-                app.UseHealthChecks("/hc", new HealthCheckOptions {
+            if (!isDevelopment || true) {
+                app.UseHealthChecks("/hc-api", new HealthCheckOptions {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                })
-                .UseHealthChecksUI(setup => {
-                    setup.UIPath = "/hc-ui"; // this is ui path in your browser
-                    setup.ApiPath = "/hc-ui-api"; // the UI ( spa app )  use this path to get information from the store ( this is NOT the healthz path, is internal ui api )
                 });
+                // .UseHealthChecksUI(setup => {
+                //     setup.UIPath = "/hc-ui"; // this is ui path in your browser
+                //     setup.ApiPath = "/hc"; // the UI ( spa app )  use this path to get information from the store ( this is NOT the healthz path, is internal ui api )
+                // });
             }
             return app;
         }

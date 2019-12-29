@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -7,6 +8,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/podcast/domainresolver")]
+    [EnableCors("PublicApiPolicy")]
     public class DomainResolverController : Controller {
         private readonly IPodcastRepository _podcastRepository;
 
