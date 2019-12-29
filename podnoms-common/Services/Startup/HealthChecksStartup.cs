@@ -20,7 +20,10 @@ namespace PodNoms.Common.Services.Startup {
                         this IServiceCollection services,
                         IConfiguration Configuration, bool isDevelopment) {
             if (!isDevelopment || true) {
-                // services.AddHealthChecksUI();
+                // disable UI in dev as self-signed certs aren't allowed
+                if (!isDevelopment) {
+                    services.AddHealthChecksUI();
+                }
                 services.AddHealthChecks()
                     .AddSqlServer(
                         connectionString: Configuration["ConnectionStrings:DefaultConnection"],
@@ -55,10 +58,9 @@ namespace PodNoms.Common.Services.Startup {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
-                // .UseHealthChecksUI(setup => {
-                //     setup.UIPath = "/hc-ui"; // this is ui path in your browser
-                //     setup.ApiPath = "/hc"; // the UI ( spa app )  use this path to get information from the store ( this is NOT the healthz path, is internal ui api )
-                // });
+                app.UseEndpoints(config => {
+                    config.MapHealthChecksUI();
+                });
             }
             return app;
         }

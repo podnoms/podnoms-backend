@@ -17,15 +17,16 @@ namespace PodNoms.Api.Controllers.Public {
         }
         [HttpGet]
         public async Task<ActionResult<string>> ResolveDomain([FromQuery]string domain) {
+            var cleanedDomain = domain.Split(":")[0]; //remove port
+            var customUrl = string.Empty;
             var podcast = await _podcastRepository
                 .GetAll()
                 .Include(p => p.AppUser)
-                .SingleAsync(r => r.CustomDomain == domain);
+                .SingleOrDefaultAsync(r => r.CustomDomain == cleanedDomain);
             if (podcast != null) {
-                var customUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
-                return Ok(customUrl);
+                customUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
             }
-            return NotFound();
+            return Ok(customUrl);
         }
     }
 }
