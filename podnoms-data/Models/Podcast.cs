@@ -31,7 +31,7 @@ namespace PodNoms.Data.Models {
 
         #region AuthStuff
 
-        public bool? Private { get; set; } = false;
+        public bool Private { get; set; } = false;
         public string AuthUserName { get; set; }
         public byte[] AuthPassword { get; set; }
         public byte[] AuthPasswordSalt { get; set; }

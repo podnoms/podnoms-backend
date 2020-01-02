@@ -45,7 +45,7 @@ namespace PodNoms.Common.Auth {
             var podcast = _podcastRepository
                 .GetAll().FirstOrDefault(
                     p => p.AppUser.Slug == userSlug &&
-                         p.Slug == podcastSlug && (p.Private ?? false));
+                         p.Slug == podcastSlug && (p.Private));
             if (podcast is null)
                 return;
 
@@ -82,7 +82,7 @@ namespace PodNoms.Common.Auth {
                 .SingleOrDefault(r => r.AuthUserName.Equals(username));
             if (record is null)
                 return false;
-            
+
             var pwd = Encoding.ASCII.GetBytes(password);
             var checkHash = PBKDFGenerators.GenerateHash(pwd, podcast.AuthPasswordSalt);
             return podcast.AuthPassword.SequenceEqual(checkHash);

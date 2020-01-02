@@ -101,7 +101,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
         public new Podcast AddOrUpdate(Podcast podcast) {
             // hash the passwords
-            if (podcast.AuthPassword != null && (podcast.Private ?? false)) {
+            if (podcast.AuthPassword != null && (podcast.Private)) {
                 var salt = PBKDFGenerators.GenerateSalt();
                 var password = PBKDFGenerators.GenerateHash(podcast.AuthPassword, salt);
 

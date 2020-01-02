@@ -141,12 +141,12 @@ namespace PodNoms.Common.Persistence.Repositories {
             return entry;
         }
         public async Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50) {
-            // var results = await GetAll()
-            //     // .Where(e => e.Podcast.Private.CompareTo(false) == false)
-            //     .OrderBy(e => System.Guid.NewGuid())
-            //     .Take(amount);
-            return null;
+            var results = await GetAll()
+                .Where(e => e.Podcast.Private == false)
+                .OrderBy(e => System.Guid.NewGuid())
+                .Take(amount)
+                .ToListAsync();
+            return results;
         }
-
     }
 }
