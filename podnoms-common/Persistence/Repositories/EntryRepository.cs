@@ -20,6 +20,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<string> GetIdForShareLink(string sharingId);
         Task<List<PodcastEntry>> GetMissingWaveforms();
         Task<PodcastEntry> GetEntryForShareId(string sharingId);
+        Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50);
     }
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
         public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) { }
@@ -139,5 +140,13 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .FirstOrDefaultAsync();
             return entry;
         }
+        public async Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50) {
+            // var results = await GetAll()
+            //     // .Where(e => e.Podcast.Private.CompareTo(false) == false)
+            //     .OrderBy(e => System.Guid.NewGuid())
+            //     .Take(amount);
+            return null;
+        }
+
     }
 }
