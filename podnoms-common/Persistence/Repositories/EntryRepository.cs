@@ -143,6 +143,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50) {
             var results = await GetAll()
                 .Where(e => e.Podcast.Private == false)
+                .Where(e => e.Podcast.AppUser.Slug == "fergal-moran")
                 .OrderBy(e => System.Guid.NewGuid())
                 .Take(amount)
                 .ToListAsync();
