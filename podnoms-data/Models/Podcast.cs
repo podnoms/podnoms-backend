@@ -47,12 +47,12 @@ namespace PodNoms.Data.Models {
         public string GetPagesUrl(string pagesUrl) =>
             Flurl.Url.Combine(pagesUrl, this.AppUser.Slug, this.Slug);
 
-        public DateTime GetLastEntryDate() {
+        public DateTime? GetLastEntryDate() {
             var lastEntry = this.PodcastEntries
                 .OrderByDescending(e => e.UpdateDate)
                 .Select(r => r.UpdateDate)
-                .First();
-            return lastEntry;
+                .FirstOrDefault();
+            return lastEntry == null ? this.UpdateDate : lastEntry;
         }
     }
 }
