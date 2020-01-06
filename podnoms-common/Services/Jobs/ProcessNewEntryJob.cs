@@ -45,7 +45,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
-                var localFile =  Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+                var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                    r => r.CacheImage(entry.Id));
 
@@ -54,8 +54,12 @@ namespace PodNoms.Common.Services.Jobs {
                     r => r.DownloadAudio(authToken, entry.Id, localFile));
 
                 //TODO: Don't run this if IUrlProcessService fails
-                var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
+                var tagEntryJob = BackgroundJob.ContinueJobWith<TagEntryJob>(
                     extractJobId,
+                    r => r.ExecuteForEntry(entry.Id, localFile, null));
+
+                var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
+                    tagEntryJob,
                     r => r.UploadAudio(authToken, entry.Id, localFile));
 
                 //if we wait until everything is done, we can delete the local file
