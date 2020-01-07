@@ -1,29 +1,47 @@
+using System;
 using System.Threading.Tasks;
 using PodNoms.Common.Utils;
 using TagLib;
 
 namespace PodNoms.Common.Services.Audio {
     public interface IMP3Tagger {
-        Task<bool> GenerateTags(string localFile, string title, string album, string imageUrl);
-
+        string GetTags(string localFile);
+        void ClearTags(string localFile);
+        Task<bool> CreateTags(string localFile, string imageUrl, string title, string album, string author, string copyright, string comments);
     }
+
     public class MP3Tagger : IMP3Tagger {
-        public async Task<bool> GenerateTags(string localFile, string title, string album, string imageUrl) {
-            TagLib.File file = TagLib.File.Create(localFile);
+        public string GetTags(string localFile) {
+            using var file = TagLib.File.Create(localFile);
+            return $"{file.Tag.Title}{Environment.NewLine}{file.Tag.Album}{Environment.NewLine}{file.Tag.Comment}";
+        }
+
+        public void ClearTags(string localFile) {
+            using var file = TagLib.File.Create(localFile);
             file.RemoveTags(TagTypes.AllTags);
             file.Save();
+        }
+
+        public async Task<bool> CreateTags(string localFile, string imageUrl,
+            string title, string album, string author, string copyright, string comments) {
+            using var file = TagLib.File.Create(localFile);
 
             if (!string.IsNullOrEmpty(imageUrl)) {
                 var localImageFile = await HttpUtils.DownloadFile(imageUrl);
-
                 if (System.IO.File.Exists(localImageFile)) {
                     var image = new Picture(localImageFile);
-                    file.Tag.Pictures = new[] { image };
+                    file.Tag.Pictures = new IPicture[] { image };
                 }
             }
+
             file.Tag.Title = title;
             file.Tag.Album = album;
+            file.Tag.Performers = new string[] { author };
+            file.Tag.AlbumArtists = new string[] { author };
+            file.Tag.Copyright = copyright;
+            file.Tag.Comment = comments;
             file.Save();
+
             return true;
         }
     }

@@ -33,15 +33,19 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
-            if (System.IO.File.Exists(localFile)) {
-                await _tagger.GenerateTags(
-                    localFile,
-                    entry.Title,
-                    entry.Podcast.Title,
-                    entry.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName));
-                return true;
+            if (!System.IO.File.Exists(localFile)) {
+                return false;
             }
-            return false;
+
+            await _tagger.CreateTags(
+                localFile,
+                entry.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
+                entry.Title,
+                entry.Podcast.Title,
+                entry.Podcast.AppUser.GetBestGuessName(),
+                $"Copyright © {System.DateTime.Now.Year} {entry.Podcast.AppUser.GetBestGuessName()}",
+                $"Robot Powered Podcasts from{Environment.NewLine}https://podnoms.com/");
+            return true;
         }
     }
 }
