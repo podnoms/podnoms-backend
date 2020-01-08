@@ -56,7 +56,7 @@ namespace PodNoms.Common.Services.Jobs {
                 //TODO: Don't run this if IUrlProcessService fails
                 var tagEntryJob = BackgroundJob.ContinueJobWith<TagEntryJob>(
                     extractJobId,
-                    r => r.ExecuteForEntry(entry.Id, localFile, null));
+                    r => r.ExecuteForEntry(entry.Id, localFile, true, null));
 
                 var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
                     tagEntryJob,

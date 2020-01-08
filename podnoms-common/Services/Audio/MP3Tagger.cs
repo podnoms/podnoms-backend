@@ -22,18 +22,15 @@ namespace PodNoms.Common.Services.Audio {
             file.Save();
         }
 
-        public async Task<bool> CreateTags(string localFile, string imageUrl,
+        public async Task<bool> CreateTags(string localFile, string localImageFile,
             string title, string album, string author, string copyright, string comments) {
             using var file = TagLib.File.Create(localFile);
-
-            if (!string.IsNullOrEmpty(imageUrl)) {
-                var localImageFile = await HttpUtils.DownloadFile(imageUrl);
-                if (System.IO.File.Exists(localImageFile)) {
-                    var image = new Picture(localImageFile);
-                    file.Tag.Pictures = new IPicture[] { image };
-                }
+            
+            if (System.IO.File.Exists(localImageFile)) {
+                var image = new Picture(localImageFile);
+                file.Tag.Pictures = new IPicture[] { image };
             }
-
+            
             file.Tag.Title = title;
             file.Tag.Album = album;
             file.Tag.Performers = new string[] { author };

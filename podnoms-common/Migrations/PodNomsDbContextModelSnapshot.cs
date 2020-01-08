@@ -702,6 +702,9 @@ namespace PodNoms.Comon.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("MetadataStatus")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("PlaylistId")
                         .HasColumnType("uniqueidentifier");
 
