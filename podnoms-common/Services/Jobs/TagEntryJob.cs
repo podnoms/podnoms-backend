@@ -51,8 +51,10 @@ namespace PodNoms.Common.Services.Jobs {
                 .Include(e => e.Podcast)
                 .Include(e => e.Podcast.AppUser)
                 .Where(e => e.MetadataStatus == 0);
-
+            var count = entries.Count();
+            var i = 1;
             foreach (var entry in entries) {
+                Log($"Processing {i++} of {count}");
                 Log($"Generating metadata for {entry.Title}");
                 var audioUrl = entry.GetAudioUrl($"{_storageOptions.CdnUrl}/{_audioStorageOptions.ContainerName}");
                 Log($"\tDownloading {audioUrl}");
@@ -68,6 +70,7 @@ namespace PodNoms.Common.Services.Jobs {
                 if (!await this.ExecuteForEntry(entry, file, false, context)) {
                     continue;
                 }
+
                 Log($"\tUploading {file}");
 
                 await _fileUploader.UploadFile(
@@ -76,9 +79,9 @@ namespace PodNoms.Common.Services.Jobs {
                     $"{entry.Id.ToString()}.mp3",
                     "application/mpeg");
                 entry.MetadataStatus = 1;
+                await _unitOfWork.CompleteAsync();
             }
 
-            await _unitOfWork.CompleteAsync();
             return false;
         }
 
