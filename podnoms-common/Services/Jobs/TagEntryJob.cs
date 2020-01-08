@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Hangfire.Server;
@@ -47,41 +47,48 @@ namespace PodNoms.Common.Services.Jobs {
         public override async Task<bool> Execute(PerformContext context) {
             this._setContext(context);
 
-            var entries = this._entryRepository.GetAll()
+            var entries = await this._entryRepository.GetAll()
                 .Include(e => e.Podcast)
                 .Include(e => e.Podcast.AppUser)
-                .Where(e => e.MetadataStatus == 0);
+                .Where(e => e.MetadataStatus == 0)
+                // .Take(10)
+                .ToListAsync();
+
             var count = entries.Count();
             var i = 1;
             foreach (var entry in entries) {
-                Log($"Processing {i++} of {count}");
-                Log($"Generating metadata for {entry.Title}");
-                var audioUrl = entry.GetAudioUrl($"{_storageOptions.CdnUrl}/{_audioStorageOptions.ContainerName}");
-                Log($"\tDownloading {audioUrl}");
+                try {
+                    Log($"Processing {i++} of {count}");
+                    Log($"Generating metadata for {entry.Title}");
+                    var audioUrl = entry.GetAudioUrl($"{_storageOptions.CdnUrl}/{_audioStorageOptions.ContainerName}");
+                    Log($"\tDownloading {audioUrl}");
 
-                var file = await HttpUtils.DownloadFile(
-                    audioUrl,
-                    System.IO.Path.Combine(
-                        System.IO.Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3"));
-                if (!System.IO.File.Exists(file)) {
-                    continue;
+                    var file = await HttpUtils.DownloadFile(
+                        audioUrl,
+                        System.IO.Path.Combine(
+                            System.IO.Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3"));
+                    if (!System.IO.File.Exists(file)) {
+                        continue;
+                    }
+
+                    if (!await this.ExecuteForEntry(entry, file, false, context)) {
+                        continue;
+                    }
+
+                    Log($"\tUploading {file}");
+
+                    await _fileUploader.UploadFile(
+                        file,
+                        _audioStorageOptions.ContainerName,
+                        $"{entry.Id.ToString()}.mp3",
+                        "application/mpeg");
+                    entry.MetadataStatus = 1;
+                    await _unitOfWork.CompleteAsync();
+                } catch (Exception ex) {
+                    LogError(ex.Message);
                 }
-
-                if (!await this.ExecuteForEntry(entry, file, false, context)) {
-                    continue;
-                }
-
-                Log($"\tUploading {file}");
-
-                await _fileUploader.UploadFile(
-                    file,
-                    _audioStorageOptions.ContainerName,
-                    $"{entry.Id.ToString()}.mp3",
-                    "application/mpeg");
-                entry.MetadataStatus = 1;
-                await _unitOfWork.CompleteAsync();
             }
-
+            Log("PREPARING SAVE!!");
             return false;
         }
 
@@ -108,7 +115,7 @@ namespace PodNoms.Common.Services.Jobs {
                 }
             }
 
-            await _tagger.CreateTags(
+            _tagger.CreateTags(
                 localFile,
                 localImageFile,
                 entry.Title,
