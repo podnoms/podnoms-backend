@@ -31,8 +31,8 @@ namespace PodNoms.Api.Controllers {
             _storageSettings = storageSettings.Value;
             _waveformStorageSettings = waveformStorageSettings.Value;
         }
-        [HttpGet]
-        public async Task<ActionResult<WaveformViewModel>> Get([FromQuery]string entryId) {
+        [HttpGet("{entryId}")]
+        public async Task<ActionResult<WaveformViewModel>> Get(string entryId) {
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry != null) {
                 //offload the downloading of the data to the client for now, 
