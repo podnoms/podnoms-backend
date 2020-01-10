@@ -83,9 +83,11 @@ namespace PodNoms.Common.Services.Jobs {
                         $"{entry.Id.ToString()}.mp3",
                         "application/mpeg");
                     entry.MetadataStatus = 1;
-                    await _unitOfWork.CompleteAsync();
                 } catch (Exception ex) {
+                    entry.MetadataStatus = -1;
                     LogError(ex.Message);
+                } finally {
+                    await _unitOfWork.CompleteAsync();
                 }
             }
             Log("PREPARING SAVE!!");

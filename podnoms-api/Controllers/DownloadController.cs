@@ -22,25 +22,34 @@ namespace PodNoms.Api.Controllers {
         private readonly IEntryRepository _repository;
 
         public DownloadController(IHttpContextAccessor contextAccessor,
-                                  IOptions<StorageSettings> storageSettings,
-                                  IOptions<AudioFileStorageSettings> audioStorageSettings,
-                                  IFileUtilities fileUtilities,
-                                  UserManager<ApplicationUser> userManager,
-                                  ILogger<DownloadController> logger,
-                                  IEntryRepository repository) :
-                base(contextAccessor, userManager, logger) {
+            IOptions<StorageSettings> storageSettings,
+            IOptions<AudioFileStorageSettings> audioStorageSettings,
+            IFileUtilities fileUtilities,
+            UserManager<ApplicationUser> userManager,
+            ILogger<DownloadController> logger,
+            IEntryRepository repository) :
+            base(contextAccessor, userManager, logger) {
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
             _fileUtilities = fileUtilities;
             _repository = repository;
         }
+
+        [AllowAnonymous]
+        [HttpGet("{entryId}")]
+        public async Task<IActionResult> DownloadFile(string entryId) {
+            return await DownloadFileWithQueryString(entryId);
+        }
+
         [AllowAnonymous]
         [HttpGet()]
-        public async Task<IActionResult> DownloadFile([FromQuery]string entryId) {
+        [Obsolete("Remove all uses of FromQuery when referencing a resource directly")]
+        public async Task<IActionResult> DownloadFileWithQueryString([FromQuery] string entryId) {
             try {
                 var entry = await _repository.GetAsync(entryId);
                 var storageUrl = entry.GetInternalStorageUrl(_storageSettings.CdnUrl);
-                var stream = await _fileUtilities.GetRemoteFileStream(_audioStorageSettings.ContainerName, $"{entry.Id}.mp3");
+                var stream =
+                    await _fileUtilities.GetRemoteFileStream(_audioStorageSettings.ContainerName, $"{entry.Id}.mp3");
                 Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{entry.GetFileDownloadName()}\"");
                 Response.Headers.Add("Content-Type", $"application/octet-stream");
                 return File(stream, "application/octet-stream", false);
