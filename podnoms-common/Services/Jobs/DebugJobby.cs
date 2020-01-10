@@ -22,7 +22,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> Execute(PerformContext context) {
             return await Task.Factory.StartNew(() => {
                 Guid playlistId = Guid.Parse("544e9984-7ed5-4c76-10e6-08d70ff62e10");
-                BackgroundJob.Enqueue<ProcessPlaylistsJob>(r => r.Execute(playlistId, context));
+                // BackgroundJob.Enqueue<ProcessPlaylistsJob>(r => r.Execute(playlistId, context));
                 return true;
             });
         }

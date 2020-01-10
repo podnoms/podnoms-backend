@@ -35,8 +35,8 @@ namespace PodNoms.Api.Controllers {
             _repository = repository;
         }
         [AllowAnonymous]
-        [HttpGet("{entryId}")]
-        public async Task<IActionResult> DownloadFile(string entryId) {
+        [HttpGet()]
+        public async Task<IActionResult> DownloadFile([FromQuery]string entryId) {
             try {
                 var entry = await _repository.GetAsync(entryId);
                 var storageUrl = entry.GetInternalStorageUrl(_storageSettings.CdnUrl);

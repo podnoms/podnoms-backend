@@ -1,0 +1,3 @@
+export ASPNETCORE_ENVIRONMENT=Development && \
+    dotnet ef migrations add AddMetadataStatusToEntry \
+    --project podnoms-common/podnoms-common.csproj --context PodNomsDbContext
