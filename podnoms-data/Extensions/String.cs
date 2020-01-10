@@ -41,6 +41,8 @@ namespace PodNoms.Data.Extensions {
             var bytes = Encoding.GetEncoding("Cyrillic").GetBytes(txt);
             return Encoding.ASCII.GetString(bytes);
         }
-
+        public static string Truncate(this string value, int maxChars) {
+            return value.Length <= maxChars ? value : value.Substring(0, maxChars) + "...";
+        }
     }
 }
