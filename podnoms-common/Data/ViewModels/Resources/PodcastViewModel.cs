@@ -27,7 +27,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public CategoryViewModel Category { get; set; }
         public List<SubcategoryViewModel> Subcategories { get; set; }
         public List<NotificationViewModel> Notifications { get; set; }
-        public DateTime LastEntryDate { get; set; }
+        public DateTime? LastEntryDate { get; set; }
 
     }
 }

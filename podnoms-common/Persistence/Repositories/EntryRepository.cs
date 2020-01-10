@@ -88,7 +88,7 @@ namespace PodNoms.Common.Persistence.Repositories {
             var qry = GetContext()
                 .PodcastEntries
                 .Where(r => r.WaveformGenerated == false)
-                .Where(r => r.CreateDate <= System.DateTime.Now.AddMinutes(-60));
+                .Where(r => r.CreateDate <= System.DateTime.Now.AddMinutes(-10));
 
             // var sql = qry.ToSql();
             // Console.WriteLine(sql);

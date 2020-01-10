@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Audio;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Gravatar;
 using PodNoms.Common.Services.Jobs;
@@ -23,6 +24,7 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddSharedDependencies(this IServiceCollection services) {
             services.AddTransient<IFileUploader, AzureFileUploader>()
                 .AddTransient<IPageParser, DefaultPageParser>()
+                .AddTransient<IMP3Tagger, MP3Tagger>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
                 .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))

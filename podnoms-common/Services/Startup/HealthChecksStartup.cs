@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Net.Mime;
-using HealthChecks.Hangfire;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using PodNoms.Common.Data.Settings;
 
 namespace PodNoms.Common.Services.Startup {
     public static class HealthChecksStartup {
@@ -19,6 +12,7 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddPodNomsHealthChecks(
                         this IServiceCollection services,
                         IConfiguration Configuration, bool isDevelopment) {
+
             if (!isDevelopment || true) {
                 // disable UI in dev as self-signed certs aren't allowed
                 if (!isDevelopment) {
@@ -44,7 +38,7 @@ namespace PodNoms.Common.Services.Startup {
                         s.MinimumAvailableServers = 1;
                     }, name: "Hangfire", failureStatus: HealthStatus.Degraded)
                     .AddRabbitMQ(
-                        Configuration["RabbitMq:AmqpConnectionString"],
+                        $"amqp://{Configuration["RabbitMq:ConnectionString"]}",
                         name: "BROKER",
                         failureStatus: HealthStatus.Degraded,
                         tags: new string[] { "messages", "broker", "queue", "messagequeue" });
