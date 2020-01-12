@@ -21,15 +21,18 @@ namespace PodNoms.Common.Services.Processor {
     public class AudioUploadProcessService : RealtimeUpdatingProcessService, IAudioUploadProcessService {
         private readonly IEntryRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AppSettings _appSettings;
         private readonly IFileUploader _fileUploader;
         private readonly AudioFileStorageSettings _audioStorageSettings;
 
         public AudioUploadProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<AudioFileStorageSettings> audioStorageSettings,
+            IOptions<AppSettings> appSettings,
             ILogger<AudioUploadProcessService> logger, IRealTimeUpdater realtimeUpdater, IMapper mapper)
             : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
             _unitOfWork = unitOfWork;
+            _appSettings = appSettings.Value;
             _fileUploader = fileUploader;
             _audioStorageSettings = audioStorageSettings.Value;
         }
@@ -94,7 +97,7 @@ namespace PodNoms.Common.Services.Processor {
                         });
                     entry.Processed = true;
                     entry.ProcessingStatus = ProcessingStatus.Processed;
-                    entry.AudioUrl = $"{_audioStorageSettings.ContainerName}/{fileName}";
+                    entry.AudioUrl = entry.GetAudioUrl(_appSettings.AudioUrl);
                     _logger.LogDebug($"AudioUrl is: {entry.AudioUrl}");
                     entry.AudioFileSize = fileInfo.Length;
                     await _unitOfWork.CompleteAsync();

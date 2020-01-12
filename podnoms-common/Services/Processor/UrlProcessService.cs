@@ -128,7 +128,7 @@ namespace PodNoms.Common.Services.Processor {
                     authToken,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
-                        ProcessingStatus = ProcessingStatus.Processed
+                        ProcessingStatus = ProcessingStatus.Failed
                     }
                 );
             }
