@@ -34,6 +34,7 @@ namespace PodNoms.Common.Services.Jobs {
             _logger = logger;
             _appSettings = appSettings.Value;
         }
+
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute() { return await Execute(null); }
 
@@ -42,12 +43,29 @@ namespace PodNoms.Common.Services.Jobs {
             return await Task.Run(() => false);
         }
 
+        public async Task<bool> ProcessEntryFromUploadFile(Guid entryId, string localFile, string audioUrl,
+            string authToken, PerformContext context) {
+            
+            var entry = await _entryRepository.GetAsync(entryId);
+            var waveFormJobId = BackgroundJob.Enqueue<GenerateWaveformsJob>(job =>
+                job.ExecuteForEntry(entry.Id, localFile, null));
+
+            var tagEntryJob = BackgroundJob.ContinueJobWith<TagEntryJob>(
+                waveFormJobId,
+                r => r.ExecuteForEntry(entry.Id, localFile, true, null));
+
+            BackgroundJob.ContinueJobWith<UploadAudioJob>(tagEntryJob, job =>
+                job.Execute(authToken, entry.Id, audioUrl, new FileInfo(localFile).Extension, null));
+
+            return true;
+        }
+
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
                 var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
-                   r => r.CacheImage(entry.Id));
+                    r => r.CacheImage(entry.Id));
 
                 var token = authToken.Replace("Bearer ", string.Empty);
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
@@ -80,7 +98,7 @@ namespace PodNoms.Common.Services.Jobs {
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
                         entry.Podcast.GetThumbnailUrl(cdnUrl, imageContainer),
                         NotificationOptions.UploadCompleted
-                   ));
+                    ));
                 BackgroundJob.ContinueJobWith<INotifyJobCompleteService>(uploadJobId,
                     j => j.SendCustomNotifications(
                         entry.Podcast.Id,
