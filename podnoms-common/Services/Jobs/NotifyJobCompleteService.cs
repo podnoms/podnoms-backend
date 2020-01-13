@@ -41,9 +41,7 @@ namespace PodNoms.Common.Services.Jobs {
             _provider = provider;
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
-        ~NotifyJobCompleteService() {
-            _logger.LogError("We should not be here");
-        }
+
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             _logger.LogDebug($"Sending email messages to {userId}");
             await _sendEmail(userId, title, body, target, image, notificationType);

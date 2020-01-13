@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
@@ -9,23 +6,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using PodNoms.Data.Models;
-using PodNoms.Api.Providers;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Services.Jobs;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Api.Controllers {
@@ -39,20 +29,20 @@ namespace PodNoms.Api.Controllers {
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
-        public IMapper _mapper { get; }
+        private readonly IMapper _mapper;
 
         public AudioUploadController(
-                        IPodcastRepository podcastRepository,
-                        IEntryRepository entryRepository,
-                        IUnitOfWork unitOfWork,
-                        IOptions<AudioFileStorageSettings> settings,
-                        IOptions<StorageSettings> storageSettings,
-                        IOptions<AppSettings> appsettings,
-                        ILogger<AudioUploadController> logger,
-                        IMapper mapper,
-                        IWebHostEnvironment hostingEnvironment,
-                        UserManager<ApplicationUser> userManager,
-                        IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+            IPodcastRepository podcastRepository,
+            IEntryRepository entryRepository,
+            IUnitOfWork unitOfWork,
+            IOptions<AudioFileStorageSettings> settings,
+            IOptions<StorageSettings> storageSettings,
+            IOptions<AppSettings> appsettings,
+            ILogger<AudioUploadController> logger,
+            IMapper mapper,
+            IWebHostEnvironment hostingEnvironment,
+            UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _mapper = mapper;
             _audioFileStorageSettings = settings.Value;
             _appsettings = appsettings.Value;
@@ -65,14 +55,17 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Upload(string slug, IFormFile file) {
-            _logger.LogDebug($"Settings are\nMaxUploadFileSize: {_audioFileStorageSettings.MaxUploadFileSize}");
+            _logger.LogDebug($"Uploading file for: {slug}");
             if (file is null || file.Length == 0) return BadRequest("No file found in stream");
-            if (file.Length > _audioFileStorageSettings.MaxUploadFileSize) return BadRequest("Maximum file size exceeded");
+            if (file.Length > _audioFileStorageSettings.MaxUploadFileSize)
+                return BadRequest("Maximum file size exceeded");
             if (!_audioFileStorageSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type");
 
             var podcast = await _podcastRepository.GetForUserAndSlugAsync(_applicationUser.Slug, slug);
-            if (podcast is null)
+            if (podcast is null) {
+                _logger.LogError($"Unable to find podcast");
                 return NotFound();
+            }
 
             var entry = new PodcastEntry {
                 Title = Path.GetFileName(Path.GetFileNameWithoutExtension(file.FileName)),
@@ -83,7 +76,11 @@ namespace PodNoms.Api.Controllers {
             };
 
             var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);
+            _logger.LogDebug($"Local file is: {localFile}");
+
             _entryRepository.AddOrUpdate(entry);
+
+            _logger.LogDebug("Completing uow");
             await _unitOfWork.CompleteAsync();
 
             var authToken = _httpContext.Request.Headers["Authorization"].ToString();
@@ -92,7 +89,8 @@ namespace PodNoms.Api.Controllers {
             var audioUrl = localFile
                 .Replace(_hostingEnvironment.WebRootPath, string.Empty)
                 .Replace(@"\", "/");
-
+            
+            _logger.LogDebug($"Starting processing jobs");
             BackgroundJob.Enqueue<UploadAudioJob>(job =>
                 job.Execute(authToken, entry.Id, audioUrl, new FileInfo(localFile).Extension, null));
             BackgroundJob.Enqueue<GenerateWaveformsJob>(job =>

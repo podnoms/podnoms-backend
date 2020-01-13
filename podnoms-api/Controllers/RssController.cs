@@ -55,8 +55,6 @@ namespace PodNoms.Api.Controllers {
         [Produces("application/xml")]
         [RssFeedAuthorize]
         public async Task<IActionResult> Get(string userSlug, string podcastSlug) {
-            _logger.LogDebug($"RSS: Retrieving podcast: {userSlug} - {podcastSlug}");
-
             var user = await _userManager.FindBySlugAsync(userSlug);
             if (user is null) {
                 //check if we have a redirect in place
