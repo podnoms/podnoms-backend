@@ -86,14 +86,14 @@ namespace PodNoms.Api.Controllers {
             var authToken = _httpContext.Request.Headers["Authorization"].ToString();
 
             //convert uploaded file to extension
-            var audioUrl = localFile
+            localFile
                 .Replace(_hostingEnvironment.WebRootPath, string.Empty)
                 .Replace(@"\", "/");
 
-            _logger.LogDebug($"Starting processing jobs");
+            _logger.LogDebug($"Starting processing jobs for url: {audioUrl}");
 
             BackgroundJob.Enqueue<ProcessNewEntryJob>(e =>
-                e.ProcessEntryFromUploadFile(entry.Id, localFile, audioUrl, authToken, null));
+                e.ProcessEntryFromUploadFile(entry.Id, audioUrl, authToken, null));
 
             var ret = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return Ok(ret);
