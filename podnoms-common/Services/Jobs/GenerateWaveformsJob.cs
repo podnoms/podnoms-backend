@@ -54,7 +54,10 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
-            context.WriteLine($"Processing entry: {entryId}");
+
+            _setContext(context);
+            Log($"Creating waveform for: {entryId} using {localFile}");
+
             if (!string.IsNullOrEmpty(localFile) && !File.Exists(localFile)) {
                 LogError($"FileNotFound: {localFile}");
                 return false;

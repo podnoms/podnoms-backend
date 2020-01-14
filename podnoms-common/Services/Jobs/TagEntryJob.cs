@@ -97,6 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile,
             bool updateEntry, PerformContext context) {
             this._setContext(context);
+            Log($"Tagging entry: {entryId} using {localFile}");
 
             var entry = await _entryRepository.GetAsync(entryId);
             return await ExecuteForEntry(entry, localFile, updateEntry, context);
