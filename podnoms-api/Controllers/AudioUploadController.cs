@@ -86,7 +86,7 @@ namespace PodNoms.Api.Controllers {
             var authToken = _httpContext.Request.Headers["Authorization"].ToString();
 
             //convert uploaded file to extension
-            localFile
+            var audioUrl = localFile
                 .Replace(_hostingEnvironment.WebRootPath, string.Empty)
                 .Replace(@"\", "/");
 
