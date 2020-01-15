@@ -38,13 +38,6 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [HttpGet("{entryId}")]
         public async Task<IActionResult> DownloadFile(string entryId) {
-            return await DownloadFileWithQueryString(entryId);
-        }
-
-        [AllowAnonymous]
-        [HttpGet()]
-        [Obsolete("Remove all uses of FromQuery when referencing a resource directly")]
-        public async Task<IActionResult> DownloadFileWithQueryString([FromQuery] string entryId) {
             try {
                 var entry = await _repository.GetAsync(entryId);
                 var storageUrl = entry.GetInternalStorageUrl(_storageSettings.CdnUrl);

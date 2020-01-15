@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,6 +20,7 @@ namespace PodNoms.Api.Controllers.Public {
     [EnableCors("PublicApiPolicy")]
     public class RadioController : Controller {
         private readonly IEntryRepository _entryRepository;
+        private readonly ILogger<RadioController> _logger;
         private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
@@ -28,8 +30,10 @@ namespace PodNoms.Api.Controllers.Public {
             IOptions<AppSettings> appSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
+            ILogger<RadioController> logger,
             IMapper mapper) {
             _entryRepository = entryRepository;
+            _logger = logger;
             _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
@@ -46,10 +50,14 @@ namespace PodNoms.Api.Controllers.Public {
 
         [HttpGet("nowplaying")]
         public async Task<ActionResult<string>> GetNowPlaying([FromQuery]string url) {
-            var content = await HttpUtils.DownloadText(url, "application/xml");
-            if (!string.IsNullOrEmpty(content)) {
-                var result = JsonConvert.DeserializeObject<IcecastResult>(content);
-                return Ok(result.icestats.source.title.Truncate(45));
+            try {
+                var content = await HttpUtils.DownloadText(url, "application/xml");
+                if (!string.IsNullOrEmpty(content)) {
+                    var result = JsonConvert.DeserializeObject<IcecastResult>(content);
+                    return Ok(result.icestats.source.title.Truncate(45));
+                }
+            } catch (Exception) {
+                _logger.LogWarning("Unable to get now playing url");
             }
             return NotFound();
         }

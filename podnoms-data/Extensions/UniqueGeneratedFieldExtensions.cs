@@ -11,7 +11,6 @@ namespace PodNoms.Data.Extensions {
     /// <summary>Class <c>UniqueGeneratedFieldExtensions</c>
     /// Various methods for slugifying/unique keying entities.</summary>
     ///
-
     public class GenerateSlugFailureException : Exception {
         public GenerateSlugFailureException(string message) : base(message) { }
     }
@@ -61,11 +60,16 @@ namespace PodNoms.Data.Extensions {
                     var tableName = context.Model.FindEntityType(t).GetTableName();
                     if (!string.IsNullOrEmpty(tableName)) {
                         var sourceField = (attribute as SlugFieldAttribute)?.SourceField;
+                        if (string.IsNullOrEmpty(sourceField)) {
+                            logger?.LogError($"Error slugifying - Entry title is blank, cannot slugify");
+                            // need to throw here, shouldn't save without slug
+                            throw new GenerateSlugFailureException("Entry title is blank, cannot slugify");
+                        }
 
                         var slugSource = entity.GetType()
-                            .GetProperty(sourceField)
-                            .GetValue(entity, null)
-                            .ToString();
+                                             .GetProperty(sourceField)
+                                             ?.GetValue(entity, null)
+                                             ?.ToString() ?? string.Empty;
 
                         var source = context.ExecSQL<ProxySluggedModel>($"SELECT Slug FROM {tableName}")
                             .Select(m => m.Slug);
@@ -78,6 +82,7 @@ namespace PodNoms.Data.Extensions {
                 // need to throw here, shouldn't save without slug
                 throw new GenerateSlugFailureException(ex.Message);
             }
+
             return string.Empty;
         }
     }
