@@ -114,7 +114,7 @@ namespace PodNoms.Common.Services.Jobs {
             if (!string.IsNullOrEmpty(imageUrl)) {
                 localImageFile = await HttpUtils.DownloadFile(imageUrl);
                 if (!System.IO.File.Exists(localImageFile)) {
-                    localImageFile = await HttpUtils.DownloadFile("https://www.podnoms.com/assets/img/robothand.jpg");
+                    localImageFile = await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
                 }
             }
 
