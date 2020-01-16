@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
@@ -16,17 +17,23 @@ namespace PodNoms.Api.Controllers.Public {
             _podcastRepository = podcastRepository;
         }
         [HttpGet]
-        public async Task<ActionResult<string>> ResolveDomain([FromQuery]string domain) {
+        public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery]string domain) {
             var cleanedDomain = domain.Split(":")[0]; //remove port
-            var customUrl = string.Empty;
+            var podcastUrl = string.Empty;
             var podcast = await _podcastRepository
                 .GetAll()
                 .Include(p => p.AppUser)
                 .SingleOrDefaultAsync(r => r.CustomDomain == cleanedDomain);
             if (podcast != null) {
-                customUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
+                podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
+                return Ok(new PublicDomainViewModel {
+                    PodcastId = podcast.Id.ToString(),
+                    PodcastSlug = podcast.Slug,
+                    UserSlug = podcast.AppUser.Slug,
+                    Url = podcastUrl
+                });
             }
-            return Ok(customUrl);
+            return NotFound();
         }
     }
 }

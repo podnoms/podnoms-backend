@@ -166,6 +166,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
 
         public DbSet<Podcast> Podcasts { get; set; }
+        public DbSet<PodcastAggregator> PodcastAggregators { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
     }

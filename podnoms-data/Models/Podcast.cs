@@ -7,9 +7,17 @@ using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Data.Models {
 
+    public class PodcastAggregator : BaseEntity {
+        public string Name { get; set; }
+        public string Url { get; set; }
+        public string ImageUrl { get; set; }
+        public virtual Podcast Podcast { get; set; }
+    }
+
     public class Podcast : BaseEntity, ISluggedEntity {
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();
+            Aggregators = new List<PodcastAggregator>();
         }
 
         public string AppUserId { get; set; }
@@ -28,6 +36,7 @@ namespace PodNoms.Data.Models {
         public string PublicTitle { get; set; }
         public string FacebookUrl { get; set; }
         public string TwitterUrl { get; set; }
+        public List<PodcastAggregator> Aggregators { get; set; }
 
         #region AuthStuff
 
