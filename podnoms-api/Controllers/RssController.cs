@@ -82,9 +82,8 @@ namespace PodNoms.Api.Controllers {
                     Title = podcast.Title,
                     Description = podcast.Description,
                     Author = "PodNoms Podcasts",
-                    Image = podcast.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName)
-                        .Replace("https://", "http://"),
-                    Link = $"{_appOptions.RssUrl}/{user.Slug}/{podcast.Slug}",
+                    Image = podcast.GetRssImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
+                    Link = $"{_appOptions.PagesUrl}/{user.Slug}/{podcast.Slug}",
                     PublishDate = podcast.CreateDate.ToRFC822String(),
                     Category = podcast.Category?.Description,
                     Language = "en-IE",
@@ -102,6 +101,7 @@ namespace PodNoms.Api.Controllers {
                             Author = e.Author.StripNonXmlChars(),
                             UpdateDate = e.CreateDate.ToRFC822String(),
                             AudioUrl = e.GetRssAudioUrl(_appOptions.AudioUrl),
+                            Duration = TimeSpan.FromSeconds(e.AudioLength).ToString(@"hh\:mm\:ss"),
                             AudioFileSize = e.AudioFileSize
                         }
                     ).ToList()
