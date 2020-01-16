@@ -24,6 +24,7 @@ namespace PodNoms.Common.Data.ViewModels.RssViewModels {
         public string Author { get; set; }
         public string UpdateDate { get; set; }
         public string AudioUrl { get; set; }
+        public string Duration { get; set; }
         public long AudioFileSize { get; set; }
     }
 }

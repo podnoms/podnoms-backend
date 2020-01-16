@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,11 @@ using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IRepository<TEntity> where TEntity : class, IEntity {
+
         IQueryable<TEntity> GetAll();
         Task<TEntity> GetAsync(string id);
         Task<TEntity> GetAsync(Guid id);
+
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
         TEntity AddOrUpdate(TEntity entity);
@@ -35,7 +38,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
         public async Task<TEntity> GetAsync(string id) {
             return await _context.Set<TEntity>()
-                .FirstOrDefaultAsync(e => e.Id.ToString() == id);
+                .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
         }
         public async Task<TEntity> GetAsync(Guid id) {
             return await _context.Set<TEntity>()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -55,6 +56,15 @@ namespace PodNoms.Api.Controllers.Public {
             if (result is null) return NotFound();
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
+        }
+        [HttpGet("{podcastId}/aggregators")]
+        public async Task<ActionResult<List<PodcastAggregator>>> GetAggregators(string podcastId) {
+            //TODO: This should definitely have its own ViewModel
+            var aggregators = (await _podcastRepository.GetAggregators(Guid.Parse(podcastId)));
+
+            if (aggregators is null) return NotFound();
+
+            return Ok(aggregators);
         }
     }
 }

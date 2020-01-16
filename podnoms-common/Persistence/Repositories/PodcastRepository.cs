@@ -16,6 +16,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
         Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug);
         Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug);
+        Task<List<PodcastAggregator>> GetAggregators(Guid podcastId);
         Task<string> GetActivePodcast(string userId);
     }
 
@@ -99,6 +100,13 @@ namespace PodNoms.Common.Persistence.Repositories {
 
             return podcast?.Slug;
         }
+        public async Task<List<PodcastAggregator>> GetAggregators(Guid podcastId) {
+            return await GetContext()
+                .PodcastAggregators
+                .Where(p => p.Podcast.Id == podcastId)
+                .ToListAsync();
+        }
+
         public new Podcast AddOrUpdate(Podcast podcast) {
             // hash the passwords
             if (podcast.AuthPassword != null && (podcast.Private)) {
