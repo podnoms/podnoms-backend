@@ -18,6 +18,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string PublicTitle { get; set; }
         public string FacebookUrl { get; set; }
         public string TwitterUrl { get; set; }
+        public string GoogleAnalyticsTrackingId { get; set; }
 
         public bool Private { get; set; }
         public string AuthUserName { get; set; }

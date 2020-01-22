@@ -36,6 +36,9 @@ namespace PodNoms.Data.Models {
         public string PublicTitle { get; set; }
         public string FacebookUrl { get; set; }
         public string TwitterUrl { get; set; }
+
+        public string GoogleAnalyticsTrackingId { get; set; }
+
         public List<PodcastAggregator> Aggregators { get; set; }
 
         #region AuthStuff
