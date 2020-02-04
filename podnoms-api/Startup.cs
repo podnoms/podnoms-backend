@@ -138,7 +138,9 @@ namespace PodNoms.Api {
             UpdateDatabase(app);
 
             app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseHttpsRedirection();
+            if (!Env.IsDevelopment()) {
+                app.UseHttpsRedirection();
+            }
 
             app.UseExceptionHandler(new ExceptionHandlerOptions {
                 ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke

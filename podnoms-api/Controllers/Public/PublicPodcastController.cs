@@ -57,6 +57,16 @@ namespace PodNoms.Api.Controllers.Public {
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
         }
+        [HttpGet("{podcastId}/allbutfeatured")]
+        public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllButFeatured(string podcastId) {
+            var podcast = await _podcastRepository.GetAsync(podcastId);
+            if (podcast is null) return NotFound();
+
+            var result = await _entryRepository.GetAllButFeatured(podcast);
+            if (result is null) return NotFound();
+
+            return _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(result);
+        }
         [HttpGet("{podcastId}/aggregators")]
         public async Task<ActionResult<List<PodcastAggregator>>> GetAggregators(string podcastId) {
             //TODO: This should definitely have its own ViewModel

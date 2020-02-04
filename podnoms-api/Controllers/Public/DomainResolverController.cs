@@ -1,7 +1,11 @@
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
@@ -11,9 +15,16 @@ namespace PodNoms.Api.Controllers.Public {
     [Route("pub/podcast/domainresolver")]
     [EnableCors("PublicApiPolicy")]
     public class DomainResolverController : Controller {
+        private readonly ILogger<DomainResolverController> _logger;
+        private readonly IHttpContextAccessor _contextAccessor;
         private readonly IPodcastRepository _podcastRepository;
 
-        public DomainResolverController(IPodcastRepository podcastRepository) {
+        public DomainResolverController(
+                    ILogger<DomainResolverController> logger,
+                    IHttpContextAccessor contextAccessor,
+                    IPodcastRepository podcastRepository) {
+            _logger = logger;
+            _contextAccessor = contextAccessor;
             _podcastRepository = podcastRepository;
         }
         [HttpGet]
@@ -27,6 +38,7 @@ namespace PodNoms.Api.Controllers.Public {
             if (podcast != null) {
                 podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
                 return Ok(new PublicDomainViewModel {
+                    Domain = cleanedDomain,
                     PodcastId = podcast.Id.ToString(),
                     PodcastSlug = podcast.Slug,
                     UserSlug = podcast.AppUser.Slug,
