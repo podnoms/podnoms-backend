@@ -40,7 +40,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 };
                 this.Create(log);
                 await _unitOfWork.CompleteAsync();
-                BackgroundJob.Enqueue<GeocodeActivityJob>(r => r.GeocodeActivityItem(log, null));
+                // BackgroundJob.Enqueue<GeocodeActivityJob>(r => r.GeocodeActivityItem(log, null));
                 return log;
             } catch (Exception e) {
                 _logger.LogError($"Error logging podcast entry activity.\n{e.Message}");

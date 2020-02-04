@@ -51,9 +51,10 @@ namespace PodNoms.Api {
                             c[$"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
                             c["DevSettings:CertificateSecret"]);
 
-                        options.Listen(IPAddress.Loopback, 5001, listenOptions => {
+                        options.Listen(IPAddress.Any, 5001, listenOptions => {
                             listenOptions.UseHttps(certificate);
                         });
+                        options.Listen(IPAddress.Any, 5000);
                     }
                 });
 

@@ -39,6 +39,11 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
+            context.WriteLine("Geocoding disabled due to ipstack down");
+            if (true) {
+                return false;
+            }
+            context.WriteLine("Starting to geocode users");
             context.WriteLine("Starting to geocode users");
             context.WriteLine($"Key: {_appSettings.IPStackKey}");
             var records = _repository

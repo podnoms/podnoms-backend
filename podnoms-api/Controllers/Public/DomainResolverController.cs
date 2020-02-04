@@ -28,30 +28,22 @@ namespace PodNoms.Api.Controllers.Public {
             _podcastRepository = podcastRepository;
         }
         [HttpGet]
-        public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain() {
-            var domain =
-                _contextAccessor.HttpContext.Request.Headers["Origin"].FirstOrDefault() ??
-                _contextAccessor.HttpContext.Request.Headers["Referer"].FirstOrDefault();
-
-            _logger.LogDebug($"ResolveDomain: {domain}");
-            if (!string.IsNullOrEmpty(domain)) {
-                var cleanedDomain = new Uri(domain).Host;
-
-                var podcastUrl = string.Empty;
-                var podcast = await _podcastRepository
-                    .GetAll()
-                    .Include(p => p.AppUser)
-                    .SingleOrDefaultAsync(r => r.CustomDomain == cleanedDomain);
-                if (podcast != null) {
-                    podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
-                    return Ok(new PublicDomainViewModel {
-                        Domain = cleanedDomain,
-                        PodcastId = podcast.Id.ToString(),
-                        PodcastSlug = podcast.Slug,
-                        UserSlug = podcast.AppUser.Slug,
-                        Url = podcastUrl
-                    });
-                }
+        public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery]string domain) {
+            var cleanedDomain = domain.Split(":")[0]; //remove port
+            var podcastUrl = string.Empty;
+            var podcast = await _podcastRepository
+                .GetAll()
+                .Include(p => p.AppUser)
+                .SingleOrDefaultAsync(r => r.CustomDomain == cleanedDomain);
+            if (podcast != null) {
+                podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
+                return Ok(new PublicDomainViewModel {
+                    Domain = cleanedDomain,
+                    PodcastId = podcast.Id.ToString(),
+                    PodcastSlug = podcast.Slug,
+                    UserSlug = podcast.AppUser.Slug,
+                    Url = podcastUrl
+                });
             }
             return NotFound();
         }
