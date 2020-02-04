@@ -45,7 +45,7 @@ namespace PodNoms.Api.Controllers.Public {
                     Url = podcastUrl
                 });
             }
-            return NotFound();
+            return NoContent();
         }
     }
 }
