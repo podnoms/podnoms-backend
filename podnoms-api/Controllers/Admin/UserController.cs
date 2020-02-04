@@ -66,7 +66,5 @@ namespace PodNoms.Api.Controllers {
             var response = source.AsQueryable().GetPaged(currentPage, pageSize, totalCount);
             return response;
         }
-
-
     }
 }
