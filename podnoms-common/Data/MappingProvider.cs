@@ -49,7 +49,10 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])))
                 .ForMember(
                     src => src.LastEntryDate,
-                    e => e.MapFrom(m => m.GetLastEntryDate()));
+                    e => e.MapFrom(m => m.GetLastEntryDate()))
+                .ForMember(
+                    src => src.PublicTitle,
+                    e => e.MapFrom(m => string.IsNullOrEmpty(m.PublicTitle) ? m.Title : m.PublicTitle));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(

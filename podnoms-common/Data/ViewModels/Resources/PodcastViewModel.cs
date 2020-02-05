@@ -16,6 +16,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public DateTime CreateDate { get; set; }
 
         public string PublicTitle { get; set; }
+        public string _PublicTitle { get; set; }
         public string FacebookUrl { get; set; }
         public string TwitterUrl { get; set; }
         public string GoogleAnalyticsTrackingId { get; set; }
