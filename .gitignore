@@ -309,3 +309,4 @@ podnoms-api/wwwroot/.ul-cache
 podnoms-api/healthchecksdb
 scripts/.env
 *.webm
+mono_crash*
