@@ -39,6 +39,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<SearchResultsViewModel>>> DoSearch(string query) {
             var podcastResults = await _podcastRepository
                 .GetAll()
+                .Where(p => p.AppUser.Id == _applicationUser.Id)
                 .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
                 .Select(p => new SearchResultsViewModel {
                     Title = p.Title,
@@ -51,6 +52,7 @@ namespace PodNoms.Api.Controllers {
             var entryResults = await _entryRepository
                 .GetAll()
                 .Include(x => x.Podcast)
+                .Where(p => p.Podcast.AppUser.Id == _applicationUser.Id)
                 .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
                 .Select(p => new SearchResultsViewModel {
                     Title = p.Title,
