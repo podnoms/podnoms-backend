@@ -15,7 +15,7 @@ namespace PodNoms.Common.Data {
             byte[] ret;
             if (string.IsNullOrEmpty(source.AuthPassword) || source.AuthPassword.Equals("**********")) {
                 try {
-                    var t = _podcastRepository.GetAsync(source.Id);
+                    using var t = _podcastRepository.GetReadOnlyAsync(source.Id);
                     Task.WhenAll(t);
                     ret = t.Result.AuthPassword;
                 } catch (System.AggregateException) {
