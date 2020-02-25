@@ -146,7 +146,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                             VideoId = info.Id,
                             Title = info.Title,
                             Description = info.Description,
-                            Thumbnail = info.Thumbnails.StandardResUrl,
+                            Thumbnail = info.Thumbnails.HighResUrl,
                             Uploader = info.Author,
                             UploadDate = info.UploadDate.Date
                         };

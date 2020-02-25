@@ -37,6 +37,7 @@ namespace PodNoms.Api.Controllers.Public {
         [HttpGet("{userSlug}/{podcastSlug}/featured")]
         public async Task<ActionResult<PodcastEntryViewModel>> GetFeaturedEpisode(string userSlug, string podcastSlug) {
             var podcast = await _podcastRepository.GetAll()
+                .OrderByDescending(p => p.CreateDate)
                 .Include(p => p.PodcastEntries)
                 .SingleOrDefaultAsync(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug);
 

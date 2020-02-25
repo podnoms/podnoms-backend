@@ -92,7 +92,7 @@ namespace PodNoms.Api.Controllers {
                    .Cast<CanonicalNameResourceRecord>()
                    .Select(r => r.CanonicalDomainName)
                    .FirstOrDefault();
-                return Ok(result?.CompareTo(new Domain(new Uri(_appSettings.PagesUrl).Host)) == 0);
+                return Ok(result?.Equals(new Domain(request.RequiredDomain)) ?? false);
             } catch (Exception ex) {
                 _logger.LogError($"Error checking domain {request}");
                 _logger.LogError(ex.Message);

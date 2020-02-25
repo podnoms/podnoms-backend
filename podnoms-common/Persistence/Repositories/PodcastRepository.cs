@@ -109,7 +109,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public new Podcast AddOrUpdate(Podcast podcast) {
             // hash the passwords
-            if (podcast.AuthPassword != null && (podcast.Private)) {
+            if (podcast.AuthPassword != null && podcast.AuthPassword.Length != 0 && (podcast.Private)) {
                 var salt = PBKDFGenerators.GenerateSalt();
                 var password = PBKDFGenerators.GenerateHash(podcast.AuthPassword, salt);
 
@@ -117,12 +117,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 podcast.AuthPassword = password;
             }
 
-            //TODO: hack but I can't be arsed.
-            if (podcast.AuthPassword != null && podcast.AuthPassword.Length == 0) {
-                podcast.AuthPassword = null;
-            }
-
-            return base.AddOrUpdate(podcast);
+            return base.Update(podcast);
         }
     }
 }

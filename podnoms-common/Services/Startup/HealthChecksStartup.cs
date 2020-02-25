@@ -8,12 +8,12 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace PodNoms.Common.Services.Startup {
     public static class HealthChecksStartup {
-
+        private const bool ENABLED = true;
         public static IServiceCollection AddPodNomsHealthChecks(
                         this IServiceCollection services,
                         IConfiguration Configuration, bool isDevelopment) {
 
-            if (!isDevelopment || true) {
+            if (!isDevelopment || ENABLED) {
                 // disable UI in dev as self-signed certs aren't allowed
                 if (!isDevelopment) {
                     services.AddHealthChecksUI();
@@ -36,18 +36,18 @@ namespace PodNoms.Common.Services.Startup {
                     .AddHangfire(s => {
                         s.MaximumJobsFailed = 5;
                         s.MinimumAvailableServers = 1;
-                    }, name: "Hangfire", failureStatus: HealthStatus.Degraded)
-                    .AddRabbitMQ(
-                        $"amqp://{Configuration["RabbitMq:ConnectionString"]}",
-                        name: "BROKER",
-                        failureStatus: HealthStatus.Degraded,
-                        tags: new string[] { "messages", "broker", "queue", "messagequeue" });
+                    }, name: "Hangfire", failureStatus: HealthStatus.Degraded);
+                    // .AddRabbitMQ(
+                    //     $"amqp://{Configuration["RabbitMq:ConnectionString"]}",
+                    //     name: "BROKER",
+                    //     failureStatus: HealthStatus.Degraded,
+                    //     tags: new string[] { "messages", "broker", "queue", "messagequeue" });
             }
             return services;
         }
 
         public static IApplicationBuilder UsePodNomsHealthChecks(this IApplicationBuilder app, bool isDevelopment) {
-            if (!isDevelopment || true) {
+            if (!isDevelopment || ENABLED) {
                 app.UseHealthChecks("/hc-api", new HealthCheckOptions {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
