@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 
 namespace PodNoms.Common.Utils {
-
     public static class Randomisers {
         static readonly Random _randomiser = new Random();
         public static string RandomName() {
@@ -334,7 +333,7 @@ namespace PodNoms.Common.Utils {
             int minSentences = 1, int maxSentences = 1,
             int numParagraphs = 1) {
 
-            var words = new [] {
+            var words = new[] {
                 "lorem",
                 "ipsum",
                 "dolor",

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Extensions;
+using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
@@ -111,20 +112,20 @@ namespace PodNoms.Common.Persistence.Repositories {
         /// <param name="model">The incoming model to convert</param>
         /// <returns>Base36 encoded string</returns>
         public async Task<PodcastEntrySharingLink> CreateNewSharingLink(SharingViewModel model) {
-            char[] padding = { '=' };
-            var ret = string.Empty;
+
             var entry = await GetAsync(model.Id);
             if (entry is null) return null;
-            var index = await GetContext()
-                .PodcastEntrySharingLinks
-                .OrderByDescending(l => l.LinkIndex)
-                .Select(l => l.LinkIndex + 1)
-                .FirstOrDefaultAsync();
 
-            ret = System.Convert.ToBase64String(BitConverter.GetBytes(index))
-                .TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+            var token = TokenGenerator.GenerateToken();
+            while (await GetContext()
+                    .PodcastEntrySharingLinks
+                    .Where(x => x.LinkId == token)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync() != null) {
+                token = TokenGenerator.GenerateToken();
+            };
             var link = new PodcastEntrySharingLink {
-                LinkId = ret,
+                LinkId = token,
                 ValidFrom = model.ValidFrom,
                 ValidTo = model.ValidTo
             };
