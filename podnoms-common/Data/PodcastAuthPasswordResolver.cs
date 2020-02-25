@@ -14,9 +14,13 @@ namespace PodNoms.Common.Data {
         public byte[] Resolve(PodcastViewModel source, Podcast destination, byte[] destMember, ResolutionContext context) {
             byte[] ret;
             if (string.IsNullOrEmpty(source.AuthPassword) || source.AuthPassword.Equals("**********")) {
-                var t = _podcastRepository.GetAsync(source.Id);
-                Task.WhenAll(t);
-                ret = t.Result.AuthPassword;
+                try {
+                    var t = _podcastRepository.GetAsync(source.Id);
+                    Task.WhenAll(t);
+                    ret = t.Result.AuthPassword;
+                } catch (System.AggregateException) {
+                    ret = null;
+                }
             } else {
                 ret = System.Text.Encoding.ASCII.GetBytes(source.AuthPassword);
             }

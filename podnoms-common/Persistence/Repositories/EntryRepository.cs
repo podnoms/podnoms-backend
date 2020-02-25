@@ -73,13 +73,13 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast) {
             return await GetContext()
                 .PodcastEntries
-                .OrderByDescending(e => e.UpdateDate)
+                .OrderByDescending(e => e.CreateDate)
                 .FirstOrDefaultAsync(e => e.Podcast == podcast);
         }
         public async Task<List<PodcastEntry>> GetAllButFeatured(Podcast podcast) {
             return await GetContext()
                 .PodcastEntries
-                .OrderByDescending(e => e.UpdateDate)
+                .OrderByDescending(e => e.CreateDate)
                 .Where(e => e.Podcast == podcast)
                 .Skip(1)
                 .ToListAsync();
