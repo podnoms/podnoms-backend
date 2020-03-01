@@ -2,29 +2,23 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
 using EasyNetQ.Logging;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PodNoms.Api.Providers;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Hosted;
 using PodNoms.Common.Services.Jobs;
@@ -32,7 +26,6 @@ using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils;
-using PodNoms.Data.Models;
 using reCAPTCHA.AspNetCore;
 using PodNoms.Common.Services;
 using PodNoms.Common.Services.Realtime;
@@ -54,10 +47,7 @@ namespace PodNoms.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
-            services.AddApplicationInsightsTelemetry();
-            if (Env.IsDevelopment()) {
-                TelemetryDebugWriter.IsTracingDisabled = true;
-            }
+
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]
             );
