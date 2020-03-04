@@ -21,6 +21,7 @@ namespace PodNoms.Common.Services.Push {
             _httpClientFactory = httpClientFactory;
         }
         public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message, string target) {
+            _logger.LogInformation($"Sending firebase push: {message.Content}");
             var fb_message = new {
                 notification = new {
                     title = message.Topic,

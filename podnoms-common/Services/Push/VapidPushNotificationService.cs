@@ -21,6 +21,7 @@ namespace PodNoms.Common.Services.Push {
             _httpClientFactory = httpClientFactory;
         }
         public async Task SendNotificationAsync(WP.PushSubscription subscription, PushMessage message, string target) {
+            _logger.LogInformation($"Sending VAPID push: {message.Content}");
             var sub = new WebPush.PushSubscription(
                     subscription.Endpoint,
                     subscription.Keys["p256dh"],

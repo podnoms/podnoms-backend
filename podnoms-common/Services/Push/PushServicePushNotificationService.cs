@@ -17,10 +17,8 @@ namespace PodNoms.Common.Services.Push {
         public PushServicePushNotificationService(IOptions<PushNotificationServiceOptions> optionsAccessor, IVapidTokenCache vapidTokenCache, ILogger<PushServicePushNotificationService> logger) {
             _options = optionsAccessor.Value;
 
-            _pushClient = new PushServiceClient
-            {
-                DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey)
-                {
+            _pushClient = new PushServiceClient {
+                DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey) {
                     Subject = _options.Subject,
                     TokenCache = vapidTokenCache
                 }
@@ -31,6 +29,7 @@ namespace PodNoms.Common.Services.Push {
 
         public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message, string target) {
             try {
+                _logger.LogInformation($"Sending PushService push: {message.Content}");
                 await _pushClient.RequestPushMessageDeliveryAsync(subscription, message);
             } catch (Exception ex) {
                 _logger?.LogError(ex, "Failed requesting push message delivery to {0}.", subscription.Endpoint);

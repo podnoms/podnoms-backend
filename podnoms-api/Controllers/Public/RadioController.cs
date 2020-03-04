@@ -59,7 +59,7 @@ namespace PodNoms.Api.Controllers.Public {
             } catch (Exception) {
                 _logger.LogWarning("Unable to get now playing url");
             }
-            return NotFound();
+            return NoContent();
         }
     }
 }
