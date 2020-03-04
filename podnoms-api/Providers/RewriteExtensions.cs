@@ -56,6 +56,15 @@ namespace PodNoms.Api.Providers {
                 .Add(MethodRules.RedirectRssFeed);
 
             app.UseRewriter(options);
+
+            //create custom 404 for sharing pages
+            app.Use(async (context, next) => {
+                await next();
+                if (context.Response.StatusCode == 404) {
+                    context.Request.Path = "/404";
+                    await next();
+                }
+            });
             return app;
         }
     }

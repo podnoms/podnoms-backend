@@ -25,6 +25,10 @@ using WP = Lib.Net.Http.WebPush;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.PageParser;
 
+
+namespace PodNoms.Api.Controllers {
+}
+
 namespace PodNoms.Api.Controllers {
     [ApiExplorerSettings(IgnoreApi = true)]
     [Route("[controller]")]
@@ -134,8 +138,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] { $"User {User.Identity.Name}: {message}" });
-            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
+                new string[] {$"User {User.Identity.Name}: {message}"});
+            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
             return Ok(message);
         }
 
@@ -174,6 +178,7 @@ namespace PodNoms.Api.Controllers {
             await Task.Delay(TimeSpan.FromSeconds(delay));
             return Ok();
         }
+
         [AllowAnonymous]
         [HttpGet("readogtags")]
         public async Task<IActionResult> ReadOgTags([FromQuery] string url) {
@@ -190,6 +195,7 @@ namespace PodNoms.Api.Controllers {
                     });
                 }
             }
+
             return BadRequest("Invalid Url");
         }
     }
