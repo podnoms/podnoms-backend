@@ -67,9 +67,7 @@ namespace PodNoms.Api {
                 new AutoSubscriber(
                     provider.GetRequiredService<IBus>(),
                     Assembly.GetExecutingAssembly().GetName().Name));
-#if !DISABLERABBIT
             services.AddHostedService<RabbitMQService>();
-#endif
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 

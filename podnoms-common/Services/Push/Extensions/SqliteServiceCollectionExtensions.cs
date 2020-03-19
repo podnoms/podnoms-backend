@@ -14,7 +14,9 @@ namespace PodNoms.Common.Services.Push.Extensions {
                 options.UseSqlite(configuration.GetConnectionString(SQLITE_CONNECTION_STRING_NAME))
             );
 
-            services.AddTransient<IPushSubscriptionStore, SqlitePushSubscriptionStore>();
+            //TODO: This shouldn't be a singleton
+            //TODO: See note in NotifyJobCompleteService:54
+            services.AddSingleton<IPushSubscriptionStore, SqlitePushSubscriptionStore>();
 
             return services;
         }

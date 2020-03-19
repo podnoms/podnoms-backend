@@ -43,19 +43,28 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
-            _logger.LogDebug($"Sending email messages to {userId}");
+            _logger.LogDebug($"Sending email messages to {userId} - {target}");
             await _sendEmail(userId, title, body, target, image, notificationType);
+
             var pushMessage = new PushMessage(body) {
                 Topic = title,
                 Urgency = PushMessageUrgency.Normal
             };
-            _logger.LogDebug($"Sending GCM messages to {userId}");
-            await _subscriptionStore.ForEachSubscriptionAsync(userId,
-                subscription => {
-                    _logger.LogDebug($"Sending to {target}");
-                    _notificationService.SendNotificationAsync(subscription, pushMessage, target);
-                });
-            return true;
+            try {
+                //TODO: Adding PushSubscriptionContext as Singleton is a recipe for disaster
+                //TODO: but this gets fucked if I don't
+                _logger.LogDebug($"Sending GCM messages to {userId}");
+                _logger.LogDebug($"Using store {_subscriptionStore.GetType()}");
+                await _subscriptionStore.ForEachSubscriptionAsync(userId,
+                    (WP.PushSubscription subscription) => {
+                        _logger.LogInformation($"Sending to {target}");
+                        _notificationService.SendNotificationAsync(subscription, pushMessage, target);
+                    });
+                return true;
+            } catch (Exception ex) {
+                _logger.LogError(ex.Message);
+            }
+            return false;
         }
 
         private async Task<bool> _sendEmail(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {

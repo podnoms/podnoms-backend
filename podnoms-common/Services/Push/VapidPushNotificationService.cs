@@ -21,7 +21,7 @@ namespace PodNoms.Common.Services.Push {
             _httpClientFactory = httpClientFactory;
         }
         public async Task SendNotificationAsync(WP.PushSubscription subscription, PushMessage message, string target) {
-            _logger.LogInformation($"Sending VAPID push: {message.Content}");
+            _logger.LogInformation($"Sending VAPID push: {message.Content}: Image {_options.ImageUrl}");
             var sub = new WebPush.PushSubscription(
                     subscription.Endpoint,
                     subscription.Keys["p256dh"],
@@ -40,10 +40,11 @@ namespace PodNoms.Common.Services.Push {
 
             var client = new WebPushClient();
             try {
-                await client.SendNotificationAsync(sub, payload, vapid);
                 _logger.LogDebug($"VAPID: Push to {subscription.Endpoint}");
+                await client.SendNotificationAsync(sub, payload, vapid);
             } catch (WebPushException ex) {
-                _logger.LogError("ERROR in VAPID", ex);
+                _logger.LogError($"ERROR in VAPID: {ex.Message}");
+                _logger.LogError($"{subscription.Endpoint}");
             }
         }
     }

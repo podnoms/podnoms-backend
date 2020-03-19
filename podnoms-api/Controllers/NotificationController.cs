@@ -34,12 +34,12 @@ namespace PodNoms.Api.Controllers {
         private readonly INotificationRepository _notificationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppSettings _appSettings;
-        private readonly INotifyJobCompleteService _jobCompleteNotificationService;
+        private readonly INotifyJobCompleteService _notifyJobCompleteService;
         private readonly IMapper _mapper;
 
         public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                 ILogger<NotificationController> logger,
-                INotifyJobCompleteService jobCompleteNotificationService,
+                INotifyJobCompleteService notifyJobCompleteService,
                 IOptions<AppSettings> appSettings,
                 IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
                 ISupportChatService supportChatService) :
@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
             _notificationRepository = notificationRepository;
             _unitOfWork = unitOfWork;
             _appSettings = appSettings.Value;
-            _jobCompleteNotificationService = jobCompleteNotificationService;
+            _notifyJobCompleteService = notifyJobCompleteService;
             _mapper = mapper;
             _supportChatService = supportChatService;
         }
@@ -114,7 +114,7 @@ namespace PodNoms.Api.Controllers {
             //as it doesn't have access the the sqlite registration store
             //TODO: we should probably move all the sqlite registration store
             //TODO: out of the API and into the job server
-            await _jobCompleteNotificationService.NotifyUser(userId, "PodNoms",
+            await _notifyJobCompleteService.NotifyUser(userId, "PodNoms",
                 $"{title} has finished processing",
                 target,
                 image, NotificationOptions.UploadCompleted);
@@ -130,7 +130,7 @@ namespace PodNoms.Api.Controllers {
             //as it doesn't have access the the sqlite registration store
             //TODO: we should probably move all the sqlite registration store
             //TODO: out of the API and into the job server
-            _jobCompleteNotificationService.SendCustomNotifications(
+            _notifyJobCompleteService.SendCustomNotifications(
                 Guid.Parse(podcastId),
                 _applicationUser.GetBestGuessName(),
                 title,
