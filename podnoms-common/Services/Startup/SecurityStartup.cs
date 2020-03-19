@@ -89,9 +89,14 @@ namespace PodNoms.Common.Services.Startup {
                         .AllowAnyHeader()
                         .WithOrigins(
                             //TODO: Will have to add all Podcast.CustomUrl values into here
+                            "http://localhost:8080",
+                            "http://localhost:8080",
                             "http://localhost:4200",
+                            "https://localhost:4200",
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.local:4200",
+                            "http://10.1.1.1:8080",
+                            "http://podnoms.local:8080",
                             "https://podnoms.com",
                             "https://www.podnoms.com")
                         .AllowCredentials());

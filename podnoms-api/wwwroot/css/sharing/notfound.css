@@ -1,0 +1,8 @@
+.bg-image {
+    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
+        url("https://cdn.podnoms.com/static/images/sadrobot.jpg");
+    background-size: 100% 100%;
+}
+.hero-inner {
+    margin-top: -80px;
+}

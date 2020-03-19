@@ -19,9 +19,10 @@ namespace PodNoms.Api.Controllers {
         private readonly IPushSubscriptionStore _subscriptionStore;
         public readonly IPushNotificationService _notificationService;
 
-        public WebPushController(IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
-                                    UserManager<ApplicationUser> userManager, ILogger<WebPushController> logger,
-                                    IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+        public WebPushController(
+                IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
+                UserManager<ApplicationUser> userManager, ILogger<WebPushController> logger,
+                IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _subscriptionStore = subscriptionStore;
             _notificationService = notificationService;
         }
@@ -31,23 +32,23 @@ namespace PodNoms.Api.Controllers {
             var subscriptionId = await _subscriptionStore.StoreSubscriptionAsync(_applicationUser.Id, subscription);
             _logger.LogDebug($"Creating push registration for {_applicationUser.Id} with subscriptionId of {subscriptionId}");
             return Ok(new {
-                    uid = subscriptionId,
-                    status = true
-                }
-            );
+                uid = subscriptionId,
+                status = true
+            });
         }
 
         // POST push-notifications-api/notifications
         [HttpPost("message")]
         public async Task<IActionResult> SendNotification([FromBody]PushMessageViewModel message) {
+            _logger.LogInformation($"Sending targeted push for: {message.Target} - {message.Notification}");
             var pushMessage = new WP.PushMessage(message.Notification) {
                 Topic = message.Topic,
                 Urgency = message.Urgency
             };
 
             // TODO: This should be scheduled in background
-            await _subscriptionStore.ForEachSubscriptionAsync((WP.PushSubscription subscription) => {
-                // Fire-and-forget 
+            await _subscriptionStore.ForEachSubscriptionAsync(message.Target, (WP.PushSubscription subscription) => {
+                _logger.LogInformation($"Found subscription: {subscription}");
                 _notificationService.SendNotificationAsync(subscription, pushMessage, message.Target);
             });
 

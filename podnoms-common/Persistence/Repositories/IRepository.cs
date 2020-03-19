@@ -12,6 +12,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         IQueryable<TEntity> GetAll();
         Task<TEntity> GetAsync(string id);
         Task<TEntity> GetAsync(Guid id);
+        Task<TEntity> GetReadOnlyAsync(string id);
+        Task<TEntity> GetReadOnlyAsync(Guid id);
 
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
@@ -37,11 +39,18 @@ namespace PodNoms.Common.Persistence.Repositories {
             return _context.Set<TEntity>();
         }
         public async Task<TEntity> GetAsync(string id) {
-            return await _context.Set<TEntity>()
-                .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
+            return await GetAsync(Guid.Parse(id));
         }
         public async Task<TEntity> GetAsync(Guid id) {
             return await _context.Set<TEntity>()
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+        public async Task<TEntity> GetReadOnlyAsync(string id) {
+            return await GetReadOnlyAsync(Guid.Parse(id));
+        }
+        public async Task<TEntity> GetReadOnlyAsync(Guid id) {
+            return await _context.Set<TEntity>()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 

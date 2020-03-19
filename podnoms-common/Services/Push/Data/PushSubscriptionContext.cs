@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Common.Services.Push.Data {
-    internal class PushSubscriptionContext : DbContext {
+    public class PushSubscriptionContext : DbContext {
         public class PushSubscription : WP.PushSubscription {
             public PushSubscription() { }
             public PushSubscription(string id, WP.PushSubscription subscription) {

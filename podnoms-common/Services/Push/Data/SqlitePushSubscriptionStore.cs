@@ -12,6 +12,8 @@ namespace PodNoms.Common.Services.Push.Data {
             _context = context;
         }
 
+        public PushSubscriptionContext GetContext() => _context;
+
         public async Task<string> StoreSubscriptionAsync(string uid, PushSubscription subscription) {
             var entity = new PushSubscriptionContext.PushSubscription(uid, subscription);
             if (_context.Subscriptions.Where(s => s.Endpoint == subscription.Endpoint).Count() > 0) {

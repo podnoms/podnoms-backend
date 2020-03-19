@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <RootNamespace>PodNoms.Jobs</RootNamespace>
         <LangVersion>latest</LangVersion>
         <Configurations>Debug;Release;Debug_Live</Configurations>
@@ -12,8 +11,8 @@
         <PackageReference Include="Hangfire.SqlServer" Version="1.7.9" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.7.9" />
         <PackageReference Include="Hangfire.Core" Version="1.7.9" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.2" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
