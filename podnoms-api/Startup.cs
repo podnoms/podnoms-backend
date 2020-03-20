@@ -33,6 +33,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using PodNoms.Common.Services.Caching;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -54,6 +55,7 @@ namespace PodNoms.Api {
             services.AddPodNomsMapping(Configuration);
             services.AddPodNomsOptions(Configuration);
             services.AddPodNomsHealthChecks(Configuration, Env.IsDevelopment());
+            services.AddPodNomsCacheService(Configuration);
 
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(

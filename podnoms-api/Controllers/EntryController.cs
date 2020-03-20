@@ -17,9 +17,8 @@ using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services;
+using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Jobs;
-using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
@@ -70,8 +69,8 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
             var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                    entries.OrderByDescending(e => e.CreateDate).ToList()
-                );
+                entries.OrderByDescending(e => e.CreateDate).ToList()
+            );
             return Ok(results);
         }
 
@@ -79,8 +78,8 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
             var entries = await _repository.GetAllForSlugAsync(podcastSlug);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                    entries.OrderByDescending(r => r.CreateDate).ToList()
-                );
+                entries.OrderByDescending(r => r.CreateDate).ToList()
+            );
 
             return Ok(results);
         }
@@ -155,7 +154,7 @@ namespace PodNoms.Api.Controllers {
                     return BadRequest(item);
                 }
             } else if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
-                MixcloudParser.ValidateUrl(item.SourceUrl)) {
+                       MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);
@@ -197,7 +196,7 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
             if (entry.ProcessingStatus != ProcessingStatus.Processed) {
                 BackgroundJob.Enqueue<ProcessNewEntryJob>(e =>
-                   e.ProcessEntry(entry.Id, _httpContext.Request.Headers["Authorization"], null));
+                    e.ProcessEntry(entry.Id, _httpContext.Request.Headers["Authorization"], null));
             }
 
             return Ok(entry);
