@@ -4,10 +4,12 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using EasyNetQ.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Common.Services.Caching {
     public class CachedAttribute : Attribute, IAsyncActionFilter {
@@ -23,7 +25,8 @@ namespace PodNoms.Common.Services.Caching {
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
             var cacheSettings = context.HttpContext.RequestServices.GetRequiredService<RedisCacheSettings>();
-
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<CachedAttribute>>();
+            
             if (!cacheSettings.Enabled) {
                 await next();
                 return;
@@ -34,6 +37,7 @@ namespace PodNoms.Common.Services.Caching {
 
             var cachedResponse = await cache.GetCacheResponseAsync(key);
             if (!string.IsNullOrEmpty(cachedResponse)) {
+                logger.LogDebug($"Cache hit: {key}");
                 var contentResult = new ContentResult {
                     ContentType = _contentType,
                     StatusCode = 200,
@@ -43,6 +47,7 @@ namespace PodNoms.Common.Services.Caching {
                 return;
             }
 
+            logger.LogDebug($"Cache miss: {key}");
             var executedContext = await next();
             if (executedContext.Result is ContentResult result) {
                 await cache.CacheResponseAsync(key, result.Content, TimeSpan.FromSeconds(_ttl));
