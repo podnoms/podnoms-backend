@@ -44,6 +44,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             _logger.LogDebug($"Sending email messages to {userId} - {target}");
+
             await _sendEmail(userId, title, body, target, image, notificationType);
 
             var pushMessage = new PushMessage(body) {
