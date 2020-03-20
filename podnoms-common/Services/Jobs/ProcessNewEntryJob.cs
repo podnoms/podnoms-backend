@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Enums;
@@ -19,6 +20,7 @@ namespace PodNoms.Common.Services.Jobs {
     public class ProcessNewEntryJob : AbstractHostedJob {
         private readonly IConfiguration _options;
         private readonly IEntryRepository _entryRepository;
+        private readonly IResponseCacheService _cache;
         private readonly CachedAudioRetrievalService _audioRetriever;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProcessNewEntryJob> _logger;
@@ -29,10 +31,12 @@ namespace PodNoms.Common.Services.Jobs {
             IConfiguration options,
             IEntryRepository entryRepository,
             IOptions<AppSettings> appSettings,
+            IResponseCacheService cache,
             CachedAudioRetrievalService audioRetriever,
             IUnitOfWork unitOfWork) : base(logger) {
             _options = options;
             _entryRepository = entryRepository;
+            _cache = cache;
             _audioRetriever = audioRetriever;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -60,9 +64,11 @@ namespace PodNoms.Common.Services.Jobs {
                 r => r.ExecuteForEntry(entry.Id, localFile, true, null));
 
             Log($"Submitting upload job for {localFile}");
-            BackgroundJob.ContinueJobWith<UploadAudioJob>(tagEntryJob, job =>
+            var tagEntryJobId = BackgroundJob.ContinueJobWith<UploadAudioJob>(tagEntryJob, job =>
                 job.Execute(authToken, entry.Id, localFile, null));
 
+            await _cache.InvalidateCacheResponseAsync(
+                $"podcast____{entry.Podcast.AppUser.Slug}__rss__{entry.Podcast.Slug}");
             return true;
         }
 
@@ -113,7 +119,9 @@ namespace PodNoms.Common.Services.Jobs {
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                     ));
-
+                
+                await _cache.InvalidateCacheResponseAsync(
+                    $"podcast____{entry.Podcast.AppUser.Slug}__rss__{entry.Podcast.Slug}");
                 return true;
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");

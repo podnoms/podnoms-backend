@@ -26,4 +26,7 @@
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
         <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="data" />
+    </ItemGroup>
 </Project>

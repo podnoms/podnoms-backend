@@ -16,7 +16,7 @@ namespace PodNoms.Common.Services.Push.Extensions {
 
             //TODO: This shouldn't be a singleton
             //TODO: See note in NotifyJobCompleteService:54
-            services.AddSingleton<IPushSubscriptionStore, SqlitePushSubscriptionStore>();
+            services.AddScoped<IPushSubscriptionStore, SqlitePushSubscriptionStore>();
 
             return services;
         }

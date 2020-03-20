@@ -13,6 +13,7 @@ using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.RssViewModels;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
@@ -54,6 +55,7 @@ namespace PodNoms.Api.Controllers {
         [HttpHead("{userSlug}/{podcastSlug}")]
         [Produces("application/xml")]
         [RssFeedAuthorize]
+        [Cached("podcast", "application/xml", 3600)]
         public async Task<IActionResult> Get(string userSlug, string podcastSlug) {
             var user = await _userManager.FindBySlugAsync(userSlug);
             if (user is null) {
@@ -66,13 +68,16 @@ namespace PodNoms.Api.Controllers {
                 if (redirect is null) {
                     return NotFound();
                 }
+
                 user = await _userManager.FindByIdAsync(redirect.ApplicationUserId.ToString());
                 if (user is null) {
                     return NotFound();
                 }
+
                 var url = $"{_appOptions.RssUrl}{user.Slug}/{podcastSlug}";
                 return RedirectPermanent(url);
             }
+
             var podcast = await _podcastRepository.GetForUserAndSlugAsync(userSlug, podcastSlug);
             if (podcast is null) return NotFound();
             try {
@@ -111,6 +116,7 @@ namespace PodNoms.Api.Controllers {
             } catch (NullReferenceException ex) {
                 _logger.LogError(ex, "Error getting RSS", user, userSlug);
             }
+
             return NotFound();
         }
     }
