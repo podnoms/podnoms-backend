@@ -68,7 +68,10 @@ namespace PodNoms.Data.Models {
 
         public string GetFileDownloadName() => $"{Title}.mp3";
 
-        public string GetPagesUrl(string pagesUrl) => Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
+        public string GetPagesUrl(string pagesUrl) =>
+            Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
 
+        public string GetCacheKey(string type = "rss") =>
+            $"podcast|{type}|{this.Podcast.AppUser.Slug}|{this.Podcast.Slug}";
     }
 }
