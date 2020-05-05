@@ -9,11 +9,11 @@ namespace PodNoms.Common.Persistence.Repositories {
     public interface IChatRepository : IRepository<ChatMessage> {
         Task<IEnumerable<ChatMessage>> GetSentChats(string fromUserId);
         Task<IEnumerable<ChatMessage>> GetReceivedChats(string fromUserId);
-        Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId);
+        Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId, int take = 10);
         Task<IEnumerable<ChatMessage>> GetAllChats(string userId);
     }
-    
-    
+
+
     public class ChatRepository : GenericRepository<ChatMessage>, IChatRepository {
         public ChatRepository(PodNomsDbContext context, ILogger<ChatRepository> logger) : base(context, logger) {
 
@@ -28,13 +28,14 @@ namespace PodNoms.Common.Persistence.Repositories {
 
             return chats;
         }
-        public async Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId) {
+        public async Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId, int take = 10) {
             var chats = await GetAll()
                 .Where(c => c.FromUser.Id == fromUserId && c.ToUser.Id == toUserId)
                 .Include(c => c.FromUser)
                 .Include(c => c.ToUser)
+                .OrderByDescending(c => c.CreateDate)
+                .Take(take)
                 .ToListAsync();
-
             return chats;
         }
 

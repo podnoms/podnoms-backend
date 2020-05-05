@@ -77,12 +77,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
 
         public async Task DeleteAsync(string id) {
-            if (Guid.TryParse(id, out Guid guid)) {
-                var entity = await _context.Set<TEntity>().FindAsync(id);
-                _context.Set<TEntity>().Remove(entity);
-            } else {
-                _logger.LogError($"Error updating entity with guid: {id}");
-            }
+            var entity = await _context.Set<TEntity>().FindAsync(Guid.Parse(id));
+            _context.Set<TEntity>().Remove(entity);
         }
     }
 }

@@ -34,6 +34,7 @@ namespace PodNoms.Api.Controllers {
         private IConfiguration _options;
 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IResponseCacheService _cache;
         private readonly IMapper _mapper;
         private readonly IYouTubeParser _youTubeParser;
         private readonly AppSettings _appSettings;
@@ -49,6 +50,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IYouTubeParser youTubeParser,
             IConfiguration options,
+            IResponseCacheService cache,
             IUrlProcessService processor,
             ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
@@ -61,6 +63,7 @@ namespace PodNoms.Api.Controllers {
             _unitOfWork = unitOfWork;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
             _mapper = mapper;
+            _cache = cache;
             _youTubeParser = youTubeParser;
             _processor = processor;
         }
@@ -166,7 +169,8 @@ namespace PodNoms.Api.Controllers {
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
-                await _repository.DeleteAsync(new Guid(id));
+                var entry = await _repository.GetAsync(id);
+                await _repository.DeleteAsync(id);
                 await _unitOfWork.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {

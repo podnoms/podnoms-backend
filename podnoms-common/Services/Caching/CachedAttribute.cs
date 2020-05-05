@@ -10,15 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Services.Caching {
     public class CachedAttribute : Attribute, IAsyncActionFilter {
         private readonly int _ttl;
         private readonly string _itemType;
+        private readonly CacheType _cacheType;
         private readonly string _contentType;
 
-        public CachedAttribute(string itemType, string contentType = "application/json", int ttl = 60) {
+        public CachedAttribute(string itemType, CacheType cacheType, string contentType = "application/json", int ttl = 60) {
             _itemType = itemType;
+            _cacheType = cacheType;
             _contentType = contentType;
             _ttl = ttl;
         }
@@ -26,14 +29,14 @@ namespace PodNoms.Common.Services.Caching {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
             var cacheSettings = context.HttpContext.RequestServices.GetRequiredService<RedisCacheSettings>();
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<CachedAttribute>>();
-            
+
             if (!cacheSettings.Enabled) {
                 await next();
                 return;
             }
 
             var cache = context.HttpContext.RequestServices.GetRequiredService<IResponseCacheService>();
-            var key = _getCacheKey(_itemType, context.HttpContext.Request);
+            var key = _getCacheKey(_itemType, _cacheType.ToString().ToLower(), context.HttpContext.Request);
 
             var cachedResponse = await cache.GetCacheResponseAsync(key);
             if (!string.IsNullOrEmpty(cachedResponse)) {
@@ -54,13 +57,16 @@ namespace PodNoms.Common.Services.Caching {
             }
         }
 
-        private static string _getCacheKey(string type, HttpRequest request) {
+        private static string _getCacheKey(string itemType, string cacheType, HttpRequest request) {
             var keyBuilder = new StringBuilder();
-            keyBuilder.Append($"{type}");
-            foreach (var value in request.Path.ToString().Split("/").OrderBy(x => x)) {
-                keyBuilder.Append($"__{value}");
+            keyBuilder.Append($"{itemType}");
+            var values = request.Path.ToString().Split("/")
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Where(x => !x.Equals(cacheType));
+            foreach (var value in values) {
+                keyBuilder.Append($"|{value}");
             }
-
+            keyBuilder.Append($"|{cacheType}");
             return keyBuilder.ToString();
         }
     }

@@ -4,26 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 using PodNoms.Common.Services.PageParser;
 
 namespace PodNoms.Api.Controllers.Public {
-    [Route ("pub/browserextension")]
+    [Route("pub/browserextension")]
     public class BrowserExtensionController : Controller {
         private readonly IPageParser _parser;
 
-        public BrowserExtensionController (IPageParser parser) {
+        public BrowserExtensionController(IPageParser parser) {
             this._parser = parser;
         }
 
-        [HttpGet ("parse")]
-        [EnableCors ("BrowserExtensionPolicy")]
-        public async Task<IActionResult> ParsePage ([FromQuery] string url) {
-            await _parser.Initialise (url);
-            var links = await _parser.GetAllAudioLinks ();
+        [HttpGet("parse")]
+        [EnableCors("BrowserExtensionPolicy")]
+        public async Task<IActionResult> ParsePage([FromQuery] string url) {
+            await _parser.Initialise(url);
+            var links = await _parser.GetAllAudioLinks();
             if (links.Count > 0) {
-                return new OkObjectResult (new {
+                return new OkObjectResult(new {
                     type = "proxied",
-                        links = links
+                    links = links
                 });
             }
-            return BadRequest ();
+            return BadRequest();
         }
     }
 }

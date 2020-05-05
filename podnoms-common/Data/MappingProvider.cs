@@ -213,7 +213,25 @@ namespace PodNoms.Common.Data {
                     dest => dest.PodcastTitle,
                     map => map.MapFrom(src => src.PodcastEntry.Title));
 
-            CreateMap<ChatMessage, ChatViewModel>();
+            CreateMap<ChatMessage, ChatViewModel>()
+            .ForMember(
+                    dest => dest.MessageId,
+                    src => src.MapFrom(s => s.Id.ToString()))
+            .ForMember(
+                    dest => dest.MessageDate,
+                    src => src.MapFrom(s => s.CreateDate))
+            .ForMember(
+                    dest => dest.FromUserId,
+                    src => src.MapFrom(s => s.FromUser.Id.ToString()))
+            .ForMember(
+                    dest => dest.ToUserId,
+                    src => src.MapFrom(s => s.ToUser.Id.ToString()))
+                .ForMember(
+                    dest => dest.FromUserImage,
+                    src => src.MapFrom<ChatUserImageResolver>())
+                .ForMember(
+                    dest => dest.FromUserName,
+                    src => src.MapFrom(s => s.FromUser.GetBestGuessName()));
 
             //API Resource to Domain
 
@@ -245,12 +263,13 @@ namespace PodNoms.Common.Data {
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
 
-            CreateMap<ChatViewModel, ChatMessage>();
             CreateMap<NotificationViewModel, Notification>()
                 .ForMember(
                     dest => dest.Config,
                     map => map.MapFrom(r => JsonConvert.SerializeObject(r.Options))
                 );
+
+            CreateMap<ChatViewModel, ChatMessage>();
         }
     }
 }

@@ -70,8 +70,10 @@ namespace PodNoms.Common.Services.PageParser {
             )).ToList() ?? empty;
             var textLinks = GetTextLinks(GetPageText());
 
-            var links = documentLinks.Concat(iframeLinks).Concat(textLinks).ToList();
-            return links;
+            var links = documentLinks.Concat(iframeLinks).Concat(textLinks);
+            return links
+                .Distinct()
+                .ToList();
         }
 
         public IList<KeyValuePair<string, string>> GetTextLinks(string text) {

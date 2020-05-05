@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Data.Models {
 
@@ -12,9 +13,10 @@ namespace PodNoms.Data.Models {
         public string Url { get; set; }
         public string ImageUrl { get; set; }
         public virtual Podcast Podcast { get; set; }
+
     }
 
-    public class Podcast : BaseEntity, ISluggedEntity {
+    public class Podcast : BaseEntity, ISluggedEntity, ICachedEntity {
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();
             Aggregators = new List<PodcastAggregator>();
@@ -68,5 +70,8 @@ namespace PodNoms.Data.Models {
                 .FirstOrDefault();
             return lastEntry == null ? this.UpdateDate : lastEntry;
         }
+        public string GetCacheKey(CacheType type) =>
+            $"podcast|{this.AppUser.Slug}|{this.Slug}|{type.ToString()}";
+
     }
 }

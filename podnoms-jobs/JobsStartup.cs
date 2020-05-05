@@ -57,6 +57,7 @@ namespace PodNoms.Jobs {
                 })
                 .AddPodnomsSecurity(Configuration)
                 .AddPodNomsHttpClients(Configuration, Env.IsProduction())
+                .AddPodNomsCacheService(Configuration, false)
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()

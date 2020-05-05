@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
@@ -45,6 +46,10 @@ namespace PodNoms.Common.Services.Push {
             } catch (WebPushException ex) {
                 _logger.LogError($"ERROR in VAPID: {ex.Message}");
                 _logger.LogError($"{subscription.Endpoint}");
+            } catch (Exception ex) {
+                _logger.LogError($"ERROR in VAPID: {ex.Message}");
+                _logger.LogError($"{subscription.Endpoint}");
+
             }
         }
     }

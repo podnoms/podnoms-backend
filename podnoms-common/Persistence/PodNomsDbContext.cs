@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
+using PodNoms.Common.Services.Caching;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
@@ -22,34 +24,31 @@ namespace PodNoms.Common.Persistence {
         ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
         GO";
     }
-    public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
-        public PodNomsDbContext CreateDbContext(string[] args) {
 
+    //TODO: Commented this out as I'm dependency injecting into the Context constructor
+    //TODO: Chain injectors later if needed
 
+    // public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
+    //     public PodNomsDbContext CreateDbContext(string[] args) {
 
-            // var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    //         var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
+    //         var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
-            // var configuration = new ConfigurationBuilder()
-            //     .SetBasePath(Directory.GetCurrentDirectory())
-            //     .AddJsonFile($"appsettings.json")#
-            //     .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true)
-            //     .Build();
+    //         var connectionString = TEMP_CONN;
+    //         builder.UseSqlServer(connectionString);
 
-            // Console.WriteLine(configuration);
-            //have to replace the above with the below because EF CORE IS SO FUCKING SHITTY
-            var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
-            var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
-
-            var connectionString = TEMP_CONN;
-            builder.UseSqlServer(connectionString);
-
-            return new PodNomsDbContext(builder.Options);
-        }
-    }
+    //         return new PodNomsDbContext(builder.Options);
+    //     }
+    // }
 
     public sealed class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
-        public PodNomsDbContext(DbContextOptions<PodNomsDbContext> options) : base(options) {
+        private readonly IResponseCacheService _cache;
+
+        public PodNomsDbContext(
+                    DbContextOptions<PodNomsDbContext> options,
+                    IResponseCacheService cache) : base(options) {
             Database.SetCommandTimeout(360);
+            _cache = cache;
         }
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
@@ -130,17 +129,6 @@ namespace PodNoms.Common.Persistence {
             // Database.ExecuteSqlCommand (SeedData.AUTH);
         }
 
-        public override int SaveChanges() {
-            foreach (var entity in ChangeTracker.Entries()
-                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                    .Where(e => e.Entity is ISluggedEntity)
-                    .Select(e => e.Entity as ISluggedEntity)
-                    .Where(e => string.IsNullOrEmpty(e.Slug))) {
-                entity.Slug = entity.GenerateSlug(this);
-            }
-
-            return base.SaveChanges();
-        }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
             foreach (var entity in ChangeTracker.Entries()
@@ -149,6 +137,21 @@ namespace PodNoms.Common.Persistence {
                     .Select(e => e.Entity as ISluggedEntity)
                     .Where(e => string.IsNullOrEmpty(e.Slug))) {
                 entity.Slug = entity.GenerateSlug(this);
+            }
+            //remove all caches referencing this item
+            foreach (var entity in ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where(e => e.Entity is ICachedEntity)
+                    .Select(e => e as ICachedEntity)) {
+                foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
+                    try {
+                        _cache.InvalidateCacheResponseAsync(
+                            entity.GetCacheKey(type)
+                        );
+                    } catch (Exception ex) {
+                        //hasn't been cached
+                    }
+                }
             }
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
