@@ -9,7 +9,8 @@ namespace PodNoms.Data.Models.Notifications {
             Twitter,
             Facebook,
             WebHook,
-            PushBullet
+            PushBullet,
+            Other
         }
 
         public NotificationType Type { get; set; }

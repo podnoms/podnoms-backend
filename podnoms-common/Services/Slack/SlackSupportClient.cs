@@ -13,6 +13,9 @@ namespace PodNoms.Common.Services.Slack {
         }
 
         public async Task<bool> NotifyUser(ChatViewModel message) {
+            if (string.IsNullOrEmpty(_chatSettings.SlackWebhookUrl))
+                return false;
+
             var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
             var slackMessage = new SlackMessage {
                 Channel = _chatSettings.SlackChannel,
@@ -21,6 +24,8 @@ namespace PodNoms.Common.Services.Slack {
                 Username = message.FromUserName
             };
             return await slackClient.PostAsync(slackMessage);
+
+
         }
     }
 }

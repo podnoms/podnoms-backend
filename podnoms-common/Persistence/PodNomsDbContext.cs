@@ -144,9 +144,13 @@ namespace PodNoms.Common.Persistence {
                     .Where(e => e.Entity is ICachedEntity)
                     .Select(e => e as ICachedEntity)) {
                 foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
-                    _cache.InvalidateCacheResponseAsync(
-                        entity.GetCacheKey(type)
-                    );
+                    try {
+                        _cache.InvalidateCacheResponseAsync(
+                            entity.GetCacheKey(type)
+                        );
+                    } catch (Exception ex) {
+                        //hasn't been cached
+                    }
                 }
             }
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
