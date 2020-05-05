@@ -16,6 +16,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.Extensions;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
@@ -55,7 +56,7 @@ namespace PodNoms.Api.Controllers {
         [HttpHead("{userSlug}/{podcastSlug}")]
         [Produces("application/xml")]
         [RssFeedAuthorize]
-        [Cached("podcast", "application/xml", 3600)]
+        [Cached("podcast", CacheType.Rss, "application/xml", 3600)]
         public async Task<IActionResult> Get(string userSlug, string podcastSlug) {
             var user = await _userManager.FindBySlugAsync(userSlug);
             if (user is null) {

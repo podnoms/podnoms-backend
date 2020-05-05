@@ -11,7 +11,7 @@ namespace PodNoms.Data.Models {
         Private = (1 << 1),
         Download = (1 << 2)
     }
-    public class PodcastEntry : BaseEntity, ISluggedEntity {
+    public class PodcastEntry : BaseEntity, ISluggedEntity, ICachedEntity {
 
         [SlugField(sourceField: "Title")] public string Slug { get; set; }
 
@@ -71,7 +71,6 @@ namespace PodNoms.Data.Models {
         public string GetPagesUrl(string pagesUrl) =>
             Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
 
-        public string GetCacheKey(string type = "rss") =>
-            $"podcast|{type}|{this.Podcast.AppUser.Slug}|{this.Podcast.Slug}";
+        public string GetCacheKey(CacheType type) => this.Podcast.GetCacheKey(type);
     }
 }

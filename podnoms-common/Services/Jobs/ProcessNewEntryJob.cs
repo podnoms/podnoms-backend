@@ -67,7 +67,6 @@ namespace PodNoms.Common.Services.Jobs {
             var tagEntryJobId = BackgroundJob.ContinueJobWith<UploadAudioJob>(tagEntryJob, job =>
                 job.Execute(authToken, entry.Id, localFile, null));
 
-            await _cache.InvalidateCacheResponseAsync(entry.GetCacheKey());
             return true;
         }
 
@@ -118,8 +117,6 @@ namespace PodNoms.Common.Services.Jobs {
                         $"{entry.Title} has finished processing",
                         entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                     ));
-
-                await _cache.InvalidateCacheResponseAsync(entry.GetCacheKey());
                 return true;
             } catch (InvalidOperationException ex) {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");

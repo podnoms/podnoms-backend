@@ -1,11 +1,9 @@
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Services.Caching {
     public class ResponseCacheService : IResponseCacheService {
@@ -34,11 +32,21 @@ namespace PodNoms.Common.Services.Caching {
 
         public async Task InvalidateCacheResponseAsync(string key) {
             try {
+                if (key.EndsWith("*"))
+                    await __invalidateMultipleKeys(key);
+
                 if (!string.IsNullOrEmpty(await GetCacheResponseAsync(key))) {
                     await _cache.RemoveAsync(key);
                 }
             } catch (Exception e) {
                 _logger.LogError($"Unable to invalidate cache: {e.Message}");
+            }
+        }
+        private async Task __invalidateMultipleKeys(string key) {
+            foreach (var type in Enum.GetNames(typeof(CacheType))) {
+                await InvalidateCacheResponseAsync(
+                    Regex.Replace(key, "{key}$", type.ToString(), RegexOptions.CultureInvariant)
+                );
             }
         }
     }

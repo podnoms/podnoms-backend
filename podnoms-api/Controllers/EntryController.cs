@@ -118,9 +118,6 @@ namespace PodNoms.Api.Controllers {
                 _repository.AddOrUpdate(entry);
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-
-                await _cache.InvalidateCacheResponseAsync(entry.GetCacheKey());
-
                 return Ok(result);
             }
 
@@ -175,8 +172,6 @@ namespace PodNoms.Api.Controllers {
                 var entry = await _repository.GetAsync(id);
                 await _repository.DeleteAsync(id);
                 await _unitOfWork.CompleteAsync();
-
-                await _cache.InvalidateCacheResponseAsync(entry.GetCacheKey());
                 return Ok();
             } catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
