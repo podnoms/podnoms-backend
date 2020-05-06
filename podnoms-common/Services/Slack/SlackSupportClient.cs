@@ -24,8 +24,6 @@ namespace PodNoms.Common.Services.Slack {
                 Username = message.FromUserName
             };
             return await slackClient.PostAsync(slackMessage);
-
-
         }
     }
 }

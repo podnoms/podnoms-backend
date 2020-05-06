@@ -10,9 +10,9 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> Get(string key) {
+        public async Task<ContentResult> Get([FromQuery]string key) {
             var html = await ResourceReader.ReadResource($"{key}.html");
-            return Content(html, "text/plain");
+            return this.Content(html, "text/html");
         }
     }
 }

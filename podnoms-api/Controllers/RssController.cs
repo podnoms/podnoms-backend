@@ -105,6 +105,7 @@ namespace PodNoms.Api.Controllers {
                             Uid = e.Id.ToString(),
                             Description = e.Description.StripNonXmlChars(),
                             Author = e.Author.StripNonXmlChars(),
+                            EntryImage = e.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
                             UpdateDate = e.CreateDate.ToRFC822String(),
                             AudioUrl = e.GetRssAudioUrl(_appOptions.AudioUrl),
                             Duration = TimeSpan.FromSeconds(e.AudioLength).ToString(@"hh\:mm\:ss"),

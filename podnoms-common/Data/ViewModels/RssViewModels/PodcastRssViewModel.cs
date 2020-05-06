@@ -22,6 +22,7 @@ namespace PodNoms.Common.Data.ViewModels.RssViewModels {
 
         public string Description { get; set; }
         public string Author { get; set; }
+        public string EntryImage { get; set; }
         public string UpdateDate { get; set; }
         public string AudioUrl { get; set; }
         public string Duration { get; set; }
