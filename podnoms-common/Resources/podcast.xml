@@ -28,6 +28,7 @@
             <itunes:author>{{author}}</itunes:author>
             <itunes:summary>{{description}}</itunes:summary>
             <itunes:duration>{{duration}}</itunes:duration>
+            <itunes:image href="{{entryImage}}" />
             <pubDate> {{updateDate}}</pubDate>
             <enclosure url="{{audioUrl}}" length="{{audioFileSize}}" type="audio/mpeg" />
         </item>    
