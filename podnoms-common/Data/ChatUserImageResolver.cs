@@ -14,6 +14,9 @@ namespace PodNoms.Common.Data {
             _userManager = userManager;
         }
         public string Resolve(ChatMessage source, ChatViewModel destination, string destMember, ResolutionContext context) {
+            if (source.FromUser == null) {
+                return "assets/img/default-avatar.jpg";
+            }
             var user = _userManager.FindByIdAsync(source.FromUser.Id.ToString()).Result;
 
             return user.GetThumbnailUrl(

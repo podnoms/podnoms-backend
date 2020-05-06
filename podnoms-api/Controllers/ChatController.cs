@@ -70,6 +70,7 @@ namespace PodNoms.Api.Controllers {
             }
             return StatusCode(503);
         }
+        [AllowAnonymous]
         [HttpPost("initialise")]
         public async Task<ActionResult<ChatViewModel>> Initialise([FromBody]ChatViewModel message) {
             var chatUser = await _userManager.FindByEmailAsync(_chatSettings.CurrentChatUser);
@@ -77,11 +78,18 @@ namespace PodNoms.Api.Controllers {
                 var chat = _mapper.Map<ChatMessage>(message);
                 chat.FromUser = _applicationUser;
                 chat.ToUser = chatUser;
-                _chatRepository.AddOrUpdate(chat);
-                await _unitOfWork.CompleteAsync();
+                if (chat.FromUser != null) {
+                    _chatRepository.AddOrUpdate(chat);
+                    await _unitOfWork.CompleteAsync();
+                } else {
+                    // it's an anonymous chat, we don't need to save item
+                    chat.Id = System.Guid.NewGuid();
+                }
 
                 var filledMessage = _mapper.Map<ChatViewModel>(chat);
-                filledMessage.FromUserName = _applicationUser.GetBestGuessName();
+                filledMessage.FromUserName = _applicationUser == null ?
+                        message.FromUserName :
+                        _applicationUser.GetBestGuessName();
 
                 //send push message to whoever is registered as admin
                 await _subscriptionStore.ForEachSubscriptionAsync(chatUser.Id, (PushSubscription subscription) => {

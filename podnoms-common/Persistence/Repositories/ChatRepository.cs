@@ -21,7 +21,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<IEnumerable<ChatMessage>> GetAllChats(string userId) {
             var chats = await GetAll()
-                .Where(c => c.FromUser.Id == userId || c.ToUser.Id == userId)
+                .Where(c => (c.FromUser.Id == userId || c.ToUser.Id == userId))
                 .Include(c => c.FromUser)
                 .Include(c => c.ToUser)
                 .ToListAsync();
@@ -30,7 +30,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
         public async Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId, int take = 10) {
             var chats = await GetAll()
-                .Where(c => c.FromUser.Id == fromUserId && c.ToUser.Id == toUserId)
+                .Where(c => (c.FromUser.Id == fromUserId && c.ToUser.Id == toUserId) ||
+                            (c.FromUser.Id == toUserId && c.ToUser.Id == fromUserId))
                 .Include(c => c.FromUser)
                 .Include(c => c.ToUser)
                 .OrderByDescending(c => c.CreateDate)
