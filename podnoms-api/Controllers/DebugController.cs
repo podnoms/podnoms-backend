@@ -138,8 +138,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] {$"User {User.Identity.Name}: {message}"});
-            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
+                new string[] { $"User {User.Identity.Name}: {message}" });
+            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
             return Ok(message);
         }
 
@@ -156,11 +156,6 @@ namespace PodNoms.Api.Controllers {
                 response.Append($"Sent: {subscription.Endpoint}");
             });
             return response.ToString();
-        }
-
-        [HttpGet("exception")]
-        public void ThrowException(string text) {
-            throw new HttpStatusCodeException(500, text);
         }
 
         [HttpGet("qry")]

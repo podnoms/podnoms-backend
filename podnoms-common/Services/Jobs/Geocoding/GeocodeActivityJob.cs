@@ -39,20 +39,20 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            context.WriteLine("Geocoding disabled due to ipstack down");
-            if (true) {
+            return await Task.Run(() => {
+                context.WriteLine("Geocoding disabled due to ipstack down");
                 return false;
-            }
-            context.WriteLine("Starting to geocode users");
-            context.WriteLine("Starting to geocode users");
-            context.WriteLine($"Key: {_appSettings.IPStackKey}");
-            var records = _repository
-                .GetAll()
-                .Where(i => !string.IsNullOrEmpty(i.ClientAddress) && string.IsNullOrEmpty(i.CountryCode));
-            foreach (var record in records) {
-                await GeocodeActivityItem(record, context);
-            }
-            return true;
+            });
+            // context.WriteLine("Starting to geocode users");
+            // context.WriteLine("Starting to geocode users");
+            // context.WriteLine($"Key: {_appSettings.IPStackKey}");
+            // var records = _repository
+            //     .GetAll()
+            //     .Where(i => !string.IsNullOrEmpty(i.ClientAddress) && string.IsNullOrEmpty(i.CountryCode));
+            // foreach (var record in records) {
+            //     await GeocodeActivityItem(record, context);
+            // }
+            // return true;
         }
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> GeocodeActivityItem(Guid activityId, PerformContext context) {

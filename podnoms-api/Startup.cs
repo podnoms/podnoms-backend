@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -34,7 +35,9 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using PodNoms.Common.Services.Caching;
+using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNetCore3;
+using WebMarkupMin.Core;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -49,7 +52,20 @@ namespace PodNoms.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
-
+            services.AddResponseCaching();
+            services.AddWebMarkupMin(options => 			{
+                        options.AllowMinificationInDevelopmentEnvironment = true;
+                        options.AllowCompressionInDevelopmentEnvironment = true;
+                    })
+                .AddHtmlMinification(options =>
+                {
+                    HtmlMinificationSettings settings = options.MinificationSettings;
+                    settings.RemoveRedundantAttributes = true;
+                    settings.RemoveHttpProtocolFromAttributes = true;
+                    settings.RemoveHttpsProtocolFromAttributes = true;
+                })
+                .AddHttpCompression();
+            
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]
             );
@@ -63,19 +79,6 @@ namespace PodNoms.Api {
                     Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common"));
             });
-
-            services.AddWebMarkupMin(
-                options => {
-                    options.AllowMinificationInDevelopmentEnvironment = true;
-                    options.AllowCompressionInDevelopmentEnvironment = true;
-                })
-                .AddHtmlMinification(
-                    options => {
-                        options.MinificationSettings.RemoveRedundantAttributes = true;
-                        options.MinificationSettings.RemoveHttpProtocolFromAttributes = true;
-                        options.MinificationSettings.RemoveHttpsProtocolFromAttributes = true;
-                    })
-                .AddHttpCompression();
 
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
@@ -91,6 +94,7 @@ namespace PodNoms.Api {
 
             services.AddMvc(options => {
                 //TODO: This needs to be investigated
+                options.Filters.Add<UserLoggingFilter>();
                 options.Filters.Add<UserLoggingFilter>();
                 options.EnableEndpointRouting = false;
                 options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
@@ -140,7 +144,6 @@ namespace PodNoms.Api {
 
             UpdateDatabase(app);
 
-            app.UseHttpStatusCodeExceptionMiddleware();
             if (!Env.IsDevelopment()) {
                 app.UseHttpsRedirection();
             }
@@ -166,8 +169,6 @@ namespace PodNoms.Api {
 
             app.UsePodNomsCors();
 
-            app.UseWebMarkupMin();
-
             app.UseSwagger();
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
@@ -182,7 +183,10 @@ namespace PodNoms.Api {
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
-
+            
+            app.UseResponseCaching();
+            app.UseWebMarkupMin();
+            
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "shared",

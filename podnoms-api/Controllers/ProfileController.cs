@@ -84,7 +84,7 @@ namespace PodNoms.Api.Controllers {
             if (_applicationUser.Slug.Contains("podnoms-user")) {
                 return Ok();
             }
-            return NotFound();
+            return NoContent();
         }
         [HttpGet("limits")]
         public async Task<ActionResult<ProfileLimitsViewModel>> GetProfileLimits() {

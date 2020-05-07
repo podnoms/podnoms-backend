@@ -141,7 +141,7 @@ namespace PodNoms.Common.Services.Downloader {
                 return _downloadFileDirect(url, outputFile);
             }
 
-            var cleanedUrl = _normaliseUrl(url);
+            var cleanedUrl = await _normaliseUrl(url);
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
@@ -180,9 +180,9 @@ namespace PodNoms.Common.Services.Downloader {
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
-        private string _normaliseUrl(string url) {
+        private async Task<string> _normaliseUrl(string url) {
             if (_youTubeParser.ValidateUrl(url)) {
-                return $"https://www.youtube.com/watch?v={_youTubeParser.GetVideoId(url)}";
+                return $"https://www.youtube.com/watch?v={await _youTubeParser.GetVideoId(url)}";
             }
 
             return url;
