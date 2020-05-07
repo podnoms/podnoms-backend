@@ -25,21 +25,18 @@ namespace PodNoms.Common.Persistence {
         GO";
     }
 
-    //TODO: Commented this out as I'm dependency injecting into the Context constructor
-    //TODO: Chain injectors later if needed
+    public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
+        public PodNomsDbContext CreateDbContext(string[] args) {
 
-    // public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
-    //     public PodNomsDbContext CreateDbContext(string[] args) {
+            var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
+            var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
-    //         var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
-    //         var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
+            var connectionString = TEMP_CONN;
+            builder.UseSqlServer(connectionString);
 
-    //         var connectionString = TEMP_CONN;
-    //         builder.UseSqlServer(connectionString);
-
-    //         return new PodNomsDbContext(builder.Options);
-    //     }
-    // }
+            return new PodNomsDbContext(builder.Options, null);
+        }
+    }
 
     public sealed class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
         private readonly IResponseCacheService _cache;
@@ -108,6 +105,9 @@ namespace PodNoms.Common.Persistence {
                 .HasIndex(p => new { p.SourceUrl })
                 .IsUnique(true);
 
+            modelBuilder.Entity<BoilerPlate>()
+                .HasIndex(p => new { p.Key })
+                .IsUnique(true);
 
             var converter = new EnumToNumberConverter<NotificationOptions, int>();
             modelBuilder.Entity<ApplicationUser>()
@@ -156,6 +156,7 @@ namespace PodNoms.Common.Persistence {
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
+        public DbSet<BoilerPlate> BoilerPlates { get; set; }
         public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
         public DbSet<ApplicationUserSlugRedirects> ApplicationUserSlugRedirects { get; set; }
         public DbSet<Category> Categories { get; set; }

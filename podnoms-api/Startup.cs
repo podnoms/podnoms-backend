@@ -34,6 +34,7 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using PodNoms.Common.Services.Caching;
+using WebMarkupMin.AspNetCore3;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -63,6 +64,18 @@ namespace PodNoms.Api {
                     b => b.MigrationsAssembly("podnoms-common"));
             });
 
+            services.AddWebMarkupMin(
+                options => {
+                    options.AllowMinificationInDevelopmentEnvironment = true;
+                    options.AllowCompressionInDevelopmentEnvironment = true;
+                })
+                .AddHtmlMinification(
+                    options => {
+                        options.MinificationSettings.RemoveRedundantAttributes = true;
+                        options.MinificationSettings.RemoveHttpProtocolFromAttributes = true;
+                        options.MinificationSettings.RemoveHttpsProtocolFromAttributes = true;
+                    })
+                .AddHttpCompression();
 
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
@@ -152,6 +165,8 @@ namespace PodNoms.Api {
             app.UseAuthentication();
 
             app.UsePodNomsCors();
+
+            app.UseWebMarkupMin();
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {

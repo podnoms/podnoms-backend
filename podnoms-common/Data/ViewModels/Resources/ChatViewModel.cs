@@ -2,7 +2,6 @@ using System;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ChatViewModel {
-
         public string MessageId { get; set; }
         public string Message { get; set; }
         public string FromUserImage { get; set; }
