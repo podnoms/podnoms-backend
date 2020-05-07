@@ -60,6 +60,7 @@ namespace PodNoms.Jobs {
                 .AddPodNomsCacheService(Configuration, false)
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
+                .AddSingleton<RemoteImageCacher>()
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()

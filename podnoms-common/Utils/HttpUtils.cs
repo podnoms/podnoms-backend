@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace PodNoms.Common.Utils {
     public static class HttpUtils {
         public static string UrlCombine(params string[] parts) => Flurl.Url.Combine(parts);
+
         public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
             using var client = new HttpClient();
             client.DefaultRequestHeaders
@@ -15,6 +16,7 @@ namespace PodNoms.Common.Utils {
             var data = await client.GetStringAsync(url);
             return data;
         }
+
         public static async Task<string> DownloadFile(string url, string file = "") {
 
             using var client = new HttpClient();
