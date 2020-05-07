@@ -19,7 +19,8 @@ using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Persistence {
     public static class SeedData {
-        public static string AUTH = @"CREATE LOGIN podnomsweb WITH PASSWORD = 'podnomsweb', DEFAULT_DATABASE = [PodNoms], CHECK_EXPIRATION = OFF, CHECK_POLICY = OFF
+        public static string AUTH =
+            @"CREATE LOGIN podnomsweb WITH PASSWORD = 'podnomsweb', DEFAULT_DATABASE = [PodNoms], CHECK_EXPIRATION = OFF, CHECK_POLICY = OFF
         GO
         ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
         GO";
@@ -27,8 +28,8 @@ namespace PodNoms.Common.Persistence {
 
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext(string[] args) {
-
-            var TEMP_CONN = "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
+            var TEMP_CONN =
+                "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
             var connectionString = TEMP_CONN;
@@ -42,11 +43,12 @@ namespace PodNoms.Common.Persistence {
         private readonly IResponseCacheService _cache;
 
         public PodNomsDbContext(
-                    DbContextOptions<PodNomsDbContext> options,
-                    IResponseCacheService cache) : base(options) {
+            DbContextOptions<PodNomsDbContext> options,
+            IResponseCacheService cache) : base(options) {
             Database.SetCommandTimeout(360);
             _cache = cache;
         }
+
         private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
                 .GetEntityTypes()
@@ -102,17 +104,17 @@ namespace PodNoms.Common.Persistence {
                 .IsUnique();
 
             modelBuilder.Entity<Playlist>()
-                .HasIndex(p => new { p.SourceUrl })
+                .HasIndex(p => new {p.SourceUrl})
                 .IsUnique(true);
 
             modelBuilder.Entity<BoilerPlate>()
-                .HasIndex(p => new { p.Key })
+                .HasIndex(p => new {p.Key})
                 .IsUnique(true);
 
             var converter = new EnumToNumberConverter<NotificationOptions, int>();
             modelBuilder.Entity<ApplicationUser>()
-                        .Property(e => e.EmailNotificationOptions)
-                        .HasConversion(converter);
+                .Property(e => e.EmailNotificationOptions)
+                .HasConversion(converter);
 
             foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
                 pb.ValueGeneratedOnAdd()
@@ -130,29 +132,32 @@ namespace PodNoms.Common.Persistence {
         }
 
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default) {
             foreach (var entity in ChangeTracker.Entries()
-                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                    .Where(e => e.Entity is ISluggedEntity)
-                    .Select(e => e.Entity as ISluggedEntity)
-                    .Where(e => string.IsNullOrEmpty(e.Slug))) {
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                .Where(e => e.Entity is ISluggedEntity)
+                .Select(e => e.Entity as ISluggedEntity)
+                .Where(e => string.IsNullOrEmpty(e.Slug))) {
                 entity.Slug = entity.GenerateSlug(this);
             }
+
             //remove all caches referencing this item
             foreach (var entity in ChangeTracker.Entries()
-                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                    .Where(e => e.Entity is ICachedEntity)
-                    .Select(e => e as ICachedEntity)) {
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                .Where(e => e.Entity is ICachedEntity)
+                .Select(e => e as ICachedEntity)) {
                 foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
                     try {
                         _cache.InvalidateCacheResponseAsync(
                             entity.GetCacheKey(type)
                         );
-                    } catch (Exception ex) {
+                    } catch (Exception) {
                         //hasn't been cached
                     }
                 }
             }
+
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 

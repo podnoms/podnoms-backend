@@ -140,7 +140,6 @@ namespace PodNoms.Api {
 
             UpdateDatabase(app);
 
-            app.UseHttpStatusCodeExceptionMiddleware();
             if (!Env.IsDevelopment()) {
                 app.UseHttpsRedirection();
             }

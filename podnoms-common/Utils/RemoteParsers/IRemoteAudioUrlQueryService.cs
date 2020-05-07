@@ -10,9 +10,9 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         bool ValidateUrl(string url);
     }
     public interface IYouTubeParser : IRemoteAudioUrlQueryService {
-        string GetVideoId(string url);
+        Task<string> GetVideoId(string url);
         Task<string> GetChannelId(string channelName);
-        string GetChannelIdentifier(string url);
+        Task<string> GetChannelIdentifier(string url);
         Task<RemoteVideoInfo> GetInformation(string url);
     }
     public interface IMixCloudParser : IRemoteAudioUrlQueryService {
