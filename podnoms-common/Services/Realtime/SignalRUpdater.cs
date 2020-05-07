@@ -16,9 +16,9 @@ namespace PodNoms.Common.Services.Realtime {
                 await _hub.SendUserAsync(
                     userId,
                     channelName, //userId, 
-                    new object[] {data});
+                    new object[] { data });
                 return true;
-            } catch (Exception ex) {
+            } catch (Exception) {
                 return false;
             }
         }

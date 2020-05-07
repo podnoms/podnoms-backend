@@ -24,6 +24,8 @@ using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Services.Waveforms;
 using PodNoms.Data.Models;
 using PodNoms.Jobs.Services;
+using PodNoms.Common.Utils.RemoteParsers.PodNoms.Common.Utils.RemoteParsers;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
@@ -61,6 +63,7 @@ namespace PodNoms.Jobs {
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddSingleton<RemoteImageCacher>()
+                .AddScoped<IYouTubeParser, YouTubeParser>()
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()

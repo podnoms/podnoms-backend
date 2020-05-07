@@ -14,19 +14,18 @@ using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Common.Services.Jobs {
-    public class CheckItemImagesJob : IHostedJob {
+    public class CheckItemImagesJob : AbstractHostedJob, IHostedJob {
         public readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly RemoteImageCacher _imageCacher;
         private readonly IYouTubeParser _youTubeParser;
         public readonly StorageSettings _storageSettings;
         public readonly AudioFileStorageSettings _audioStorageSettings;
-        private readonly ILogger<CheckAudioExistsJob> _logger;
         private readonly IMailSender _mailSender;
 
         public CheckItemImagesJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, IUnitOfWork unitOfWork,
-            RemoteImageCacher imageCacher, IYouTubeParser youTubeParser, ILoggerFactory logger, IMailSender mailSender) {
+            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<CheckItemImagesJob> logger, IUnitOfWork unitOfWork,
+            RemoteImageCacher imageCacher, IYouTubeParser youTubeParser, IMailSender mailSender) : base(logger) {
             _mailSender = mailSender;
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
@@ -34,32 +33,39 @@ namespace PodNoms.Common.Services.Jobs {
             _unitOfWork = unitOfWork;
             _imageCacher = imageCacher;
             _youTubeParser = youTubeParser;
-            _logger = logger.CreateLogger<CheckAudioExistsJob>();
         }
 
-        public async Task<bool> Execute() {
-            return await Execute(null);
-        }
+        public override async Task<bool> Execute(PerformContext context) {
+            _setContext(context);
+            Log("Starting CheckItemImagesJob");
 
-        public async Task<bool> Execute(PerformContext context) {
             //get all the unprocessed images
             var entries = await _entryRepository.GetAll()
                 .Where(x => x.ImageUrl.StartsWith("http"))
-                .Where(x => x.ImageUrl.Equals("https://img.youtube.com/vi/-Zr_aNXS2RE/sddefault.jpg"))
+                // .Where(x => x.ImageUrl.Equals("https://img.youtube.com/vi/-Zr_aNXS2RE/sddefault.jpg"))
                 .ToListAsync();
+            var count = entries.Count();
+            int i = 1;
             foreach (var entry in entries) {
+                Log($"Checking entry: {entry.ToString()}");
+                Log($"\t{i++} of {count}");
                 var file = await _imageCacher.CacheImage(entry.ImageUrl, entry.Id.ToString());
                 if (string.IsNullOrEmpty(file)) {
                     if (_youTubeParser.ValidateUrl(entry.SourceUrl)) {
+                        Log($"YouTube gave us a 404: {entry.ImageUrl}");
                         var info = await _youTubeParser.GetInformation(entry.SourceUrl);
+                        Log($"Parser gave us: {info} - attempting a cache");
                         file = await _imageCacher.CacheImage(info.Thumbnail, entry.Id.ToString());
+                    } else {
+                        Log("This isn't a YouTube - we'll deal with it later");
                     }
                 }
                 if (!string.IsNullOrEmpty(file)) {
+                    Log("Happy Days!!!");
                     entry.ImageUrl = file;
+                    await _unitOfWork.CompleteAsync();
                 }
             }
-            await _unitOfWork.CompleteAsync();
             return true;
         }
     }

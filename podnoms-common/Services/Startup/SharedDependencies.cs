@@ -48,7 +48,6 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<INotificationHandler, TwitterNotificationHandler>()
                 .AddScoped<INotificationHandler, EmailNotificationHandler>()
                 .AddScoped<IPaymentProcessor, StripePaymentProcessor>()
-                .AddScoped<IYouTubeParser, YouTubeQueryService>()
                 .AddScoped<MixcloudParser>()
                 .AddScoped<AudioDownloader>()
                 .AddScoped<SlackSupportClient>()
