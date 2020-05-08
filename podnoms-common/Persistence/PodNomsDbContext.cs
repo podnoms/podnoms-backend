@@ -104,11 +104,11 @@ namespace PodNoms.Common.Persistence {
                 .IsUnique();
 
             modelBuilder.Entity<Playlist>()
-                .HasIndex(p => new {p.SourceUrl})
+                .HasIndex(p => new { p.SourceUrl })
                 .IsUnique(true);
 
             modelBuilder.Entity<BoilerPlate>()
-                .HasIndex(p => new {p.Key})
+                .HasIndex(p => new { p.Key })
                 .IsUnique(true);
 
             var converter = new EnumToNumberConverter<NotificationOptions, int>();
@@ -149,9 +149,14 @@ namespace PodNoms.Common.Persistence {
                 .Select(e => e as ICachedEntity)) {
                 foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
                     try {
-                        _cache.InvalidateCacheResponseAsync(
-                            entity.GetCacheKey(type)
-                        );
+                        if (entity != null) { //entity could not be cast as above
+                            var key = entity.GetCacheKey(type);
+                            if (!string.IsNullOrEmpty(key)) {
+                                _cache.InvalidateCacheResponseAsync(
+                                   entity.GetCacheKey(type)
+                               );
+                            }
+                        }
                     } catch (Exception) {
                         //hasn't been cached
                     }

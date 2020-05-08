@@ -95,15 +95,19 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                     request.Id = videoId;
                     var response = await request.ExecuteAsync();
                     if (response != null) {
-                        var snippet = response.Items[0].Snippet;
-                        return new RemoteVideoInfo {
-                            VideoId = videoId,
-                            Title = snippet.Title,
-                            Description = snippet.Description,
-                            Thumbnail = snippet.Thumbnails.High.Url,
-                            Uploader = snippet.ChannelTitle,
-                            UploadDate = snippet.PublishedAt
-                        };
+                        var snippet = response.Items
+                            .Select(r => r.Snippet)
+                            .FirstOrDefault();
+                        if (snippet != null) {
+                            return new RemoteVideoInfo {
+                                VideoId = videoId,
+                                Title = snippet.Title,
+                                Description = snippet.Description,
+                                Thumbnail = snippet.Thumbnails.High.Url,
+                                Uploader = snippet.ChannelTitle,
+                                UploadDate = snippet.PublishedAt
+                            };
+                        }
                     }
                 }
                 return null;

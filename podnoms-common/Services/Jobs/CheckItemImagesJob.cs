@@ -42,6 +42,7 @@ namespace PodNoms.Common.Services.Jobs {
             //get all the unprocessed images
             var entries = await _entryRepository.GetAll()
                 .Where(x => x.ImageUrl.StartsWith("http"))
+                // .Where(x => x.Id == System.Guid.Parse("47d667a6-1973-41fb-ef47-08d7846d75d6"))
                 // .Where(x => x.ImageUrl.Equals("https://img.youtube.com/vi/-Zr_aNXS2RE/sddefault.jpg"))
                 .ToListAsync();
             var count = entries.Count();
@@ -49,22 +50,34 @@ namespace PodNoms.Common.Services.Jobs {
             foreach (var entry in entries) {
                 Log($"Checking entry: {entry.ToString()}");
                 Log($"\t{i++} of {count}");
-                var file = await _imageCacher.CacheImage(entry.ImageUrl, entry.Id.ToString());
-                if (string.IsNullOrEmpty(file)) {
-                    if (_youTubeParser.ValidateUrl(entry.SourceUrl)) {
-                        Log($"YouTube gave us a 404: {entry.ImageUrl}");
-                        var info = await _youTubeParser.GetInformation(entry.SourceUrl);
-                        Log($"Parser gave us: {info} - attempting a cache");
-                        file = await _imageCacher.CacheImage(info.Thumbnail, entry.Id.ToString());
-                    } else {
-                        Log("This isn't a YouTube - we'll deal with it later");
+
+                //https://cdn-l.podnoms.com/images/entry/d1260873-5d9f-4548-0524-08d6f73bf76c.png?width=725&height=748
+
+                if (entry.ImageUrl.StartsWith("https://cdn-l.podnoms.com/")) {
+                    entry.ImageUrl = entry.ImageUrl.Replace("https://cdn-l.podnoms.com/", string.Empty);
+                    if (entry.ImageUrl.Contains('?')) {
+                        entry.ImageUrl = entry.ImageUrl.Split('?')[0];
+                    }
+                } else {
+                    var file = await _imageCacher.CacheImage(entry.ImageUrl, entry.Id.ToString());
+                    if (string.IsNullOrEmpty(file) && !string.IsNullOrEmpty(entry.SourceUrl)) {
+                        if (_youTubeParser.ValidateUrl(entry.SourceUrl)) {
+                            Log($"YouTube gave us a 404: {entry.ImageUrl}");
+                            var info = await _youTubeParser.GetInformation(entry.SourceUrl);
+                            if (info != null) {
+                                Log($"Parser gave us: {info} - attempting a cache");
+                                file = await _imageCacher.CacheImage(info.Thumbnail, entry.Id.ToString());
+                            }
+                        } else {
+                            Log("This isn't a YouTube - we'll deal with it later");
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(file)) {
+                        Log("Happy Days!!!");
+                        entry.ImageUrl = file;
                     }
                 }
-                if (!string.IsNullOrEmpty(file)) {
-                    Log("Happy Days!!!");
-                    entry.ImageUrl = file;
-                    await _unitOfWork.CompleteAsync();
-                }
+                await _unitOfWork.CompleteAsync();
             }
             return true;
         }

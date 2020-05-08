@@ -73,7 +73,7 @@ namespace PodNoms.Data.Models {
         public string GetPagesUrl(string pagesUrl) =>
             Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
 
-        public string GetCacheKey(CacheType type) => this.Podcast.GetCacheKey(type);
-        public string GetDebugString(CacheType type) => this.Podcast.GetCacheKey(type);
+        public string GetCacheKey(CacheType type) => this.Podcast?.GetCacheKey(type);
+        public string GetDebugString(CacheType type) => this.Podcast?.GetCacheKey(type);
     }
 }

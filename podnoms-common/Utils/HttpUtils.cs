@@ -46,7 +46,10 @@ namespace PodNoms.Common.Utils {
                 // var response = await client.GetAsync (url, HttpCompletionOption.ResponseHeadersRead);
                 if (response.StatusCode == HttpStatusCode.OK &&
                     response.Content.Headers.ContentType != null) {
-                    var extension = MimeTypeMap.GetExtension(response.Content.Headers.ContentType.MediaType);
+                    var extension = MimeTypeMap.GetExtension(
+                        response.Content.Headers.ContentType.MediaType
+                            .Replace("image/jpg", "image/jpeg")
+                        );
                     if (!string.IsNullOrEmpty(extension))
                         return extension.TrimStart('.');
                 }
