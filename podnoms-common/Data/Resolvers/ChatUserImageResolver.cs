@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data {
+namespace PodNoms.Common.Data.Resolvers {
     internal class ChatUserImageResolver : IValueResolver<ChatMessage, ChatViewModel, string> {
         private readonly IConfiguration _options;
         private readonly UserManager<ApplicationUser> _userManager;

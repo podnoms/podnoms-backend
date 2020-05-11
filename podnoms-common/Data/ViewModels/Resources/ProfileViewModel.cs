@@ -18,6 +18,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public bool HasSubscribed { get; set; }
         public string SubscriptionType { get; set; }
         public bool SubscriptionValid { get; set; }
+        public bool IsFluent { get; set; }
         public DateTime? SubscriptionValidUntil { get; set; }
         public List<string> Roles { get; set; }
     }

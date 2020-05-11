@@ -4,7 +4,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 using System.Linq;
 
-namespace PodNoms.Common.Data {
+namespace PodNoms.Common.Data.Resolvers {
     internal class ProfileSubscriptionValidResolver : IValueResolver<ApplicationUser, ProfileViewModel, bool> {
         private readonly IPaymentRepository _repository;
 

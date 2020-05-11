@@ -45,7 +45,9 @@ namespace PodNoms.Data.Models {
         public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
 
         private string extension => "jpg";
-
+        public override string ToString() {
+            return $"PodcastEntry: {this.Id}: {this.Slug} -- {this.Podcast?.Slug} -- {this.Podcast?.AppUser?.Slug}";
+        }
         public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";
         public string GetPcmUrl(string cdnUrl, string containerName) => $"{cdnUrl}/{containerName}/{Id}.json";
         public string GetAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, "mp3");
@@ -71,6 +73,7 @@ namespace PodNoms.Data.Models {
         public string GetPagesUrl(string pagesUrl) =>
             Flurl.Url.Combine(pagesUrl, this.Podcast.AppUser.Slug, this.Podcast.Slug, this.Slug);
 
-        public string GetCacheKey(CacheType type) => this.Podcast.GetCacheKey(type);
+        public string GetCacheKey(CacheType type) => this.Podcast?.GetCacheKey(type);
+        public string GetDebugString(CacheType type) => this.Podcast?.GetCacheKey(type);
     }
 }

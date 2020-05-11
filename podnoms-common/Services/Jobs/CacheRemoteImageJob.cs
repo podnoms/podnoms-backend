@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
@@ -17,23 +18,20 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace PodNoms.Common.Services.Jobs {
     public class CacheRemoteImageJob : IHostedJob {
         private readonly IEntryRepository _entryRepository;
-        private readonly IFileUploader _fileUploader;
+        private readonly RemoteImageCacher _imageCacher;
         private readonly IUnitOfWork _unitOfWork;
         private readonly StorageSettings _storageSettings;
-        private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly ILogger _logger;
 
         public CacheRemoteImageJob(IEntryRepository entryRepository,
-            IFileUploader fileUploader,
+            RemoteImageCacher imageCacher,
             IOptions<StorageSettings> storageSettings,
-            IOptions<ImageFileStorageSettings> imageFileStoragesSettings,
             IUnitOfWork unitOfWork,
             ILoggerFactory logger) {
             _entryRepository = entryRepository;
-            _fileUploader = fileUploader;
+            _imageCacher = imageCacher;
             _unitOfWork = unitOfWork;
             _storageSettings = storageSettings.Value;
-            _imageFileStorageSettings = imageFileStoragesSettings.Value;
             _logger = logger.CreateLogger<CacheRemoteImageJob>();
         }
 
@@ -64,41 +62,17 @@ namespace PodNoms.Common.Services.Jobs {
             var entry = await _entryRepository.GetAsync(entryId);
             if (entry is null) return string.Empty;
 
-            var file = await CacheImage(entry.ImageUrl, entry.Id.ToString());
-
-            if (string.IsNullOrEmpty(file)) return string.Empty;
-
+            var file = await CacheImage(entry.ImageUrl, entry.Id);
             entry.ImageUrl = file;
             await _unitOfWork.CompleteAsync();
-
             return file;
         }
+        public async Task<string> CacheImage(string imageUrl, Guid entryId) {
 
-        public async Task<string> CacheImage(string imageUrl, string destUid) {
-            // TODO: Need to convert everything to jpeg
-            // PNG was a bad choice
-            try {
-                var sourceFile = await HttpUtils.DownloadFile(imageUrl);
-                if (string.IsNullOrEmpty(sourceFile))
-                    return string.Empty;
-                var extension = await HttpUtils.GetUrlExtension(imageUrl);
+            var file = await _imageCacher.CacheImage(imageUrl, entryId.ToString());
+            if (string.IsNullOrEmpty(file)) return string.Empty;
 
-                if (!extension.Equals("jpg")) {
-                    (sourceFile, extension) = ImageUtils.ConvertFile(sourceFile, sourceFile, "jpg");
-                }
-
-                var remoteFile = await _fileUploader.UploadFile(
-                    sourceFile,
-                    _imageFileStorageSettings.ContainerName,
-                    $"entry/{destUid}.jpg",
-                    "image/jpeg");
-
-                return remoteFile;
-            } catch (Exception ex) {
-                _logger.LogError($"Error caching image: {ex.Message}");
-            }
-
-            return string.Empty;
+            return file;
         }
     }
 }

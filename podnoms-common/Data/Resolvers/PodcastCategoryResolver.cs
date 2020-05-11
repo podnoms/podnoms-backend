@@ -5,7 +5,7 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data {
+namespace PodNoms.Common.Data.Resolvers {
     internal class PodcastCategoryResolver : IValueResolver<PodcastViewModel, Podcast, Category> {
         private readonly ICategoryRepository _categoryRepository;
 

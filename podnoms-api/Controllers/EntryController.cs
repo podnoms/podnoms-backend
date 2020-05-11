@@ -177,7 +177,6 @@ namespace PodNoms.Api.Controllers {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
-
             return BadRequest("Unable to delete entry");
         }
 

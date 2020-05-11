@@ -7,6 +7,6 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         public string Description { get; internal set; }
         public string Thumbnail { get; internal set; }
         public string Uploader { get; internal set; }
-        public DateTime UploadDate { get; internal set; }
+        public DateTime? UploadDate { get; internal set; }
     }
 }

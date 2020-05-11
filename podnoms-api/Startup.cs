@@ -38,6 +38,7 @@ using PodNoms.Common.Services.Caching;
 using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNetCore3;
 using WebMarkupMin.Core;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -53,19 +54,18 @@ namespace PodNoms.Api {
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
             services.AddResponseCaching();
-            services.AddWebMarkupMin(options => 			{
-                        options.AllowMinificationInDevelopmentEnvironment = true;
-                        options.AllowCompressionInDevelopmentEnvironment = true;
-                    })
-                .AddHtmlMinification(options =>
-                {
+            services.AddWebMarkupMin(options => {
+                options.AllowMinificationInDevelopmentEnvironment = true;
+                options.AllowCompressionInDevelopmentEnvironment = true;
+            })
+                .AddHtmlMinification(options => {
                     HtmlMinificationSettings settings = options.MinificationSettings;
                     settings.RemoveRedundantAttributes = true;
                     settings.RemoveHttpProtocolFromAttributes = true;
                     settings.RemoveHttpsProtocolFromAttributes = true;
                 })
                 .AddHttpCompression();
-            
+
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]
             );
@@ -129,6 +129,9 @@ namespace PodNoms.Api {
             services.AddPushNotificationService(Configuration);
 
             services.AddSharedDependencies()
+                //the query service is orders of magnitude faster than the API 
+                //but it will get rate limited if we use it on the job server
+                .AddTransient<IYouTubeParser, YouTubeQueryService>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddScoped<UserLoggingFilter>()
                 .AddScoped<ISupportChatService, SupportChatService>()
@@ -183,10 +186,10 @@ namespace PodNoms.Api {
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
-            
+
             app.UseResponseCaching();
             app.UseWebMarkupMin();
-            
+
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "shared",

@@ -4,7 +4,7 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data {
+namespace PodNoms.Common.Data.Resolvers {
     internal class PodcastAuthPasswordResolver : IValueResolver<PodcastViewModel, Podcast, byte[]> {
         private readonly IPodcastRepository _podcastRepository;
 

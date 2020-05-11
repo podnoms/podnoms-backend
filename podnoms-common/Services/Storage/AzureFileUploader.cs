@@ -82,7 +82,7 @@ namespace PodNoms.Common.Services.Storage {
 
                 _logger.LogDebug("Blob uploaded completely.");
             }
-            var responseFile = "{containerName}/{destinationFile}";
+            var responseFile = $"{containerName}/{destinationFile}";
             _logger.LogDebug($"Successfully uploaded {responseFile}");
             return responseFile;
         }

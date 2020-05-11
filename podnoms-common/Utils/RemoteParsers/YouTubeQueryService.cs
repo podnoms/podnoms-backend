@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YoutubeExplode;
@@ -11,6 +10,13 @@ using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+
+    namespace PodNoms.Common.Utils.RemoteParsers {
+    }
     public class YouTubeQueryService : IYouTubeParser {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
 
@@ -22,9 +28,13 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         public bool ValidateUrl(string url) {
-            var regex = new Regex(URL_REGEX);
-            var result = regex.Match(url);
-            return result.Success;
+            try {
+                var regex = new Regex(URL_REGEX);
+                var result = regex.Match(url);
+                return result.Success;
+            } catch (Exception) {
+                return false;
+            }
         }
 
         public async Task<string> GetVideoId(string url) {
