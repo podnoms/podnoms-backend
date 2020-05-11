@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using PodNoms.Common.Data.Resolvers;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Enums;
@@ -166,6 +167,10 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.SubscriptionValidUntil,
                     map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
+                )
+                .ForMember(
+                    src => src.IsFluent,
+                    map => map.MapFrom<ProfileIsFluentResolver>()
                 )
                .ForMember(
                    src => src.Roles,

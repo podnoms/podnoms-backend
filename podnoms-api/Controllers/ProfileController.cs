@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +42,7 @@ namespace PodNoms.Api.Controllers {
             _unitOfWork = unitOfWork;
         }
 
+        //TODO: This shouldn't be a List?
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
@@ -86,6 +88,7 @@ namespace PodNoms.Api.Controllers {
             }
             return NoContent();
         }
+
         [HttpGet("limits")]
         public async Task<ActionResult<ProfileLimitsViewModel>> GetProfileLimits() {
             var entries = await _entryRepository.GetAllForUserAsync(_applicationUser.Id);

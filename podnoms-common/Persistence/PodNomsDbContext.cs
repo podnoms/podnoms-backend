@@ -143,7 +143,7 @@ namespace PodNoms.Common.Persistence {
             }
 
             //remove all caches referencing this item
-            foreach (var entity in ChangeTracker.Entries()
+            foreach (ICachedEntity entity in ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
                 .Where(e => e.Entity is ICachedEntity)
                 .Select(e => e as ICachedEntity)) {

@@ -77,7 +77,7 @@ namespace PodNoms.Api.Controllers {
             });
         }
         [HttpPost("checkdomain")]
-        public async Task<ActionResult<bool>> CheckHostName([FromBody]CheckHostNameViewModel request) {
+        public async Task<ActionResult<bool>> CheckHostName([FromBody] CheckHostNameViewModel request) {
             try {
                 _logger.LogInformation($"Checking domain: {request.HostName}");
 
@@ -101,7 +101,7 @@ namespace PodNoms.Api.Controllers {
         }
         [AllowAnonymous]
         [HttpPost("checkpassword")]
-        public async Task<ActionResult<int>> CheckPasswordStrength([FromBody]string pwd) {
+        public async Task<ActionResult<int>> CheckPasswordStrength([FromBody] string pwd) {
             if (string.IsNullOrEmpty(pwd))
                 return BadRequest();
 
@@ -117,7 +117,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("filesize")]
-        public async Task<long> GetRemoteFileSize([FromQuery]string url) {
+        public async Task<long> GetRemoteFileSize([FromQuery] string url) {
             using (var client = _httpClientFactory.CreateClient()) {
                 return await client.GetContentSizeAsync(url);
             }
