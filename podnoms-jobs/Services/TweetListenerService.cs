@@ -4,17 +4,16 @@ using Microsoft.Extensions.Hosting;
 using PodNoms.Common.Services.Social;
 
 namespace PodNoms.Jobs.Services {
-    public class TweetListenerService : IHostedService {
+    public class TweetListenerService : BackgroundService {
         private readonly ITweetListener _tweetListener;
-
         public TweetListenerService(ITweetListener tweetListener) {
             _tweetListener = tweetListener;
         }
-        public async Task StartAsync(CancellationToken cancellationToken) {
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
             await _tweetListener.StartAsync();
         }
-
-        public async Task StopAsync(CancellationToken cancellationToken) {
+        public override async Task StopAsync(CancellationToken cancellationToken) {
             await _tweetListener.StopAsync();
         }
     }
