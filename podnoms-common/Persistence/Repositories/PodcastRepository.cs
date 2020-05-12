@@ -57,6 +57,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<Podcast> GetRandomForUser(string userId) {
             return await GetAll()
+                .Include(r => r.AppUser)
                 .Where(r => r.AppUser.Id == userId)
                 .OrderBy(r => System.Guid.NewGuid().ToString())
                 .Take(1)

@@ -84,14 +84,15 @@ namespace PodNoms.Common.Services.Social {
                     return;
                 }
                 var tweetId = (long)incomingTweet.Tweet.InReplyToStatusId;
+                var sourceTweet = await TweetAsync.GetTweet((long)incomingTweet.Tweet.InReplyToStatusId);
                 var tweetToReplyTo = incomingTweet.Tweet;
-                var tweetSource = incomingTweet.Tweet.CreatedBy.ScreenName;
+                var targetUser = incomingTweet.Tweet.CreatedBy.ScreenName;
 
-                var user = await __getTargetUser(tweetSource);
+                var user = await __getTargetUser(targetUser);
                 if (user == null) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
-                        $"Hi @{tweetSource}, sorry but I cannot find your account.\nPlease edit your profile and make sure your Twitter Handle is set correctly.\n{_appSettings.SiteUrl}/profile"
+                        $"Hi @{targetUser}, sorry but I cannot find your account.\nPlease edit your profile and make sure your Twitter Handle is set correctly.\n{_appSettings.SiteUrl}/profile"
                     );
                     return;
                 }
@@ -107,7 +108,7 @@ namespace PodNoms.Common.Services.Social {
                 if (podcast == null) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
-                        $"Hi @{tweetSource}, I cannot find the podcast to create this episode for, please make sure the podcast slug is the first word after @podnoms\n{_appSettings.SiteUrl}"
+                        $"Hi @{targetUser}, I cannot find the podcast to create this episode for, please make sure the podcast slug is the first word after @podnoms\n{_appSettings.SiteUrl}"
                     );
                     return;
                 }
@@ -115,23 +116,27 @@ namespace PodNoms.Common.Services.Social {
                 var entry = new PodcastEntry {
                     Podcast = podcast,
                     Processed = false,
-                    SourceUrl = incomingTweet.Tweet.Url
+                    SourceUrl = sourceTweet.Url
                 };
+
                 var status = await processor.GetInformation(entry);
                 if (status != RemoteUrlType.SingleItem) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
-                        $"Hi @{tweetSource}, sorry but I cannot find any media to parse in this tweet.\n{_appSettings.SiteUrl}"
+                        $"Hi @{targetUser}, sorry but I cannot find any media to parse in this tweet.\n{_appSettings.SiteUrl}"
                     );
                     return;
                 }
+
+                entry.Title = $"New entry from {sourceTweet.CreatedBy.ScreenName}'s tweet";
+                entry.Description = sourceTweet.Text;
 
                 entryRepository.AddOrUpdate(entry);
                 await unitOfWork.CompleteAsync();
                 var processId = BackgroundJob.Enqueue<ProcessNewEntryJob>(
                     e => e.ProcessEntry(entry.Id, string.Empty, null));
 
-                var message = $"Hi @{tweetSource}, your request was processed succesfully, you can find your new episode in your podcatcher or here\n{podcast.GetPagesUrl(_appSettings.PagesUrl)}";
+                var message = $"Hi @{targetUser}, your request was processed succesfully, you can find your new episode in your podcatcher or here\n{podcast.GetPagesUrl(_appSettings.PagesUrl)}";
                 BackgroundJob.ContinueJobWith<SendTweetJob>(
                     processId, (r) => r.SendTweet(tweetToReplyTo, message));
 
@@ -157,20 +162,6 @@ namespace PodNoms.Common.Services.Social {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var user = await userManager.FindByTwitterHandleAsync(twitterHandle);
             return user;
-        }
-
-        private async Task<bool> __checkTweetHasMedia(string url) {
-            try {
-                var client = _clientFactory.CreateClient("podnoms");
-                var request = new HttpRequestMessage(
-                    System.Net.Http.HttpMethod.Get,
-                    $"{_appSettings.ApiUrl}/urlprocess/_v?url={url}");
-                var response = await client.SendAsync(request);
-                return response.IsSuccessStatusCode;
-            } catch (HttpRequestException) {
-                _logger.LogError("Cannot contact the podnoms api");
-            }
-            return false;
         }
         private async Task _createPublicErrorResponse(ITweet tweetToReplyTo, string text) {
             _logger.LogError($"Error parsing incoming tweet.\n\t{text}");
