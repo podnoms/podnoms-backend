@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -59,11 +60,11 @@ namespace PodNoms.Common.Auth {
             }
             return result;
         }
+
         public override async Task<IdentityResult> UpdateAsync(ApplicationUser user) {
             await _imageify(user);
             return await base.UpdateAsync(user);
         }
-
 
         private async Task _imageify(ApplicationUser user) {
             if (string.IsNullOrEmpty(user.PictureUrl)) {

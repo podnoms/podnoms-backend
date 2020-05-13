@@ -16,6 +16,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId);
         Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug);
         Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug);
+        Task<Podcast> GetRandomForUser(string userId);
         Task<List<PodcastAggregator>> GetAggregators(Guid podcastId);
         Task<string> GetActivePodcast(string userId);
     }
@@ -54,6 +55,14 @@ namespace PodNoms.Common.Persistence.Repositories {
             return ret;
         }
 
+        public async Task<Podcast> GetRandomForUser(string userId) {
+            return await GetAll()
+                .Include(r => r.AppUser)
+                .Where(r => r.AppUser.Id == userId)
+                .OrderBy(r => System.Guid.NewGuid().ToString())
+                .Take(1)
+                .SingleOrDefaultAsync();
+        }
         public async Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug) {
             var ret = await GetAll()
                 .Where(r => r.AppUser.Id == userId.ToString() && r.Slug == podcastSlug)

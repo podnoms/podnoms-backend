@@ -60,8 +60,8 @@ namespace PodNoms.Data.Models {
             Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=32&height=32");
         public string GetAuthenticatedUrl(string siteUrl) =>
             Flurl.Url.Combine(siteUrl, $"/podcasts/{Slug}");
-        public string GetPagesUrl(string pagesUrl) =>
-            Flurl.Url.Combine(pagesUrl, this.AppUser.Slug, this.Slug);
+        public string GetPagesUrl(string siteUrl) =>
+            Flurl.Url.Combine(siteUrl, this.AppUser.Slug, this.Slug);
 
         public DateTime? GetLastEntryDate() {
             var lastEntry = this.PodcastEntries

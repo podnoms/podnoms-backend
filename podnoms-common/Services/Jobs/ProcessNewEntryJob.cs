@@ -70,6 +70,7 @@ namespace PodNoms.Common.Services.Jobs {
             return true;
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
