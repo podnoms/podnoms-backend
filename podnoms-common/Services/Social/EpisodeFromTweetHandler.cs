@@ -138,7 +138,7 @@ namespace PodNoms.Common.Services.Social {
 
                 var message = $"Hi @{targetUser}, your request was processed succesfully, you can find your new episode in your podcatcher or here\n{podcast.GetPagesUrl(_appSettings.PagesUrl)}";
                 BackgroundJob.ContinueJobWith<SendTweetJob>(
-                    processId, (r) => r.SendTweet(tweetToReplyTo, message));
+                    processId, (r) => r.SendTweet(tweetToReplyTo.Id, message));
 
             } catch (Exception e) {
                 _logger.LogError($"Error creating episode: {e.Message}");

@@ -19,13 +19,13 @@ namespace PodNoms.Common.Services.Jobs {
             throw new NotImplementedException();
         }
 
-        public async Task SendTweet(ITweet tweet, string message) {
+        public async Task SendTweet(long tweetId, string message) {
             Tweetinvi.Auth.SetUserCredentials(
                 _twitterSettings.ApiKey,
                 _twitterSettings.ApiKeySecret,
                 _twitterSettings.AccessToken,
                 _twitterSettings.AccessTokenSecret);
-            var result = await TweetAsync.PublishTweetInReplyTo(message, tweet.Id);
+            var result = await TweetAsync.PublishTweetInReplyTo(message, tweetId);
         }
     }
 }
