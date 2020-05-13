@@ -11,7 +11,7 @@ namespace PodNoms.Common.Services.Jobs {
     public class SendTweetJob : AbstractHostedJob {
         private readonly TwitterStreamListenerSettings _twitterSettings;
 
-        protected SendTweetJob(ILogger<SendTweetJob> logger,
+        public SendTweetJob(ILogger<SendTweetJob> logger,
                     IOptions<TwitterStreamListenerSettings> twitterSettings) : base(logger) {
             _twitterSettings = twitterSettings.Value;
         }
