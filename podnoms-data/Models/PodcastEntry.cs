@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Newtonsoft.Json;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Interfaces;
+using PodNoms.Data.ViewModels;
 
 namespace PodNoms.Data.Models {
     public enum ShareOptions {
@@ -11,7 +13,7 @@ namespace PodNoms.Data.Models {
         Private = (1 << 1),
         Download = (1 << 2)
     }
-    public class PodcastEntry : BaseEntity, ISluggedEntity, ICachedEntity {
+    public class PodcastEntry : BaseEntity, ISluggedEntity, ICachedEntity, IHubNotifyEntity {
 
         [SlugField(sourceField: "Title")] public string Slug { get; set; }
 
@@ -75,5 +77,12 @@ namespace PodNoms.Data.Models {
 
         public string GetCacheKey(CacheType type) => this.Podcast?.GetCacheKey(type);
         public string GetDebugString(CacheType type) => this.Podcast?.GetCacheKey(type);
+
+        public string GetHubMethodName() => "podcast-entry-added";
+        public RealtimeEntityUpdateMessage SerialiseForHub() => new RealtimeEntityUpdateMessage {
+            Channel = GetHubMethodName(),
+            Id = this.Id.ToString(),
+            Title = this.Title
+        };
     }
 }

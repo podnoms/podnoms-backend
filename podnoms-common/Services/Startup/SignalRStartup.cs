@@ -32,7 +32,7 @@ namespace PodNoms.Common.Services.Startup {
                 routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
                 routes.MapHub<DebugHub>("/hubs/debug");
                 routes.MapHub<ChatHub>("/hubs/chat");
-                routes.MapHub<EntitySignalHub>("/hubs/rtd");
+                routes.MapHub<EntityUpdatesHub>("/hubs/rtd");
             });
             return app;
         }

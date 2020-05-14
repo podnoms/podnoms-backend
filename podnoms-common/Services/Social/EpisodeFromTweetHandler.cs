@@ -2,12 +2,14 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
@@ -15,7 +17,9 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
+using PodNoms.Data.ViewModels;
 using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Exceptions;
@@ -27,6 +31,7 @@ namespace PodNoms.Common.Services.Social {
     public class EpisodeFromTweetHandler : ITweetListener {
         private readonly TwitterStreamListenerSettings _twitterSettings;
         private readonly AppSettings _appSettings;
+        private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger<EpisodeFromTweetHandler> _logger;
         private readonly IServiceProvider _provider;
         private readonly IHttpClientFactory _clientFactory;
@@ -36,12 +41,14 @@ namespace PodNoms.Common.Services.Social {
         public EpisodeFromTweetHandler(
                     IOptions<TwitterStreamListenerSettings> twitterSettings,
                     IOptions<AppSettings> appSettings,
+                    IOptions<JwtIssuerOptions> jwtOptions,
                     ILogger<EpisodeFromTweetHandler> logger,
                     IServiceProvider provider,
                     IHttpClientFactory clientFactory
                 ) {
             _twitterSettings = twitterSettings.Value;
             _appSettings = appSettings.Value;
+            _jwtOptions = jwtOptions.Value;
             _logger = logger;
             _provider = provider;
             _clientFactory = clientFactory;
@@ -116,6 +123,7 @@ namespace PodNoms.Common.Services.Social {
                 var entry = new PodcastEntry {
                     Podcast = podcast,
                     Processed = false,
+                    ProcessingStatus = ProcessingStatus.Accepted,
                     SourceUrl = sourceTweet.Url
                 };
 
@@ -133,8 +141,12 @@ namespace PodNoms.Common.Services.Social {
 
                 entryRepository.AddOrUpdate(entry);
                 await unitOfWork.CompleteAsync();
+                await _sendHubUpdate(user.Id.ToString(), entry.SerialiseForHub());
+                //get JWT token so we can call into the job realtime stuff
+                var token = await __getJwtTokenForUser(user);
+                var TEMPTOKENDONOTUSE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZXJnYWwubW9yYW4rcG9kbm9tc3Rlc3RAZ21haWwuY29tIiwianRpIjoiMjk0NGU5MTYtOGNlMy00NzkxLThiMmYtOWI2NWU3Y2VmN2QwIiwiaWF0IjoxNTg4ODk3OTIxLCJyb2wiOiJhcGlfYWNjZXNzIiwiaWQiOiIyMzA1MjRjMi02MWIwLTRjNWItYTg1OS1mN2Y3NWMyNGIzNzIiLCJuYmYiOjE1ODg4OTc5MjEsImV4cCI6MTU5MTQwMzUyMSwiaXNzIjoicG9kbm9tc0FwaSIsImF1ZCI6Imh0dHA6Ly9wb2Rub21zLmxvY2FsOjUwMDAvIn0.wugkrWa2uPk08eTFrTizPenLuPAMj4WFbtT2GDztGVU";
                 var processId = BackgroundJob.Enqueue<ProcessNewEntryJob>(
-                    e => e.ProcessEntry(entry.Id, string.Empty, null));
+                    e => e.ProcessEntry(entry.Id, token, null));
 
                 var message = $"Hi @{targetUser}, your request was processed succesfully, you can find your new episode in your podcatcher or here\n{podcast.GetPagesUrl(_appSettings.PagesUrl)}";
                 BackgroundJob.ContinueJobWith<SendTweetJob>(
@@ -144,6 +156,21 @@ namespace PodNoms.Common.Services.Social {
                 _logger.LogError($"Error creating episode: {e.Message}");
             }
         }
+
+        private async Task _sendHubUpdate(string userId, RealtimeEntityUpdateMessage message) {
+            using var client = _clientFactory.CreateClient("podnoms");
+            var payload = new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(message),
+                Encoding.UTF8,
+                "application/json");
+            var response = await client.PostAsync(
+                $"realtime/update/{userId}",
+                payload);
+            if (!response.IsSuccessStatusCode) {
+                _logger.LogError($"Error updating realtime hub.\n\tReason: {response.ReasonPhrase}\n\t{response.Content}");
+            }
+        }
+
         private (IUrlProcessService, IPodcastRepository, IEntryRepository, IUnitOfWork unitOfWork) _getScopedServices(IServiceScope scope) {
             var processService = scope.ServiceProvider.GetRequiredService<IUrlProcessService>();
             var podcastRepository = scope.ServiceProvider.GetRequiredService<IPodcastRepository>();
@@ -162,6 +189,21 @@ namespace PodNoms.Common.Services.Social {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var user = await userManager.FindByTwitterHandleAsync(twitterHandle);
             return user;
+        }
+        private async Task<string> __getJwtTokenForUser(ApplicationUser user) {
+            using var scope = _provider.CreateScope();
+            _logger.LogDebug($"Finding user");
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var jwtFactory = scope.ServiceProvider.GetRequiredService<IJwtFactory>();
+            var roles = await userManager.GetRolesAsync(user);
+            var jwt = await TokenIssuer.GenerateRawJwt(
+                jwtFactory.GenerateClaimsIdentity(user.UserName, user.Id),
+                jwtFactory,
+                user.UserName,
+                roles.ToArray<string>(),
+                _jwtOptions,
+                new JsonSerializerSettings { Formatting = Formatting.Indented });
+            return jwt;
         }
         private async Task _createPublicErrorResponse(ITweet tweetToReplyTo, string text) {
             _logger.LogError($"Error parsing incoming tweet.\n\t{text}");
