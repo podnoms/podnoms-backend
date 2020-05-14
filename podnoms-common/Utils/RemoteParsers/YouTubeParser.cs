@@ -1,4 +1,4 @@
-using System.Linq;
+#nullable enable
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     using System;
