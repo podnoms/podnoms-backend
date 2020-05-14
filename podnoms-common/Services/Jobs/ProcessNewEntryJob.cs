@@ -43,8 +43,9 @@ namespace PodNoms.Common.Services.Jobs {
             _appSettings = appSettings.Value;
         }
 
-        public async Task<bool> ProcessEntryFromUploadFile(Guid entryId, string audioUrl,
-            string authToken, PerformContext context) {
+        public async Task<bool> ProcessEntryFromUploadFile(
+                                Guid entryId, string audioUrl,
+                                string authToken, PerformContext context) {
             _setContext(context);
             var entry = await _entryRepository.GetAsync(entryId);
             var remoteUrl = Flurl.Url.Combine(_appSettings.ApiUrl, audioUrl);

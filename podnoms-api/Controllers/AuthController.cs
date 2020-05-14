@@ -66,7 +66,7 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
-            var jwt = await Tokens.GenerateJwt(
+            var jwt = await TokenIssuer.GenerateJwt(
                 identity,
                 _jwtFactory,
                 credentials.UserName,
@@ -167,7 +167,7 @@ namespace PodNoms.Api.Controllers {
             return Json(await _userManager.GetRolesAsync(user));
         }
         [HttpPost("validaterecaptha")]
-        public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha([FromBody]TokenValidationViewModel model) {
+        public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha([FromBody] TokenValidationViewModel model) {
             var recaptcha = await _recaptcha.Validate(model.Token);
             if (!recaptcha.success) {
                 model.IsValid = false;

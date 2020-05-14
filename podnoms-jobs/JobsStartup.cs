@@ -27,6 +27,7 @@ using PodNoms.Jobs.Services;
 using PodNoms.Common.Utils.RemoteParsers.PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Social;
+using EntitySignal.Extensions;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
@@ -61,6 +62,7 @@ namespace PodNoms.Jobs {
                 .AddPodnomsSecurity(Configuration)
                 .AddPodNomsHttpClients(Configuration, Env.IsProduction())
                 .AddPodNomsCacheService(Configuration, false)
+                .AddPodNomsSignalR(Env.IsDevelopment())
                 .AddSharedDependencies()
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddSingleton<RemoteImageCacher>()

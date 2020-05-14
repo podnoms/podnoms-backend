@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EntitySignal.Server.EFDbContext.Data;
+using EntitySignal.Services;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -35,16 +37,17 @@ namespace PodNoms.Common.Persistence {
             var connectionString = TEMP_CONN;
             builder.UseSqlServer(connectionString);
 
-            return new PodNomsDbContext(builder.Options, null);
+            return new PodNomsDbContext(builder.Options, null, null);
         }
     }
 
-    public sealed class PodNomsDbContext : IdentityDbContext<ApplicationUser> {
+    public sealed class PodNomsDbContext : EntitySignalIdentityDbContext<ApplicationUser> {
         private readonly IResponseCacheService _cache;
 
         public PodNomsDbContext(
             DbContextOptions<PodNomsDbContext> options,
-            IResponseCacheService cache) : base(options) {
+            EntitySignalDataProcess entitySignalDataProcess,
+            IResponseCacheService cache) : base(options, entitySignalDataProcess) {
             Database.SetCommandTimeout(360);
             _cache = cache;
         }

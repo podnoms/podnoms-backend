@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using PodNoms.Common.Services.Hubs;
+using EntitySignal.Extensions;
+using EntitySignal.Hubs;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {
@@ -18,6 +20,8 @@ namespace PodNoms.Common.Services.Startup {
                    //        }
                    //    }
                    );
+            services.AddEntitySignal();
+
             return services;
         }
 
@@ -28,6 +32,7 @@ namespace PodNoms.Common.Services.Startup {
                 routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
                 routes.MapHub<DebugHub>("/hubs/debug");
                 routes.MapHub<ChatHub>("/hubs/chat");
+                routes.MapHub<EntityUpdatesHub>("/hubs/rtd");
             });
             return app;
         }

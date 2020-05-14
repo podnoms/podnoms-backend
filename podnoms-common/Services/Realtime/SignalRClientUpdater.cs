@@ -38,7 +38,11 @@ namespace PodNoms.Common.Services.Realtime {
                 await _connection.StartAsync();
                 _logger.LogDebug("Reopened connection");
             };
-            await _connection.StartAsync();
+            try {
+                await _connection.StartAsync();
+            } catch (Exception e) {
+                _logger.LogError($"Error starting signalR updater hub.\r\t{e.Message}");
+            }
             _logger.LogDebug("Opened SignalR hub connection");
 
             return _connection.State == HubConnectionState.Connected;
