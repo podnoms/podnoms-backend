@@ -34,7 +34,8 @@ namespace PodNoms.Api.Controllers {
             IEntryRepository entryRepository, ILogger<ProfileController> logger,
             IRepository<ApplicationUserSlugRedirects> slugRedirectRepository,
             IOptions<StorageSettings> storageSettings,
-            UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
+            UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor,
+            userManager, logger) {
             _entryRepository = entryRepository;
             _slugRedirectRepository = slugRedirectRepository;
             _mapper = mapper;
@@ -46,11 +47,12 @@ namespace PodNoms.Api.Controllers {
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return Ok(new List<ProfileViewModel> { result });
+            return Ok(new List<ProfileViewModel> {result});
         }
 
         [HttpPost]
         public async Task<ActionResult<ProfileViewModel>> Post([FromBody] ProfileViewModel item) {
+            //TODO: Create a mapping for this.
             if (!string.IsNullOrEmpty(_applicationUser.Slug) && !_applicationUser.Slug.Equals(item.Slug)) {
                 //item has changed, store the old slug for redirect purposes
                 var existing = await _slugRedirectRepository
@@ -65,9 +67,11 @@ namespace PodNoms.Api.Controllers {
                     await _unitOfWork.CompleteAsync();
                 }
             }
+
             _applicationUser.Slug = item.Slug;
             _applicationUser.FirstName = item.FirstName;
             _applicationUser.LastName = item.LastName;
+            _applicationUser.TwitterHandle = item.TwitterHandle;
             _applicationUser.EmailNotificationOptions = (NotificationOptions)item.EmailNotificationOptions;
             await _userManager.UpdateAsync(_applicationUser);
             var ret = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
@@ -78,14 +82,16 @@ namespace PodNoms.Api.Controllers {
         [HttpGet("checkslug/{slug}")]
         public async Task<ActionResult<bool>> CheckSlug(string slug) {
             var slugValid = await _userManager.CheckSlug(slug) ||
-                (_applicationUser != null && (slug.Equals(_applicationUser.Slug)));
+                            (_applicationUser != null && (slug.Equals(_applicationUser.Slug)));
             return Ok(slugValid);
         }
+
         [HttpGet("needsredirect")]
         public IActionResult NeedsRedirect() {
             if (_applicationUser.Slug.Contains("podnoms-user")) {
                 return Ok();
             }
+
             return NoContent();
         }
 
