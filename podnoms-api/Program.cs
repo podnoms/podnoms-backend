@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using System.Collections;
+using PodNoms.Common.Utils.Crypt;
 
 namespace PodNoms.Api {
     public class Program {
@@ -15,6 +16,7 @@ namespace PodNoms.Api {
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development;
 
         public static void Main(string[] args) {
+            var salt = PBKDFGenerators.GenerateSalt();
             BuildWebHost(args).Run();
         }
 

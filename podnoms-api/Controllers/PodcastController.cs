@@ -47,7 +47,8 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<PodcastViewModel>> Get() {
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
+        public async Task<ActionResult<List<PodcastViewModel>>> Get() {
             var podcasts = await _repository
                 .GetAllForUserAsync(_applicationUser.Id);
             var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,15 +8,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
+using PodNoms.Common.Utils.Crypt;
 using PodNoms.Data.Models;
+using PodNoms.Data.Utils;
 
 namespace PodNoms.Api.Controllers {
     [Authorize]
@@ -26,18 +26,25 @@ namespace PodNoms.Api.Controllers {
     public class ProfileController : BaseAuthController {
         public IUnitOfWork _unitOfWork { get; }
         public IMapper _mapper { get; }
+
         private readonly IEntryRepository _entryRepository;
         private readonly IRepository<ApplicationUserSlugRedirects> _slugRedirectRepository;
+        private readonly IRepository<IssuedApiKey> _issuedApiKeyRepository;
+        private readonly ApiKeyAuthSettings _apiKeyAuthSettings;
         private readonly StorageSettings _storageSettings;
 
         public ProfileController(IMapper mapper, IUnitOfWork unitOfWork,
             IEntryRepository entryRepository, ILogger<ProfileController> logger,
             IRepository<ApplicationUserSlugRedirects> slugRedirectRepository,
+            IRepository<IssuedApiKey> issuedApiKeyRepository,
+            IOptions<ApiKeyAuthSettings> apiKeyAuthSettings,
             IOptions<StorageSettings> storageSettings,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor,
             userManager, logger) {
             _entryRepository = entryRepository;
             _slugRedirectRepository = slugRedirectRepository;
+            _issuedApiKeyRepository = issuedApiKeyRepository;
+            _apiKeyAuthSettings = apiKeyAuthSettings.Value;
             _mapper = mapper;
             _storageSettings = storageSettings.Value;
             _unitOfWork = unitOfWork;
@@ -47,7 +54,7 @@ namespace PodNoms.Api.Controllers {
         [HttpGet]
         public ActionResult<List<ProfileViewModel>> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return Ok(new List<ProfileViewModel> {result});
+            return Ok(new List<ProfileViewModel> { result });
         }
 
         [HttpPost]
@@ -93,6 +100,33 @@ namespace PodNoms.Api.Controllers {
             }
 
             return NoContent();
+        }
+        
+        [HttpPost("requestkey")]
+        public async Task<ActionResult<ApiKeyViewModel>> RequestApiKey([FromBody] ApiKeyViewModel apiKeyRequest) {
+            if (!ModelState.IsValid) return BadRequest("Invalid api key model"); 
+
+            var prefix = ApiKeyGenerator.GetApiKey(7);
+            var plainTextKey = $"{prefix}.{ApiKeyGenerator.GetApiKey(128)}";
+
+            var salt = _apiKeyAuthSettings.ApiKeySalt;
+            var convertedKey = ApiKeyGenerator.GeneratePasswordHash(plainTextKey, salt);
+            
+            var issue = new IssuedApiKey(
+                _applicationUser, 
+                apiKeyRequest.Name,
+                apiKeyRequest.Scopes, 
+                prefix, 
+                convertedKey);
+
+            _issuedApiKeyRepository.AddOrUpdate(issue);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiKeyViewModel {
+                Name = "FartyMcFarty",
+                Prefix = prefix,
+                PlainTextKey = plainTextKey
+            };
         }
 
         [HttpGet("limits")]

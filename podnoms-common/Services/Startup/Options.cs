@@ -12,6 +12,7 @@ namespace PodNoms.Common.Services.Startup {
             services.Configure<AppSettings>(config.GetSection("AppSettings"));
             services.Configure<StorageSettings>(config.GetSection("StorageSettings"));
             services.Configure<StripeSettings>(config.GetSection("StripeSettings"));
+            services.Configure<ApiKeyAuthSettings>(config.GetSection("ApiKeyAuthSettings"));
             services.Configure<HelpersSettings>(config.GetSection("HelpersSettings"));
             services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
             services.Configure<FacebookAuthSettings>(config.GetSection("FacebookAuthSettings"));

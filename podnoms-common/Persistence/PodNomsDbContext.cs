@@ -186,5 +186,6 @@ namespace PodNoms.Common.Persistence {
         public DbSet<PodcastAggregator> PodcastAggregators { get; set; }
         public DbSet<ServerConfig> ServerConfig { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
+        public DbSet<IssuedApiKey> IssuedApiKeys { get; set; }
     }
 }

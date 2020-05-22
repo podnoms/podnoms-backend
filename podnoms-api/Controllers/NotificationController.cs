@@ -106,7 +106,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost("notifyuser")]
         public async Task<ActionResult> NotifyUser(string userId, string title, string body, string target, string image) {
-            var authToken = _httpContext.Request.Headers["Authorization"]
+            var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]
                 .ToString()
                 .Replace("Bearer", string.Empty);
 
@@ -122,7 +122,7 @@ namespace PodNoms.Api.Controllers {
         }
         [HttpPost("sendcustomnotifications")]
         public ActionResult SendCustomNotifications(string podcastId, string title, string body, string url) {
-            var authToken = _httpContext.Request.Headers["Authorization"]
+            var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]
                 .ToString()
                 .Replace("Bearer", string.Empty);
 
