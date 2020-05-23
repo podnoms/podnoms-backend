@@ -1,20 +1,19 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PodNoms.Common.Auth;
+using PodNoms.Common.Auth.ApiKeys;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Audio;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Gravatar;
-using PodNoms.Common.Services.Jobs;
-using PodNoms.Common.Services.Middleware;
 using PodNoms.Common.Services.Notifications;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Payments;
 using PodNoms.Common.Services.Processor;
-using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Slack;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils.RemoteParsers;
@@ -27,6 +26,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddTransient<IMP3Tagger, MP3Tagger>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
+                .AddSingleton<IGetApiKeyQuery, IssuedKeysGetApiKeyQuery>()
                 .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPodcastRepository, PodcastRepository>()
