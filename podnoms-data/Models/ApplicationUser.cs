@@ -35,7 +35,7 @@ namespace PodNoms.Data.Models {
         public List<AccountSubscription> AccountSubscriptions { get; set; }
         public List<Donation> Donations { get; set; }
         public List<Podcast> Podcasts { get; set; }
-        public List<RefreshToken> RefreshTokens { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public bool IsAdmin { get; set; } = false;
 
         public DateTime LastSeen { get; set; }

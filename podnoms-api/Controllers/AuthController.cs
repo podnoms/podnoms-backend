@@ -88,8 +88,6 @@ namespace PodNoms.Api.Controllers {
                 refresh,
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
-            user.RemoveRefreshToken(refresh);
-
             await _unitOfWork.CompleteAsync();
             return new JwtRefreshTokenModel(refresh, jwt);
         }
@@ -104,7 +102,9 @@ namespace PodNoms.Api.Controllers {
                 .Include(u => u.RefreshTokens)
                 .SingleOrDefaultAsync(
                     r => r.UserName == userName &&
-                    r.RefreshTokens.Any(p => p.Token.Equals(request.RefreshToken)));
+                    r.RefreshTokens.Any(p =>
+                        p.Token.Equals(request.RefreshToken) &&
+                        p.CreateDate >= System.DateTime.Now.AddDays(-7)));
 
             if (user == null) {
                 return BadRequest("Cannot find your refresh token");
