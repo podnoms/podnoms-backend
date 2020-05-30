@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Auth;
+using PodNoms.Common.Data;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.RssViewModels;
 using PodNoms.Common.Persistence.Repositories;
@@ -27,7 +28,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IRepository<ApplicationUserSlugRedirects> _redirectsRepository;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger _logger;
-        private readonly AppSettings _appOptions;
+        private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageOptions;
         private readonly ImageFileStorageSettings _imageStorageOptions;
         private readonly AudioFileStorageSettings _audioStorageOptions;
@@ -45,7 +46,7 @@ namespace PodNoms.Api.Controllers {
             _userManager = userManager;
             _redirectsRepository = redirectsRepository;
             _contextAccessor = contextAccessor;
-            _appOptions = appOptions.Value;
+            _appSettings = appOptions.Value;
             _imageStorageOptions = imageStorageOptions.Value;
             _audioStorageOptions = audioStorageOptions.Value;
             _storageOptions = storageOptions.Value;
@@ -75,7 +76,7 @@ namespace PodNoms.Api.Controllers {
                     return NotFound();
                 }
 
-                var url = $"{_appOptions.RssUrl}{user.Slug}/{podcastSlug}";
+                var url = $"{_appSettings.RssUrl}{user.Slug}/{podcastSlug}";
                 return RedirectPermanent(url);
             }
 
@@ -89,14 +90,14 @@ namespace PodNoms.Api.Controllers {
                     Description = podcast.Description,
                     Author = "PodNoms Podcasts",
                     Image = podcast.GetRssImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
-                    Link = $"{_appOptions.PagesUrl}/{user.Slug}/{podcast.Slug}",
+                    Link = $"{_appSettings.PagesUrl}/{user.Slug}/{podcast.Slug}",
                     PublishDate = podcast.CreateDate.ToRFC822String(),
                     Category = podcast.Category?.Description,
                     Language = "en-IE",
                     Copyright = $"© {DateTime.Now.Year} PodNoms",
                     Owner = $"{user.FirstName} {user.LastName}",
                     OwnerEmail = user.Email,
-                    ShowUrl = $"{_appOptions.SiteUrl}/rss/{user.Slug}/{podcast.Slug}",
+                    ShowUrl = $"{_appSettings.SiteUrl}/rss/{user.Slug}/{podcast.Slug}",
 
                     Items = (
                         from e in podcast.PodcastEntries
@@ -107,7 +108,7 @@ namespace PodNoms.Api.Controllers {
                             Author = e.Author.StripNonXmlChars(),
                             EntryImage = e.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
                             UpdateDate = e.CreateDate.ToRFC822String(),
-                            AudioUrl = e.GetRssAudioUrl(_appOptions.AudioUrl),
+                            AudioUrl = e.GetRssAudioUrl(_appSettings.AudioUrl),
                             Duration = TimeSpan.FromSeconds(e.AudioLength).ToString(@"hh\:mm\:ss"),
                             AudioFileSize = e.AudioFileSize
                         }

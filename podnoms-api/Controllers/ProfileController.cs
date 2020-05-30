@@ -30,6 +30,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IEntryRepository _entryRepository;
         private readonly IRepository<ApplicationUserSlugRedirects> _slugRedirectRepository;
         private readonly IRepository<IssuedApiKey> _issuedApiKeyRepository;
+        private readonly AppSettings _appSettings;
         private readonly ApiKeyAuthSettings _apiKeyAuthSettings;
         private readonly StorageSettings _storageSettings;
 
@@ -37,6 +38,7 @@ namespace PodNoms.Api.Controllers {
             IEntryRepository entryRepository, ILogger<ProfileController> logger,
             IRepository<ApplicationUserSlugRedirects> slugRedirectRepository,
             IRepository<IssuedApiKey> issuedApiKeyRepository,
+            IOptions<AppSettings> appSettings,
             IOptions<ApiKeyAuthSettings> apiKeyAuthSettings,
             IOptions<StorageSettings> storageSettings,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor,
@@ -44,6 +46,7 @@ namespace PodNoms.Api.Controllers {
             _entryRepository = entryRepository;
             _slugRedirectRepository = slugRedirectRepository;
             _issuedApiKeyRepository = issuedApiKeyRepository;
+            _appSettings = appSettings.Value;
             _apiKeyAuthSettings = apiKeyAuthSettings.Value;
             _mapper = mapper;
             _storageSettings = storageSettings.Value;
@@ -101,22 +104,22 @@ namespace PodNoms.Api.Controllers {
 
             return NoContent();
         }
-        
+
         [HttpPost("requestkey")]
         public async Task<ActionResult<ApiKeyViewModel>> RequestApiKey([FromBody] ApiKeyViewModel apiKeyRequest) {
-            if (!ModelState.IsValid) return BadRequest("Invalid api key model"); 
+            if (!ModelState.IsValid) return BadRequest("Invalid api key model");
 
             var prefix = ApiKeyGenerator.GetApiKey(7);
             var plainTextKey = $"{prefix}.{ApiKeyGenerator.GetApiKey(128)}";
 
             var salt = _apiKeyAuthSettings.ApiKeySalt;
             var convertedKey = ApiKeyGenerator.GeneratePasswordHash(plainTextKey, salt);
-            
+
             var issue = new IssuedApiKey(
-                _applicationUser, 
+                _applicationUser,
                 apiKeyRequest.Name,
-                apiKeyRequest.Scopes, 
-                prefix, 
+                apiKeyRequest.Scopes,
+                prefix,
                 convertedKey);
 
             _issuedApiKeyRepository.AddOrUpdate(issue);
@@ -127,6 +130,14 @@ namespace PodNoms.Api.Controllers {
                 Prefix = prefix,
                 PlainTextKey = plainTextKey
             };
+        }
+
+        [HttpGet("opml-url")]
+        public ActionResult<string> GetOpmlUrl() {
+            return Content(
+                $"{_appSettings.ApiUrl}/utility/opml/{_applicationUser.Slug}",
+                "text/plain", Encoding.UTF8
+            );
         }
 
         [HttpGet("limits")]
