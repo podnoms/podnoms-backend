@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 
 namespace PodNoms.Common.Utils.Crypt {
     public static class PBKDFGenerators {
@@ -15,6 +16,9 @@ namespace PodNoms.Common.Utils.Crypt {
             return bytes;
         }
 
+        public static byte[] GenerateHash(byte[] password, string salt, int length = LENGTH){
+            return GenerateHash(password, new UTF8Encoding().GetBytes(salt), length);
+        }
         public static byte[] GenerateHash(byte[] password, byte[] salt, int length = LENGTH,
             int iterations = WORK_FACTOR) {
             using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, iterations)) {

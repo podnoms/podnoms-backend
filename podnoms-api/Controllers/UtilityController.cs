@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using DNS.Client;
@@ -14,22 +11,21 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PodNoms.Common.Auth;
+using PodNoms.Common.Data;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Remote;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Extensions;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
-using Zxcvbn;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -39,9 +35,11 @@ namespace PodNoms.Api.Controllers {
         private readonly IConfiguration _config;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly PodNomsDbContext _context;
+        private readonly IPodcastRepository _podcastRepository;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                         IOptions<AppSettings> appSettings, PodNomsDbContext context,
+                        IPodcastRepository podcastRepository,
                         ILogger<UtilityController> logger, IConfiguration config,
                         IHttpClientFactory httpClientFactory)
                                     : base(contextAccessor, userManager, logger) {
@@ -49,6 +47,7 @@ namespace PodNoms.Api.Controllers {
             _config = config;
             _httpClientFactory = httpClientFactory;
             _context = context;
+            _podcastRepository = podcastRepository;
         }
 
         [HttpGet("checkdupes")]
@@ -137,6 +136,21 @@ namespace PodNoms.Api.Controllers {
                 }
             }
             return new NotFoundResult();
+        }
+        [HttpGet("opml/{userSlug}")]
+        [Produces("application/xml")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOpml(string userSlug) {
+            var user = await _userManager.FindBySlugAsync(userSlug);
+            if (user == null) {
+                return NotFound();
+            }
+            var result = await user.GetOpmlFeed(
+                _podcastRepository,
+                _appSettings.RssUrl,
+                _appSettings.SiteUrl);
+
+            return Content(result, "application/xml", Encoding.UTF8);
         }
     }
 }

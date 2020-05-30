@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<opml version="1.0">
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+    {{#each Items}}
+        <outline type="rss" 
+            text="{{title}}" 
+            title="{{title}}" 
+            xmlUrl="{{rssUrl}}" 
+            htmlUrl="{{siteUrl}}"/>
+    {{/each}}
+    </body>
+</opml>

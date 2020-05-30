@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PodNoms.Common.Auth;
+using PodNoms.Common.Auth.ApiKeys;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 
@@ -43,9 +44,11 @@ namespace PodNoms.Common.Services.Startup {
                 ClockSkew = TimeSpan.Zero
             };
             services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme =  JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(configureOptions => {
+            }).AddApiKeySupport(options => { })
+            
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;

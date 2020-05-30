@@ -150,8 +150,6 @@ namespace PodNoms.Common.Services.Social {
                 await _sendHubUpdate(user.Id.ToString(), entry.SerialiseForHub());
                 //get JWT token so we can call into the job realtime stuff
                 var token = await __getJwtTokenForUser(user);
-                var TEMPTOKENDONOTUSE =
-                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZXJnYWwubW9yYW4rcG9kbm9tc3Rlc3RAZ21haWwuY29tIiwianRpIjoiMjk0NGU5MTYtOGNlMy00NzkxLThiMmYtOWI2NWU3Y2VmN2QwIiwiaWF0IjoxNTg4ODk3OTIxLCJyb2wiOiJhcGlfYWNjZXNzIiwiaWQiOiIyMzA1MjRjMi02MWIwLTRjNWItYTg1OS1mN2Y3NWMyNGIzNzIiLCJuYmYiOjE1ODg4OTc5MjEsImV4cCI6MTU5MTQwMzUyMSwiaXNzIjoicG9kbm9tc0FwaSIsImF1ZCI6Imh0dHA6Ly9wb2Rub21zLmxvY2FsOjUwMDAvIn0.wugkrWa2uPk08eTFrTizPenLuPAMj4WFbtT2GDztGVU";
                 var processId = BackgroundJob.Enqueue<ProcessNewEntryJob>(
                     e => e.ProcessEntry(entry.Id, token, null));
 

@@ -24,7 +24,7 @@ using PodNoms.Common.Services.Push;
 using WP = Lib.Net.Http.WebPush;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.PageParser;
-
+using PodNoms.Common.Auth;
 
 namespace PodNoms.Api.Controllers {
 }
@@ -87,7 +87,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
         public IActionResult Get() {
             var config = new {
                 Version = _appSettings.Version,

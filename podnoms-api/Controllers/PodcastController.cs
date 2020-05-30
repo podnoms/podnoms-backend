@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Hangfire;
+using HandlebarsDotNet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Common.Auth;
+using PodNoms.Common.Data;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
+using PodNoms.Common.Utils;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;
 
@@ -30,16 +29,20 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _uow;
         private readonly StorageSettings _storageSettings;
+        private readonly AppSettings _appSettings;
         private readonly ImageFileStorageSettings _fileStorageSettings;
         private readonly IFileUtilities _fileUtilities;
 
         public PodcastController(IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork,
             ILogger<PodcastController> logger,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor,
-            IOptions<StorageSettings> storageSettings, IOptions<ImageFileStorageSettings> fileStorageSettings,
+            IOptions<AppSettings> appSettings,
+            IOptions<StorageSettings> storageSettings,
+            IOptions<ImageFileStorageSettings> fileStorageSettings,
             IFileUtilities fileUtilities) : base(contextAccessor, userManager, logger) {
             _uow = unitOfWork;
             _storageSettings = storageSettings.Value;
+            _appSettings = appSettings.Value;
             _fileStorageSettings = fileStorageSettings.Value;
             _fileUtilities = fileUtilities;
             _repository = repository;
@@ -47,7 +50,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<PodcastViewModel>> Get() {
+        public async Task<ActionResult<List<PodcastViewModel>>> Get() {
             var podcasts = await _repository
                 .GetAllForUserAsync(_applicationUser.Id);
             var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());
@@ -138,6 +141,15 @@ namespace PodNoms.Api.Controllers {
                 $"\"{content}\"",
                 "text/plain"
             );
+        }
+        [HttpGet("opml")]
+        [Produces("application/xml")]
+        public async Task<ActionResult<string>> GetOpml() {
+            var result = await _applicationUser.GetOpmlFeed(
+                _repository,
+                _appSettings.RssUrl,
+                _appSettings.SiteUrl);
+            return Content(result, "application/xml", Encoding.UTF8);
         }
     }
 }
