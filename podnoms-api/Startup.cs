@@ -187,6 +187,7 @@ namespace PodNoms.Api {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
+            app.UseRobotsTxt(Env);
             app.UseResponseCaching();
             app.UseWebMarkupMin();
 
