@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
@@ -13,22 +14,11 @@ namespace PodNoms.Data.Models {
         StorageExceeded = 8,
         PlaylistEntryCountExceeded = 16
     }
-
-    public class ApplicationUserSlugRedirects : IEntity {
-        public Guid Id { get; set; }
-
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-
-        public string OldSlug { get; set; }
-
-        public DateTime CreateDate { get; set; }
-        public DateTime UpdateDate { get; set; }
-    }
     //TODO: Perhaps this shouldn't be a slug, it's the most visible slug in the application
     //TODO: And it causes confusion for users as it isn't an everyday term
     //TODO: It's really just a unique username
     public class ApplicationUser : IdentityUser, ISluggedEntity {
+
         // Extended Properties
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -45,6 +35,7 @@ namespace PodNoms.Data.Models {
         public List<AccountSubscription> AccountSubscriptions { get; set; }
         public List<Donation> Donations { get; set; }
         public List<Podcast> Podcasts { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public bool IsAdmin { get; set; } = false;
 
         public DateTime LastSeen { get; set; }
@@ -59,6 +50,15 @@ namespace PodNoms.Data.Models {
         public double? Longitude { get; set; }
 
         public NotificationOptions EmailNotificationOptions { get; set; }
+
+
+        public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
+            RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));
+        }
+
+        public void RemoveRefreshToken(string refreshToken) {
+            RefreshTokens.Remove(RefreshTokens.First(t => t.Token == refreshToken));
+        }
 
         public string GetBestGuessName() {
             if (!string.IsNullOrEmpty(FullName?.Trim())) {

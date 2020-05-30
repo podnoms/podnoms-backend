@@ -92,6 +92,8 @@ namespace PodNoms.Api {
             services.AddPodnomsSecurity(Configuration);
             services.AddPodNomsSignalR(Env.IsDevelopment());
 
+            services.AddPodNomsAppInsights(Configuration, Env.IsProduction());
+
             services.AddMvc(options => {
                 //TODO: This needs to be investigated
                 options.Filters.Add<UserLoggingFilter>();
@@ -187,6 +189,7 @@ namespace PodNoms.Api {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
+            app.UseRobotsTxt(Env);
             app.UseResponseCaching();
             app.UseWebMarkupMin();
 

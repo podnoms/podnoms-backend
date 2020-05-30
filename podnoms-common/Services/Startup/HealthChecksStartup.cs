@@ -37,11 +37,11 @@ namespace PodNoms.Common.Services.Startup {
                         s.MaximumJobsFailed = 5;
                         s.MinimumAvailableServers = 1;
                     }, name: "Hangfire", failureStatus: HealthStatus.Degraded);
-                    // .AddRabbitMQ(
-                    //     $"amqp://{Configuration["RabbitMq:ConnectionString"]}",
-                    //     name: "BROKER",
-                    //     failureStatus: HealthStatus.Degraded,
-                    //     tags: new string[] { "messages", "broker", "queue", "messagequeue" });
+                // .AddRabbitMQ(
+                //     $"amqp://{Configuration["RabbitMq:ConnectionString"]}",
+                //     name: "BROKER",
+                //     failureStatus: HealthStatus.Degraded,
+                //     tags: new string[] { "messages", "broker", "queue", "messagequeue" });
             }
             return services;
         }
