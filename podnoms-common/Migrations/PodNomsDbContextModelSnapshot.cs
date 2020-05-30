@@ -6,1201 +6,1117 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
-namespace PodNoms.Comon.Migrations
-{
+namespace PodNoms.Comon.Migrations {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
+    partial class PodNomsDbContextModelSnapshot : ModelSnapshot {
+        protected override void BuildModel(ModelBuilder modelBuilder) {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b => {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<string>("NormalizedName")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                b.HasIndex("NormalizedName")
+                    .IsUnique()
+                    .HasName("RoleNameIndex")
+                    .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles");
-                });
+                b.ToTable("AspNetRoles");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("RoleId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
-                });
+                b.ToTable("AspNetRoleClaims");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
-                });
+                b.ToTable("AspNetUserClaims");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b => {
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("ProviderKey")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ProviderDisplayName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("LoginProvider", "ProviderKey");
+                b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
-                });
+                b.ToTable("AspNetUserLogins");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b => {
+                b.Property<string>("UserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("RoleId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("UserId", "RoleId");
+                b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
-                });
+                b.ToTable("AspNetUserRoles");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b => {
+                b.Property<string>("UserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Value")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
-                });
+                b.ToTable("AspNetUserTokens");
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
+                b.Property<long>("Amount")
+                    .HasColumnType("bigint");
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("AppUserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("EndDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("ReceiptURL")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ReceiptURL")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("StartDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("TransactionId")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                b.Property<int>("Type")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<bool>("WasSuccessful")
-                        .HasColumnType("bit");
+                b.Property<bool>("WasSuccessful")
+                    .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                b.HasIndex("AppUserId");
 
-                    b.ToTable("AccountSubscriptions");
-                });
+                b.ToTable("AccountSubscriptions");
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("City")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClientAddress")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ClientAddress")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryCode")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("CountryCode")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("CountryName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("ExtraInfo")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ExtraInfo")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
+                b.Property<double?>("Latitude")
+                    .HasColumnType("float");
 
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
+                b.Property<double?>("Longitude")
+                    .HasColumnType("float");
 
-                    b.Property<Guid?>("PodcastEntryId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<Guid?>("PodcastEntryId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Referrer")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Referrer")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionCode")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("RegionCode")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("RegionName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("UserAgent")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Zip")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Zip")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("PodcastEntryId");
+                b.HasIndex("PodcastEntryId");
 
-                    b.ToTable("ActivityLogPodcastEntry");
-                });
+                b.ToTable("ActivityLogPodcastEntry");
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b => {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                b.Property<int>("AccessFailedCount")
+                    .HasColumnType("int");
 
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("City")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryCode")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("CountryCode")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountryName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("CountryName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("DiskQuota")
-                        .HasColumnType("bigint");
+                b.Property<long?>("DiskQuota")
+                    .HasColumnType("bigint");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                b.Property<string>("Email")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.Property<int>("EmailNotificationOptions")
-                        .HasColumnType("int");
+                b.Property<bool>("EmailConfirmed")
+                    .HasColumnType("bit");
 
-                    b.Property<long?>("FacebookId")
-                        .HasColumnType("bigint");
+                b.Property<int>("EmailNotificationOptions")
+                    .HasColumnType("int");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<long?>("FacebookId")
+                    .HasColumnType("bigint");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FirstName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsAdmin")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                b.Property<string>("IpAddress")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<bool>("IsAdmin")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
 
-                    b.Property<DateTime>("LastSeen")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("LastName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
+                b.Property<DateTime>("LastSeen")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                b.Property<double?>("Latitude")
+                    .HasColumnType("float");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                b.Property<bool>("LockoutEnabled")
+                    .HasColumnType("bit");
 
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
+                b.Property<DateTimeOffset?>("LockoutEnd")
+                    .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<double?>("Longitude")
+                    .HasColumnType("float");
 
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<string>("NormalizedEmail")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("NormalizedUserName")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                b.Property<string>("PasswordHash")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PictureUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PhoneNumber")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionCode")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<bool>("PhoneNumberConfirmed")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("RegionName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PictureUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("RegionCode")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("RegionName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TwitterHandle")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("SecurityStamp")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                b.Property<string>("Slug")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<string>("TwitterHandle")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Zip")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<bool>("TwoFactorEnabled")
+                    .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                b.Property<string>("UserName")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                b.Property<string>("Zip")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                b.HasKey("Id");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
+                b.HasIndex("NormalizedEmail")
+                    .HasName("EmailIndex");
 
-                    b.ToTable("AspNetUsers");
-                });
+                b.HasIndex("NormalizedUserName")
+                    .IsUnique()
+                    .HasName("UserNameIndex")
+                    .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("Slug")
+                    .IsUnique()
+                    .HasFilter("[Slug] IS NOT NULL");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                b.ToTable("AspNetUsers");
+            });
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OldSlug")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ApplicationUserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasKey("Id");
+                b.Property<string>("OldSlug")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ApplicationUserId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("ApplicationUserSlugRedirects");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.BoilerPlate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("ApplicationUserId");
 
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                b.ToTable("ApplicationUserSlugRedirects");
+            });
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+            modelBuilder.Entity("PodNoms.Data.Models.BoilerPlate", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("Content")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Key")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                b.Property<string>("Title")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("Key")
-                        .IsUnique()
-                        .HasFilter("[Key] IS NOT NULL");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("BoilerPlates");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasFilter("[Key] IS NOT NULL");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("BoilerPlates");
+            });
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+            modelBuilder.Entity("PodNoms.Data.Models.Category", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasKey("Id");
+                b.Property<string>("Description")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Categories");
-                });
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-            modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasKey("Id");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("Categories");
+            });
 
-                    b.Property<string>("FromUserId")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime?>("MessageSeen")
-                        .HasColumnType("datetime2");
+                b.Property<string>("FromUserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ToUserId")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("Message")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime?>("MessageSeen")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.Property<string>("ToUserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("FromUserId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("ToUserId");
+                b.HasKey("Id");
 
-                    b.ToTable("ChatMessages");
-                });
+                b.HasIndex("FromUserId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("ToUserId");
 
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
+                b.ToTable("ChatMessages");
+            });
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("PodNoms.Data.Models.Donation", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<long>("Amount")
+                    .HasColumnType("bigint");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("AppUserId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("AppUserId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("Donations");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("AppUserId");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("Donations");
+            });
 
-                    b.Property<DateTime?>("Expires")
-                        .HasColumnType("datetime2");
+            modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsValid")
-                        .HasColumnType("bit");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("IssuedToId")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<DateTime?>("Expires")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<bool>("IsValid")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("IssuedToId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Prefix")
-                        .HasColumnType("nvarchar(7)")
-                        .HasMaxLength(7);
+                b.Property<string>("Key")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Scopes")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Prefix")
+                    .HasColumnType("nvarchar(7)")
+                    .HasMaxLength(7);
 
-                    b.HasKey("Id");
+                b.Property<string>("Scopes")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("IssuedToId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("IssuedApiKeys");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("IssuedToId");
 
-                    b.Property<string>("Config")
-                        .HasColumnType("nvarchar(max)");
+                b.ToTable("IssuedApiKeys");
+            });
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+            modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PodcastId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<string>("Config")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<Guid>("PodcastId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                b.Property<int>("Type")
+                    .HasColumnType("int");
 
-                    b.HasIndex("PodcastId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("Notifications");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("PodcastId");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("Notifications");
+            });
 
-                    b.Property<string>("Log")
-                        .HasColumnType("nvarchar(max)");
+            modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("NotificationId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<bool>("Succeeded")
-                        .HasColumnType("bit");
+                b.Property<string>("Log")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<Guid>("NotificationId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                b.Property<bool>("Succeeded")
+                    .HasColumnType("bit");
 
-                    b.HasIndex("NotificationId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.ToTable("NotificationLogs");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("NotificationId");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("NotificationLogs");
+            });
 
-                    b.Property<Guid>("PodcastId")
-                        .HasColumnType("uniqueidentifier");
+            modelBuilder.Entity("PodNoms.Data.Models.Playlist", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("SourceUrl")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<Guid>("PodcastId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                b.Property<string>("SourceUrl")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("PodcastId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("SourceUrl")
-                        .IsUnique()
-                        .HasFilter("[SourceUrl] IS NOT NULL");
+                b.HasKey("Id");
 
-                    b.ToTable("Playlists");
-                });
+                b.HasIndex("PodcastId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("SourceUrl")
+                    .IsUnique()
+                    .HasFilter("[SourceUrl] IS NOT NULL");
 
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                b.ToTable("Playlists");
+            });
 
-                    b.Property<byte[]>("AuthPassword")
-                        .HasColumnType("varbinary(max)");
+            modelBuilder.Entity("PodNoms.Data.Models.Podcast", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("AuthPasswordSalt")
-                        .HasColumnType("varbinary(max)");
+                b.Property<string>("AppUserId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AuthUserName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<byte[]>("AuthPassword")
+                    .HasColumnType("varbinary(max)");
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<byte[]>("AuthPasswordSalt")
+                    .HasColumnType("varbinary(max)");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("AuthUserName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CustomDomain")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<Guid?>("CategoryId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("FacebookUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("CustomDomain")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("GoogleAnalyticsTrackingId")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Description")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Private")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                b.Property<string>("FacebookUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PublicTitle")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("GoogleAnalyticsTrackingId")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(450)");
+                b.Property<bool>("Private")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PublicTitle")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TwitterUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Slug")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Title")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.Property<string>("TwitterUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("AppUserId");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("CategoryId");
+                b.HasKey("Id");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
+                b.HasIndex("AppUserId");
 
-                    b.ToTable("Podcasts");
-                });
+                b.HasIndex("CategoryId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastAggregator", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("Slug")
+                    .IsUnique()
+                    .HasFilter("[Slug] IS NOT NULL");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("Podcasts");
+            });
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastAggregator", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid?>("PodcastId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<string>("ImageUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<Guid?>("PodcastId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("PodcastId");
+                b.Property<string>("Url")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("PodcastAggregators");
-                });
+                b.HasKey("Id");
 
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("PodcastId");
 
-                    b.Property<long>("AudioFileSize")
-                        .HasColumnType("bigint");
+                b.ToTable("PodcastAggregators");
+            });
 
-                    b.Property<float>("AudioLength")
-                        .HasColumnType("real");
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AudioUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<long>("AudioFileSize")
+                    .HasColumnType("bigint");
 
-                    b.Property<string>("Author")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<float>("AudioLength")
+                    .HasColumnType("real");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("AudioUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Author")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<int>("MetadataStatus")
-                        .HasColumnType("int");
+                b.Property<string>("Description")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PlaylistId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<string>("ImageUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PodcastId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<int>("MetadataStatus")
+                    .HasColumnType("int");
 
-                    b.Property<bool>("Processed")
-                        .HasColumnType("bit");
+                b.Property<Guid?>("PlaylistId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProcessingPayload")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<Guid>("PodcastId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ProcessingStatus")
-                        .HasColumnType("int");
+                b.Property<bool>("Processed")
+                    .HasColumnType("bit");
 
-                    b.Property<int>("ShareOptions")
-                        .HasColumnType("int");
+                b.Property<string>("ProcessingPayload")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<int>("ProcessingStatus")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime?>("SourceCreateDate")
-                        .HasColumnType("datetime2");
+                b.Property<int>("ShareOptions")
+                    .HasColumnType("int");
 
-                    b.Property<string>("SourceItemId")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Slug")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SourceUrl")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime?>("SourceCreateDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("SourceItemId")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("SourceUrl")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("WaveformGenerated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                b.Property<string>("Title")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasIndex("PlaylistId");
+                b.Property<bool>("WaveformGenerated")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
 
-                    b.HasIndex("PodcastId");
+                b.HasKey("Id");
 
-                    b.ToTable("PodcastEntries");
-                });
+                b.HasIndex("PlaylistId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("PodcastId");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.ToTable("PodcastEntries");
+            });
 
-                    b.Property<string>("LinkId")
-                        .HasColumnType("nvarchar(450)");
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("LinkIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid?>("PodcastEntryId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<string>("LinkId")
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<int>("LinkIndex")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime?>("ValidFrom")
-                        .HasColumnType("datetime2");
+                b.Property<Guid?>("PodcastEntryId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ValidTo")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.HasKey("Id");
+                b.Property<DateTime?>("ValidFrom")
+                    .HasColumnType("datetime2");
 
-                    b.HasIndex("LinkId")
-                        .IsUnique()
-                        .HasFilter("[LinkId] IS NOT NULL");
+                b.Property<DateTime?>("ValidTo")
+                    .HasColumnType("datetime2");
 
-                    b.HasIndex("LinkIndex")
-                        .IsUnique();
+                b.HasKey("Id");
 
-                    b.HasIndex("PodcastEntryId");
+                b.HasIndex("LinkId")
+                    .IsUnique()
+                    .HasFilter("[LinkId] IS NOT NULL");
 
-                    b.ToTable("PodcastEntrySharingLinks");
-                });
+                b.HasIndex("LinkIndex")
+                    .IsUnique();
 
-            modelBuilder.Entity("PodNoms.Data.Models.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.HasIndex("PodcastEntryId");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                b.ToTable("PodcastEntrySharingLinks");
+            });
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+            modelBuilder.Entity("PodNoms.Data.Models.ServerConfig", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("RemoteIpAddress")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Key")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Value")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
+                b.ToTable("ServerConfig", "admin");
+            });
 
-                    b.HasIndex("ApplicationUserId");
+            modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b => {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.ToTable("RefreshTokens");
-                });
+                b.Property<Guid>("CategoryId")
+                    .HasColumnType("uniqueidentifier");
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServerConfig", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.Property<DateTime>("CreateDate")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<string>("Description")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<Guid?>("PodcastId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.Property<DateTime>("UpdateDate")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
+                b.HasIndex("CategoryId");
 
-                    b.ToTable("ServerConfig","admin");
-                });
+                b.HasIndex("PodcastId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                b.ToTable("Subcategories");
+            });
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b => {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-                    b.Property<Guid?>("PodcastId")
-                        .HasColumnType("uniqueidentifier");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b => {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-                    b.HasKey("Id");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-                    b.HasIndex("CategoryId");
+            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
+                    .WithMany("AccountSubscriptions")
+                    .HasForeignKey("AppUserId");
+            });
 
-                    b.HasIndex("PodcastId");
+            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b => {
+                b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
+                    .WithMany("ActivityLogs")
+                    .HasForeignKey("PodcastEntryId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-                    b.ToTable("Subcategories");
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "ApplicationUser")
+                    .WithMany()
+                    .HasForeignKey("ApplicationUserId");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "FromUser")
+                    .WithMany()
+                    .HasForeignKey("FromUserId");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "ToUser")
+                    .WithMany()
+                    .HasForeignKey("ToUserId");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Donation", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
+                    .WithMany("Donations")
+                    .HasForeignKey("AppUserId");
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "IssuedTo")
+                    .WithMany()
+                    .HasForeignKey("IssuedToId");
+            });
 
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b => {
+                b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
+                    .WithMany("Notifications")
+                    .HasForeignKey("PodcastId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b => {
+                b.HasOne("PodNoms.Data.Models.Notifications.Notification", "Notification")
+                    .WithMany()
+                    .HasForeignKey("NotificationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.AccountSubscription", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany("AccountSubscriptions")
-                        .HasForeignKey("AppUserId");
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Playlist", b => {
+                b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
+                    .WithMany()
+                    .HasForeignKey("PodcastId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
-                        .WithMany("ActivityLogs")
-                        .HasForeignKey("PodcastEntryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Podcast", b => {
+                b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
+                    .WithMany("Podcasts")
+                    .HasForeignKey("AppUserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-                });
+                b.HasOne("PodNoms.Data.Models.Category", "Category")
+                    .WithMany()
+                    .HasForeignKey("CategoryId");
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "FromUser")
-                        .WithMany()
-                        .HasForeignKey("FromUserId");
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastAggregator", b => {
+                b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
+                    .WithMany("Aggregators")
+                    .HasForeignKey("PodcastId");
+            });
 
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "ToUser")
-                        .WithMany()
-                        .HasForeignKey("ToUserId");
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b => {
+                b.HasOne("PodNoms.Data.Models.Playlist", null)
+                    .WithMany("PodcastEntries")
+                    .HasForeignKey("PlaylistId");
 
-            modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany("Donations")
-                        .HasForeignKey("AppUserId");
-                });
+                b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
+                    .WithMany("PodcastEntries")
+                    .HasForeignKey("PodcastId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "IssuedTo")
-                        .WithMany()
-                        .HasForeignKey("IssuedToId");
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b => {
+                b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
+                    .WithMany("SharingLinks")
+                    .HasForeignKey("PodcastEntryId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
-                        .WithMany("Notifications")
-                        .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b => {
+                b.HasOne("PodNoms.Data.Models.Category", "Category")
+                    .WithMany("Subcategories")
+                    .HasForeignKey("CategoryId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-            modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Notifications.Notification", "Notification")
-                        .WithMany()
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
-                        .WithMany()
-                        .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
-                        .WithMany("Podcasts")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PodNoms.Data.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastAggregator", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
-                        .WithMany("Aggregators")
-                        .HasForeignKey("PodcastId");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Playlist", null)
-                        .WithMany("PodcastEntries")
-                        .HasForeignKey("PlaylistId");
-
-                    b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
-                        .WithMany("PodcastEntries")
-                        .HasForeignKey("PodcastId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
-                        .WithMany("SharingLinks")
-                        .HasForeignKey("PodcastEntryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.RefreshToken", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", null)
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("ApplicationUserId");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.Category", "Category")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PodNoms.Data.Models.Podcast", null)
-                        .WithMany("Subcategories")
-                        .HasForeignKey("PodcastId");
-                });
+                b.HasOne("PodNoms.Data.Models.Podcast", null)
+                    .WithMany("Subcategories")
+                    .HasForeignKey("PodcastId");
+            });
 #pragma warning restore 612, 618
         }
     }

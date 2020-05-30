@@ -4,8 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Auth {
@@ -46,6 +48,20 @@ namespace PodNoms.Common.Auth {
             return encodedJwt;
         }
 
+        public string DecodeToken(string token) {
+
+            string secret = _jwtOptions.SigningKey;
+            var key = Encoding.ASCII.GetBytes(secret);
+            var handler = new JwtSecurityTokenHandler();
+            var validations = new TokenValidationParameters {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+            var parsedToken = handler.ReadJwtToken(token);
+            return parsedToken.Subject;
+        }
         public ClaimsIdentity GenerateClaimsIdentity(string userName, string id) {
             return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[] {
                 new Claim (Constants.Strings.JwtClaimIdentifiers.Id, id),

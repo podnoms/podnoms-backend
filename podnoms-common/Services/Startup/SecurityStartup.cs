@@ -14,20 +14,19 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SecurityStartup {
-        private const string SECRET_KEY = "QGfaEMNASkNMGLKA3LjgPdkPfFEy3n40";
-
-        private static readonly SymmetricSecurityKey
-            _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SECRET_KEY));
+        //TODO: Remove this from the binary
 
         public static IServiceCollection AddPodnomsSecurity(this IServiceCollection services, IConfiguration config) {
             var jwtAppSettingOptions = config.GetSection(nameof(JwtIssuerOptions));
+            SymmetricSecurityKey signingKey =
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtAppSettingOptions["SigningKey"]));
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options => {
                 //TODO: Remove this in production, only for testing
                 // options.ValidFor = TimeSpan.FromDays(28);
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+                options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
             });
             var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
@@ -37,7 +36,7 @@ namespace PodNoms.Common.Services.Startup {
                 ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
+                IssuerSigningKey = signingKey,
 
                 RequireExpirationTime = false,
                 ValidateLifetime = true,

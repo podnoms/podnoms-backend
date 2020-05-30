@@ -63,9 +63,8 @@ namespace PodNoms.Common.Persistence {
             var navigation = builder.Metadata.FindNavigation(nameof(ApplicationUser.RefreshTokens));
             //EF access the RefreshTokens collection property through its backing field
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
-
-            builder.Ignore(b => b.Email);
-            builder.Ignore(b => b.PasswordHash);
+            // builder.Ignore(b => b.Email);
+            // builder.Ignore(b => b.PasswordHash);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -56,7 +58,7 @@ namespace PodNoms.Api.Controllers {
 
         // POST api/auth/login
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Post([FromBody] CredentialsViewModel credentials) {
+        public async Task<ActionResult<JwtRefreshTokenModel>> Post([FromBody] CredentialsViewModel credentials) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
@@ -69,25 +71,50 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
+            var token = await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
+            return Ok(token);
+        }
+        private async Task<JwtRefreshTokenModel> _getTokenAndRefresh(ClaimsIdentity identity, string userName, string[] roles, ApplicationUser user) {
             var jwt = await TokenIssuer.GenerateJwt(
                 identity,
                 _jwtFactory,
-                credentials.UserName,
-                roles.ToArray<string>(),
+                userName,
+                roles,
                 _jwtOptions,
                 new JsonSerializerSettings { Formatting = Formatting.Indented }
             );
             var refresh = TokenIssuer.GenerateRefreshToken(128);
             user.AddRefreshToken(
                 refresh,
-                user.Id,
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
+            user.RemoveRefreshToken(refresh);
+
             await _unitOfWork.CompleteAsync();
-            return Ok(new {
-                refresh = refresh,
-                jwt = jwt
-            });
+            return new JwtRefreshTokenModel(refresh, jwt);
+        }
+        [HttpPost("refreshtoken")]
+        public async Task<ActionResult<JwtRefreshTokenModel>> RefreshToken([FromBody] ExchangeRefreshTokenRequest request) {
+            var userName = _jwtFactory.DecodeToken(request.AccessToken);
+            if (userName == null) {
+                return BadRequest("No user with that auth token");
+            }
+            var user = await _userManager
+                .Users
+                .Include(u => u.RefreshTokens)
+                .SingleOrDefaultAsync(
+                    r => r.UserName == userName &&
+                    r.RefreshTokens.Any(p => p.Token.Equals(request.RefreshToken)));
+
+            if (user == null) {
+                return BadRequest("Cannot find your refresh token");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var identity = _jwtFactory.GenerateClaimsIdentity(userName, user.Id);
+
+            var token = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
+            return Ok(token);
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
@@ -18,9 +19,6 @@ namespace PodNoms.Data.Models {
     //TODO: It's really just a unique username
     public class ApplicationUser : IdentityUser, ISluggedEntity {
 
-        private readonly List<RefreshToken> _refreshTokens = new List<RefreshToken>();
-        public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
-
         // Extended Properties
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -37,6 +35,7 @@ namespace PodNoms.Data.Models {
         public List<AccountSubscription> AccountSubscriptions { get; set; }
         public List<Donation> Donations { get; set; }
         public List<Podcast> Podcasts { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; }
         public bool IsAdmin { get; set; } = false;
 
         public DateTime LastSeen { get; set; }
@@ -52,8 +51,13 @@ namespace PodNoms.Data.Models {
 
         public NotificationOptions EmailNotificationOptions { get; set; }
 
-        public void AddRefreshToken(string token, string userId, string remoteIpAddress, double daysToExpire = 5) {
-            _refreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
+
+        public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
+            RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));
+        }
+
+        public void RemoveRefreshToken(string refreshToken) {
+            RefreshTokens.Remove(RefreshTokens.First(t => t.Token == refreshToken));
         }
 
         public string GetBestGuessName() {

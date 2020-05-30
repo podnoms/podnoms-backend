@@ -55,6 +55,8 @@ namespace PodNoms.Data.Models {
         /// The signing key to use when generating tokens.
         /// </summary>
         public SigningCredentials SigningCredentials { get; set; }
+
+        public string SigningKey { get; set; }
     }
 
 }
