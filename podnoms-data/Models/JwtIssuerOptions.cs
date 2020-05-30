@@ -37,9 +37,13 @@ namespace PodNoms.Data.Models {
         /// <summary>
         /// Set the timespan the token will be valid for (default is 120 min)
         /// </summary>
-        public TimeSpan ValidFor { get; set; } = TimeSpan.FromMinutes(120);
+        public TimeSpan ValidFor => TimeSpan.FromSeconds(ExpiryInSeconds);
 
 
+        /// <summary>
+        /// Number of seconds the token is valid for, this can be set in IConfiguration
+        /// </summary>
+        public int ExpiryInSeconds { get; set; } = 7200;
 
         /// <summary>
         /// "jti" (JWT ID) Claim (default ID is a GUID)

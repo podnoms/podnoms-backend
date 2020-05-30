@@ -59,6 +59,14 @@ namespace PodNoms.Common.Persistence {
                 .Where(p => p.Name == columnName)
                 .Select(p => modelBuilder.Entity(p.DeclaringEntityType.ClrType).Property(p.Name));
         }
+        public void ConfigureUser(EntityTypeBuilder<ApplicationUser> builder) {
+            var navigation = builder.Metadata.FindNavigation(nameof(ApplicationUser.RefreshTokens));
+            //EF access the RefreshTokens collection property through its backing field
+            navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.Ignore(b => b.Email);
+            builder.Ignore(b => b.PasswordHash);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -74,6 +82,8 @@ namespace PodNoms.Common.Persistence {
                 .Property(p => p.IsAdmin)
                 .IsRequired()
                 .HasDefaultValue(false);
+
+            modelBuilder.Entity<ApplicationUser>(ConfigureUser);
 
             modelBuilder.Entity<Podcast>()
                 .HasIndex(p => p.Slug)
@@ -172,6 +182,8 @@ namespace PodNoms.Common.Persistence {
         public DbSet<BoilerPlate> BoilerPlates { get; set; }
         public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
         public DbSet<ApplicationUserSlugRedirects> ApplicationUserSlugRedirects { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public DbSet<Category> Categories { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Donation> Donations { get; set; }

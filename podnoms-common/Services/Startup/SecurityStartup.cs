@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Startup {
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options => {
                 //TODO: Remove this in production, only for testing
-                options.ValidFor = TimeSpan.FromDays(28);
+                // options.ValidFor = TimeSpan.FromDays(28);
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
@@ -44,10 +44,10 @@ namespace PodNoms.Common.Services.Startup {
                 ClockSkew = TimeSpan.Zero
             };
             services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme =  JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddApiKeySupport(options => { })
-            
+
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;

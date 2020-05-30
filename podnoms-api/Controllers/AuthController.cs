@@ -13,6 +13,7 @@ using PodNoms.Common;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Services;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
@@ -25,7 +26,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IJwtFactory _jwtFactory;
         private readonly IRecaptchaService _recaptcha;
         private readonly IMailSender _emailSender;
-
+        private readonly IUnitOfWork _unitOfWork;
         public RoleManager<IdentityRole> _roleManager;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly AppSettings _appSettings;
@@ -40,11 +41,13 @@ namespace PodNoms.Api.Controllers {
             IOptions<JwtIssuerOptions> jwtOptions,
             IOptions<AppSettings> appSettings,
             IMailSender mailSender,
+            IUnitOfWork unitOfWork,
             ILogger<AuthController> logger) : base(logger) {
             _userManager = userManager;
             _jwtFactory = jwtFactory;
             _recaptcha = recaptcha;
             _emailSender = mailSender;
+            _unitOfWork = unitOfWork;
             _roleManager = roleManager;
             _contextAccessor = contextAccessor;
             _appSettings = appSettings.Value;
@@ -74,7 +77,17 @@ namespace PodNoms.Api.Controllers {
                 _jwtOptions,
                 new JsonSerializerSettings { Formatting = Formatting.Indented }
             );
-            return Ok(jwt);
+            var refresh = TokenIssuer.GenerateRefreshToken(128);
+            user.AddRefreshToken(
+                refresh,
+                user.Id,
+                _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
+
+            await _unitOfWork.CompleteAsync();
+            return Ok(new {
+                refresh = refresh,
+                jwt = jwt
+            });
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {

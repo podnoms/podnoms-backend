@@ -13,22 +13,14 @@ namespace PodNoms.Data.Models {
         StorageExceeded = 8,
         PlaylistEntryCountExceeded = 16
     }
-
-    public class ApplicationUserSlugRedirects : IEntity {
-        public Guid Id { get; set; }
-
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-
-        public string OldSlug { get; set; }
-
-        public DateTime CreateDate { get; set; }
-        public DateTime UpdateDate { get; set; }
-    }
     //TODO: Perhaps this shouldn't be a slug, it's the most visible slug in the application
     //TODO: And it causes confusion for users as it isn't an everyday term
     //TODO: It's really just a unique username
     public class ApplicationUser : IdentityUser, ISluggedEntity {
+
+        private readonly List<RefreshToken> _refreshTokens = new List<RefreshToken>();
+        public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+
         // Extended Properties
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -59,6 +51,10 @@ namespace PodNoms.Data.Models {
         public double? Longitude { get; set; }
 
         public NotificationOptions EmailNotificationOptions { get; set; }
+
+        public void AddRefreshToken(string token, string userId, string remoteIpAddress, double daysToExpire = 5) {
+            _refreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
+        }
 
         public string GetBestGuessName() {
             if (!string.IsNullOrEmpty(FullName?.Trim())) {
