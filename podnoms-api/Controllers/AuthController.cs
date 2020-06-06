@@ -104,7 +104,7 @@ namespace PodNoms.Api.Controllers {
                     r => r.UserName == userName &&
                     r.RefreshTokens.Any(p =>
                         p.Token.Equals(request.RefreshToken) &&
-                        p.CreateDate >= System.DateTime.Now.AddDays(-7)));
+                        p.CreateDate >= System.DateTime.Now.AddDays(-28)));
 
             if (user == null) {
                 return BadRequest("Cannot find your refresh token");
