@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    
     @RenderSection("metatags", false)
-    <link rel="stylesheet" href="https://cdn.podnoms.com/static/css/podnoms.min.css">
+    <link rel="stylesheet" href="css/sharing/style.css">
     @RenderSection("css", false)
 </head>
-<body>
+<body id="page-top">
     @RenderBody()
     @RenderSection("scripts", false)
 </body>

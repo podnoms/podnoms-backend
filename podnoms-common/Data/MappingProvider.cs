@@ -99,7 +99,7 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.Title))
                 .ForMember(
                     src => src.Author,
-                    e => e.MapFrom(m => m.Podcast.Title))
+                    e => e.MapFrom(m => m.Podcast.AppUser.GetBestGuessName()))
                 .ForMember(
                     src => src.DownloadUrl,
                     e => e.MapFrom(m => m.GetDownloadUrl(_options.GetSection("AppSettings")["DownloadUrl"])))

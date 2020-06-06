@@ -12,6 +12,10 @@
 }
 
 @section css{
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/sharing/style.css"/>
 }
 
@@ -23,42 +27,46 @@
     </script>
 }
 
-<main id="main-container">
-    <div class="bg-image">
-        <div class="hero bg-black-op">
-            <div class="hero-inner">
-                <div class="content content-full">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6 py-30 text-center">
-                            <h1 class="display-4 font-w700 text-white mb-10">
-                                <span class="text-primary-dark">pod</span>
-                                <span class="ftext-white-op">:</span>
-                                <span class="text-primary-dark">:</span>
-                                <span class="ftext-white-op">noms</span>
-                            </h1>
-                            <h2 class="h4 font-w400 text-white-op pb-30 mb-20 border-white-op-b">
-                                @Model.Title
-                            </h2>
-                            <div class="mb-20">
-                                <button class="btn btn-hero btn-noborder btn-rounded btn-outline-warning"
-                                        onclick="downloadShareLink('@Model.DownloadUrl')">
-                                    <i class="fa fa-cloud-download mr-10"></i>
-                                    Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="wrapper">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="https://podnoms.com/" target="_blank">With <i class="text-danger fas fa-heart"></i> from PodNoms</a>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto my-2 my-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="https://podnoms.com/_/about" target="_blank">About</a>
+                    </li>
+                </ul>
             </div>
         </div>
+    </nav>
+    <div class="masthead d-flex">
+        <div class="container text-center my-auto">
+            <h2 class="mb-1 text-white">@Model.Author would like to share with you</h2>
+            <hr>
+            <h3 class="mb-5">
+                <em>@Model.Title</em>
+            </h3>
+            <a class="btn btn-hero btn-noborder btn-rounded btn-outline-warning btn-lg"
+               onclick="downloadShareLink('@Model.DownloadUrl')"
+               href="#">
+                <i class="fas fa-download mr-2"></i>
+                Download
+            </a>
+        </div>
+        <div class="overlay"></div>
     </div>
-</main>
-
-<footer class="footer">
+    <footer>
         <audio-player audio-url="@Model.AudioUrl"
                       pcm-url="@Model.PeakDataUrl"
                       title="@Model.Author"
                       sub-title="@Model.Title"
+
+                      auto-play="false"
+                      show-image="false"
+                      show-details="false"
+                      show-volume="false"
+
                       image-url="@Model.ThumbnailUrl"
                       background-colour=""
                       title-colour="#DBA345"
@@ -66,7 +74,7 @@
                       wave-colour="#F76031"
                       wave-colour-progress="#1D5F5A">
         </audio-player>
-        <script src="https://cdn.podnoms.com/player/podnoms-player.js?cb=7847ba83-97e3-4fc4-b578-cc05d397e1aa"></script>
-</footer>
-
+    </footer>
+</div>
+<script src="https://cdn.podnoms.com/player/podnoms-player.js?cb=6f1fdf22-f000-4bc1-b699-ab64b602679b"></script>
 <iframe id="__dlf_@Model.DownloadNonce" style="display:none;"></iframe>
