@@ -43,26 +43,26 @@ namespace PodNoms.Common.Services.Startup {
                 ClockSkew = TimeSpan.Zero
             };
             services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddApiKeySupport(options => { })
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddApiKeySupport(options => { })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
+                    configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                    configureOptions.TokenValidationParameters = tokenValidationParameters;
+                    configureOptions.SaveToken = true;
+                    configureOptions.Events = new JwtBearerEvents {
+                        OnMessageReceived = context => {
+                            var accessToken = context.Request.Query["token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/hubs"))) {
+                                context.Token = accessToken[0];
+                            }
 
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
-                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                configureOptions.TokenValidationParameters = tokenValidationParameters;
-                configureOptions.SaveToken = true;
-                configureOptions.Events = new JwtBearerEvents {
-                    OnMessageReceived = context => {
-                        var accessToken = context.Request.Query["token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments("/hubs"))) {
-                            context.Token = accessToken[0];
+                            return Task.CompletedTask;
                         }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+                    };
+                });
 
             services.AddAuthorization(j => {
                 j.AddPolicy("ApiUser", policy => policy.RequireClaim(
@@ -70,12 +70,12 @@ namespace PodNoms.Common.Services.Startup {
             });
             // add identity
             services.AddIdentityCore<ApplicationUser>(o => {
-                // configure identity options
-                o.Password.RequireDigit = false;
-                o.Password.RequireLowercase = false;
-                o.Password.RequireUppercase = false;
-                o.Password.RequireNonAlphanumeric = false;
-            })
+                    // configure identity options
+                    o.Password.RequireDigit = false;
+                    o.Password.RequireLowercase = false;
+                    o.Password.RequireUppercase = false;
+                    o.Password.RequireNonAlphanumeric = false;
+                })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders()
                 .AddUserManager<PodNomsUserManager>();
@@ -131,26 +131,33 @@ namespace PodNoms.Common.Services.Startup {
                 app.UseXXssProtection(options => options.EnabledWithBlockMode());
                 app.UseXfo(options => options.Deny());
                 app.UseCsp(opts => opts
-                        .BlockAllMixedContent()
-                        .StyleSources(s => s
-                            .Self()
-                            .UnsafeInline()
-                            .CustomSources("https://cdn.podnoms.com/"))
-                        .FontSources(s => s
-                            .Self()
-                            .CustomSources("https://cdn.podnoms.com/"))
-                        .FormActions(s => s.Self())
-                        .FrameAncestors(s => s.Self().
-                            CustomSources("https://dl.pdnm.be/"))
-                        .ImageSources(s => s.Self()
-                            .CustomSources(
-                                "https://cdn.podnoms.com/",
-                                "https://i.pdnm.be/",
-                                "https://cdn-l.podnoms.com/"))
-                        .ScriptSources(s => s
-                            .Self()
-                            .CustomSources("https://cdn.podnoms.com/player/")
-                            .UnsafeInline())
+                    .BlockAllMixedContent()
+                    .StyleSources(s => s
+                        .Self()
+                        .UnsafeInline()
+                        .CustomSources(
+                            "https://cdn.podnoms.com/",
+                            "https://fonts.googleapis.com/",
+                            "https://cdnjs.cloudflare.com/",
+                            "https://stackpath.bootstrapcdn.com/"))
+                    .FontSources(s => s
+                        .Self()
+                        .CustomSources(
+                            "https://cdn.podnoms.com/",
+                            "https://fonts.googleapis.com/",
+                            "https://fonts.gstatic.com/",
+                            "https://cdnjs.cloudflare.com"))
+                    .FormActions(s => s.Self())
+                    .FrameAncestors(s => s.Self().CustomSources("https://dl.pdnm.be/"))
+                    .ImageSources(s => s.Self()
+                        .CustomSources(
+                            "https://cdn.podnoms.com/",
+                            "https://i.pdnm.be/",
+                            "https://cdn-l.podnoms.com/"))
+                    .ScriptSources(s => s
+                        .Self()
+                        .CustomSources("https://cdn.podnoms.com/player/")
+                        .UnsafeInline())
                 );
             }
 

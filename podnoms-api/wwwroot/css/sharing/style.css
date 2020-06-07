@@ -41,6 +41,9 @@ nav .navbar-nav .nav-item .nav-link {
     .map {
         height: 75%
     }
+    .title{
+        display: none;
+    }
 }
 
 .wrapper {
@@ -60,8 +63,8 @@ nav .navbar-nav .nav-item .nav-link {
 }
 
 .masthead {
-    margin-top: -8rem;
-    height: 100vh
+    margin-top: -4rem;
+    height: 100vh;
 }
 
 @media (min-width: 992px) {

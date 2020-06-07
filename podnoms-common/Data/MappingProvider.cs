@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using PodNoms.Common.Data.Resolvers;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
@@ -94,6 +95,9 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.DownloadNonce,
                     e => e.MapFrom(m => System.Guid.NewGuid().ToString()))
+                .ForMember(
+                    src => src.StrippedDescription,
+                    e => e.MapFrom(m => m.Description.RemoveUnwantedHtmlTags()))
                 .ForMember(
                     src => src.Title,
                     e => e.MapFrom(m => m.Title))

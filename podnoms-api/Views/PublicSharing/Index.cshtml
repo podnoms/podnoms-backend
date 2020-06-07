@@ -6,7 +6,7 @@
     <meta property="og:url" content="@Model.Url">
 
     <meta property="og:type" content="music.song">
-    <meta property="og:description" content="@Model.Description">
+    <meta property="og:description" content="@Model.StrippedDescription">
     <meta property="fb:app_id" content="1887182031397435">
     <title>@Model.Title</title>
 }
@@ -30,7 +30,7 @@
 <div class="wrapper">
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="https://podnoms.com/" target="_blank">With <i class="text-danger fas fa-heart"></i> from PodNoms</a>
+            <a class="navbar-brand" href="https://podnoms.com/" target="_blank">with <i class="text-danger fas fa-heart"></i> from podnoms</a>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav ml-auto my-2 my-lg-0">
                     <li class="nav-item">
@@ -42,9 +42,11 @@
     </nav>
     <div class="masthead d-flex">
         <div class="container text-center my-auto">
-            <h2 class="mb-1 text-white">@Model.Author would like to share with you</h2>
-            <hr>
-            <h3 class="mb-5">
+            <div class="title">
+                <h2 class="mb-1 text-white">@Model.Author would like to share with you</h2>
+                <hr>
+            </div>
+            <h3 class="mb-5 text-faded">
                 <em>@Model.Title</em>
             </h3>
             <a class="btn btn-hero btn-noborder btn-rounded btn-outline-warning btn-lg"
