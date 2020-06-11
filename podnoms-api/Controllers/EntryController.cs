@@ -97,6 +97,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
         public async Task<ActionResult<PodcastEntryViewModel>> Post([FromBody] PodcastEntryViewModel item) {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid podcast entry posted");

@@ -60,6 +60,9 @@ namespace PodNoms.Common.Utils.Extensions {
                         case "br":
                             outText.Write("\r\n");
                             break;
+                        case "li":
+                            outText.Write("\r\n");
+                            break;
                     }
 
                     if (node.HasChildNodes) {

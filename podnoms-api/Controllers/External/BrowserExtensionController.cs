@@ -41,6 +41,7 @@ namespace PodNoms.Api.Controllers.External {
             if (links.Count > 0) {
                 return new OkObjectResult(new {
                     type = "proxied",
+                    title = _parser.GetPageTitle(),
                     links = links.Select((r, i) => new {
                         index = i,
                         key = r.Key,
