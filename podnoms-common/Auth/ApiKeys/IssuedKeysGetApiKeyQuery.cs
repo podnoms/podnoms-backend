@@ -35,8 +35,8 @@ namespace PodNoms.Common.Auth.ApiKeys {
                 .Include(r => r.IssuedTo)
                 .Where(r => r.Key.Equals(storedPassword))
                 .SingleOrDefaultAsync();
-                
-            return record.IssuedTo;
+
+            return record?.IssuedTo;
         }
     }
 }
