@@ -43,9 +43,9 @@ namespace PodNoms.Common.Services.Startup {
                 ClockSkew = TimeSpan.Zero
             };
             services.AddAuthentication(options => {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddApiKeySupport(options => { })
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddApiKeySupport(options => { })
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
                     configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                     configureOptions.TokenValidationParameters = tokenValidationParameters;
@@ -70,12 +70,12 @@ namespace PodNoms.Common.Services.Startup {
             });
             // add identity
             services.AddIdentityCore<ApplicationUser>(o => {
-                    // configure identity options
-                    o.Password.RequireDigit = false;
-                    o.Password.RequireLowercase = false;
-                    o.Password.RequireUppercase = false;
-                    o.Password.RequireNonAlphanumeric = false;
-                })
+                // configure identity options
+                o.Password.RequireDigit = false;
+                o.Password.RequireLowercase = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequireNonAlphanumeric = false;
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders()
                 .AddUserManager<PodNomsUserManager>();
@@ -100,6 +100,7 @@ namespace PodNoms.Common.Services.Startup {
                             "http://10.1.1.1:8080",
                             "http://podnoms.local:8080",
                             "https://podnoms.com",
+                            "chrome-extension://ckjjhlmhcdeneallemnklpdbkneinepf",
                             "https://www.podnoms.com")
                         .AllowCredentials());
                 options.AddPolicy("PublicApiPolicy",

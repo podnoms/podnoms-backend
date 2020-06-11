@@ -196,6 +196,16 @@ namespace PodNoms.Common.Data {
                     ))
                 );
 
+            CreateMap<IssuedApiKey, ApiKeyViewModel>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(r => r.Id.ToString())
+                )
+                .ForMember(
+                    dest => dest.DateIssued,
+                    map => map.MapFrom(r => r.CreateDate)
+                );
+
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,

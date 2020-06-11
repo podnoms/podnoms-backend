@@ -38,6 +38,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         public IQueryable<TEntity> GetAll() {
             return _context.Set<TEntity>();
         }
+
         public async Task<TEntity> GetAsync(string id) {
             return await GetAsync(Guid.Parse(id));
         }
