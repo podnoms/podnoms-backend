@@ -37,7 +37,9 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("validate")]
         [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
+        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
+            _logger.LogInformation($"Validating Url: {url}");
             var fileType = await _downloader.GetInfo(url);
 
             if (fileType == RemoteUrlType.Invalid) {
@@ -66,9 +68,21 @@ namespace PodNoms.Api.Controllers {
                 }
                 return BadRequest();
             }
+
             return new OkObjectResult(new {
-                type = "native"
+                type = "native",
+                title = _downloader.Properties.Title,
+                image = _downloader.Properties.Thumbnail,
+                description = _downloader.Properties.Description,
+                links = new[]  {
+                    new {
+                        title = _downloader.Properties.Title,
+                        key = url,
+                        value = url
+                    }
+                }
             });
+
         }
     }
 }

@@ -34,6 +34,7 @@ namespace PodNoms.Api.Controllers.External {
         }
 
         [HttpGet("podcasts")]
+        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
             var podcasts = await _podcastRepository
                 .GetAllForUserAsync(_applicationUser.Id);

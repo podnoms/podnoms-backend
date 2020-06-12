@@ -15,10 +15,9 @@ using PodNoms.Common.Data.Settings;
 namespace PodNoms.Common.Auth.ApiKeys {
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions> {
         private const string ProblemDetailsContentType = "application/problem+json";
-        private readonly ApiKeyAuthSettings _authSettings;
         private readonly IGetApiKeyQuery _getApiKeyQuery;
         private const string ApiKeyHeaderName = "X-Api-Key";
-        
+
         public ApiKeyAuthenticationHandler(
             IOptionsMonitor<ApiKeyAuthenticationOptions> options,
             ILoggerFactory logger,
@@ -63,7 +62,7 @@ namespace PodNoms.Common.Auth.ApiKeys {
 
             await Response.WriteAsync(
                 JsonSerializer.Serialize(
-                    problemDetails, 
+                    problemDetails,
                     DefaultJsonSerializerOptions.Options));
         }
 

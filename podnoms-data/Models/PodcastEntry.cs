@@ -91,7 +91,7 @@ namespace PodNoms.Data.Models {
                 context.Entry(this).Reference(p => p.Podcast).Load();
                 context.Entry(this.Podcast).Reference(p => p.AppUser).Load();
                 return this.Podcast?.AppUserId?.ToString();
-            } catch (Exception ex) {
+            } catch (Exception) {
                 return string.Empty;
             }
         }

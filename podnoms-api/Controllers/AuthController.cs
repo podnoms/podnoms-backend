@@ -23,6 +23,7 @@ using reCAPTCHA.AspNetCore;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class AuthController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
