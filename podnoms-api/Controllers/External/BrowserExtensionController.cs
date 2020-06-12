@@ -33,26 +33,6 @@ namespace PodNoms.Api.Controllers.External {
             this._parser = parser;
         }
 
-        [HttpGet("parse")]
-        [EnableCors("BrowserExtensionPolicy")]
-        public async Task<IActionResult> ParsePage([FromQuery] string url) {
-            await _parser.Initialise(url);
-            var links = await _parser.GetAllAudioLinks();
-            if (links.Count > 0) {
-                return new OkObjectResult(new {
-                    type = "proxied",
-                    title = _parser.GetPageTitle(),
-                    links = links.Select((r, i) => new {
-                        index = i,
-                        key = r.Key,
-                        value = r.Value,
-                        selected = false
-                    })
-                });
-            }
-            return Ok();
-        }
-
         [HttpGet("podcasts")]
         public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
             var podcasts = await _podcastRepository

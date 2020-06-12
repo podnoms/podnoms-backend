@@ -39,6 +39,8 @@ using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNetCore3;
 using WebMarkupMin.Core;
 using PodNoms.Common.Utils.RemoteParsers;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace PodNoms.Api {
     public class Startup {

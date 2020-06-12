@@ -36,6 +36,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
             var fileType = await _downloader.GetInfo(url);
 
@@ -54,7 +55,7 @@ namespace PodNoms.Api.Controllers {
                         title,
                         image,
                         description,
-                        data = links
+                        links = links
                             .GroupBy(r => r.Key)     // note to future me
                             .Select(g => g.First())  // these lines dedupe on key - neato!!
                             .Select(r => new {

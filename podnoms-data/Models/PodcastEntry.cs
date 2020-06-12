@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Enums;
@@ -84,5 +85,15 @@ namespace PodNoms.Data.Models {
             Id = this.Id.ToString(),
             Title = this.Title
         };
+
+        public string UserIdForRealtime(DbContext context) {
+            try {
+                context.Entry(this).Reference(p => p.Podcast).Load();
+                context.Entry(this.Podcast).Reference(p => p.AppUser).Load();
+                return this.Podcast?.AppUserId?.ToString();
+            } catch (Exception ex) {
+                return string.Empty;
+            }
+        }
     }
 }
