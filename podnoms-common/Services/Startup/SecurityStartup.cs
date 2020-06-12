@@ -85,37 +85,31 @@ namespace PodNoms.Common.Services.Startup {
 
         public static IServiceCollection AddPodNomsCors(this IServiceCollection services, IConfiguration config) {
             services.AddCors(options => {
-                // options.AddPolicy("PodNomsClientPolicy",
-                //     builder => builder
-                //         .AllowAnyMethod()
-                //         .AllowAnyHeader()
-                //         .WithOrigins(
-                //             //TODO: Will have to add all Podcast.CustomUrl values into here
-                //             "http://localhost:8080",
-                //             "http://localhost:8080",
-                //             "http://localhost:4200",
-                //             "https://localhost:4200",
-                //             "https://dev.podnoms.com:4200",
-                //             "https://podnoms.local:4200",
-                //             "http://10.1.1.1:8080",
-                //             "http://podnoms.local:8080",
-                //             "https://podnoms.com",
-                //             "chrome-extension://ckjjhlmhcdeneallemnklpdbkneinepf",
-                //             "chrome-extension://idhfpcbfcbppfngmhidbaimgefdjoljh",
-                //             "chrome-extension://eildkhlkeklepmmjddhlnokmmfgiafad",
-                //             "moz-extension://2a6bcbb2-6ee5-46ef-8886-50a1af61be5d",
-                //             "moz-extension://1f5f96b0-52cb-4541-bbe1-cd7bad43cd6b",
-                //             "moz-extension://ed9b8e44-a00e-4be1-b082-b00069a474e5",
-                //             "moz-extension://19c29fcf-033c-43aa-8b36-b49a702a1708",
-                //             "moz-extension://002c342a-efa6-4c69-949b-b61650926f42",
-                //             "https://www.podnoms.com")
-                //         .AllowCredentials());
                 options.AddPolicy("PodNomsClientPolicy",
                     builder => builder
-                        .AllowAnyOrigin()
-                        .AllowAnyHeader()
                         .AllowAnyMethod()
-                        /*.AllowCredentials()*/);
+                        .AllowAnyHeader()
+                        .WithOrigins(
+                            //TODO: Will have to add all Podcast.CustomUrl values into here
+                            "http://localhost:8080",
+                            "http://localhost:8080",
+                            "http://localhost:4200",
+                            "https://localhost:4200",
+                            "https://dev.podnoms.com:4200",
+                            "https://podnoms.local:4200",
+                            "http://10.1.1.1:8080",
+                            "http://podnoms.local:8080",
+                            "https://podnoms.com",
+                            "chrome-extension://ckjjhlmhcdeneallemnklpdbkneinepf",
+                            "chrome-extension://idhfpcbfcbppfngmhidbaimgefdjoljh",
+                            "chrome-extension://eildkhlkeklepmmjddhlnokmmfgiafad",
+                            "moz-extension://2a6bcbb2-6ee5-46ef-8886-50a1af61be5d",
+                            "moz-extension://1f5f96b0-52cb-4541-bbe1-cd7bad43cd6b",
+                            "moz-extension://ed9b8e44-a00e-4be1-b082-b00069a474e5",
+                            "moz-extension://19c29fcf-033c-43aa-8b36-b49a702a1708",
+                            "moz-extension://002c342a-efa6-4c69-949b-b61650926f42",
+                            "https://www.podnoms.com")
+                        .AllowCredentials());
                 options.AddPolicy("PublicApiPolicy",
                     builder => builder
                         .AllowAnyOrigin()

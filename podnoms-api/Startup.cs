@@ -101,7 +101,6 @@ namespace PodNoms.Api {
                 options.Filters.Add<UserLoggingFilter>();
                 options.Filters.Add<UserLoggingFilter>();
                 options.EnableEndpointRouting = false;
-                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
                 options.OutputFormatters
                     .OfType<StringOutputFormatter>()
                     .Single().SupportedMediaTypes.Add("text/html");
