@@ -206,6 +206,12 @@ namespace PodNoms.Common.Data {
                     map => map.MapFrom(r => r.CreateDate)
                 );
 
+            CreateMap<ServerShowcase, ServerShowcaseViewModel>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(r => r.Id.ToString())
+                );
+
             CreateMap<Notification, NotificationViewModel>()
                 .ForMember(
                     dest => dest.Options,

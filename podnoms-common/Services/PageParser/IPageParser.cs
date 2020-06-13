@@ -7,9 +7,9 @@ namespace PodNoms.Common.Services.PageParser {
         Task<bool> Initialise(string url);
         string GetPageTitle();
         string GetHeadTag(string tagName);
-        Task<IList<KeyValuePair<string, string>>> GetAllAudioLinks();
-        Task<IList<KeyValuePair<string, string>>> GetIFrameLinks();
-        IList<KeyValuePair<string, string>> GetAudioLinks();
-        IList<KeyValuePair<string, string>> GetTextLinks(string text);
+        Task<Dictionary<string, string>> GetAllAudioLinks();
+        Task<Dictionary<string, string>> GetIFrameLinks();
+        Dictionary<string, string> GetAudioLinks();
+        Dictionary<string, string> GetTextLinks(string text);
     }
 }

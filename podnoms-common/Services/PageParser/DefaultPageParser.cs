@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using PodNoms.Common.Utils.Extensions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -61,30 +62,40 @@ namespace PodNoms.Common.Services.PageParser {
             return _doc.Text;
         }
 
-        public async Task<IList<KeyValuePair<string, string>>> GetAllAudioLinks() {
-            var empty = Enumerable.Empty<KeyValuePair<string, string>>();
-            var documentLinks = (GetAudioLinks()) ?? empty;
-            var iframeLinks = (await GetIFrameLinks())?.Select(r => new KeyValuePair<string, string>(
-                string.IsNullOrWhiteSpace(r.Key) ? _getFilenameFromUrl(r.Value) : r.Key,
-                r.Value
-            )).ToList() ?? empty;
+        public async Task<Dictionary<string, string>> GetAllAudioLinks() {
+            var documentLinks = (GetAudioLinks());
+            var iframeLinks = (await GetIFrameLinks())?.Select(r => new {
+                Key = string.IsNullOrWhiteSpace(r.Key) ? _getFilenameFromUrl(r.Value) : r.Key,
+                Value = r.Value
+            }).ToDictionary(x => x.Key, x => x.Value);
             var textLinks = GetTextLinks(GetPageText());
 
-            var links = documentLinks.Concat(iframeLinks).Concat(textLinks);
-            return links
-                .Distinct()
-                .ToList();
+            var setA = documentLinks
+                .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase);
+            var setB = iframeLinks
+                .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase);
+            var setC = textLinks
+                .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase);
+
+            return setA
+                .Concat(setB)
+                .Concat(setC)
+                .GroupBy(e => e.Key)
+                .ToDictionary(g => g.Key, g => g.First().Value);
         }
 
-        public IList<KeyValuePair<string, string>> GetTextLinks(string text) {
+        public Dictionary<string, string> GetTextLinks(string text) {
             var matches = Regex.Matches(text, PARSER_REGEX)
                 .Cast<Match>()
                 .Select(m => m.Value)
                 .ToArray()
-                .Select(r => new KeyValuePair<string, string>(
-                    _getFilenameFromUrl(r),
-                    r
-                )).ToList();
+                .Select(r => new {
+                    Key = r,
+                    Value = _getFilenameFromUrl(r)
+                }).ToDictionary(x => x.Key, x => x.Value);
             return matches;
         }
 
@@ -93,7 +104,7 @@ namespace PodNoms.Common.Services.PageParser {
             return uri.Segments[uri.Segments.Length - 1];
         }
 
-        public async Task<IList<KeyValuePair<string, string>>> GetIFrameLinks() {
+        public async Task<Dictionary<string, string>> GetIFrameLinks() {
             if (_doc == null) {
                 throw new InvalidOperationException("Initialise must be called first");
             }
@@ -108,20 +119,20 @@ namespace PodNoms.Common.Services.PageParser {
                     iframes
                         .Select(async e => (await DefaultPageParser.__create(e)).GetAudioLinks())
                 ).ConfigureAwait(false);
-                return response.SelectMany(r => r).ToList();
+                return response
+                    .SelectMany(r => r)
+                    .ToDictionary(x => x.Key, x => x.Value);
             }
 
-            return null;
+            return new Dictionary<string, string>();
         }
 
-        public IList<KeyValuePair<string, string>> GetAudioLinks() {
+        public Dictionary<string, string> GetAudioLinks() {
             if (_doc == null) {
                 throw new InvalidOperationException("Initialise must be called first");
             }
 
-            var empty = Enumerable.Empty<KeyValuePair<string, string>>();
             HtmlWeb web = new HtmlWeb();
-
             var hrefSources = _doc.DocumentNode.Descendants("a")
                 .Where(a => (!string.IsNullOrEmpty(a.Attributes["href"]?.Value) && (
                     a.Attributes["href"].Value.EndsWith("mp3") ||
@@ -129,17 +140,12 @@ namespace PodNoms.Common.Services.PageParser {
                     a.Attributes["href"].Value.EndsWith("wav") ||
                     a.Attributes["href"].Value.EndsWith("m4a")
                 )))
-                .Select(d => new KeyValuePair<string, string>(
-                    Regex.Replace(d.InnerText, @"\s+", ""),
-                    _normaliseUrl(_url, d.Attributes["href"].Value)
-                )) ?? empty;
+                .Distinct()
+                .Select(d => _createItem(d.Attributes["href"].Value));
 
             var audioSources = _doc.DocumentNode.Descendants("audio")
                 .Where(n => n.Attributes["src"] != null)
-                .Select(d => new KeyValuePair<string, string>(
-                    Path.GetFileName(d.Attributes["src"].Value),
-                    _normaliseUrl(_url, d.Attributes["src"].Value)
-                )) ?? empty;
+                .Select(d => _createItem(d.Attributes["src"].Value));
 
             var embeddedAudioSources = _doc.DocumentNode.Descendants("audio")
                 .Where(n => n.HasChildNodes)
@@ -153,17 +159,25 @@ namespace PodNoms.Common.Services.PageParser {
                         n.Attributes["type"].Value == "audio/m4a"
                     )
                 ))
-                .Select(d => new KeyValuePair<string, string>(
-                    Path.GetFileName(d.Attributes["src"].Value),
-                    _normaliseUrl(_url, d.Attributes["src"].Value)
-                )) ?? empty;
+                .Select(d => _createItem(d.Attributes["src"].Value));
 
-            return hrefSources
-                .Concat(audioSources)
-                .Concat(embeddedAudioSources)
-                .ToList();
+            var results = hrefSources?
+                .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Union(embeddedAudioSources?.GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase)
+                ).Union(
+                    audioSources?.GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase)
+                ).ToDictionary(r => r.Key, r => r.Value);
+            return results ?? new Dictionary<string, string>();
         }
-
+        private KeyValuePair<string, string> _createItem(string url) {
+            return new KeyValuePair<string, string>(
+                 _normaliseUrl(_url, url),
+                Path.GetFileName(url)
+            );
+        }
         private string _normaliseUrl(string baseUrl, string remoteUrl) {
             if (!remoteUrl.StartsWith("http")) {
                 if (remoteUrl.StartsWith("/")) {
@@ -178,7 +192,6 @@ namespace PodNoms.Common.Services.PageParser {
                     }
                 }
             }
-
             return remoteUrl;
         }
     }

@@ -15,7 +15,6 @@ namespace PodNoms.Data.Models {
         public virtual Podcast Podcast { get; set; }
 
     }
-
     public class Podcast : BaseEntity, ISluggedEntity, ICachedEntity {
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();

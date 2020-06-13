@@ -154,10 +154,6 @@ namespace PodNoms.Api {
                 app.UseHttpsRedirection();
             }
 
-            app.UseExceptionHandler(new ExceptionHandlerOptions {
-                ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
-            });
-
             app.UseSqlitePushSubscriptionStore();
 
             app.UseRouting();

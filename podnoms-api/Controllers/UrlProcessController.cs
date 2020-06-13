@@ -44,7 +44,7 @@ namespace PodNoms.Api.Controllers {
 
             if (fileType == RemoteUrlType.Invalid) {
                 if (!await _parser.Initialise(url)) {
-                    return BadRequest("Invalid url");
+                    return NoContent();
                 }
                 var title = _parser.GetPageTitle();
                 var image = _parser.GetHeadTag("og:image");
@@ -66,7 +66,7 @@ namespace PodNoms.Api.Controllers {
                             })
                     });
                 }
-                return BadRequest();
+                return Ok();
             }
 
             return new OkObjectResult(new {
