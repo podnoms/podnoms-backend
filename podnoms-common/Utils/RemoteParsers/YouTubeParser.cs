@@ -74,7 +74,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             public async Task<string> GetVideoId(string url) {
                 return await Task.Run(() => {
                     if (TryParseVideoId(url, out var id)) {
-                        return id;
+                        return id ?? string.Empty;
                     }
                     return string.Empty;
                 });
@@ -88,7 +88,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 throw new NotImplementedException();
             }
 
-            public async Task<RemoteVideoInfo> GetInformation(string url) {
+            public async Task<RemoteVideoInfo?> GetInformation(string url) {
                 var videoId = await GetVideoId(url);
                 if (!string.IsNullOrEmpty(url)) {
                     var request = this.youtube.Videos.List("snippet");
@@ -150,7 +150,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                         return await GetPlaylistEntriesForId(uploadListId, nCount);
                     }
                 }
-                return null;
+                return new List<ParsedItemResult>();
             }
         }
     }

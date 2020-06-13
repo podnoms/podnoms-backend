@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using PodNoms.Common.Data.Resolvers;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
@@ -95,11 +96,14 @@ namespace PodNoms.Common.Data {
                     src => src.DownloadNonce,
                     e => e.MapFrom(m => System.Guid.NewGuid().ToString()))
                 .ForMember(
+                    src => src.StrippedDescription,
+                    e => e.MapFrom(m => m.Description.RemoveUnwantedHtmlTags()))
+                .ForMember(
                     src => src.Title,
                     e => e.MapFrom(m => m.Title))
                 .ForMember(
                     src => src.Author,
-                    e => e.MapFrom(m => m.Podcast.Title))
+                    e => e.MapFrom(m => m.Podcast.AppUser.GetBestGuessName()))
                 .ForMember(
                     src => src.DownloadUrl,
                     e => e.MapFrom(m => m.GetDownloadUrl(_options.GetSection("AppSettings")["DownloadUrl"])))
@@ -190,6 +194,22 @@ namespace PodNoms.Common.Data {
                             ControlType = o.Value.ControlType
                         }
                     ))
+                );
+
+            CreateMap<IssuedApiKey, ApiKeyViewModel>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(r => r.Id.ToString())
+                )
+                .ForMember(
+                    dest => dest.DateIssued,
+                    map => map.MapFrom(r => r.CreateDate)
+                );
+
+            CreateMap<ServerShowcase, ServerShowcaseViewModel>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(r => r.Id.ToString())
                 );
 
             CreateMap<Notification, NotificationViewModel>()

@@ -9,13 +9,11 @@ using PodNoms.Data.ViewModels;
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     public class RealtimeController : BaseController {
-        private readonly PodNomsDbContext _context;
         private readonly HubLifetimeManager<EntityUpdatesHub> _hub;
 
         public RealtimeController(
                     ILogger<RealtimeController> logger,
-                    HubLifetimeManager<EntityUpdatesHub> hub,
-                    PodNomsDbContext context) : base(logger) {
+                    HubLifetimeManager<EntityUpdatesHub> hub) : base(logger) {
             _hub = hub;
         }
 

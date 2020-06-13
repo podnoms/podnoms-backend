@@ -23,6 +23,7 @@ using reCAPTCHA.AspNetCore;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class AuthController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
@@ -189,14 +190,14 @@ namespace PodNoms.Api.Controllers {
             return Json(_roleManager.Roles);
         }
 
-        [HttpGet("addusertorole/{role}/{email}")]
-        public async Task<IActionResult> AddUserToRole(string role, string email) {
-            _logger.LogDebug($"Adding {email} to {role}");
+        [HttpGet("addusertorole/{role}/{slug}")]
+        public async Task<IActionResult> AddUserToRole(string role, string slug) {
+            _logger.LogDebug($"Adding {slug} to {role}");
             if (!await _roleManager.RoleExistsAsync(role)) {
                 _logger.LogDebug("Creating role");
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
-            ApplicationUser user = await _userManager.FindByNameAsync(email);
+            ApplicationUser user = await _userManager.FindBySlugAsync(slug);
             if (user == null) {
                 _logger.LogError("Unable to find user");
                 return NotFound();

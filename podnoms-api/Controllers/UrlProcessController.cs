@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System.Linq;
@@ -36,12 +37,19 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
+        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
+            if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
+                return Ok();
+            }
+
+            _logger.LogInformation($"Validating Url: {url}");
             var fileType = await _downloader.GetInfo(url);
 
             if (fileType == RemoteUrlType.Invalid) {
                 if (!await _parser.Initialise(url)) {
-                    return BadRequest("Invalid url");
+                    return NoContent();
                 }
                 var title = _parser.GetPageTitle();
                 var image = _parser.GetHeadTag("og:image");
@@ -54,7 +62,7 @@ namespace PodNoms.Api.Controllers {
                         title,
                         image,
                         description,
-                        data = links
+                        links = links
                             .GroupBy(r => r.Key)     // note to future me
                             .Select(g => g.First())  // these lines dedupe on key - neato!!
                             .Select(r => new {
@@ -63,11 +71,23 @@ namespace PodNoms.Api.Controllers {
                             })
                     });
                 }
-                return BadRequest();
+                return Ok();
             }
+
             return new OkObjectResult(new {
-                type = "native"
+                type = "native",
+                title = _downloader.Properties?.Title,
+                image = _downloader.Properties?.Thumbnail,
+                description = _downloader.Properties?.Description,
+                links = new[]  {
+                    new {
+                        title = _downloader.Properties?.Title,
+                        key = url,
+                        value = url
+                    }
+                }
             });
+
         }
     }
 }

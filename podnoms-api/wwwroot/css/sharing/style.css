@@ -1,14 +1,83 @@
-.bg-image {
-    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
-        url("https://cdn.podnoms.com/static/images/pn-back.jpg");
-    background-size: 100% 100%;
+body, html {
+    width: 100%;
+    height: 100%
 }
 
-.hero-inner {
-    /* margin-top: -280px; */
+body {
+    font-family: 'PT Mono', monospace;
+    overflow: hidden;
 }
 
-.footer {
+nav {
+    box-shadow: none;
+    background-color: transparent;
+}
+
+nav .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav .navbar-brand {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+nav .navbar-nav .nav-item .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0 1rem;
+}
+
+.btn-xl {
+    padding: 1.25rem 2.5rem
+}
+
+.text-faded {
+    color: rgba(255, 255, 255, .7)
+}
+
+@media (max-width: 992px) {
+    .map {
+        height: 75%
+    }
+    .title{
+        display: none;
+    }
+}
+
+.wrapper {
+    height: 100%;
+    padding-bottom: calc(10rem - 4.5rem);
+    background: linear-gradient(to bottom, rgba(92, 77, 66, 0.8) 0%, rgba(92, 77, 66, 0.8) 100%), url("https://cdn.podnoms.com/static/images/pn-back.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-size: cover;
+}
+
+.masthead h1 {
+    font-size: 4rem;
+    margin: 0;
+    padding: 0
+}
+
+.masthead {
+    margin-top: -4rem;
+    height: 100vh;
+}
+
+@media (min-width: 992px) {
+    .masthead {
+        height: 100vh
+    }
+
+    .masthead h1 {
+        font-size: 5.5rem
+    }
+}
+
+footer {
     position: absolute;
     bottom: 10px;
     width: 100%;

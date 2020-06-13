@@ -37,17 +37,19 @@ namespace PodNoms.Common.Persistence {
             var newEntities = _context.ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Added)
                 .Where(e => e.Entity is IHubNotifyEntity)
-                .Select(e => e.Entity);
+                .Select(e => e.Entity as IHubNotifyEntity);
 
             foreach (var entity in newEntities) {
-                var method = (entity as IHubNotifyEntity)?.GetHubMethodName();
+                var method = entity?.GetHubMethodName();
                 if (!string.IsNullOrEmpty(method)) {
                     _logger.LogDebug($"Notifying {method} hub of update to {entity}");
-
-                    var payload = (entity as IHubNotifyEntity)?.SerialiseForHub();
-                    await _hub.SendUserAsync(
-                        "THISISNOTAVALIDUSER",
-                        method, new object[] { payload });
+                    var user = entity.UserIdForRealtime(_context);
+                    if (!string.IsNullOrEmpty(user)) {
+                        var payload = entity?.SerialiseForHub();
+                        await _hub.SendUserAsync(
+                            user,
+                            method, new object[] { payload });
+                    }
                 }
             }
         }

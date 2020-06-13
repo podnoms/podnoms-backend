@@ -18,6 +18,9 @@ namespace PodNoms.Data.Models {
             Key = key;
             IsValid = true;
         }
+        [Required]
+        [MinLength(3)]
+        [MaxLength(25)]
         public string Name { get; set; }
 
         [MaxLength(7)] //so the user can recognise their key

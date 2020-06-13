@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,10 +106,40 @@ namespace PodNoms.Api.Controllers {
             return NoContent();
         }
 
+        [HttpGet("getkeys")]
+        public async Task<ActionResult<ApiKeyViewModel[]>> GetApiKeys() {
+            var keys = await this._issuedApiKeyRepository.GetAll()
+                .Where(r => r.IssuedTo.Slug.Equals(_applicationUser.Slug))
+                .OrderByDescending(r => r.CreateDate)
+                .ToListAsync();
+            return _mapper.Map<ApiKeyViewModel[]>(keys);
+        }
+
+        [HttpPost("regeneratekey")]
+        public async Task<ActionResult<ApiKeyViewModel>> RegenerateApiKey([FromBody] ApiKeyViewModel apiKeyRequest) {
+            var existingKey = await _issuedApiKeyRepository.GetAsync(apiKeyRequest.Id);
+            if (existingKey is null) {
+                return NotFound();
+            }
+
+            var newKey = await _generateApiKey(apiKeyRequest);
+            if (newKey == null) {
+                return BadRequest();
+            }
+            newKey.Name = existingKey.Name;
+            newKey.DateIssued = DateTime.Today;
+            await _issuedApiKeyRepository.DeleteAsync(existingKey.Id);
+            await _unitOfWork.CompleteAsync();
+
+            return newKey;
+        }
+
         [HttpPost("requestkey")]
         public async Task<ActionResult<ApiKeyViewModel>> RequestApiKey([FromBody] ApiKeyViewModel apiKeyRequest) {
             if (!ModelState.IsValid) return BadRequest("Invalid api key model");
-
+            return await _generateApiKey(apiKeyRequest);
+        }
+        private async Task<ApiKeyViewModel> _generateApiKey(ApiKeyViewModel apiKeyRequest) {
             var prefix = ApiKeyGenerator.GetApiKey(7);
             var plainTextKey = $"{prefix}.{ApiKeyGenerator.GetApiKey(128)}";
 
@@ -125,11 +156,9 @@ namespace PodNoms.Api.Controllers {
             _issuedApiKeyRepository.AddOrUpdate(issue);
             await _unitOfWork.CompleteAsync();
 
-            return new ApiKeyViewModel {
-                Name = "FartyMcFarty",
-                Prefix = prefix,
-                PlainTextKey = plainTextKey
-            };
+            var key = _mapper.Map<ApiKeyViewModel>(issue);
+            key.PlainTextKey = plainTextKey;
+            return key;
         }
 
         [HttpGet("opml-url")]

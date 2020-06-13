@@ -38,7 +38,8 @@ namespace PodNoms.Api.Controllers {
                 }
             } catch (System.InvalidOperationException ex) {
                 _logger.LogError($"Error constructing BaseAuthController: \n{ex.Message}");
-            
-        }}
+
+            }
+        }
     }
 }

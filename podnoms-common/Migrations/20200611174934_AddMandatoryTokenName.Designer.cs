@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200611174934_AddMandatoryTokenName")]
+    partial class AddMandatoryTokenName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -986,54 +988,6 @@ namespace PodNoms.Comon.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServerConfig","admin");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.ServerShowcase", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("DiskSpaceThreshold")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("EntryCountThreshold")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("PodcastCountThreshold")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ServerShowcases");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>

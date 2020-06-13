@@ -39,6 +39,8 @@ using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNetCore3;
 using WebMarkupMin.Core;
 using PodNoms.Common.Utils.RemoteParsers;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -75,9 +77,9 @@ namespace PodNoms.Api {
             services.AddPodNomsCacheService(Configuration, true);
 
             services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("podnoms-common")
+                          .EnableRetryOnFailure());
             });
 
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
@@ -99,7 +101,6 @@ namespace PodNoms.Api {
                 options.Filters.Add<UserLoggingFilter>();
                 options.Filters.Add<UserLoggingFilter>();
                 options.EnableEndpointRouting = false;
-                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
                 options.OutputFormatters
                     .OfType<StringOutputFormatter>()
                     .Single().SupportedMediaTypes.Add("text/html");
@@ -152,10 +153,6 @@ namespace PodNoms.Api {
             if (!Env.IsDevelopment()) {
                 app.UseHttpsRedirection();
             }
-
-            app.UseExceptionHandler(new ExceptionHandlerOptions {
-                ExceptionHandler = new JsonExceptionMiddleware(Env).Invoke
-            });
 
             app.UseSqlitePushSubscriptionStore();
 

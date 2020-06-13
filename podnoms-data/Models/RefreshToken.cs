@@ -1,4 +1,6 @@
 using System;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace PodNoms.Data.Models {
     public class RefreshToken : BaseEntity {
@@ -10,7 +12,10 @@ namespace PodNoms.Data.Models {
             AppUser = user;
             RemoteIpAddress = remoteIpAddress;
         }
+        [XmlIgnore]
         public string Token { get; private set; }
+
+        [XmlIgnore]
         public DateTime Expires { get; private set; }
 
         public string AppUserId { get; set; }
@@ -18,6 +23,7 @@ namespace PodNoms.Data.Models {
 
         public bool Active => DateTime.UtcNow <= Expires;
 
+        [XmlIgnore]
         public string RemoteIpAddress { get; private set; }
     }
 }

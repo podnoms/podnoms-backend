@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -8,6 +9,14 @@ namespace PodNoms.Common.Utils {
     public static class HttpUtils {
         public static string UrlCombine(params string[] parts) => Flurl.Url.Combine(parts);
 
+        public static bool ValidateAsUrl(this string url) {
+            Uri uriResult;
+
+            bool result = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+            return result;
+        }
         public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
             using var client = new HttpClient();
             client.DefaultRequestHeaders
