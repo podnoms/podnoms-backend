@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
+using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System.Linq;
@@ -39,6 +40,10 @@ namespace PodNoms.Api.Controllers {
         [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
         [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult> ValidateUrl([FromQuery] string url) {
+            if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
+                return Ok();
+            }
+
             _logger.LogInformation($"Validating Url: {url}");
             var fileType = await _downloader.GetInfo(url);
 
@@ -71,12 +76,12 @@ namespace PodNoms.Api.Controllers {
 
             return new OkObjectResult(new {
                 type = "native",
-                title = _downloader.Properties.Title,
-                image = _downloader.Properties.Thumbnail,
-                description = _downloader.Properties.Description,
+                title = _downloader.Properties?.Title,
+                image = _downloader.Properties?.Thumbnail,
+                description = _downloader.Properties?.Description,
                 links = new[]  {
                     new {
-                        title = _downloader.Properties.Title,
+                        title = _downloader.Properties?.Title,
                         key = url,
                         value = url
                     }

@@ -8,8 +8,5 @@ namespace PodNoms.Common.Services.PageParser {
         string GetPageTitle();
         string GetHeadTag(string tagName);
         Task<Dictionary<string, string>> GetAllAudioLinks();
-        Task<Dictionary<string, string>> GetIFrameLinks();
-        Dictionary<string, string> GetAudioLinks();
-        Dictionary<string, string> GetTextLinks(string text);
     }
 }
