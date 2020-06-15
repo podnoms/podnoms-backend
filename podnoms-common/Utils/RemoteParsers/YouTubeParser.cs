@@ -16,16 +16,19 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
             private readonly AppSettings _settings;
             private YouTubeService youtube;
+
             public YouTubeParser(IOptions<AppSettings> options) {
                 _settings = options.Value;
                 youtube = _getYouTubeService();
             }
+
             private YouTubeService _getYouTubeService() {
                 return new YouTubeService(new BaseClientService.Initializer() {
                     ApiKey = _settings.GoogleApiKey,
                     ApplicationName = GetType().ToString()
                 });
             }
+
             public static bool ValidateVideoId(string videoId) {
                 if (string.IsNullOrWhiteSpace(videoId))
                     return false;
@@ -66,16 +69,19 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
                 return false;
             }
+
             public bool ValidateUrl(string url) {
                 var regex = new Regex(URL_REGEX);
                 var result = regex.Match(url);
                 return result.Success;
             }
+
             public async Task<string> GetVideoId(string url) {
                 return await Task.Run(() => {
                     if (TryParseVideoId(url, out var id)) {
                         return id ?? string.Empty;
                     }
+
                     return string.Empty;
                 });
             }
@@ -105,11 +111,13 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                                 Description = snippet.Description,
                                 Thumbnail = snippet.Thumbnails.High.Url,
                                 Uploader = snippet.ChannelTitle,
-                                UploadDate = snippet.PublishedAt
+                                UploadDate = DateTime.Parse(snippet.PublishedAt, null,
+                                    System.Globalization.DateTimeStyles.RoundtripKind)
                             };
                         }
                     }
                 }
+
                 return null;
             }
 
@@ -131,12 +139,13 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                         Id = p.ContentDetails.VideoId,
                         Title = p.Snippet.Title,
                         VideoType = "youtube",
-                        UploadDate = p.ContentDetails.VideoPublishedAt
+                        UploadDate = DateTime.Parse(p.ContentDetails.VideoPublishedAt, null,
+                            System.Globalization.DateTimeStyles.RoundtripKind)
                     }).ToList();
             }
 
-            public async Task<List<ParsedItemResult>> GetPlaylistEntriesForChannelName(string channelName, string searchType, int nCount = 10) {
-
+            public async Task<List<ParsedItemResult>> GetPlaylistEntriesForChannelName(string channelName,
+                string searchType, int nCount = 10) {
                 var request = youtube.Channels.List("contentDetails");
                 if (searchType.Equals("id"))
                     request.Id = channelName;
@@ -150,6 +159,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                         return await GetPlaylistEntriesForId(uploadListId, nCount);
                     }
                 }
+
                 return new List<ParsedItemResult>();
             }
         }

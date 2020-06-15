@@ -5,7 +5,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Services.Notifications {
-    public class TwitterNotificationHandler : BaseNotificationHandler, INotificationHandler {
+    public class TwitterNotificationHandler : BaseNotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.Twitter;
 
         public TwitterNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient)

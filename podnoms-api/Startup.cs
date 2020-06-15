@@ -35,9 +35,6 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using PodNoms.Common.Services.Caching;
-using WebMarkupMin.AspNet.Common.Compressors;
-using WebMarkupMin.AspNetCore3;
-using WebMarkupMin.Core;
 using PodNoms.Common.Utils.RemoteParsers;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -56,17 +53,6 @@ namespace PodNoms.Api {
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
             services.AddResponseCaching();
-            services.AddWebMarkupMin(options => {
-                options.AllowMinificationInDevelopmentEnvironment = true;
-                options.AllowCompressionInDevelopmentEnvironment = true;
-            })
-                .AddHtmlMinification(options => {
-                    HtmlMinificationSettings settings = options.MinificationSettings;
-                    settings.RemoveRedundantAttributes = true;
-                    settings.RemoveHttpProtocolFromAttributes = true;
-                    settings.RemoveHttpsProtocolFromAttributes = true;
-                })
-                .AddHttpCompression();
 
             JobStorage.Current = new SqlServerStorage(
                 Configuration["ConnectionStrings:JobSchedulerConnection"]
@@ -188,7 +174,6 @@ namespace PodNoms.Api {
 
             app.UseRobotsTxt(Env);
             app.UseResponseCaching();
-            app.UseWebMarkupMin();
 
             app.UseMvc(routes => {
                 routes.MapRoute(

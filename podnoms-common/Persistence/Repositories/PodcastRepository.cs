@@ -71,9 +71,16 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Category)
                 .Include(p => p.Subcategories)
                 .Include(p => p.Notifications)
+                .OrderByDescending(r => 
+                    r.PodcastEntries
+                        .OrderByDescending(e => e.UpdateDate)
+                        .SingleOrDefault().UpdateDate)
                 .FirstOrDefaultAsync();
-            if (ret != null && ret.PodcastEntries != null) {
-                ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
+            if (ret?.PodcastEntries != null) {
+                ret.PodcastEntries = ret
+                    .PodcastEntries
+                    .OrderByDescending(r => r.CreateDate)
+                    .ToList();
             }
             return ret;
         }
@@ -103,7 +110,8 @@ namespace PodNoms.Common.Persistence.Repositories {
             return await ret.ToListAsync();
         }
         public async Task<string> GetActivePodcast(string userId) {
-            var podcast = await GetAll().Where(p => p.AppUser.Id == userId)
+            var podcast = await GetAll()
+                .Where(p => p.AppUser.Id == userId)
                 .OrderByDescending(p => p.UpdateDate)
                 .FirstOrDefaultAsync();
 
@@ -118,13 +126,15 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public new Podcast AddOrUpdate(Podcast podcast) {
             // hash the passwords
-            if (podcast.AuthPassword != null && podcast.AuthPassword.Length != 0 && (podcast.Private)) {
-                var salt = PBKDFGenerators.GenerateSalt();
-                var password = PBKDFGenerators.GenerateHash(podcast.AuthPassword, salt);
-
-                podcast.AuthPasswordSalt = salt;
-                podcast.AuthPassword = password;
+            if (podcast.AuthPassword == null || podcast.AuthPassword.Length == 0 || (!podcast.Private)) {
+                return base.Update(podcast);
             }
+
+            var salt = PBKDFGenerators.GenerateSalt();
+            var password = PBKDFGenerators.GenerateHash(podcast.AuthPassword, salt);
+
+            podcast.AuthPasswordSalt = salt;
+            podcast.AuthPassword = password;
 
             return base.Update(podcast);
         }

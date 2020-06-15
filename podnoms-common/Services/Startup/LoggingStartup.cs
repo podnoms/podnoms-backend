@@ -14,6 +14,7 @@ namespace PodNoms.Common.Services.Startup {
             if (isProduction) {
                 services.AddApplicationInsightsTelemetryProcessor<SignalRTelemetryFilter>();
                 services.AddApplicationInsightsTelemetryProcessor<RSSFeedTelemetryFilter>();
+                services.AddApplicationInsightsTelemetryProcessor<JWTTokenRefreshTelemetryFilter>();
                 services.AddApplicationInsightsTelemetry();
             } else {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();

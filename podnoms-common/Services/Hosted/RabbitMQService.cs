@@ -27,16 +27,15 @@ namespace PodNoms.Common.Services.Hosted {
                 "podnoms_message_notifyuser",
                 message => {
                     Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
-                    using (var scope = serviceScopeFactory.CreateScope()) {
-                        var service =
-                            scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
-                        service.NotifyUser(
-                            message.UserId,
-                            message.Title,
-                            message.Body,
-                            message.Target,
-                            message.Image, NotificationOptions.UploadCompleted);
-                    }
+                    using var scope = serviceScopeFactory.CreateScope();
+                    var service =
+                        scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
+                    service.NotifyUser(
+                        message.UserId,
+                        message.Title,
+                        message.Body,
+                        message.Target,
+                        message.Image, NotificationOptions.UploadCompleted);
                 }
             );
             _bus.Subscribe<CustomNotificationMessage>(
