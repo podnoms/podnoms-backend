@@ -58,10 +58,10 @@ namespace PodNoms.Common.Services.Downloader {
             }
         }
 
-        public DownloadInfo __getInfo(string url) {
+        private async Task<DownloadInfo> __getInfo(string url) {
             try {
                 var yt = new YoutubeDL { VideoUrl = url };
-                var info = yt.GetDownloadInfo();
+                var info = await yt.GetDownloadInfoAsync();
 
                 if (info is null ||
                     info.Errors.Count != 0 ||
@@ -80,8 +80,8 @@ namespace PodNoms.Common.Services.Downloader {
             return null;
         }
 
-        public string GetChannelId(string url) {
-            var info = __getInfo(url);
+        public async Task<string> GetChannelId(string url) {
+            var info = await __getInfo(url);
             return info?.Title;
         }
 
@@ -104,7 +104,7 @@ namespace PodNoms.Common.Services.Downloader {
                 return urlType;
             }
 
-            var info = __getInfo(url);
+            var info = await __getInfo(url);
 
             RawProperties = info;
             var parsed = info as VideoDownloadInfo;

@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights.Channel;
+﻿using System;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 
@@ -14,11 +15,13 @@ namespace PodNoms.Common.Services.Middleware.TelemetryFilters {
         }
 
         public void Process(ITelemetry telemetry) {
-            if (telemetry is RequestTelemetry && ((RequestTelemetry)telemetry).ResponseCode == "401") {
+            var request = telemetry as RequestTelemetry;
+            if (request != null && 
+                request.ResponseCode.Equals("401", StringComparison.OrdinalIgnoreCase)){
                 return;
             }
+            // Send everything else: 
             this.Next.Process(telemetry);
         }
-
     }
 }
