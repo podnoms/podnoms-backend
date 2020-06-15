@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 ./scripts/build.sh
-./scripts/buildjobs.sh
+./scripts/build_jobs.sh

@@ -14,7 +14,6 @@ using WP = Lib.Net.Http.WebPush;
 
 namespace PodNoms.Common.Services.Jobs {
     public class NotifyJobCompleteService : INotifyJobCompleteService {
-        private readonly IPushSubscriptionStore _subscriptionStore;
         private readonly IPushNotificationService _notificationService;
         private readonly INotificationRepository _notificationRepository;
 
@@ -23,8 +22,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationHandler[] _handlers;
         private readonly IServiceScopeFactory _provider;
-        public NotifyJobCompleteService(IPushSubscriptionStore subscriptionStore,
-            IPushNotificationService notificationService,
+        public NotifyJobCompleteService(IPushNotificationService notificationService,
             INotificationRepository notificationRepository,
             ILogger<NotifyJobCompleteService> logger,
             IServiceProvider serviceProvider,
@@ -32,7 +30,6 @@ namespace PodNoms.Common.Services.Jobs {
             IServiceScopeFactory provider,
             IUnitOfWork unitOfWork) {
             _notificationService = notificationService;
-            _subscriptionStore = subscriptionStore;
             _notificationRepository = notificationRepository;
 
             _logger = logger;
@@ -44,6 +41,11 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
             _logger.LogDebug($"Sending email messages to {userId} - {target}");
+            using var scope = _provider.CreateScope();
+            
+            // this is called from a rabbitmq service so we're on a different scope
+            // DI has to be manually constucted
+            var subscriptionStore = scope.ServiceProvider.GetRequiredService<IPushSubscriptionStore>();
 
             await _sendEmail(userId, title, body, target, image, notificationType);
 
@@ -55,8 +57,8 @@ namespace PodNoms.Common.Services.Jobs {
                 //TODO: Adding PushSubscriptionContext as Singleton is a recipe for disaster
                 //TODO: but this gets fucked if I don't
                 _logger.LogDebug($"Sending GCM messages to {userId}");
-                _logger.LogDebug($"Using store {_subscriptionStore.GetType()}");
-                await _subscriptionStore.ForEachSubscriptionAsync(userId,
+                _logger.LogDebug($"Using store {subscriptionStore.GetType()}");
+                await subscriptionStore.ForEachSubscriptionAsync(userId,
                     (WP.PushSubscription subscription) => {
                         _logger.LogInformation($"Sending to {target}");
                         _notificationService.SendNotificationAsync(subscription, pushMessage, target);
