@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -8,11 +9,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.External;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Data.Models;
+using Slack.Webhooks;
 
 namespace PodNoms.Api.Controllers.External {
     [Authorize(AuthenticationSchemes = "PodNomsApiKey")]
@@ -20,9 +24,10 @@ namespace PodNoms.Api.Controllers.External {
     public class BrowserExtensionController : BaseAuthController {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IConfiguration _options;
-        private readonly GenericRepository<UserRequest> _userRequestRepository;
+        private readonly IRepository<UserRequest> _userRequestRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPageParser _parser;
+        private readonly ChatSettings _chatSettings;
 
         public BrowserExtensionController(
             ILogger<BrowserExtensionController> logger,
@@ -30,11 +35,13 @@ namespace PodNoms.Api.Controllers.External {
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
             IConfiguration options,
-            GenericRepository<UserRequest> userRequestRepository,
+            IOptions<ChatSettings> chatSettings,
+            IRepository<UserRequest> userRequestRepository,
             IUnitOfWork unitOfWork,
             IPageParser parser) : base(contextAccessor, userManager, logger) {
             _podcastRepository = podcastRepository;
             _options = options;
+            _chatSettings = chatSettings.Value;
             _userRequestRepository = userRequestRepository;
             _unitOfWork = unitOfWork;
             this._parser = parser;
@@ -57,16 +64,35 @@ namespace PodNoms.Api.Controllers.External {
             return Ok(ret);
         }
 
-        [HttpGet("flagurl/{url}")]
+        [HttpPost("flagurl")]
         [EnableCors("BrowserExtensionPolicy")]
-        public async Task<ActionResult> FlagUrl(string url) {
-            var request = new UserRequest() {
-                RequestText = $"Please flag url: {url}",
-                FromUser = _applicationUser
-            };
-            _userRequestRepository.AddOrUpdate(request);
-            await _unitOfWork.CompleteAsync();
-            return Ok();
+        public async Task<ActionResult> FlagUrl([FromQuery] string url) {
+            var message = $"Please flag url: {url}";
+
+            if (!string.IsNullOrEmpty(url)) {
+                try {
+                    var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
+                    var slackMessage = new SlackMessage {
+                        Channel = "#userrequests",
+                        Text = $"{message}\n\nFrom: {_applicationUser.GetBestGuessName()}\nFromId: {_applicationUser.Id}\nFromEmail: {_applicationUser.Email}",
+                        IconEmoji = Emoji.HearNoEvil,
+                        Username = _applicationUser.Slug
+                    };
+                    await slackClient.PostAsync(slackMessage);
+                } catch (Exception e) {
+                    _logger.LogError("Error posting user flag url to slack");
+                    _logger.LogError(e.Message);
+                }
+                var request = new UserRequest() {
+                    RequestText = message,
+                    FromUser = _applicationUser
+                };
+                _userRequestRepository.AddOrUpdate(request);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }
