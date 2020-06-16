@@ -122,7 +122,8 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             }
 
             public RemoteUrlType GetUrlType(string url) {
-                throw new NotImplementedException();
+                //TODO: this will need to be changed
+                return RemoteUrlType.SingleItem;
             }
 
             public Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10) {

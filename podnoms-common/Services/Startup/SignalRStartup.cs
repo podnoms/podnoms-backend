@@ -30,6 +30,7 @@ namespace PodNoms.Common.Services.Startup {
             app.UseEndpoints(routes => {
                 routes.MapHub<AudioProcessingHub>("/hubs/audioprocessing");
                 routes.MapHub<UserUpdatesHub>("/hubs/userupdates");
+                routes.MapHub<PublicUpdatesHub>("/hubs/publicupdates");
                 routes.MapHub<DebugHub>("/hubs/debug");
                 routes.MapHub<ChatHub>("/hubs/chat");
                 routes.MapHub<EntityUpdatesHub>("/hubs/rtd");

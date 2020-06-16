@@ -141,7 +141,7 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public async Task<string> DownloadAudio(Guid id, string url, string outputFile = "") {
+        public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
 
             var templateFile = string.IsNullOrEmpty(outputFile) ?
                     Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
@@ -204,7 +204,7 @@ namespace PodNoms.Common.Services.Downloader {
                 return output.Split(':')[1];
             }
 
-            return "Transmogrifying";
+            return "Converting (this may take a bit)";
         }
 
         private ProcessingProgress _parseProgress(string output) {

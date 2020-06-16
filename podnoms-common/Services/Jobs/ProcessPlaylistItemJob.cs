@@ -83,7 +83,7 @@ namespace PodNoms.Common.Services.Jobs {
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
                     Log($"Downloading audio");
-                    var file = await _audioDownloader.DownloadAudio(uid, url);
+                    var file = await _audioDownloader.DownloadAudio(uid.ToString(), url);
                     Log($"Downloaded audio");
 
                     if (!File.Exists(file)) {

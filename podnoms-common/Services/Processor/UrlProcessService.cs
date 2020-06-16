@@ -168,7 +168,7 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl, outputFile);
+                var sourceFile = await _downloader.DownloadAudio(entry.Id.ToString(), entry.SourceUrl, outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
 
@@ -190,6 +190,14 @@ namespace PodNoms.Common.Services.Processor {
                 );
             }
             return false;
+        }
+
+        public async Task<bool> DownloadAudioV2(string outputId, string url, string outputFile, Func<ProcessingProgress, bool> progressCallback) {
+            _downloader.DownloadProgress += (s, e) => {
+                progressCallback(e);
+            };
+            var sourceFile = await _downloader.DownloadAudio(outputId, url, outputFile);
+            return true;
         }
     }
 }

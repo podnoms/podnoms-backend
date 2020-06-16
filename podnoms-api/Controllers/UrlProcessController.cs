@@ -43,5 +43,16 @@ namespace PodNoms.Api.Controllers {
                 return NoContent();
             }
         }
+        [HttpGet("process")]
+        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
+        [EnableCors("BrowserExtensionPolicy")]
+        public async Task<ActionResult<RemoteUrlStatus>> ProcessUrl([FromQuery] string url) {
+            try {
+                var result = await _processService.ValidateUrl(url);
+                return Ok(result);
+            } catch (UrlParseException) {
+                return NoContent();
+            }
+        }
     }
 }
