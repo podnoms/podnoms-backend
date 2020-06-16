@@ -20,6 +20,7 @@
         <PackageReference Include="AspNetcore.HealthChecks.UI.Client" Version="3.1.1" />
         <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="3.1.2" />
         <PackageReference Include="CliWrap" Version="3.0.2" />
+        <PackageReference Include="CodeHollow.FeedReader" Version="1.2.1" />
         <PackageReference Include="DNS" Version="6.0.0" />
         <PackageReference Include="DnsClient" Version="1.3.2" />
         <PackageReference Include="EasyNetQ" Version="5.2.0" />
