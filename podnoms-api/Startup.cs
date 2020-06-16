@@ -38,6 +38,7 @@ using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using PodNoms.Common.Services.Rss;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -122,6 +123,7 @@ namespace PodNoms.Api {
                 //but it will get rate limited if we use it on the job server
                 .AddTransient<IYouTubeParser, YouTubeQueryService>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
+                .AddScoped<RssFeedParser>()
                 .AddScoped<UserLoggingFilter>()
                 .AddScoped<ISupportChatService, SupportChatService>()
                 .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>(); //register this on it's own as the job server does it's own thing here..

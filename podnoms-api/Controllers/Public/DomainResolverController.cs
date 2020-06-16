@@ -12,6 +12,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
+
     [Route("pub/podcast/domainresolver")]
     [EnableCors("PublicApiPolicy")]
     public class DomainResolverController : Controller {
@@ -28,7 +29,7 @@ namespace PodNoms.Api.Controllers.Public {
             _podcastRepository = podcastRepository;
         }
         [HttpGet]
-        public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery]string domain) {
+        public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery] string domain) {
             var cleanedDomain = domain.Split(":")[0]; //remove port
             var podcastUrl = string.Empty;
             var podcast = await _podcastRepository

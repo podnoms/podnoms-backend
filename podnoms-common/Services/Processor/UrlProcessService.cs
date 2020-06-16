@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
@@ -10,15 +11,19 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
+using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Realtime;
+using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
+    public class UrlParseException : Exception { }
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AudioDownloader _downloader;
+        private readonly IPageParser _parser;
         private readonly IEntryRepository _repository;
 
         private readonly HelpersSettings _helpersSettings;
@@ -27,12 +32,14 @@ namespace PodNoms.Common.Services.Processor {
             IEntryRepository repository, IUnitOfWork unitOfWork,
             IOptions<HelpersSettings> helpersSettings,
             AudioDownloader downloader,
+            IPageParser parser,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
             _helpersSettings = helpersSettings.Value;
             _repository = repository;
             _unitOfWork = unitOfWork;
             _downloader = downloader;
+            _parser = parser;
         }
 
         private async Task __downloader_progress(string userId, string uid, ProcessingProgress e) {
@@ -42,6 +49,56 @@ namespace PodNoms.Common.Services.Processor {
                     uid,
                     e);
             }
+        }
+        public async Task<RemoteUrlStatus> ValidateUrl(string url) {
+            if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
+                throw new UrlParseException();
+            }
+
+            _logger.LogInformation($"Validating Url: {url}");
+            var fileType = await _downloader.GetInfo(url);
+
+            if (fileType == RemoteUrlType.Invalid) {
+                if (await _parser.Initialise(url)) {
+                    var title = _parser.GetPageTitle();
+                    var image = _parser.GetHeadTag("og:image");
+                    var description = _parser.GetHeadTag("og:description");
+
+                    var links = await _parser.GetAllAudioLinks();
+                    if (links.Count > 0) {
+                        return new RemoteUrlStatus {
+                            Type = "proxied",
+                            Title = "",
+                            Image = "",
+                            Description = "",
+                            Links = links
+                                .GroupBy(r => r.Key)     // note to future me
+                                .Select(g => g.First())  // these lines dedupe on key - neato!!
+                                .Select(r => new RemoteLinkInfo {
+                                    Title = "",
+                                    Key = r.Key,
+                                    Value = r.Value
+                                }).ToList()
+                        };
+                    }
+                } else {
+                    throw new UrlParseException();
+                }
+            }
+
+            return new RemoteUrlStatus {
+                Type = "native",
+                Title = _downloader.Properties?.Title,
+                Image = _downloader.Properties?.Thumbnail,
+                Description = _downloader.Properties?.Description,
+                Links = new[]  {
+                    new RemoteLinkInfo{
+                        Title = _downloader.Properties?.Title,
+                        Key = url,
+                        Value = url
+                    }
+                }.ToList()
+            };
         }
 
         public async Task<RemoteUrlType> GetInformation(string entryId) {
@@ -111,7 +168,7 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = await _downloader.DownloadAudio(entry.Id, entry.SourceUrl, outputFile);
+                var sourceFile = await _downloader.DownloadAudio(entry.Id.ToString(), entry.SourceUrl, outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
 
@@ -133,6 +190,14 @@ namespace PodNoms.Common.Services.Processor {
                 );
             }
             return false;
+        }
+
+        public async Task<bool> DownloadAudioV2(string outputId, string url, string outputFile, Func<ProcessingProgress, bool> progressCallback) {
+            _downloader.DownloadProgress += (s, e) => {
+                progressCallback(e);
+            };
+            var sourceFile = await _downloader.DownloadAudio(outputId, url, outputFile);
+            return true;
         }
     }
 }
