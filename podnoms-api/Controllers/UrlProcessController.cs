@@ -33,8 +33,6 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
-        [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
-        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url) {
             try {
                 var result = await _processService.ValidateUrl(url);

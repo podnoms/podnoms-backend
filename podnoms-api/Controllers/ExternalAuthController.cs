@@ -10,6 +10,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Plus.v1;
 using Google.Apis.Plus.v1.Data;
 using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 
@@ -39,19 +41,26 @@ namespace PodNoms.Api.Controllers {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly FacebookAuthSettings _fbAuthSettings;
         private readonly IJwtFactory _jwtFactory;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly JwtIssuerOptions _jwtOptions;
         private static readonly HttpClient Client = new HttpClient();
 
         public ExternalAuthController(IOptions<FacebookAuthSettings> fbAuthSettingsAccessor, UserManager<ApplicationUser> userManager,
-            IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions, ILogger<ExternalAuthController> logger) : base(logger) {
+            IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions,
+            IHttpContextAccessor contextAccessor,
+            IUnitOfWork unitOfWork,
+            ILogger<ExternalAuthController> logger) : base(logger) {
             _fbAuthSettings = fbAuthSettingsAccessor.Value;
             _userManager = userManager;
             _jwtFactory = jwtFactory;
+            _contextAccessor = contextAccessor;
+            _unitOfWork = unitOfWork;
             _jwtOptions = jwtOptions.Value;
         }
         // POST api/externalauth/google
         [HttpPost]
-        public async Task<IActionResult> Google([FromBody] SocialAuthViewModel model) {
+        public async Task<ActionResult<JwtRefreshTokenModel>> Google([FromBody] SocialAuthViewModel model) {
             //1. Validate access token
             //2. Generate JWT
             //3. Update details
@@ -76,7 +85,7 @@ namespace PodNoms.Api.Controllers {
 
         // POST api/externalauth/facebook
         [HttpPost]
-        public async Task<IActionResult> Facebook([FromBody] SocialAuthViewModel model) {
+        public async Task<ActionResult<JwtRefreshTokenModel>> Facebook([FromBody] SocialAuthViewModel model) {
             // 1.generate an app access token
             var appAccessTokenResponse = await Client.GetStringAsync($"https://graph.facebook.com/oauth/access_token?client_id={_fbAuthSettings.AppId}&client_secret={_fbAuthSettings.AppSecret}&grant_type=client_credentials");
             var appAccessToken = JsonConvert.DeserializeObject<FacebookAppAccessToken>(appAccessTokenResponse);
@@ -94,7 +103,7 @@ namespace PodNoms.Api.Controllers {
 
             return await _processUserDetails(userInfo);
         }
-        private async Task<IActionResult> _processUserDetails(FacebookUserData userInfo) {
+        private async Task<ActionResult<JwtRefreshTokenModel>> _processUserDetails(FacebookUserData userInfo) {
             // 4. ready to create the local user account (if necessary) and jwt
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
             if (user is null) {
@@ -128,7 +137,13 @@ namespace PodNoms.Api.Controllers {
                 _jwtOptions,
                 new JsonSerializerSettings { Formatting = Formatting.Indented });
 
-            return Ok(jwt);
+            var refresh = TokenIssuer.GenerateRefreshToken(128);
+            user.AddRefreshToken(
+                refresh,
+                _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
+
+            await _unitOfWork.CompleteAsync();
+            return Ok(new JwtRefreshTokenModel(refresh, jwt));
         }
     }
 }

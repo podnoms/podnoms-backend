@@ -28,6 +28,7 @@ using PodNoms.Common.Utils.RemoteParsers.PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Social;
 using EntitySignal.Extensions;
+using HangfireBasicAuthenticationFilter;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
@@ -85,7 +86,10 @@ namespace PodNoms.Jobs {
 
             app.UseHangfireServer();
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
-                Authorization = new[] { new HangFireAuthorizationFilter() }
+                Authorization = new[] { new HangfireCustomBasicAuthenticationFilter{
+                    User = Configuration.GetSection("HangfireDashboardSettings:UserName").Value,
+                    Pass = Configuration.GetSection("HangfireDashboardSettings:Password").Value
+                }}
             });
             app.Run(async (context) => {
                 await context.Response.WriteAsync("Hello World!");
