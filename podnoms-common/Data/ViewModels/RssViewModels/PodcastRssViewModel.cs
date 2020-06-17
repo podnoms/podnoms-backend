@@ -29,3 +29,4 @@ namespace PodNoms.Common.Data.ViewModels.RssViewModels {
         public long AudioFileSize { get; set; }
     }
 }
+    
