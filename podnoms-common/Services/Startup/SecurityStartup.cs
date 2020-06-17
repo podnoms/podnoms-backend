@@ -95,6 +95,7 @@ namespace PodNoms.Common.Services.Startup {
                             "http://localhost:8080",
                             "http://localhost:4200",
                             "https://localhost:4200",
+                            "https://localhost:5003",
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.local:4200",
                             "http://10.1.1.1:8080",
