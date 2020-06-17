@@ -28,7 +28,9 @@ namespace PodNoms.Common.Services.Middleware {
                     UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme, UriFormat.UriEscaped)
                     .TrimEnd('/');
             if (requestHost.Equals(cleaned)) {
-                var redirectUrl = $"{_appSettings.CanonicalRssUrl}{context.Request.Path}";
+                var redirectUrl = Flurl.Url.Combine(
+                    _appSettings.CanonicalRssUrl,
+                    context.Request.Path);
                 context.Response.Redirect(redirectUrl, false);
                 return;
             } else if (!requestHost.Equals(siteHost)) {
@@ -38,7 +40,10 @@ namespace PodNoms.Common.Services.Middleware {
                     .Include(r => r.AppUser)
                     .FirstOrDefaultAsync();
                 if (candidate != null) {
-                    var redirectUrl = $"{_appSettings.RssUrl}{candidate.AppUser.Slug}/{candidate.Slug}";
+                    var redirectUrl = Flurl.Url.Combine(
+                        _appSettings.RssUrl,
+                        candidate.AppUser.Slug,
+                        candidate.Slug);
                     context.Response.Redirect(redirectUrl);
                     return;
                 }

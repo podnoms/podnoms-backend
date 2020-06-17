@@ -119,7 +119,6 @@ namespace PodNoms.Api.Controllers {
             } catch (NullReferenceException ex) {
                 _logger.LogError(ex, "Error getting RSS", user, userSlug);
             }
-
             return NotFound();
         }
     }
