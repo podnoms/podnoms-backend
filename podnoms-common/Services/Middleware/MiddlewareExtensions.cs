@@ -5,6 +5,7 @@ namespace PodNoms.Common.Services.Middleware {
         public static IApplicationBuilder UseCustomDomainRedirect(this IApplicationBuilder app) {
             return app
                 .UseMiddleware<SharingLinkRedirectMiddleware>();
+            // .UseMiddleware<CustomDomainRedirectMiddleware>();
         }
     }
 }
