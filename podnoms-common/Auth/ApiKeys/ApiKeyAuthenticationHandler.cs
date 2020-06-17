@@ -28,6 +28,7 @@ namespace PodNoms.Common.Auth.ApiKeys {
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
+            // return AuthenticateResult.Fail("API Key Auth disabled due to heavy load.");
             if (!Request.Headers.TryGetValue(ApiKeyHeaderName, out var apiKeyHeaderValues)) {
                 return AuthenticateResult.NoResult();
             }

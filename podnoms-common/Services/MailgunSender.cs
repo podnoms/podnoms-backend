@@ -12,7 +12,6 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Utils;
 
 namespace PodNoms.Common.Services {
-
     public class MailgunSender : IMailSender {
         private readonly EmailSettings _emailSettings;
         private readonly ILogger _logger;

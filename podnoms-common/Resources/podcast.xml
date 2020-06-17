@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" 
-    xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    xmlns:atom="http://www.w3.org/2005/Atom" 
+    version="2.0">
     <channel>
         <title> {{title}} </title>
         <description>Podcast {{title}} from PodNoms</description>
+        <image>
+            <url>{{image}}</url>
+            <title>Image for {{title}}</title>
+            <link>{{showUrl}}</link>
+            <width>1400</width>
+            <height>1400</height>
+        </image>
         <itunes:author>{{author}} </itunes:author>
         <itunes:summary>Podcast {{title}} from PodNoms</itunes:summary>
         <category>{{category}}</category>
@@ -16,7 +24,9 @@
             <itunes:name>{{owner}}</itunes:name>
             <itunes:email>{{ownerEmail}}</itunes:email>
         </itunes:owner>
-        <atom:link href="{{link}}" rel="self" type="application/rss+xml" />
+        <atom:link href="{{link}}" 
+            rel="self" 
+            type="application/rss+xml" />
         <pubDate> {{publishDate}} </pubDate>
         <language>{{language}}</language>
         <copyright>{{copyright}}</copyright>
@@ -30,7 +40,9 @@
             <itunes:duration>{{duration}}</itunes:duration>
             <itunes:image href="{{entryImage}}" />
             <pubDate> {{updateDate}}</pubDate>
-            <enclosure url="{{audioUrl}}" length="{{audioFileSize}}" type="audio/mpeg" />
+            <enclosure url="{{audioUrl}}" 
+                length="{{audioFileSize}}" 
+                type="audio/mpeg" />
         </item>    
         {{/each}}
     </channel>

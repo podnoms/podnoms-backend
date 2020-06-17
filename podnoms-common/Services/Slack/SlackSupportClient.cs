@@ -19,7 +19,7 @@ namespace PodNoms.Common.Services.Slack {
             var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
             var slackMessage = new SlackMessage {
                 Channel = _chatSettings.SlackChannel,
-                Text = message.Message,
+                Text = $"{message.Message}\n\nFrom: {message.FromUserName}\nFromId: {message.FromUserId}",
                 IconEmoji = Emoji.HearNoEvil,
                 Username = message.FromUserName
             };

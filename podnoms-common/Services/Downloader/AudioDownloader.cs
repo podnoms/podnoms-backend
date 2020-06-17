@@ -61,8 +61,14 @@ namespace PodNoms.Common.Services.Downloader {
         private async Task<DownloadInfo> __getInfo(string url) {
             try {
                 var yt = new YoutubeDL { VideoUrl = url };
-                var info = await yt.GetDownloadInfoAsync();
 
+                yt.StandardErrorEvent += (sender, e) => {
+                    if (e.Contains("ERROR: Unsupported URL")) {
+                        yt.CancelDownload();
+                    }
+                };
+
+                var info = await yt.GetDownloadInfoAsync();
                 if (info is null ||
                     info.Errors.Count != 0 ||
                     (info.GetType() == typeof(PlaylistDownloadInfo) &&
@@ -70,8 +76,9 @@ namespace PodNoms.Common.Services.Downloader {
                      !_youTubeParser.ValidateUrl(url))) {
                     return null;
                 }
-
                 return info;
+            } catch (TaskCanceledException) {
+                Console.WriteLine("Unable to parse url");
             } catch (Exception e) {
                 Console.WriteLine($"Error geting info for {url}");
                 Console.WriteLine(e.Message);
@@ -105,6 +112,9 @@ namespace PodNoms.Common.Services.Downloader {
             }
 
             var info = await __getInfo(url);
+            if (info == null) {
+                return ret;
+            }
 
             RawProperties = info;
             var parsed = info as VideoDownloadInfo;
@@ -131,7 +141,7 @@ namespace PodNoms.Common.Services.Downloader {
             return ret;
         }
 
-        public async Task<string> DownloadAudio(Guid id, string url, string outputFile = "") {
+        public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
 
             var templateFile = string.IsNullOrEmpty(outputFile) ?
                     Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
@@ -194,7 +204,7 @@ namespace PodNoms.Common.Services.Downloader {
                 return output.Split(':')[1];
             }
 
-            return "Transmogrifying";
+            return "Converting (this may take a bit)";
         }
 
         private ProcessingProgress _parseProgress(string output) {
