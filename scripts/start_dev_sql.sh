@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 docker run \
-    --name mssql \
+    --name podnoms-mssql \
     --restart always \
     -e "ACCEPT_EULA=Y" \
     -e "SA_PASSWORD=H8ckMyB88lz" \

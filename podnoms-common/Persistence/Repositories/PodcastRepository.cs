@@ -71,7 +71,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Category)
                 .Include(p => p.Subcategories)
                 .Include(p => p.Notifications)
-                .OrderByDescending(r => 
+                .OrderByDescending(r =>
                     r.PodcastEntries
                         .OrderByDescending(e => e.UpdateDate)
                         .SingleOrDefault().UpdateDate)
@@ -102,6 +102,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<IEnumerable<Podcast>> GetAllForUserAsync(string userId) {
             var ret = GetAll()
                 .Where(u => u.AppUser.Id == userId)
+                .OrderByDescending(p => p.PodcastEntries
+                        .OrderByDescending(c => c.CreateDate)
+                        .Select(c => c.CreateDate)
+                        .FirstOrDefault()
+                )
                 .Include(p => p.AppUser)
                 .Include(p => p.PodcastEntries)
                 .Include(p => p.Category)
