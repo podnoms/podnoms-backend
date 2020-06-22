@@ -50,6 +50,9 @@ namespace PodNoms.Common.Data {
                     src => src.PagesUrl,
                     e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])))
                 .ForMember(
+                    src => src.EntryCount,
+                    e => e.MapFrom(m => m.PodcastEntries.Count()))
+                .ForMember(
                     src => src.LastEntryDate,
                     e => e.MapFrom(m => m.GetLastEntryDate()))
                 .ForMember(
