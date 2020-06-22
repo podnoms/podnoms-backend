@@ -16,7 +16,6 @@ namespace PodNoms.Common.Services.Hosted {
         private readonly IBus _bus;
         private readonly ILogger<RabbitMQService> _logger;
         private readonly AutoSubscriber _subscriber;
-        private bool _isEnabled = false;
 
         public RabbitMQService(IBus bus, IServiceScopeFactory serviceScopeFactory, ILogger<RabbitMQService> logger) {
             _bus = bus;
@@ -56,7 +55,6 @@ namespace PodNoms.Common.Services.Hosted {
                        }
                    }
                 );
-                _isEnabled = true;
             } catch (Exception e) {
                 _logger.LogError("Unable to start realtime queue listeners");
                 _logger.LogError(e.Message);
