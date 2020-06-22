@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
@@ -14,11 +15,14 @@ namespace PodNoms.Api.Controllers.Public {
     [EnableCors("PublicApiPolicy")]
     public class PublicEntryController : Controller {
         private readonly IEntryRepository _entryRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public PublicEntryController(IEntryRepository entryRepository,
-            IMapper mapper) {
+                                     IUnitOfWork unitOfWork,
+                                     IMapper mapper) {
             _entryRepository = entryRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -40,6 +44,28 @@ namespace PodNoms.Api.Controllers.Public {
             if (result is null) return NotFound();
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
+        }
+
+        [HttpPost("comment/{userSlug}/{entrySlug}")]
+        public async Task<ActionResult<PodcastEntryCommentViewModel>> AddComment(
+                string userSlug, string entrySlug, [FromBody] PodcastEntryCommentViewModel comment) {
+            var entry = await _entryRepository
+                .GetAll()
+                .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
+                .SingleOrDefaultAsync();
+
+            if (entry is null) {
+                return BadRequest($"Could not find entry");
+            }
+
+            var newComment = new EntryComment() {
+                CommentText = comment.Comment,
+                FromUser = comment.FromName,
+                FromUserEmail = comment.FromEmail
+            };
+            entry.Comments.Add(newComment);
+            await _unitOfWork.CompleteAsync();
+            return Ok(comment);
         }
     }
 }

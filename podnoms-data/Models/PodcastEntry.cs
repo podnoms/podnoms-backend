@@ -47,6 +47,8 @@ namespace PodNoms.Data.Models {
         [JsonIgnore]
         public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
 
+        public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
+
         private string extension => "jpg";
         public override string ToString() {
             return $"PodcastEntry: {this.Id}: {this.Slug} -- {this.Podcast?.Slug} -- {this.Podcast?.AppUser?.Slug}";

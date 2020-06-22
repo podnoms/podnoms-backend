@@ -1,6 +1,7 @@
 ﻿using System;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
+
     public class PodcastEntryViewModel {
 
         public string Id { get; set; }

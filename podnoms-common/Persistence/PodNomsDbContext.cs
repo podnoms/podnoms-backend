@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EntitySignal.Server.EFDbContext.Data;
 using EntitySignal.Services;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Configuration;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Extensions;
@@ -190,6 +187,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PodcastEntry> PodcastEntries { get; set; }
+        public DbSet<EntryComment> EntryComments { get; set; }
         public DbSet<ActivityLogPodcastEntry> ActivityLogPodcastEntry { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
         public DbSet<ServerShowcase> ServerShowcases { get; set; }
