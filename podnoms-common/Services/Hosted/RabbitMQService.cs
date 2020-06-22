@@ -16,6 +16,7 @@ namespace PodNoms.Common.Services.Hosted {
         private readonly IBus _bus;
         private readonly ILogger<RabbitMQService> _logger;
         private readonly AutoSubscriber _subscriber;
+        private bool _isEnabled = false;
 
         public RabbitMQService(IBus bus, IServiceScopeFactory serviceScopeFactory, ILogger<RabbitMQService> logger) {
             _bus = bus;
@@ -23,37 +24,43 @@ namespace PodNoms.Common.Services.Hosted {
 
             _subscriber = new AutoSubscriber(_bus, "_applications_subscriptionId_prefix");
             _subscriber.Subscribe(Assembly.GetExecutingAssembly());
-            _bus.Subscribe<NotifyUserMessage>(
-                "podnoms_message_notifyuser",
-                message => {
-                    Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
-                    using var scope = serviceScopeFactory.CreateScope();
-                    var service =
-                        scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
-                    service.NotifyUser(
-                        message.UserId,
-                        message.Title,
-                        message.Body,
-                        message.Target,
-                        message.Image, NotificationOptions.UploadCompleted);
-                }
-            );
-            _bus.Subscribe<CustomNotificationMessage>(
-               "podnoms_message_customnotification",
-               message => {
-                   _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
-                   using (var scope = serviceScopeFactory.CreateScope()) {
-                       var service =
-                           scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
-                       service.SendCustomNotifications(
-                           message.PodcastId,
-                           "YOU NEED TO CHANGE THIS",
-                           "PodNoms",
-                           $"{message.Title} has finished processing",
-                           message.Url);
+            try {
+                _bus.Subscribe<NotifyUserMessage>(
+                    "podnoms_message_notifyuser",
+                    message => {
+                        Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
+                        using var scope = serviceScopeFactory.CreateScope();
+                        var service =
+                            scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
+                        service.NotifyUser(
+                            message.UserId,
+                            message.Title,
+                            message.Body,
+                            message.Target,
+                            message.Image, NotificationOptions.UploadCompleted);
+                    }
+                );
+                _bus.Subscribe<CustomNotificationMessage>(
+                   "podnoms_message_customnotification",
+                   message => {
+                       _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
+                       using (var scope = serviceScopeFactory.CreateScope()) {
+                           var service =
+                               scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
+                           service.SendCustomNotifications(
+                               message.PodcastId,
+                               "YOU NEED TO CHANGE THIS",
+                               "PodNoms",
+                               $"{message.Title} has finished processing",
+                               message.Url);
+                       }
                    }
-               }
-            );
+                );
+                _isEnabled = true;
+            } catch (Exception e) {
+                _logger.LogError("Unable to start realtime queue listeners");
+                _logger.LogError(e.Message);
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {

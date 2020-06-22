@@ -47,27 +47,6 @@ namespace PodNoms.Api.Providers {
             // }
         }
     }
-    public static class RewriteExtensions {
-        public static IApplicationBuilder UseCustomDomainRewrites(this IApplicationBuilder app) {
-            // var repository = (IPodcastRepository)app.ApplicationServices.GetService(typeof(IPodcastRepository));
-            var options = new RewriteOptions()
-                .Add(MethodRules.RedirectShortUrlHost)
-                // .Add(new RedirectCustomRssUrl(repository))
-                .Add(MethodRules.RedirectRssFeed);
-
-            app.UseRewriter(options);
-
-            //create custom 404 for sharing pages
-            app.Use(async (context, next) => {
-                await next();
-                if (context.Response.StatusCode == 404) {
-                    context.Request.Path = "/404";
-                    await next();
-                }
-            });
-            return app;
-        }
-    }
     static class MethodRules {
         public static void RedirectShortUrlHost(RewriteContext context) {
             var request = context.HttpContext.Request;

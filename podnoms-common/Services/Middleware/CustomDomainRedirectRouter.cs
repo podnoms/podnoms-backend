@@ -14,11 +14,11 @@ namespace PodNoms.Common.Services.Middleware {
 
     public class CustomDomainRouteTransformer : DynamicRouteValueTransformer {
         private readonly IPodcastRepository _podcastRepository;
-        private readonly ILogger<CustomDomainRedirectMiddleware> _logger;
+        private readonly ILogger<CustomDomainRouteTransformer> _logger;
         private readonly AppSettings _appSettings;
 
         public CustomDomainRouteTransformer(IPodcastRepository podcastRepository,
-                            ILogger<CustomDomainRedirectMiddleware> logger,
+                            ILogger<CustomDomainRouteTransformer> logger,
                             IOptions<AppSettings> appSettings) {
             _podcastRepository = podcastRepository;
             _logger = logger;

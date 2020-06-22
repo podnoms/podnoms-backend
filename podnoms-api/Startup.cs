@@ -63,17 +63,20 @@ namespace PodNoms.Api {
             services.AddPodNomsHealthChecks(Configuration, Env.IsDevelopment());
             services.AddPodNomsCacheService(Configuration, true);
 
+            Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
                           .EnableRetryOnFailure());
             });
-
+            Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
                 new AutoSubscriber(
                     provider.GetRequiredService<IBus>(),
                     Assembly.GetExecutingAssembly().GetName().Name));
+
+            Console.WriteLine($"Setting service scopes");
 
             services.AddScoped<CustomDomainRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
@@ -170,7 +173,6 @@ namespace PodNoms.Api {
 
             app.UseRouting();
 
-            app.UseCustomDomainRewrites();
             app.UseStaticFiles();
 
             app.UseAuthentication();
