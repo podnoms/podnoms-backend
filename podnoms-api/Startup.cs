@@ -157,11 +157,9 @@ namespace PodNoms.Api {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UsePodNomsCors();
 
             app.UsePodNomsImaging();
             app.UsePodNomsHealthChecks(Env.IsDevelopment());
-            app.UseSecureHeaders(Env.IsDevelopment());
 
             //TODO: Remove this and move to native JSON support
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
@@ -175,6 +173,8 @@ namespace PodNoms.Api {
 
             app.UseStaticFiles();
 
+            app.UsePodNomsCors();
+            app.UseSecureHeaders(Env.IsDevelopment());
             app.UseAuthentication();
             app.UseAuthorization();
             app.UsePodNomsSignalRRoutes();
