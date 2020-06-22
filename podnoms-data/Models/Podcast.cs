@@ -29,6 +29,7 @@ namespace PodNoms.Data.Models {
         [SlugField(sourceField: "Title")] public string Slug { get; set; }
 
         public string CustomDomain { get; set; }
+        public string CustomRssDomain { get; set; }
         public List<PodcastEntry> PodcastEntries { get; set; }
         public Category Category { get; set; }
         public List<Subcategory> Subcategories { get; set; }

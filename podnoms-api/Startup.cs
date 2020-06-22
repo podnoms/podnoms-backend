@@ -63,17 +63,22 @@ namespace PodNoms.Api {
             services.AddPodNomsHealthChecks(Configuration, Env.IsDevelopment());
             services.AddPodNomsCacheService(Configuration, true);
 
+            Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddDbContext<PodNomsDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
                           .EnableRetryOnFailure());
             });
-
+            Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
                 new AutoSubscriber(
                     provider.GetRequiredService<IBus>(),
                     Assembly.GetExecutingAssembly().GetName().Name));
+
+            Console.WriteLine($"Setting service scopes");
+
+            services.AddScoped<CustomDomainRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
@@ -144,10 +149,6 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseCustomDomainRewrites();
-            app.UseStaticFiles();
 
             app.UseMessageQueue("ClientMessageService", Assembly.GetExecutingAssembly());
 
@@ -155,19 +156,10 @@ namespace PodNoms.Api {
             app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-            app.UseAuthentication();
 
-            app.UsePodNomsCors();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
-                c.RoutePrefix = "";
-            });
             app.UsePodNomsImaging();
-            app.UsePodNomsSignalRRoutes();
             app.UsePodNomsHealthChecks(Env.IsDevelopment());
-            app.UseSecureHeaders(Env.IsDevelopment());
 
             //TODO: Remove this and move to native JSON support
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
@@ -177,12 +169,33 @@ namespace PodNoms.Api {
             app.UseRobotsTxt(Env);
             app.UseResponseCaching();
 
-            app.UseMvc(routes => {
-                routes.MapRoute(
-                    name: "shared",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+            app.UseRouting();
+
+            app.UseStaticFiles();
+
+            app.UsePodNomsCors();
+            app.UseSecureHeaders(Env.IsDevelopment());
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UsePodNomsSignalRRoutes();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapDynamicControllerRoute<CustomDomainRouteTransformer>("{**path}");
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseMvcWithDefaultRoute();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
+                c.RoutePrefix = "";
+            });
+
         }
+
         private static void UpdateDatabase(IApplicationBuilder app) {
             using var serviceScope = app.ApplicationServices
                 .GetRequiredService<IServiceScopeFactory>()

@@ -29,6 +29,8 @@ FROM fergalmoran/podnoms-alpine-dotnet AS runtime
 
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
+RUN mkdir ./data
+
 RUN youtube-dl -U
 
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]

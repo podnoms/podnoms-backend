@@ -8,6 +8,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Description { get; set; }
         public string Slug { get; set; }
         public string CustomDomain { get; set; }
+        public string CustomRssDomain { get; set; }
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public string RssUrl { get; set; }
@@ -16,7 +17,6 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public DateTime CreateDate { get; set; }
 
         public string PublicTitle { get; set; }
-        public string _PublicTitle { get; set; }
         public string FacebookUrl { get; set; }
         public string TwitterUrl { get; set; }
         public string GoogleAnalyticsTrackingId { get; set; }
@@ -30,6 +30,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public List<SubcategoryViewModel> Subcategories { get; set; }
         public List<NotificationViewModel> Notifications { get; set; }
         public DateTime? LastEntryDate { get; set; }
+        public int EntryCount { get; set; }
 
     }
 }
