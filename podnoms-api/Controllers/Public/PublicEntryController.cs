@@ -26,6 +26,7 @@ namespace PodNoms.Api.Controllers.Public {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> Top100(string user, string podcast, string entry) {
             var results = await _entryRepository
                 .GetAll()
+                .Include(e => e.Podcast)
                 .OrderByDescending(r => r.CreateDate)
                 .Take(100)
                 .ToListAsync();

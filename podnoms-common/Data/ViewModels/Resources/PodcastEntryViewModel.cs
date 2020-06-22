@@ -23,7 +23,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string PodcastId { get; set; }
         public string PodcastSlug { get; set; }
         public string PodcastTitle { get; set; }
-
+        public string UserSlug { get; set; }
         public string PagesUrl { get; set; }
     }
 }

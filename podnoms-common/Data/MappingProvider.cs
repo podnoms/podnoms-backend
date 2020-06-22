@@ -91,6 +91,9 @@ namespace PodNoms.Common.Data {
                     src => src.PodcastTitle,
                     e => e.MapFrom(m => m.Podcast.Title))
                 .ForMember(
+                    src => src.UserSlug,
+                    e => e.MapFrom(m => m.Podcast.AppUser.Slug))
+                .ForMember(
                     src => src.PagesUrl,
                     e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])));
 
