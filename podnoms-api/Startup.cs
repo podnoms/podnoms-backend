@@ -80,6 +80,7 @@ namespace PodNoms.Api {
             Console.WriteLine($"Setting service scopes");
 
             services.AddScoped<CustomDomainRouteTransformer>();
+            services.AddScoped<SharingLinkRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
@@ -185,8 +186,10 @@ namespace PodNoms.Api {
 
             app.UsePodNomsSignalRRoutes();
 
+            app.UseCustomDomainRedirect();
 
             app.UseEndpoints(endpoints => {
+                endpoints.MapDynamicControllerRoute<SharingLinkRouteTransformer>("{shareId?}");
                 endpoints.MapDynamicControllerRoute<CustomDomainRouteTransformer>("{**path}");
                 endpoints.MapControllerRoute(
                     name: "default",

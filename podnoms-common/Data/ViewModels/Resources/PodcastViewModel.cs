@@ -9,11 +9,13 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Slug { get; set; }
         public string CustomDomain { get; set; }
         public string CustomRssDomain { get; set; }
+        public string CoverImageUrl { get; set; }
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public string RssUrl { get; set; }
         public string PagesUrl { get; set; }
         public string User { get; set; }
+        public string UserDisplayName { get; set; }
         public DateTime CreateDate { get; set; }
 
         public string PublicTitle { get; set; }

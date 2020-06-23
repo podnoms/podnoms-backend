@@ -29,6 +29,14 @@ namespace PodNoms.Common.Data {
                     v => v.User,
                     e => e.MapFrom(m => m.AppUser.Slug))
                 .ForMember(
+                    v => v.UserDisplayName,
+                    e => e.MapFrom(m => m.AppUser.GetBestGuessName()))
+                .ForMember(
+                    v => v.CoverImageUrl,
+                    e => e.MapFrom(m => m.GetCoverImageUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
                        _options.GetSection("StorageSettings")["ImageUrl"],

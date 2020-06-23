@@ -43,7 +43,7 @@ namespace PodNoms.Api.Controllers.Public {
                 _storageSettings.CdnUrl,
                 _waveformStorageSettings.ContainerName,
                 $"{entry.Id}.json");
-            
+
             return View(model);
         }
         [AllowAnonymous]

@@ -230,7 +230,7 @@ namespace PodNoms.Common.Services.Social {
                 user.UserName,
                 roles.ToArray<string>(),
                 _jwtOptions,
-                new JsonSerializerSettings {Formatting = Formatting.Indented});
+                new JsonSerializerSettings { Formatting = Formatting.Indented });
             return jwt;
         }
 
