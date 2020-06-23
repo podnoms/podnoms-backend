@@ -98,6 +98,7 @@ namespace PodNoms.Common.Services.Startup {
                             "https://localhost:5003",
                             "https://dev.podnoms.com:4200",
                             "https://podnoms.local:4200",
+                            "https://podnoms.local:4201",
                             "http://10.1.1.1:8080",
                             "http://podnoms.local:8080",
                             "https://podnoms.com",
@@ -121,6 +122,11 @@ namespace PodNoms.Common.Services.Startup {
                         .AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod());
+                options.AddPolicy("AllowAll", p => {
+                    p.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
             });
             return services;
         }
