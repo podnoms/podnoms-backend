@@ -1,6 +1,7 @@
 namespace PodNoms.Data.Models {
     public abstract class Comment : BaseEntity {
         public string CommentText { get; set; }
+        public bool IsSpam { get; set; }
     }
 
     public class EntryComment : Comment {

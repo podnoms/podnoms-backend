@@ -128,6 +128,22 @@ namespace PodNoms.Common.Data {
                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Playlist, PlaylistViewModel>();
+            CreateMap<EntryComment, PodcastEntryCommentViewModel>()
+                .ForMember(
+                    src => src.FromName,
+                    e => e.MapFrom(s => s.FromUser))
+                .ForMember(
+                    src => src.Comment,
+                    e => e.MapFrom(s => s.CommentText))
+                .ForMember(
+                    src => src.AvatarImage,
+                    e => e.MapFrom(s => $"http://placehold.it/50/55C1E7/fff&text={s.FromUser.Substring(0, 1)}"))
+                .ForMember(
+                    src => src.CommentDate,
+                    e => e.MapFrom(s => s.CreateDate))
+                .ForMember(
+                    src => src.FromEmail,
+                    e => e.MapFrom(s => string.Empty)); // don't send comment email to client;
 
             CreateMap<Category, CategoryViewModel>()
                 .ForMember(
