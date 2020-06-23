@@ -48,7 +48,6 @@ namespace PodNoms.Api.Controllers.External {
         }
 
         [HttpGet("podcasts")]
-        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
             var podcasts = await _podcastRepository
                 .GetAllForUserAsync(_applicationUser.Id);
@@ -65,7 +64,6 @@ namespace PodNoms.Api.Controllers.External {
         }
 
         [HttpPost("flagurl")]
-        [EnableCors("BrowserExtensionPolicy")]
         public async Task<ActionResult> FlagUrl([FromQuery] string url) {
             var message = $"Please flag url: {url}";
 

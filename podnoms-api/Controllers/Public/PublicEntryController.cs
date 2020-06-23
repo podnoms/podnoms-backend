@@ -17,8 +17,8 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/entry")]
-    [EnableCors("PublicApiPolicy")]
-    public class PublicEntryController : Controller {
+    [ApiController]
+    public class PublicEntryController : ControllerBase {
         private readonly IEntryRepository _entryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AkismetClient _akismet;
