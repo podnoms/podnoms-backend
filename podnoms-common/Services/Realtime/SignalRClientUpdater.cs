@@ -23,6 +23,7 @@ namespace PodNoms.Common.Services.Realtime {
         private void _buildHub() {
             _logger.LogDebug($"Starting hub: {_hubUrl}");
             var url = $"{_hubUrl}?rttkn={_token}";
+            _logger.LogInformation($"Building hub for {url}");
             var handler = new HttpClientHandler {
                 ClientCertificateOptions = ClientCertificateOption.Manual,
                 ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
@@ -36,7 +37,11 @@ namespace PodNoms.Common.Services.Realtime {
         }
         private async Task<bool> _initialiseConnection() {
             try {
-                await _connection.StartAsync();
+                if (_connection == null || _connection.State != HubConnectionState.Connected) {
+                    if (!await _initialiseConnection()) {
+                        return false;
+                    }
+                }
             } catch (Exception e) {
                 _logger.LogError($"Error starting signalR updater hub.\r\t{e.Message}");
             }
@@ -51,15 +56,17 @@ namespace PodNoms.Common.Services.Realtime {
                 return false;
             }
             try {
-                if (_connection == null || _connection.State != HubConnectionState.Connected) {
-                    if (!await _initialiseConnection()) {
-                        return false;
-                    }
+                if (!await _initialiseConnection()) {
+                    _logger.LogError($"Unable to open SignalR hub: \n\tUrl:{_hubUrl}\n\tToken: {_token}");
+                    return false;
                 }
                 if (_connection.State == HubConnectionState.Connected) {
+                    _logger.LogInformation("Connection is open");
                     await _connection.InvokeAsync(
                         "Send", channel, data
                     );
+                    _logger.LogInformation($"Message successfully sent\n{data}");
+
                     return true;
                 }
             } catch (Exception ex) {
