@@ -103,7 +103,7 @@ namespace PodNoms.Common.Services.Jobs {
                     podcast.PodcastEntries.Add(entry);
                     await _unitOfWork.CompleteAsync();
 
-                    var uploaded = await _uploadService.UploadAudio(string.Empty, entry.Id, file);
+                    var uploaded = await _uploadService.UploadAudio(entry.Id, file);
                     if (!uploaded) {
                         entry.ProcessingStatus = ProcessingStatus.Failed;
                         await _unitOfWork.CompleteAsync();

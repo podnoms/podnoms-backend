@@ -142,14 +142,15 @@ namespace PodNoms.Common.Services.Processor {
             return ret;
         }
 
-        public async Task<bool> DownloadAudio(string authToken, Guid entryId, string outputFile) {
+        public async Task<bool> DownloadAudio(Guid entryId, string outputFile) {
             var entry = await _repository.GetAsync(entryId);
 
             if (entry is null)
                 return false;
+
             try {
                 await __downloader_progress(
-                    authToken,
+                    entry.Podcast.AppUser.Id.ToString(),
                     entry.Id.ToString(),
                     new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
                         ProcessingStatus = ProcessingStatus.Processing
@@ -159,7 +160,7 @@ namespace PodNoms.Common.Services.Processor {
                 _downloader.DownloadProgress += async (s, e) => {
                     try {
                         await __downloader_progress(
-                            authToken,
+                            entry.Podcast.AppUser.Id.ToString(),
                             entry.Id.ToString(),
                             e
                         );
@@ -182,7 +183,7 @@ namespace PodNoms.Common.Services.Processor {
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();
                 await _sendProgressUpdate(
-                    authToken,
+                    entry.Podcast.AppUser.Id,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
                         ProcessingStatus = ProcessingStatus.Failed

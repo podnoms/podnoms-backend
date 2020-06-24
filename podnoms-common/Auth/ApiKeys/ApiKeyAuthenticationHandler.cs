@@ -16,7 +16,7 @@ namespace PodNoms.Common.Auth.ApiKeys {
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions> {
         private const string ProblemDetailsContentType = "application/problem+json";
         private readonly IGetApiKeyQuery _getApiKeyQuery;
-        private const string ApiKeyHeaderName = "X-Api-Key";
+        public static string ApiKeyHeaderName = "X-Api-Key";
 
         public ApiKeyAuthenticationHandler(
             IOptionsMonitor<ApiKeyAuthenticationOptions> options,

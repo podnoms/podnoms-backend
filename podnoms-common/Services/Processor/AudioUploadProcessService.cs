@@ -37,7 +37,7 @@ namespace PodNoms.Common.Services.Processor {
             _audioStorageSettings = audioStorageSettings.Value;
         }
 
-        public async Task<bool> UploadAudio(string userId, Guid entryId, string localFile) {
+        public async Task<bool> UploadAudio(Guid entryId, string localFile) {
 
             _logger.LogInformation($"Starting to upload audio for {entryId} - {localFile}");
 
@@ -46,6 +46,8 @@ namespace PodNoms.Common.Services.Processor {
                 _logger.LogError($"Unable to find entry with id: {entryId.ToString()}");
                 return false;
             }
+            var userId = entry.Podcast.AppUser.Id.ToString();
+
             entry.ProcessingStatus = ProcessingStatus.Uploading;
             await _sendProgressUpdate(
                     userId,

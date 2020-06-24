@@ -101,11 +101,11 @@ namespace PodNoms.Common.Services.Jobs {
                 //TODO: This is all largely a duplicate of ProcessEntryJob, should call into that...
                 Log($"_process: Missing audio for: {entryId}");
                 var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
-                var processed = await _processor.DownloadAudio(string.Empty, entryId, localFile);
+                var processed = await _processor.DownloadAudio(entryId, localFile);
                 if (processed) {
                     Log($"_process: Processed: {entryId}");
                     Log($"_process: Uploading audio for: {entryId}");
-                    var uploaded = await _uploadService.UploadAudio(string.Empty, entryId, localFile);
+                    var uploaded = await _uploadService.UploadAudio(entryId, localFile);
                     if (!uploaded) {
                         LogError($"Error uploading audio from {entryId}");
                     }

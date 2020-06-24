@@ -12,7 +12,6 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Processor;
-using PodNoms.Common.Utils;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
@@ -66,22 +65,21 @@ namespace PodNoms.Common.Services.Jobs {
 
             Log($"Submitting upload job for {localFile}");
             var tagEntryJobId = BackgroundJob.ContinueJobWith<UploadAudioJob>(tagEntryJob, job =>
-                job.Execute(authToken, entry.Id, localFile, null));
+                job.Execute(entry.Id, localFile, null));
 
             return true;
         }
 
         [AutomaticRetry(Attempts = 0)]
-        public async Task<bool> ProcessEntry(Guid entryId, string authToken, PerformContext context) {
+        public async Task<bool> ProcessEntry(Guid entryId, PerformContext context) {
             var entry = await _entryRepository.GetAsync(entryId);
             try {
                 var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                     r => r.CacheImage(entry.Id));
 
-                var token = authToken.Replace("Bearer ", string.Empty);
                 var extractJobId = BackgroundJob.Enqueue<IUrlProcessService>(
-                    r => r.DownloadAudio(authToken, entry.Id, localFile));
+                    r => r.DownloadAudio(entry.Id, localFile));
 
                 //TODO: Don't run this if IUrlProcessService fails
                 var tagEntryJob = BackgroundJob.ContinueJobWith<TagEntryJob>(
@@ -90,7 +88,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 var uploadJobId = BackgroundJob.ContinueJobWith<IAudioUploadProcessService>(
                     tagEntryJob,
-                    r => r.UploadAudio(authToken, entry.Id, localFile));
+                    r => r.UploadAudio(entry.Id, localFile));
 
                 //if we wait until everything is done, we can delete the local file
                 var waveformJobId = BackgroundJob.ContinueJobWith<GenerateWaveformsJob>(

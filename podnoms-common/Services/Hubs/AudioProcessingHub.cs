@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace PodNoms.Common.Services.Hubs {
     [EnableCors("PodNomsClientPolicy")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
     public class AudioProcessingHub : Hub {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();

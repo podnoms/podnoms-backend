@@ -46,19 +46,28 @@ namespace PodNoms.Common.Services.Startup {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddApiKeySupport(options => { })
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions => {
-                    configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                    configureOptions.TokenValidationParameters = tokenValidationParameters;
-                    configureOptions.SaveToken = true;
-                    configureOptions.Events = new JwtBearerEvents {
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => {
+                    options.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                    options.TokenValidationParameters = tokenValidationParameters;
+                    options.SaveToken = true;
+                    options.Events = new JwtBearerEvents {
                         OnMessageReceived = context => {
-                            var accessToken = context.Request.Query["token"];
-                            var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/hubs"))) {
-                                context.Token = accessToken[0];
+                            //check first if we're chatter from the job server
+                            var realTimeToken = context.Request.Query["rttkn"];
+                            if (!string.IsNullOrEmpty(realTimeToken)) {
+                                context.Request.Headers.Add(
+                                    ApiKeyAuthenticationHandler.ApiKeyHeaderName,
+                                    realTimeToken);
+                            } else {
+                                var accessToken = context.Request.Query["token"];
+                                var path = context.HttpContext.Request.Path;
+                                if (!string.IsNullOrEmpty(accessToken) &&
+                                    (path.StartsWithSegments("/hubs"))) {
+                                    context.Token = accessToken[0];
+                                } else {
+                                    context.Token = context.Request.Cookies["SESSIONID"];
+                                }
                             }
-
                             return Task.CompletedTask;
                         }
                     };
@@ -116,30 +125,11 @@ namespace PodNoms.Common.Services.Startup {
                        "https://www.podnoms.com")
                    .AllowCredentials());
             });
-
-            //     options.AddPolicy("PublicApiPolicy",
-            //         builder => builder
-            //             .AllowAnyOrigin()
-            //             .AllowAnyHeader()
-            //             .AllowAnyMethod());
-
-            //     options.AddPolicy("BrowserExtensionPolicy",
-            //         builder => builder
-            //             .AllowAnyOrigin()
-            //             .AllowAnyHeader()
-            //             .AllowAnyMethod());
-
-            //     options.AddPolicy("AllowAll", p => {
-            //         p.AllowAnyOrigin()
-            //             .AllowAnyHeader()
-            //             .AllowAnyMethod();
-            //     });
-            // });
             return services;
         }
 
         public static IApplicationBuilder UsePodNomsCors(this IApplicationBuilder app) {
-            app.UseCors("DefaultCors");
+            app.UseCors();
             return app;
         }
 

@@ -72,7 +72,7 @@ namespace PodNoms.Jobs {
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
-                .AddTransient<IRealTimeUpdater, SignalRClientUpdater>();
+                .AddScoped<IRealTimeUpdater, SignalRClientUpdater>();
 
             services.AddHostedService<TweetListenerService>();
 
