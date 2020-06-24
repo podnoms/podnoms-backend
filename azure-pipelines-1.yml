@@ -1,0 +1,28 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- trunk
+
+resources:
+- repo: self
+
+steps:
+  - task: Docker@0
+    displayName: 'Build an image'
+    inputs:
+      azureSubscription: 'PodNoms Utils Connection'
+      azureContainerRegistry: '{"loginServer":"podnoms.azurecr.io", "id" : "/subscriptions/58282b44-35e8-48a4-bc16-49700332985c/resourceGroups/rg-podnoms-utils/providers/Microsoft.ContainerRegistry/registries/podnoms"}'
+      dockerFile: '**/Dockerfile.jobs'
+      imageName: podnoms.azurecr.io/podnoms.jobs
+      qualifyImageName: false
+
+  - task: Docker@0
+    displayName: 'Push an image'
+    inputs:
+      azureSubscription: 'PodNoms Utils Connection'
+      azureContainerRegistry: '{"loginServer":"podnoms.azurecr.io", "id" : "/subscriptions/58282b44-35e8-48a4-bc16-49700332985c/resourceGroups/rg-podnoms-utils/providers/Microsoft.ContainerRegistry/registries/podnoms"}'
+      action: 'Push an image'
+      imageName: podnoms.azurecr.io/podnoms.jobs
+      qualifyImageName: false
