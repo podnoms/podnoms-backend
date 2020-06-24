@@ -10,7 +10,7 @@ namespace PodNoms.Common.Services.Processor {
         Task<RemoteUrlStatus> ValidateUrl(string url);
         Task<RemoteUrlType> GetInformation(string entryId);
         Task<RemoteUrlType> GetInformation(PodcastEntry entry);
-        Task<bool> DownloadAudio(string authToken, Guid entryId, string outputFile);
+        Task<bool> DownloadAudio(Guid entryId, string outputFile);
         Task<bool> DownloadAudioV2(string outputId, string url, string outputFile, Func<ProcessingProgress, bool> progressCallback);
     }
 }

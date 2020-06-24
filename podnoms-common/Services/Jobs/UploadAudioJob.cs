@@ -25,13 +25,13 @@ namespace PodNoms.Common.Services.Jobs {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> Execute(string authToken, Guid entryId, string cacheFile, PerformContext context) {
+        public async Task<bool> Execute(Guid entryId, string cacheFile, PerformContext context) {
 
             _setContext(context);
             Log($"Starting Upload Job for {entryId} - {cacheFile}");
 
             if (File.Exists(cacheFile)) {
-                return await _uploadProcessService.UploadAudio(authToken, entryId, cacheFile);
+                return await _uploadProcessService.UploadAudio(entryId, cacheFile);
             } else {
                 context.WriteLine($"Failed to cache remote file {cacheFile}");
                 return false;

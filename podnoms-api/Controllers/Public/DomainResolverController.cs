@@ -14,7 +14,6 @@ using PodNoms.Data.Models;
 namespace PodNoms.Api.Controllers.Public {
 
     [Route("pub/podcast/domainresolver")]
-    [EnableCors("PublicApiPolicy")]
     public class DomainResolverController : Controller {
         private readonly ILogger<DomainResolverController> _logger;
         private readonly IHttpContextAccessor _contextAccessor;

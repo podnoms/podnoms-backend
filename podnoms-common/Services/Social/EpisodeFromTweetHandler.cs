@@ -151,7 +151,7 @@ namespace PodNoms.Common.Services.Social {
                 //get JWT token so we can call into the job realtime stuff
                 var token = await __getJwtTokenForUser(user);
                 var processId = BackgroundJob.Enqueue<ProcessNewEntryJob>(
-                    e => e.ProcessEntry(entry.Id, token, null));
+                    e => e.ProcessEntry(entry.Id, null));
 
                 var message =
                     $"Hi @{targetUser}, your request was processed succesfully, you can find your new episode in your podcatcher or here\n{podcast.GetPagesUrl(_appSettings.PagesUrl)}";
@@ -230,7 +230,7 @@ namespace PodNoms.Common.Services.Social {
                 user.UserName,
                 roles.ToArray<string>(),
                 _jwtOptions,
-                new JsonSerializerSettings {Formatting = Formatting.Indented});
+                new JsonSerializerSettings { Formatting = Formatting.Indented });
             return jwt;
         }
 

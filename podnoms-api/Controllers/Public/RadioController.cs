@@ -17,7 +17,6 @@ using PodNoms.Data.Extensions;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/radio")]
-    [EnableCors("PublicApiPolicy")]
     public class RadioController : Controller {
         private readonly IEntryRepository _entryRepository;
         private readonly ILogger<RadioController> _logger;
@@ -49,7 +48,7 @@ namespace PodNoms.Api.Controllers.Public {
         }
 
         [HttpGet("nowplaying")]
-        public async Task<ActionResult<string>> GetNowPlaying([FromQuery]string url) {
+        public async Task<ActionResult<string>> GetNowPlaying([FromQuery] string url) {
             try {
                 var content = await HttpUtils.DownloadText(url, "application/xml");
                 if (!string.IsNullOrEmpty(content)) {

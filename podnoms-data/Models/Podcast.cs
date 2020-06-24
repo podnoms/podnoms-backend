@@ -57,6 +57,8 @@ namespace PodNoms.Data.Models {
 
         public string GetRssUrl(string rssUrl) =>
             Flurl.Url.Combine(rssUrl, this.AppUser.Slug, this.Slug);
+        public string GetCoverImageUrl(string cdnUrl, string containerName) =>
+            Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=1920&height=1080&rmode=stretch");
         public string GetImageUrl(string cdnUrl, string containerName) =>
             Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=725&height=748");
         public string GetThumbnailUrl(string cdnUrl, string containerName) =>

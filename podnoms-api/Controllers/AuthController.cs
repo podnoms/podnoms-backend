@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ using reCAPTCHA.AspNetCore;
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [EnableCors("PodNomsClientPolicy")]
     public class AuthController : BaseController {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
@@ -72,10 +74,19 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
-            var token = await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
-            return Ok(token);
+            var (token, refresh) = await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
+            Response.Cookies.Append(
+                "SESSIONID",
+                token,
+                new CookieOptions() {
+                    Path = "/",
+                    HttpOnly = false,
+                    Secure = false
+                }
+            );
+            return Ok(refresh);
         }
-        private async Task<JwtRefreshTokenModel> _getTokenAndRefresh(ClaimsIdentity identity, string userName, string[] roles, ApplicationUser user) {
+        private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName, string[] roles, ApplicationUser user) {
             var jwt = await TokenIssuer.GenerateJwt(
                 identity,
                 _jwtFactory,
@@ -90,7 +101,7 @@ namespace PodNoms.Api.Controllers {
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
             await _unitOfWork.CompleteAsync();
-            return new JwtRefreshTokenModel(refresh, jwt);
+            return (jwt.Token, new JwtRefreshTokenModel(refresh, jwt));
         }
         [HttpPost("refreshtoken")]
         public async Task<ActionResult<JwtRefreshTokenModel>> RefreshToken([FromBody] ExchangeRefreshTokenRequest request) {

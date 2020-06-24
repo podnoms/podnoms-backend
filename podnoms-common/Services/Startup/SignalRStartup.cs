@@ -10,16 +10,8 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddPodNomsSignalR(this IServiceCollection services, bool isDevelopment) {
             services.AddSignalR(options => {
                 options.EnableDetailedErrors = isDevelopment;
-            })
-                .AddJsonProtocol(
-                   //NCA3
-                   //options => options.PayloadSerializerOptions.ContractResolver =
-                   //new DefaultContractResolver() {
-                   //        NamingStrategy = new CamelCaseNamingStrategy() {
-                   //            ProcessDictionaryKeys = true
-                   //        }
-                   //    }
-                   );
+            }).AddJsonProtocol();
+
             services.AddEntitySignal();
 
             return services;

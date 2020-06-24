@@ -3,10 +3,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 
 namespace PodNoms.Common.Services.Hubs {
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [EnableCors("PodNomsClientPolicy")]
+    [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
     public class AudioProcessingHub : Hub {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();

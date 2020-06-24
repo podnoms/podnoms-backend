@@ -88,6 +88,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<PodcastEntry> GetForUserAndPodcast(string user, string podcast, string entry) {
             return await GetContext()
                 .PodcastEntries
+                .Include(p => p.Podcast)
+                .Include(p => p.Podcast.AppUser)
                 .Where(r => r.Podcast.AppUser.Slug == user)
                 .Where(r => r.Podcast.Slug == podcast)
                 .Where(r => r.Slug == entry)

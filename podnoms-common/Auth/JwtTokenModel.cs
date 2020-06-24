@@ -1,5 +1,8 @@
 namespace PodNoms.Common.Auth {
     public class JwtTokenModel {
+        public JwtTokenModel() {
+            
+        }
         public JwtTokenModel(string Id, string token, int expiresIn) {
             this.Id = Id;
             this.Token = token;

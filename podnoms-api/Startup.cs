@@ -69,6 +69,7 @@ namespace PodNoms.Api {
                     b => b.MigrationsAssembly("podnoms-common")
                           .EnableRetryOnFailure());
             });
+
             Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
             services.AddSingleton<AutoSubscriber>(provider =>
@@ -79,6 +80,7 @@ namespace PodNoms.Api {
             Console.WriteLine($"Setting service scopes");
 
             services.AddScoped<CustomDomainRouteTransformer>();
+            services.AddScoped<SharingLinkRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
             LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
@@ -87,6 +89,8 @@ namespace PodNoms.Api {
             services.AddPodNomsSignalR(Env.IsDevelopment());
 
             services.AddPodNomsAppInsights(Configuration, Env.IsProduction());
+
+            services.AddPodNomsCors(Configuration);
 
             services.AddMvc(options => {
                 //TODO: This needs to be investigated
@@ -118,7 +122,8 @@ namespace PodNoms.Api {
             services.Configure<RecaptchaSettings>(Configuration.GetSection("RecaptchaSettings"));
             services.AddTransient<IRecaptchaService, RecaptchaService>();
 
-            services.AddPodNomsCors(Configuration);
+            services.AddPodNomsSpamFilter(Configuration);
+
             services.AddPodNomsImaging(Configuration);
             services.AddPushSubscriptionStore(Configuration);
             services.AddPushNotificationService(Configuration);
@@ -173,13 +178,18 @@ namespace PodNoms.Api {
 
             app.UseStaticFiles();
 
-            app.UsePodNomsCors();
-            app.UseSecureHeaders(Env.IsDevelopment());
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UsePodNomsCors();
+            app.UseSecureHeaders(Env.IsDevelopment());
+
+
             app.UsePodNomsSignalRRoutes();
 
+            app.UseCustomDomainRedirect();
+
             app.UseEndpoints(endpoints => {
+                endpoints.MapDynamicControllerRoute<SharingLinkRouteTransformer>("{shareId?}");
                 endpoints.MapDynamicControllerRoute<CustomDomainRouteTransformer>("{**path}");
                 endpoints.MapControllerRoute(
                     name: "default",

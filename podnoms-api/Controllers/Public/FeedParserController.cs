@@ -8,7 +8,6 @@ using PodNoms.Common.Services.Rss;
 namespace PodNoms.Api.Controllers.Public {
 
     [Route("pub/podcast/feedparser")]
-    [EnableCors("PodNomsClientPolicy")]
     public class FeedParserController : Controller {
 
         private readonly RssFeedParser _parser;

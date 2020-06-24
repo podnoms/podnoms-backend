@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -13,15 +14,16 @@ using PodNoms.Common.Persistence.Repositories;
 namespace PodNoms.Common.Services.Middleware {
 
     public class CustomDomainRouteTransformer : DynamicRouteValueTransformer {
-        private readonly IPodcastRepository _podcastRepository;
         private readonly ILogger<CustomDomainRouteTransformer> _logger;
+        private readonly IServiceProvider _provider;
         private readonly AppSettings _appSettings;
 
         public CustomDomainRouteTransformer(IPodcastRepository podcastRepository,
                             ILogger<CustomDomainRouteTransformer> logger,
+                            IServiceProvider provider,
                             IOptions<AppSettings> appSettings) {
-            _podcastRepository = podcastRepository;
             _logger = logger;
+            _provider = provider;
             _appSettings = appSettings.Value;
         }
 
@@ -39,8 +41,11 @@ namespace PodNoms.Common.Services.Middleware {
                 httpContext.Response.Redirect(redirectUrl, false);
             } else if (!requestHost.Equals(siteHost)) {
                 try {
+                    using var scope = _provider.CreateScope();
+                    var podcastRepository = scope.ServiceProvider.GetRequiredService<IPodcastRepository>();
+
                     //we're on a custom domain, check for matches
-                    var candidate = await _podcastRepository.GetAll()
+                    var candidate = await podcastRepository.GetAll()
                         .Where(r => r.CustomDomain == requestHost)
                         .Include(r => r.AppUser)
                         .FirstOrDefaultAsync();

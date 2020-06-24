@@ -29,6 +29,14 @@ namespace PodNoms.Common.Data {
                     v => v.User,
                     e => e.MapFrom(m => m.AppUser.Slug))
                 .ForMember(
+                    v => v.UserDisplayName,
+                    e => e.MapFrom(m => m.AppUser.GetBestGuessName()))
+                .ForMember(
+                    v => v.CoverImageUrl,
+                    e => e.MapFrom(m => m.GetCoverImageUrl(
+                       _options.GetSection("StorageSettings")["ImageUrl"],
+                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
                        _options.GetSection("StorageSettings")["ImageUrl"],
@@ -91,6 +99,9 @@ namespace PodNoms.Common.Data {
                     src => src.PodcastTitle,
                     e => e.MapFrom(m => m.Podcast.Title))
                 .ForMember(
+                    src => src.UserSlug,
+                    e => e.MapFrom(m => m.Podcast.AppUser.Slug))
+                .ForMember(
                     src => src.PagesUrl,
                     e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])));
 
@@ -125,6 +136,22 @@ namespace PodNoms.Common.Data {
                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Playlist, PlaylistViewModel>();
+            CreateMap<EntryComment, PodcastEntryCommentViewModel>()
+                .ForMember(
+                    src => src.FromName,
+                    e => e.MapFrom(s => s.FromUser))
+                .ForMember(
+                    src => src.Comment,
+                    e => e.MapFrom(s => s.CommentText))
+                .ForMember(
+                    src => src.AvatarImage,
+                    e => e.MapFrom(s => $"http://placehold.it/50/55C1E7/fff&text={s.FromUser.Substring(0, 1)}"))
+                .ForMember(
+                    src => src.CommentDate,
+                    e => e.MapFrom(s => s.CreateDate))
+                .ForMember(
+                    src => src.FromEmail,
+                    e => e.MapFrom(s => string.Empty)); // don't send comment email to client;
 
             CreateMap<Category, CategoryViewModel>()
                 .ForMember(

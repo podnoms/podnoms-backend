@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ using PodNoms.Data.Utils;
 namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("[controller]")]
+    [EnableCors("PodNomsClientPolicy")]
     public class ProfileController : BaseAuthController {
         public IUnitOfWork _unitOfWork { get; }
         public IMapper _mapper { get; }

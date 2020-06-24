@@ -8,7 +8,6 @@ using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/process")]
-    [EnableCors("PublicApiPolicy")]
     public class PublicProcessorController : Controller {
         private readonly IUrlProcessService _processService;
 

@@ -29,12 +29,12 @@ namespace PodNoms.Common.Services.Processor {
             _mapper = mapper;
         }
 
-        protected async Task<bool> _sendProgressUpdate(string authToken, string channelName, ProcessingProgress data) {
+        protected async Task<bool> _sendProgressUpdate(string userId, string channelName, ProcessingProgress data) {
             var result = false;
             await __lockObj.WaitAsync();
             try {
                 result = await _realtime.SendProcessUpdate(
-                    authToken,
+                    userId,
                     channelName,
                     data);
             } catch (Exception e) {
