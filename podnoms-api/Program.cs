@@ -27,7 +27,7 @@ namespace PodNoms.Api {
                               config.SetBasePath(Directory.GetCurrentDirectory())
                                   .AddJsonFile("appsettings.json", optional: false)
                                   .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                                  .AddEnvironmentVariables("ASPNETCORE_");
+                                  .AddEnvironmentVariables("ASPNET  CORE_");
                               var builtConfig = config.Build();
                               Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
 
