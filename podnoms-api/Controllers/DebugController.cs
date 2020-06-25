@@ -90,7 +90,7 @@ namespace PodNoms.Api.Controllers {
         [Authorize(AuthenticationSchemes = "Bearer, PodNomsApiKey")]
         public IActionResult Get() {
             var config = new {
-                Version = _appSettings.Version,
+                Version = _config["Version"],
                 CdnUrl = _storageSettings.CdnUrl,
                 AudioContainer = _audioFileStorageSettings.ContainerName,
                 ImageContainer = _imageFileStorageSettings.ContainerName,
