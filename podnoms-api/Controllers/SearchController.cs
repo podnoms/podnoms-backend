@@ -46,7 +46,8 @@ namespace PodNoms.Api.Controllers {
                     Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100),
                     ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
                     Url = p.Slug,
-                    Type = "Podcast"
+                    Type = "Podcast",
+                    DateCreated = p.CreateDate
                 }).ToListAsync();
 
             var entryResults = await _entryRepository
@@ -59,7 +60,8 @@ namespace PodNoms.Api.Controllers {
                     Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100),
                     ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
                     Url = p.Podcast.Slug,
-                    Type = "Entry"
+                    Type = "Entry",
+                    DateCreated = p.CreateDate
                 }).ToListAsync();
 
             var mergedResults = podcastResults.Union(entryResults);

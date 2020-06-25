@@ -22,8 +22,9 @@ namespace PodNoms.Api.Controllers.Public {
         public DomainResolverController(
                     ILogger<DomainResolverController> logger,
                     IPodcastRepository podcastRepository) {
-            _logger = logger;
-            _podcastRepository = podcastRepository;
+            // this.TryUpdateModelAsync
+            // _logger = logger;
+            // _podcastRepository = podcastRepository;
         }
         [HttpGet]
         public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery] string domain) {
