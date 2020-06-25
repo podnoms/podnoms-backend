@@ -17,6 +17,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/entry")]
+    [EnableCors("DefaultCors")]
     [ApiController]
     public class PublicEntryController : ControllerBase {
         private readonly IEntryRepository _entryRepository;
