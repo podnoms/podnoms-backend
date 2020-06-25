@@ -10,9 +10,11 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Plus.v1;
 using Google.Apis.Plus.v1.Data;
 using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -24,6 +26,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]/[action]")]
+    [EnableCors("PodNomsClientPolicy")]
     public class ExternalAuthController : BaseController {
         //TODO: Refactor these somewhere better
         public static ClientSecrets secrets = new ClientSecrets() {
@@ -66,7 +69,7 @@ namespace PodNoms.Api.Controllers {
             //3. Update details
             try {
                 var payload = await GoogleJsonWebSignature.ValidateAsync(model.AccessToken);
-                return await _processUserDetails(new FacebookUserData {
+                var tokenAndRefresh = await _processUserDetails(new FacebookUserData {
                     Email = payload.Email,
                     FirstName = payload.GivenName,
                     LastName = payload.FamilyName,
@@ -77,6 +80,19 @@ namespace PodNoms.Api.Controllers {
                         }
                     }
                 });
+                Response.Cookies.Append(
+                    "SESSIONID",
+                    tokenAndRefresh.Jwt.Token,
+                    new CookieOptions() {
+                        Path = "/",
+                        HttpOnly = false,
+                        Secure = false
+                    }
+                );
+                return Ok(tokenAndRefresh);
+            } catch (InvalidOperationException e) {
+                _logger.LogError(e.Message);
+                return BadRequest(Errors.AddErrorToModelState("login_failure", e.Message, ModelState));
             } catch (Exception ex) {
                 _logger.LogError($"Error logging in: {ex.Message}");
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid google token.", ModelState));
@@ -101,9 +117,21 @@ namespace PodNoms.Api.Controllers {
             var userInfoResponse = await Client.GetStringAsync($"https://graph.facebook.com/v2.8/me?fields=id,email,first_name,last_name,name,gender,locale,birthday,picture&access_token={model.AccessToken}");
             var userInfo = JsonConvert.DeserializeObject<FacebookUserData>(userInfoResponse);
 
-            return await _processUserDetails(userInfo);
+            var tokenAndRefresh = await _processUserDetails(userInfo);
+
+            Response.Cookies.Append(
+                "SESSIONID",
+                tokenAndRefresh.Jwt.Token,
+                new CookieOptions() {
+                    Path = "/",
+                    HttpOnly = false,
+                    Secure = false
+                }
+            );
+
+            return Ok(tokenAndRefresh);
         }
-        private async Task<ActionResult<JwtRefreshTokenModel>> _processUserDetails(FacebookUserData userInfo) {
+        private async Task<JwtRefreshTokenModel> _processUserDetails(FacebookUserData userInfo) {
             // 4. ready to create the local user account (if necessary) and jwt
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
             if (user is null) {
@@ -116,17 +144,27 @@ namespace PodNoms.Api.Controllers {
                     PictureUrl = userInfo.Picture.Data.Url
                 };
                 var result = await _userManager.CreateAsync(appUser, Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8));
-                if (!result.Succeeded) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
+                if (!result.Succeeded) {
+                    throw new InvalidOperationException(
+                        ModelState.ToString()
+                    );
+                }
             } else {
                 user.PictureUrl = userInfo.Picture.Data.Url;
                 var result = await _userManager.UpdateAsync(user);
-                if (!result.Succeeded) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
+                if (!result.Succeeded) {
+                    throw new InvalidOperationException(
+                        ModelState.ToString()
+                    );
+                }
             }
 
             // generate the jwt for the local user...
             var localUser = await _userManager.FindByNameAsync(userInfo.Email);
             if (localUser is null) {
-                return BadRequest(Errors.AddErrorToModelState("login_failure", "Failed to create local user account.", ModelState));
+                throw new InvalidOperationException(
+                    ModelState.ToString()
+                );
             }
             var roles = await _userManager.GetRolesAsync(localUser);
             var jwt = await TokenIssuer.GenerateJwt(
@@ -143,7 +181,7 @@ namespace PodNoms.Api.Controllers {
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
             await _unitOfWork.CompleteAsync();
-            return Ok(new JwtRefreshTokenModel(refresh, jwt));
+            return new JwtRefreshTokenModel(refresh, jwt);
         }
     }
 }
