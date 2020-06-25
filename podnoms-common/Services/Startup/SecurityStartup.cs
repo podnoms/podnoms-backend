@@ -58,14 +58,12 @@ namespace PodNoms.Common.Services.Startup {
                                 context.Request.Headers.Add(
                                     ApiKeyAuthenticationHandler.ApiKeyHeaderName,
                                     realTimeToken);
-                            } else {
+                            } else { //keep cookie auth off for now
                                 var accessToken = context.Request.Query["token"];
                                 var path = context.HttpContext.Request.Path;
                                 if (!string.IsNullOrEmpty(accessToken) &&
                                     (path.StartsWithSegments("/hubs"))) {
                                     context.Token = accessToken[0];
-                                } else {
-                                    context.Token = context.Request.Cookies["SESSIONID"];
                                 }
                             }
                             return Task.CompletedTask;
