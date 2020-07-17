@@ -117,9 +117,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<string> GetActivePodcast(string userId) {
             var podcast = await GetAll()
                 .Where(p => p.AppUser.Id == userId)
-                .OrderByDescending(p => p.UpdateDate)
+                .OrderByDescending(p => p.PodcastEntries.Max(e => e.UpdateDate))
                 .FirstOrDefaultAsync();
-
             return podcast?.Slug;
         }
         public async Task<List<PodcastAggregator>> GetAggregators(Guid podcastId) {
