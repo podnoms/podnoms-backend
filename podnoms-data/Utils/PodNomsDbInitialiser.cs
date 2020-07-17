@@ -20,7 +20,7 @@ namespace PodNoms.Data.Utils {
                 config["AdminUserSettings:AdminUser:Name"],
                 config["AdminUserSettings:AdminUser:Email"],
                 config["AdminUserSettings:AdminUser:Password"],
-                new string[] { "client-admin" },
+                new string[] { "website-admin" },
                 userManager
             );
         }

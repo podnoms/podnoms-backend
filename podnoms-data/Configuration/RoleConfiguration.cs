@@ -8,8 +8,8 @@ namespace PodNoms.Data.Configuration {
             builder.HasData(
                 new IdentityRole {
                     Id = System.Guid.NewGuid().ToString(),
-                    Name = "client-admin",
-                    NormalizedName = "client-admin".ToUpper()
+                    Name = "website-admin",
+                    NormalizedName = "website-admin".ToUpper()
                 },
                 new IdentityRole {
                     Id = System.Guid.NewGuid().ToString(),

@@ -1,18 +1,15 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PodNoms.Comon.Migrations
-{
-    public partial class AddRoleAndCategorySeeds : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+namespace PodNoms.Comon.Migrations {
+    public partial class AddRoleAndCategorySeeds : Migration {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "f1c6e6a8-2461-48f2-ab7a-569a3b75b280", "5bbeb1b1-09b6-45ab-8fd2-7131445bb72b", "client-admin", "CLIENT-ADMIN" },
+                    { "f1c6e6a8-2461-48f2-ab7a-569a3b75b280", "5bbeb1b1-09b6-45ab-8fd2-7131445bb72b", "website-admin", "WEBSITE-ADMIN" },
                     { "dba18578-271a-40de-8cb3-e21f97fcf159", "da355d84-9e05-4c71-8356-cc433ca4e42c", "catastrophic-api-calls-allowed", "CATASTROPHIC-API-CALLS-ALLOWED" }
                 });
 
@@ -87,8 +84,7 @@ namespace PodNoms.Comon.Migrations
                 });
         }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",

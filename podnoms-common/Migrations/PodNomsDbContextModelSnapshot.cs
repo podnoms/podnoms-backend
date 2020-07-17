@@ -45,8 +45,8 @@ namespace PodNoms.Comon.Migrations {
                     new {
                         Id = "f1c6e6a8-2461-48f2-ab7a-569a3b75b280",
                         ConcurrencyStamp = "5bbeb1b1-09b6-45ab-8fd2-7131445bb72b",
-                        Name = "client-admin",
-                        NormalizedName = "CLIENT-ADMIN"
+                        Name = "website-admin",
+                        NormalizedName = "WEBSITE-ADMIN"
                     },
                     new {
                         Id = "dba18578-271a-40de-8cb3-e21f97fcf159",
