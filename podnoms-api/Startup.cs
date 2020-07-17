@@ -40,14 +40,15 @@ using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
 using PodNoms.Data.Configuration;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Api {
     public class Startup {
 
         public static IConfiguration Configuration { get; private set; }
-        public IHostEnvironment Env { get; }
+        public IWebHostEnvironment Env { get; }
 
-        public Startup(IHostEnvironment env, IConfiguration configuration) {
+        public Startup(IWebHostEnvironment env, IConfiguration configuration) {
             Configuration = configuration;
             Env = env;
         }

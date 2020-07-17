@@ -10,11 +10,13 @@ using DNS.Client;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PodNoms.Common.Auth;
@@ -34,6 +36,7 @@ namespace PodNoms.Api.Controllers {
     public class UtilityController : BaseAuthController {
         private readonly AppSettings _appSettings;
         private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _env;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly PodNomsDbContext _context;
         private readonly IPodcastRepository _podcastRepository;
@@ -42,10 +45,12 @@ namespace PodNoms.Api.Controllers {
                         IOptions<AppSettings> appSettings, PodNomsDbContext context,
                         IPodcastRepository podcastRepository,
                         ILogger<UtilityController> logger, IConfiguration config,
+                        IWebHostEnvironment env,
                         IHttpClientFactory httpClientFactory)
                                     : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
             _config = config;
+            _env = env;
             _httpClientFactory = httpClientFactory;
             _context = context;
             _podcastRepository = podcastRepository;
@@ -78,6 +83,9 @@ namespace PodNoms.Api.Controllers {
         }
         [HttpPost("checkdomain")]
         public async Task<ActionResult<bool>> CheckHostName([FromBody] CheckHostNameViewModel request) {
+            if (_env.IsDevelopment()) {
+                return Ok(true);
+            }
             try {
                 _logger.LogInformation($"Checking domain: {request.HostName}");
 
