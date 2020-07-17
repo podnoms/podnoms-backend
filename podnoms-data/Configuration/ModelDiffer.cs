@@ -23,7 +23,7 @@ namespace PodNoms.Data.Configuration {
         //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
         public override IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target) {
             return base.GetDifferences(source, target)
-                    .Where(o => !(o is UpdateDataOperation) && !(o is DeleteDataOperation))
+                    .Where(o => !(o is UpdateDataOperation) && !(o is DeleteDataOperation) && !(o is InsertDataOperation))
                     .ToList();
         }
     }
