@@ -39,6 +39,13 @@ namespace PodNoms.Common.Services.Middleware {
                     _appSettings.CanonicalRssUrl,
                     httpContext.Request.Path);
                 httpContext.Response.Redirect(redirectUrl, false);
+                var parts = httpContext.Request.Path.Value.TrimEnd('/').TrimStart('/').Split('/');
+                if (parts.Length == 2) {
+                    values["controller"] = "Rss";
+                    values["action"] = "Get";
+                    values["userSlug"] = parts[0];
+                    values["podcastSlug"] = parts[1];
+                }
             } else if (!requestHost.Equals(siteHost)) {
                 try {
                     using var scope = _provider.CreateScope();

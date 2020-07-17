@@ -5,25 +5,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using EntitySignal.Server.EFDbContext.Data;
 using EntitySignal.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Data.Enums;
+using PodNoms.Data.Configuration;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PodNoms.Common.Persistence {
-    public static class SeedData {
-        public static string AUTH =
-            @"CREATE LOGIN podnomsweb WITH PASSWORD = 'podnomsweb', DEFAULT_DATABASE = [PodNoms], CHECK_EXPIRATION = OFF, CHECK_POLICY = OFF
-        GO
-        ALTER AUTHORIZATION ON DATABASE::[PodNoms] TO[]
-        GO";
-    }
 
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext(string[] args) {
@@ -32,6 +28,8 @@ namespace PodNoms.Common.Persistence {
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
             var connectionString = TEMP_CONN;
+            //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
+            builder.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
             builder.UseSqlServer(connectionString);
 
             return new PodNomsDbContext(builder.Options, null, null);
@@ -66,6 +64,10 @@ namespace PodNoms.Common.Persistence {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new SubcategoryConfiguration());
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasIndex(p => p.Slug)
@@ -134,12 +136,7 @@ namespace PodNoms.Common.Persistence {
                 pb.ValueGeneratedOnAddOrUpdate()
                     .HasDefaultValueSql("getdate()");
             }
-
-            // Database.ExecuteSqlCommand (SeedData.CATEGORIES);
-            // Database.ExecuteSqlCommand (SeedData.SUB_CATEGORIES);
-            // Database.ExecuteSqlCommand (SeedData.AUTH);
         }
-
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default) {

@@ -13,30 +13,32 @@ using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Providers;
+using SixLabors.ImageSharp.Web.Providers.Azure;
 
 namespace PodNoms.Common.Services.Startup {
-
     public static class ImagingStartup {
-
         public static IServiceCollection AddPodNomsImaging(this IServiceCollection services, IConfiguration config) {
             var connectionString = config.GetSection("StorageSettings")["ConnectionString"];
             var containerName = config.GetSection("ImageFileStorageSettings")["ContainerName"];
 
             services.AddImageSharpCore()
                 .SetRequestParser<QueryCollectionRequestParser>()
-                .Configure<PhysicalFileSystemCacheOptions>(options => {
-                    options.CacheFolder = ".pn-cache";
-                })
+                .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
                 .SetCache<PhysicalFileSystemCache>()
                 .SetCacheHash<CacheHash>()
-                .AddProvider<AzureBlobStorageImageProvider>(AzureProviderFactory)
+                .AddProvider(PhysicalProviderFactory)
                 .Configure<AzureBlobStorageImageProviderOptions>(options => {
-                    options.ConnectionString = connectionString;
-                    options.ContainerName = containerName;
+                    options.BlobContainers.Add(new AzureBlobContainerClientOptions {
+                        ConnectionString = connectionString,
+                        ContainerName = containerName
+                    });
                 })
+                .AddProvider<AzureBlobStorageImageProvider>()
+                .AddProvider<PhysicalFileSystemProvider>()
                 .AddProcessor<ResizeWebProcessor>();
             return services;
         }
+
         public static IApplicationBuilder UsePodNomsImaging(
             this IApplicationBuilder builder) {
             builder.UseImageSharp();
@@ -49,9 +51,16 @@ namespace PodNoms.Common.Services.Startup {
             return new AzureBlobStorageImageProvider(
                 provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
                 provider.GetRequiredService<FormatUtilities>()) {
-                Match = context => {
-                    return context.Request.Path.StartsWithSegments($"/{containerName}");
-                }
+                Match = context => context.Request.Path.StartsWithSegments($"/{containerName}")
+            };
+        }
+
+        private static PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider) {
+            var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
+            return new PhysicalFileSystemProvider(
+                provider.GetRequiredService<IWebHostEnvironment>(),
+                provider.GetRequiredService<FormatUtilities>()) {
+                Match = context => !context.Request.Path.StartsWithSegments($"/{containerName}")
             };
         }
     }

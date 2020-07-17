@@ -67,7 +67,13 @@ namespace PodNoms.Api.Controllers {
             }
 
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
-            var user = await _userManager.FindByNameAsync(credentials.UserName);
+            var user = await _userManager.FindByEmailAsync(credentials.UserName);
+            if (user is null) {
+                user = await _userManager.FindByNameAsync(credentials.UserName);
+            }
+            if (user is null) {
+                return Unauthorized();
+            }
             var roles = await _userManager.GetRolesAsync(user);
 
             if (identity is null) {

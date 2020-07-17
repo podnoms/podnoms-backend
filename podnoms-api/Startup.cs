@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -19,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using PodNoms.Api.Providers;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Hosted;
 using PodNoms.Common.Services.Jobs;
@@ -36,9 +34,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using PodNoms.Common.Services.Rss;
+using PodNoms.Data.Utils;
+using Microsoft.AspNetCore.Identity;
+using PodNoms.Data.Models;
+using Microsoft.EntityFrameworkCore.Migrations;
+using PodNoms.Data.Configuration;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -65,6 +66,8 @@ namespace PodNoms.Api {
 
             Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddDbContext<PodNomsDbContext>(options => {
+                //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
+                options.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
                           .EnableRetryOnFailure());
@@ -144,9 +147,10 @@ namespace PodNoms.Api {
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime) {
+            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime,
+            UserManager<ApplicationUser> userManager) {
 
-            UpdateDatabase(app);
+            UpdateDatabase(app, userManager, Configuration);
 
             if (!Env.IsDevelopment()) {
                 app.UseHttpsRedirection();
@@ -206,12 +210,13 @@ namespace PodNoms.Api {
 
         }
 
-        private static void UpdateDatabase(IApplicationBuilder app) {
+        private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager, IConfiguration config) {
             using var serviceScope = app.ApplicationServices
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext>();
             context.Database.Migrate();
+            PodNomsDbInitialiser.SeedUsers(userManager, config);
         }
     }
     public static class MessagingExtensions {

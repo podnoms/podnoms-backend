@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -29,7 +31,6 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
-    [Authorize]
     public class UtilityController : BaseAuthController {
         private readonly AppSettings _appSettings;
         private readonly IConfiguration _config;
@@ -120,6 +121,18 @@ namespace PodNoms.Api.Controllers {
             using (var client = _httpClientFactory.CreateClient()) {
                 return await client.GetContentSizeAsync(url);
             }
+        }
+        [HttpGet("clearhangfire")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "catastrophic-api-calls-allowed")]
+        public async Task<ActionResult> ClearHangfireTables() {
+            using (var connection = new SqlConnection(_config["ConnectionStrings:JobSchedulerConnection"])) {
+                SqlCommand cmd = new SqlCommand("maintenance.SP_ResetHangfire", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                connection.Open();
+                await cmd.ExecuteNonQueryAsync();
+                connection.Close();
+            }
+            return Ok();
         }
 
         [HttpGet("randomimage")]

@@ -25,7 +25,7 @@ using PodNoms.Data.Utils;
 namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("[controller]")]
-    [EnableCors("PodNomsClientPolicy")]
+    [EnableCors("DefaultCors")]
     public class ProfileController : BaseAuthController {
         public IUnitOfWork _unitOfWork { get; }
         public IMapper _mapper { get; }
@@ -65,6 +65,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost]
         public async Task<ActionResult<ProfileViewModel>> Post([FromBody] ProfileViewModel item) {
+            _logger.LogInformation($"Getting profile: {item.Id}");
             //TODO: Create a mapping for this.
             if (!string.IsNullOrEmpty(_applicationUser.Slug) && !_applicationUser.Slug.Equals(item.Slug)) {
                 //item has changed, store the old slug for redirect purposes

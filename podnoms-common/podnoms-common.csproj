@@ -68,8 +68,12 @@
         <PackageReference Include="Polly" Version="7.2.1" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
         <PackageReference Include="RestSharp" Version="106.11.4" />
-        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-unstable0032" />
-        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-unstable0032" />
+        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-rc0003" />
+
+<!--        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-unstable0032" />-->
+<!--        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-unstable0032" />-->
+<!--        <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-unstable0056" />-->
+<!--        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-unstable0056" />-->
         <PackageReference Include="Slack.Webhooks" Version="1.1.4" />
         <PackageReference Include="Stripe.net" Version="37.10.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
@@ -84,6 +88,8 @@
     </ItemGroup>
 
     <ItemGroup>
+<!--        <ProjectReference Include="..\..\..\..\working\ImageSharp.Web\src\ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj" />-->
+<!--        <ProjectReference Include="..\..\..\..\working\ImageSharp.Web\src\ImageSharp.Web\ImageSharp.Web.csproj" />-->
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
     </ItemGroup>
 

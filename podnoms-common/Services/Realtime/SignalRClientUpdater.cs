@@ -18,9 +18,8 @@ namespace PodNoms.Common.Services.Realtime {
             _token = config["JobHubs:HubKey"];
             _hubUrl = config["JobHubs:AudioProcessingHub"];
             _logger = logger;
-            _buildHub();
         }
-        private void _buildHub() {
+        private async Task _buildHub() {
             _logger.LogDebug($"Starting hub: {_hubUrl}");
             var url = $"{_hubUrl}?rttkn={_token}";
             _logger.LogInformation($"Building hub for {url}");
@@ -34,13 +33,12 @@ namespace PodNoms.Common.Services.Realtime {
                         options.HttpMessageHandlerFactory = h => handler;
                     })
                     .Build();
+            await _connection.StartAsync();
         }
         private async Task<bool> _initialiseConnection() {
             try {
                 if (_connection == null || _connection.State != HubConnectionState.Connected) {
-                    if (!await _initialiseConnection()) {
-                        return false;
-                    }
+                    await _buildHub();
                 }
             } catch (Exception e) {
                 _logger.LogError($"Error starting signalR updater hub.\r\t{e.Message}");
