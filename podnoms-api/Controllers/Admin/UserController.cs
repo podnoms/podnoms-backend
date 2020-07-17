@@ -16,7 +16,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
 
-    [Authorize(Roles = "client-admin")]
+    [Authorize(Roles = "website-admin")]
     [Authorize]
     [Route("admin/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
