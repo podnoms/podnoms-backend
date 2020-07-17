@@ -167,6 +167,22 @@ namespace PodNoms.Api.Controllers {
             return BadRequest("Failed to create podcast entry");
         }
 
+        // TODO: This needs to be wrapped in an authorize - group=test-harness ASAP
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAllEntries() {
+            try {
+                _repository.GetContext().PodcastEntries.RemoveRange(
+                    _repository.GetContext().PodcastEntries.ToList()
+                );
+                await _unitOfWork.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting entries");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete entries");
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {

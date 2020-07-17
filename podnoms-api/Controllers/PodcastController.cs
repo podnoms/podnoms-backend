@@ -27,7 +27,7 @@ namespace PodNoms.Api.Controllers {
     public class PodcastController : BaseAuthController {
         private readonly IPodcastRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly StorageSettings _storageSettings;
         private readonly AppSettings _appSettings;
         private readonly ImageFileStorageSettings _fileStorageSettings;
@@ -40,7 +40,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> fileStorageSettings,
             IFileUtilities fileUtilities) : base(contextAccessor, userManager, logger) {
-            _uow = unitOfWork;
+            _unitOfWork = unitOfWork;
             _storageSettings = storageSettings.Value;
             _appSettings = appSettings.Value;
             _fileStorageSettings = fileStorageSettings.Value;
@@ -81,7 +81,7 @@ namespace PodNoms.Api.Controllers {
             item.AppUser = _applicationUser;
             var ret = _repository.AddOrUpdate(item);
             try {
-                await _uow.CompleteAsync();
+                await _unitOfWork.CompleteAsync();
 
                 if (!isNew) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
@@ -113,16 +113,32 @@ namespace PodNoms.Api.Controllers {
                 podcast.AppUser = _applicationUser;
 
             _repository.AddOrUpdate(podcast);
-            await _uow.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
             return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
 
+        }
+        // TODO: This needs to be wrapped in an authorize - group=test-harness ASAP
+        [HttpDelete]
+        [Authorize(Roles = "catastrophic-api-calls-allowed")]
+        public async Task<IActionResult> DeleteAllPodcasts() {
+            try {
+                _repository.GetContext().Podcasts.RemoveRange(
+                    _repository.GetContext().Podcasts.ToList()
+                );
+                await _unitOfWork.CompleteAsync();
+                return Ok();
+            } catch (Exception ex) {
+                _logger.LogError("Error deleting podcasts");
+                _logger.LogError(ex.Message);
+            }
+            return BadRequest("Unable to delete podcasts");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
                 await _repository.DeleteAsync(new Guid(id));
-                await _uow.CompleteAsync();
+                await _unitOfWork.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
                 _logger.LogError("Error deleting podcast");

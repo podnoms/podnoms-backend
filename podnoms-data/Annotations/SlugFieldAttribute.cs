@@ -1,6 +1,7 @@
 using System;
 
 namespace PodNoms.Data.Annotations {
+
     [AttributeUsage(AttributeTargets.Property)]
     public class SlugFieldAttribute : Attribute {
         public string SourceField { get; }

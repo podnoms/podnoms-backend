@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -120,6 +122,23 @@ namespace PodNoms.Api.Controllers {
             using (var client = _httpClientFactory.CreateClient()) {
                 return await client.GetContentSizeAsync(url);
             }
+        }
+        [HttpGet("clearhangfire")]
+        [Authorize(Roles = "catastrophic-api-calls-allowed")]
+        public async Task<ActionResult> ClearHangfireTables() {
+            // using (var connection = new SqlConnection(_config["ConnectionStrings:JobSchedulerConnection"])){
+
+            // }
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[AggregatedCounter]");
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[Counter]");
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[JobParameter]");
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[JobQueue]");
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[List]");
+            // await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[HangFire].[State]");
+            // await context.Database.ExecuteSqlRawAsync("DELETE FROM[HangFire].[Job]");
+            // await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT('[HangFire].[Job]', reseed, 0)");
+            // await context.Database.ExecuteSqlRawAsync("UPDATE[HangFire].[Hash] SET Value = 1 WHERE Field = 'LastJobId'");
+            return Ok();
         }
 
         [HttpGet("randomimage")]

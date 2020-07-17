@@ -20,6 +20,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         TEntity AddOrUpdate(TEntity entity);
         Task DeleteAsync(string id);
         Task DeleteAsync(Guid id);
+        PodNomsDbContext GetContext();
     }
 
     public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
