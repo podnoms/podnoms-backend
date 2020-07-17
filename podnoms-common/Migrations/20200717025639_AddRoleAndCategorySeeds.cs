@@ -13,6 +13,10 @@ namespace PodNoms.Comon.Migrations {
                     { "dba18578-271a-40de-8cb3-e21f97fcf159", "da355d84-9e05-4c71-8356-cc433ca4e42c", "catastrophic-api-calls-allowed", "CATASTROPHIC-API-CALLS-ALLOWED" }
                 });
 
+            migrationBuilder.Sql("ALTER TABLE dbo.Podcasts NOCHECK CONSTRAINT ALL");
+            migrationBuilder.Sql("DELETE FROM dbo.Categories");
+            // migrationBuilder.Sql("ALTER TABLE dbo.Categories NOCHECK CONSTRAINT [PK_Categories]");
+
             migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "CreateDate", "Description" },
@@ -82,6 +86,7 @@ namespace PodNoms.Comon.Migrations {
                     { new Guid("b4284990-c542-48e4-a000-42d27202153b"), new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"), new DateTime(2020, 7, 17, 2, 56, 39, 449, DateTimeKind.Utc).AddTicks(4200), "Non-Profit", null },
                     { new Guid("d69e2cc2-588f-49c5-933e-a6f963e79f32"), new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"), new DateTime(2020, 7, 17, 2, 56, 39, 449, DateTimeKind.Utc).AddTicks(4266), "Local", null }
                 });
+            migrationBuilder.Sql("ALTER TABLE dbo.Podcasts CHECK CONSTRAINT ALL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder) {
