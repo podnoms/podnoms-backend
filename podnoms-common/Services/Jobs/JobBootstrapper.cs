@@ -12,7 +12,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 RecurringJob.AddOrUpdate<DeleteOrphanAudioJob>(x => x.Execute(null), Cron.Monthly(1));
 
-                // RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Yearly(1));
+                RecurringJob.AddOrUpdate<ProcessPlaylistsJob>(x => x.Execute(), Cron.Yearly(1));
 
                 RecurringJob.AddOrUpdate<DebugJobby>(x => x.Execute(null), Cron.Yearly(1));
                 RecurringJob.AddOrUpdate<TagEntryJob>(x => x.Execute(null), Cron.Yearly(1));

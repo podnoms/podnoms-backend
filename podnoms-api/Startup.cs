@@ -135,7 +135,7 @@ namespace PodNoms.Api {
             services.AddSharedDependencies()
                 //the query service is orders of magnitude faster than the API 
                 //but it will get rate limited if we use it on the job server
-                .AddTransient<IYouTubeParser, YouTubeQueryService>()
+                .AddTransient<IYouTubeParser, YouTubeExplodeParser>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddScoped<RssFeedParser>()
                 .AddScoped<UserLoggingFilter>()

@@ -2,12 +2,14 @@
 using Hangfire.Console;
 using Hangfire.Server;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
+using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System;
@@ -28,6 +30,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AudioDownloader _downloader;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
+        private readonly IUrlProcessService _urlProcessService;
 
         public ProcessPlaylistsJob(
             ILogger<ProcessPlaylistsJob> logger,
@@ -35,6 +38,7 @@ namespace PodNoms.Common.Services.Jobs {
             IEntryRepository entryRepository,
             IUnitOfWork unitOfWork,
             IYouTubeParser ytParser,
+            IUrlProcessService urlProcessService,
             IOptions<HelpersSettings> helpersSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
@@ -42,6 +46,7 @@ namespace PodNoms.Common.Services.Jobs {
             AudioDownloader downloader,
             IYouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) : base(logger) {
+            _urlProcessService = urlProcessService;
             _unitOfWork = unitOfWork;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
             _youTubeParser = youTubeParser;
@@ -58,8 +63,9 @@ namespace PodNoms.Common.Services.Jobs {
         public override async Task<bool> Execute(PerformContext context) {
             Log("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
-            var playlists = _playlistRepository.GetAll();
-            // .Where(p => p.Podcast.Id == Guid.Parse("e7a1ea10-307d-4912-e7db-08d70ff5fd99"));
+            var playlists = await _playlistRepository.GetAll()
+                .ToListAsync();
+
             foreach (var playlist in playlists) {
                 await Execute(playlist.Id, context);
             }
@@ -94,15 +100,15 @@ namespace PodNoms.Common.Services.Jobs {
                         ));
                     return false;
                 }
-                Log("Quotas passed");
 
+                Log("Quotas passed");
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
                 var count = _storageSettings.DefaultEntryCount;
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing YouTube");
                     resultList = await _youTubeParser
-                        .GetPlaylistItems(playlist.SourceUrl, cutoffDate, count);
+                        .GetParsedItems(playlist.SourceUrl, cutoffDate, count);
                 } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing MixCloud");
                     var entries = await _mixcloudParser

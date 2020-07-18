@@ -19,11 +19,14 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
-    public class UrlParseException : Exception { }
+    public class UrlParseException : Exception {
+    }
+
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AudioDownloader _downloader;
         private readonly IPageParser _parser;
+        private readonly IYouTubeParser _youTubeParser;
         private readonly IEntryRepository _repository;
 
         private readonly HelpersSettings _helpersSettings;
@@ -33,6 +36,7 @@ namespace PodNoms.Common.Services.Processor {
             IOptions<HelpersSettings> helpersSettings,
             AudioDownloader downloader,
             IPageParser parser,
+            IYouTubeParser youTubeParser,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
             _helpersSettings = helpersSettings.Value;
@@ -40,6 +44,7 @@ namespace PodNoms.Common.Services.Processor {
             _unitOfWork = unitOfWork;
             _downloader = downloader;
             _parser = parser;
+            _youTubeParser = youTubeParser;
         }
 
         private async Task __downloader_progress(string userId, string uid, ProcessingProgress e) {
@@ -50,15 +55,61 @@ namespace PodNoms.Common.Services.Processor {
                     e);
             }
         }
-        public async Task<RemoteUrlStatus> ValidateUrl(string url) {
+
+        public async Task<RemoteUrlStatus> ValidateUrl(string url, bool urlTypeRequired = false) {
+            url = url.Trim();
             if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
                 throw new UrlParseException();
             }
 
-            _logger.LogInformation($"Validating Url: {url}");
             var fileType = await _downloader.GetInfo(url);
+            // so at this point - it will be a playlist whether it's a channel, user or a playlist
+            _logger.LogInformation($"Validating Url: {url}");
+            if (fileType == RemoteUrlType.Playlist || fileType == RemoteUrlType.Invalid && urlTypeRequired) {
+                fileType = await _downloader.GetInfo(url, true);
+                if (_downloader.Properties != null) {
+                    //we could be a playlist or a channel or a user
+                    // fileType = await _downloader.GetInfo(url, true);
+                    fileType = url.Contains("/user/") ? RemoteUrlType.User :
+                        url.Contains("/channel/ ") || url.Contains("/c/") ? RemoteUrlType.Channel :
+                        RemoteUrlType.Playlist;
 
-            if (fileType == RemoteUrlType.Invalid) {
+                    if (fileType != RemoteUrlType.Invalid) {
+                        return new RemoteUrlStatus {
+                            Type = fileType.ToString(),
+                            Title = "",
+                            Image = "",
+                            Description = "",
+                            Links = new[] {
+                                new RemoteLinkInfo {
+                                    Title = _downloader.Properties?.Title,
+                                    Key = url,
+                                    Value = url
+                                }
+                            }.ToList()
+                        };
+                    }
+                }
+            }
+
+
+            if (fileType != RemoteUrlType.Invalid) {
+                return new RemoteUrlStatus {
+                    Type = RemoteUrlType.ParsedLinks.ToString(),
+                    Title = "",
+                    Image = "",
+                    Description = "",
+                    Links = new[] {
+                        new RemoteLinkInfo {
+                            Title = _downloader.Properties?.Title,
+                            Key = url,
+                            Value = url
+                        }
+                    }.ToList()
+                };
+            }
+
+            if (fileType == RemoteUrlType.Invalid && !_youTubeParser.ValidateUrl(url)) {
                 if (await _parser.Initialise(url)) {
                     var title = _parser.GetPageTitle();
                     var image = _parser.GetHeadTag("og:image");
@@ -67,13 +118,13 @@ namespace PodNoms.Common.Services.Processor {
                     var links = await _parser.GetAllAudioLinks();
                     if (links.Count > 0) {
                         return new RemoteUrlStatus {
-                            Type = "proxied",
+                            Type = RemoteUrlType.ParsedLinks.ToString(),
                             Title = "",
                             Image = "",
                             Description = "",
                             Links = links
-                                .GroupBy(r => r.Key)     // note to future me
-                                .Select(g => g.First())  // these lines dedupe on key - neato!!
+                                .GroupBy(r => r.Key) // note to future me
+                                .Select(g => g.First()) // these lines dedupe on key - neato!!
                                 .Select(r => new RemoteLinkInfo {
                                     Title = "",
                                     Key = r.Key,
@@ -87,12 +138,12 @@ namespace PodNoms.Common.Services.Processor {
             }
 
             return new RemoteUrlStatus {
-                Type = "native",
+                Type = fileType.ToString(),
                 Title = _downloader.Properties?.Title,
                 Image = _downloader.Properties?.Thumbnail,
                 Description = _downloader.Properties?.Description,
-                Links = new[]  {
-                    new RemoteLinkInfo{
+                Links = new[] {
+                    new RemoteLinkInfo {
                         Title = _downloader.Properties?.Title,
                         Key = url,
                         Value = url
@@ -119,8 +170,7 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<RemoteUrlType> GetInformation(PodcastEntry entry) {
-
-            var ret = await _downloader.GetInfo(entry.SourceUrl);
+            var info = await _downloader.GetInfo(entry.SourceUrl);
             if (!string.IsNullOrEmpty(_downloader.Properties?.Title) &&
                 string.IsNullOrEmpty(entry.Title)) {
                 entry.Title = _downloader.Properties?.Title;
@@ -135,11 +185,7 @@ namespace PodNoms.Common.Services.Processor {
                 _logger.LogWarning($"Unable to extract downloader info for: {entry.SourceUrl}");
             }
 
-            await _unitOfWork.CompleteAsync();
-
-            _logger.LogDebug("***DOWNLOAD INFO RETRIEVED****\n");
-            _logger.LogDebug($"Title: {entry.Title}\nDescription: {entry.Description}\nAuthor: {entry.Author}\n");
-            return ret;
+            return info;
         }
 
         public async Task<bool> DownloadAudio(Guid entryId, string outputFile) {
@@ -190,10 +236,12 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 );
             }
+
             return false;
         }
 
-        public async Task<bool> DownloadAudioV2(string outputId, string url, string outputFile, Func<ProcessingProgress, bool> progressCallback) {
+        public async Task<bool> DownloadAudioV2(string outputId, string url, string outputFile,
+            Func<ProcessingProgress, bool> progressCallback) {
             _downloader.DownloadProgress += (s, e) => {
                 progressCallback(e);
             };

@@ -6,7 +6,8 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         SingleItem,
         Playlist,
         Channel,
-        User
+        User,
+        ParsedLinks
     }
     public class RemoteLinkInfo {
         public string Title { get; set; }

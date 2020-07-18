@@ -57,7 +57,7 @@ namespace PodNoms.Common.Services.Jobs {
             return await Task.Factory.StartNew(() => true);
         }
 
-        // public async Task<bool> Execute(string itemId, Guid playlistId, PerformContext context) {
+        [MaximumConcurrentExecutions(1)]
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             _setContext(context);
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
@@ -83,7 +83,11 @@ namespace PodNoms.Common.Services.Jobs {
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
                     Log($"Downloading audio");
-                    var file = await _audioDownloader.DownloadAudio(uid.ToString(), url);
+                    var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+                    var file = await _audioDownloader.DownloadAudio(
+                        uid.ToString(),
+                        url,
+                        localFile);
                     Log($"Downloaded audio");
 
                     if (!File.Exists(file)) {

@@ -38,7 +38,9 @@ namespace PodNoms.Api.Controllers {
             if (podcast == null) {
                 return NotFound();
             }
-
+            if (string.IsNullOrEmpty(entry.SourceUrl)) {
+                return BadRequest("SourceUrl is empty");
+            }
             var playlist = new Playlist {
                 Podcast = podcast,
                 SourceUrl = entry.SourceUrl

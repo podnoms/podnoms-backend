@@ -121,9 +121,15 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 return null;
             }
 
-            public RemoteUrlType GetUrlType(string url) {
-                //TODO: this will need to be changed
-                return RemoteUrlType.SingleItem;
+            Task<RemoteUrlType> IRemoteAudioUrlQueryService.GetUrlType(string url) {
+                return Task.Factory.StartNew(() => RemoteUrlType.SingleItem);
+            }
+
+            public Task<List<ParsedItemResult>> GetParsedItems(string url, DateTime cutoffDate, int count = 10) {
+                throw new NotImplementedException();
+            }
+            public Task<List<ParsedItemResult>> GetChannelItems(string url, DateTime cutoffDate, int count = 10) {
+                throw new NotImplementedException();
             }
 
             public Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10) {
@@ -163,6 +169,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
                 return new List<ParsedItemResult>();
             }
+
         }
     }
 }

@@ -5,15 +5,11 @@ using NYoutubeDL.Models;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     public interface IRemoteAudioUrlQueryService {
-        RemoteUrlType GetUrlType(string url);
+        Task<RemoteUrlType> GetUrlType(string url);
+        Task<List<ParsedItemResult>> GetParsedItems(string url, DateTime cutoffDate, int count = 10);
         Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10);
+        Task<List<ParsedItemResult>> GetChannelItems(string url, DateTime cutoffDate, int count = 10);
         bool ValidateUrl(string url);
-    }
-    public interface IYouTubeParser : IRemoteAudioUrlQueryService {
-        Task<string> GetVideoId(string url);
-        Task<string> GetChannelId(string channelName);
-        Task<string> GetChannelIdentifier(string url);
-        Task<RemoteVideoInfo> GetInformation(string url);
     }
     public interface IMixCloudParser : IRemoteAudioUrlQueryService {
 

@@ -105,33 +105,36 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> ExecuteForEntry(PodcastEntry entry, string localFile,
             bool updateEntry, PerformContext context) {
-            if (!System.IO.File.Exists(localFile)) {
-                return false;
-            }
-
-            var imageUrl = entry.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName);
-            var localImageFile = string.Empty;
-            if (!string.IsNullOrEmpty(imageUrl)) {
-                localImageFile = await HttpUtils.DownloadFile(imageUrl);
-                if (!System.IO.File.Exists(localImageFile)) {
-                    localImageFile = await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
+            try {
+                if (!System.IO.File.Exists(localFile)) {
+                    return false;
                 }
+
+                var imageUrl = entry.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName);
+                var localImageFile = string.Empty;
+                if (!string.IsNullOrEmpty(imageUrl)) {
+                    localImageFile = await HttpUtils.DownloadFile(imageUrl);
+                    if (!System.IO.File.Exists(localImageFile)) {
+                        localImageFile = await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
+                    }
+                }
+
+                _tagger.CreateTags(
+                    localFile,
+                    localImageFile,
+                    entry.Title,
+                    entry.Podcast.Title,
+                    entry.Podcast.AppUser.GetBestGuessName(),
+                    $"Copyright © {System.DateTime.Now.Year} {entry.Podcast.AppUser.GetBestGuessName()}",
+                    $"Robot Powered Podcasts from{Environment.NewLine}https://podnoms.com/");
+
+                if (updateEntry) {
+                    entry.MetadataStatus = 1;
+                    await _unitOfWork.CompleteAsync();
+                }
+            } catch (Exception e) {
+                this.LogError($"Error tagging entry: {e.Message}");
             }
-
-            _tagger.CreateTags(
-                localFile,
-                localImageFile,
-                entry.Title,
-                entry.Podcast.Title,
-                entry.Podcast.AppUser.GetBestGuessName(),
-                $"Copyright © {System.DateTime.Now.Year} {entry.Podcast.AppUser.GetBestGuessName()}",
-                $"Robot Powered Podcasts from{Environment.NewLine}https://podnoms.com/");
-
-            if (updateEntry) {
-                entry.MetadataStatus = 1;
-                await _unitOfWork.CompleteAsync();
-            }
-
             return true;
         }
     }
