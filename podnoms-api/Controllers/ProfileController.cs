@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Auth;
@@ -18,7 +17,6 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Utils.Crypt;
 using PodNoms.Data.Models;
 using PodNoms.Data.Utils;
 
@@ -162,6 +160,11 @@ namespace PodNoms.Api.Controllers {
             var key = _mapper.Map<ApiKeyViewModel>(issue);
             key.PlainTextKey = plainTextKey;
             return key;
+        }
+
+        [HttpGet("subscription")]
+        public async Task<ActionResult<SubscriptionViewModel>> GetSubscription() {
+            return await Task.Run(() => Ok(_mapper.Map<SubscriptionViewModel>(_applicationUser)));
         }
 
         [HttpGet("opml-url")]

@@ -15,6 +15,11 @@ namespace PodNoms.Data.Configuration {
                     Id = System.Guid.NewGuid().ToString(),
                     Name = "catastrophic-api-calls-allowed",
                     NormalizedName = "catastrophic-api-calls-allowed".ToUpper()
+                },
+                new IdentityRole {
+                    Id = System.Guid.NewGuid().ToString(),
+                    Name = "god-mode",
+                    NormalizedName = "god-mode".ToUpper()
                 }
             );
         }

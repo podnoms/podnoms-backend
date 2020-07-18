@@ -68,7 +68,7 @@ namespace PodNoms.Jobs {
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddSingleton<RemoteImageCacher>()
                 .AddSingleton<ITweetListener, EpisodeFromTweetHandler>()
-                .AddScoped<IYouTubeParser, YouTubeParser>()
+                .AddScoped<IYouTubeParser, YouTubeExplodeParser>()
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()

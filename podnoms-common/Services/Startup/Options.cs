@@ -11,7 +11,9 @@ namespace PodNoms.Common.Services.Startup {
             services.AddOptions();
             services.Configure<AppSettings>(config.GetSection("AppSettings"));
             services.Configure<StorageSettings>(config.GetSection("StorageSettings"));
-            services.Configure<StripeSettings>(config.GetSection("StripeSettings"));
+            services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
+            services.Configure<StripeSettings>(config.GetSection("PaymentSettings:StripeSettings"));
+            services.Configure<PatreonSettings>(config.GetSection("PaymentSettings:PatreonSettings"));
             services.Configure<ApiKeyAuthSettings>(config.GetSection("ApiKeyAuthSettings"));
             services.Configure<HelpersSettings>(config.GetSection("HelpersSettings"));
             services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
@@ -19,7 +21,6 @@ namespace PodNoms.Common.Services.Startup {
             services.Configure<ChatSettings>(config.GetSection("ChatSettings"));
             services.Configure<SharingSettings>(config.GetSection("SharingSettings"));
             services.Configure<TwitterStreamListenerSettings>(config.GetSection("TwitterStreamListenerSettings"));
-            services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
             services.Configure<ImageFileStorageSettings>(config.GetSection("ImageFileStorageSettings"));
             services.Configure<AudioFileStorageSettings>(config.GetSection("AudioFileStorageSettings"));
             services.Configure<WaveformDataFileStorageSettings>(config.GetSection("WaveformDataFileStorageSettings"));

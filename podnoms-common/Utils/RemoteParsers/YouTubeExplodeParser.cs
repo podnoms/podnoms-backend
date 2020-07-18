@@ -171,20 +171,23 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         public async Task<RemoteUrlType> GetUrlType(string url) {
-            // Video ID
-            var videoId = VideoId.TryParse(url);
-            if (!string.IsNullOrEmpty(videoId)) {
-                return RemoteUrlType.SingleItem;
-            }
-            var playlistId = PlaylistId.TryParse(url);
-            if (!string.IsNullOrEmpty(playlistId)) {
-                return RemoteUrlType.Playlist;
-            }
-            var channelId = ChannelId.TryParse(url);
-            if (!string.IsNullOrEmpty(channelId) || url.Contains("/c/")) {
-                return RemoteUrlType.Channel;
-            }
-            return RemoteUrlType.Invalid;
+            return await Task.Run(() => {
+                // Video ID
+                var videoId = VideoId.TryParse(url);
+                if (!string.IsNullOrEmpty(videoId)) {
+                    return RemoteUrlType.SingleItem;
+                }
+                var playlistId = PlaylistId.TryParse(url);
+                if (!string.IsNullOrEmpty(playlistId)) {
+                    return RemoteUrlType.Playlist;
+                }
+                var channelId = ChannelId.TryParse(url);
+                if (!string.IsNullOrEmpty(channelId) || url.Contains("/c/")) {
+                    return RemoteUrlType.Channel;
+                }
+                return RemoteUrlType.Invalid;
+
+            });
         }
 
     }
