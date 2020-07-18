@@ -18,12 +18,13 @@ namespace PodNoms.Api.Controllers.Public {
         [HttpGet("validate")]
         public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url) {
             try {
-                var result = await _processService.ValidateUrl(url);
+                var result = await _processService.ValidateUrl(url, false);
                 return Ok(result);
             } catch (UrlParseException) {
                 return NoContent();
             }
         }
+
         [HttpGet("process")]
         public ActionResult ProcessUrl([FromQuery] string url) {
             try {

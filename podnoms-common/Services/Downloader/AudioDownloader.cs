@@ -68,6 +68,8 @@ namespace PodNoms.Common.Services.Downloader {
                     }
                 };
 
+                var cmdLine = await yt.PrepareDownloadAsync();
+                Console.WriteLine($"Getting download info {cmdLine}");
                 var info = await yt.GetDownloadInfoAsync();
                 if (info is null ||
                     info.Errors.Count != 0 ||
@@ -92,7 +94,7 @@ namespace PodNoms.Common.Services.Downloader {
             return info?.Title;
         }
 
-        public async Task<RemoteUrlType> GetInfo(string url) {
+        public async Task<RemoteUrlType> GetInfo(string url, bool goDeep = false) {
             var ret = RemoteUrlType.Invalid;
 
             if (url.Contains("drive.google.com") ||
@@ -103,11 +105,10 @@ namespace PodNoms.Common.Services.Downloader {
 
             if (_youTubeParser.ValidateUrl(url)) {
                 //we're youtube. bypass youtube_dl for info - it's very slow
-                var urlType = _youTubeParser.GetUrlType(url);
+                var urlType = await _youTubeParser.GetUrlType(url);
                 if (urlType == RemoteUrlType.SingleItem) {
                     Properties = await _youTubeParser.GetInformation(url);
                 }
-
                 return urlType;
             }
 
@@ -143,6 +144,9 @@ namespace PodNoms.Common.Services.Downloader {
 
         public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
 
+            if (string.IsNullOrEmpty(outputFile)) {
+
+            }
             var templateFile = string.IsNullOrEmpty(outputFile) ?
                     Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
                 outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename

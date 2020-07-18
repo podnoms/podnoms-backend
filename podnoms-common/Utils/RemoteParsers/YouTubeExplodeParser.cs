@@ -14,16 +14,20 @@ namespace PodNoms.Common.Utils.RemoteParsers {
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+    using global::PodNoms.Common.Data.Settings;
+    using global::PodNoms.Common.Services.Processor;
+    using global::PodNoms.Common.Utils.RemoteParsers.PodNoms.Common.Utils.RemoteParsers;
+    using Microsoft.Extensions.Options;
 
     namespace PodNoms.Common.Utils.RemoteParsers {
     }
-    public class YouTubeQueryService : IYouTubeParser {
+    public class YouTubeExplodeParser : IYouTubeParser {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
 
         private readonly YoutubeClient _client = new YoutubeClient();
-        private readonly ILogger<YouTubeQueryService> _logger;
+        private readonly ILogger<YouTubeExplodeParser> _logger;
 
-        public YouTubeQueryService(ILogger<YouTubeQueryService> logger) {
+        public YouTubeExplodeParser(IOptions<AppSettings> options, ILogger<YouTubeExplodeParser> logger) {
             this._logger = logger;
         }
 
@@ -48,7 +52,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         public async Task<string> GetChannelIdentifier(string url) {
-            var type = GetUrlType(url);
+            var type = await GetUrlType(url);
             if (type == RemoteUrlType.Channel) {
                 var channel = await _client.Channels.GetAsync(url);
                 return channel.Id.Value;
@@ -62,21 +66,21 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return string.Empty;
         }
 
-        public async Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10) {
+        public async Task<List<ParsedItemResult>> GetParsedItems(string url, DateTime cutoffDate, int count = 10) {
             //need to do a little dance here.. URL can be
             //  1. User
             //  2. Channel
             //  3. Playlist
             //all of which can translate to a PodNoms playlist
             try {
-                var channelType = GetUrlType(url);
+                var channelType = await GetUrlType(url);
                 List<ParsedItemResult> results = null;
                 switch (channelType) {
                     case RemoteUrlType.Channel:
-                        results = await _getChannelItems(url, count);
+                        results = await GetChannelItems(url, System.DateTime.Now.AddDays(-28), count);
                         break;
                     case RemoteUrlType.Playlist:
-                        results = await _getPlaylistItems(url, count);
+                        results = await GetPlaylistItems(url, System.DateTime.Now.AddDays(-28), count);
                         break;
                 }
 
@@ -94,23 +98,40 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             throw new YoutubeChannelParseException($"Unknown channel type {url}");
         }
 
-        private async Task<List<ParsedItemResult>> _getPlaylistItems(string url, int count = 10) {
-            var videos = await _client.Playlists.GetVideosAsync(url);
-            var results = videos
+        // public async Task<List<ParsedItemResult>> GetPlaylistItems(string url, int count = 10) {
+        //     var videos = await _client.Playlists.GetVideosAsync(url);
+        //     var results = videos
+        //         .Select(r => new ParsedItemResult {
+        //             Id = r.Id,
+        //             Title = r.Title,
+        //             VideoType = "YouTube",
+        //             UploadDate = r.UploadDate.Date
+        //         })
+        //         .Reverse()
+        //         .Take(count).ToList();
+        //     return results;
+        // }
+
+        public async Task<List<ParsedItemResult>> GetChannelItems(string url, DateTime cutoffDate, int count = 10) {
+            var videos = await _client.Channels.GetUploadsAsync(url);
+            return videos
                 .Select(r => new ParsedItemResult {
                     Id = r.Id,
                     Title = r.Title,
                     VideoType = "YouTube",
                     UploadDate = r.UploadDate.Date
                 })
-                .Reverse()
+                .OrderByDescending(r => r.UploadDate)
                 .Take(count).ToList();
-            return results;
         }
-
-        private async Task<List<ParsedItemResult>> _getChannelItems(string url, int count = 10) {
-            var videos = await _client.Channels.GetUploadsAsync(url);
+        public async Task<List<ParsedItemResult>> GetPlaylistItems(string url, DateTime cutoffDate, int count = 10) {
+            var result = PlaylistId.TryParse(url);
+            if (result == null) {
+                throw new InvalidOperationException($"This does not look like a playlist: {url}");
+            }
+            var videos = await _client.Playlists.GetVideosAsync(result.Value);
             return videos
+                .Where(r => r.UploadDate >= cutoffDate)
                 .Select(r => new ParsedItemResult {
                     Id = r.Id,
                     Title = r.Title,
@@ -149,28 +170,22 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return null;
         }
 
-        public RemoteUrlType GetUrlType(string url) {
+        public async Task<RemoteUrlType> GetUrlType(string url) {
             // Video ID
-            try {
-                new VideoId(url);
+            var videoId = VideoId.TryParse(url);
+            if (!string.IsNullOrEmpty(videoId)) {
                 return RemoteUrlType.SingleItem;
-            } catch (ArgumentException) { }
-
-            // Playlist ID
-            try {
-                new PlaylistId(url);
-                return RemoteUrlType.Playlist;
-            } catch (ArgumentException) { }
-
-            // Channel ID
-            try {
-                new ChannelId(url);
-                return RemoteUrlType.Channel;
-            } catch (ArgumentException) { }
-
-            {
-                return RemoteUrlType.Invalid;
             }
+            var playlistId = PlaylistId.TryParse(url);
+            if (!string.IsNullOrEmpty(playlistId)) {
+                return RemoteUrlType.Playlist;
+            }
+            var channelId = ChannelId.TryParse(url);
+            if (!string.IsNullOrEmpty(channelId) || url.Contains("/c/")) {
+                return RemoteUrlType.Channel;
+            }
+            return RemoteUrlType.Invalid;
         }
+
     }
 }

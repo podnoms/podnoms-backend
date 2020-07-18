@@ -7,14 +7,14 @@ namespace PodNoms.Data.Utils {
         public static void SeedUsers(UserManager<ApplicationUser> userManager, IConfiguration config) {
             var item = config["AdminUserSettings"];
             var nestedItem = config["AdminUserSettings"];
-            _createUserIfNeeded(
-                config["AdminUserSettings:TestUser:UserName"],
-                config["AdminUserSettings:TestUser:Name"],
-                config["AdminUserSettings:TestUser:Email"],
-                config["AdminUserSettings:TestUser:Password"],
-                new string[] { "catastrophic-api-calls-allowed" },
-                userManager
-            );
+            var user = _createUserIfNeeded(
+                 config["AdminUserSettings:TestUser:UserName"],
+                 config["AdminUserSettings:TestUser:Name"],
+                 config["AdminUserSettings:TestUser:Email"],
+                 config["AdminUserSettings:TestUser:Password"],
+                 new string[] { "catastrophic-api-calls-allowed" },
+                 userManager);
+
             _createUserIfNeeded(
                 config["AdminUserSettings:AdminUser:UserName"],
                 config["AdminUserSettings:AdminUser:Name"],
@@ -25,7 +25,7 @@ namespace PodNoms.Data.Utils {
             );
         }
 
-        private static void _createUserIfNeeded(string userName, string name, string email, string password, string[] roles, UserManager<ApplicationUser> userManager) {
+        private static ApplicationUser _createUserIfNeeded(string userName, string name, string email, string password, string[] roles, UserManager<ApplicationUser> userManager) {
             if (userManager.FindByEmailAsync(email).Result == null) {
                 var user = new ApplicationUser {
                     UserName = email,
@@ -40,7 +40,9 @@ namespace PodNoms.Data.Utils {
                         userManager.AddToRoleAsync(user, role).Wait();
                     }
                 }
+                return user;
             }
+            return null;
         }
     }
 }

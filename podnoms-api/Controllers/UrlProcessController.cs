@@ -19,8 +19,8 @@ namespace PodNoms.Api.Controllers {
         private readonly AudioDownloader _downloader;
 
         public UrlProcessController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                ILogger<UrlProcessController> logger, IUrlProcessService processService,
-                AudioDownloader downloader) :
+            ILogger<UrlProcessController> logger, IUrlProcessService processService,
+            AudioDownloader downloader) :
             base(contextAccessor, userManager, logger) {
             this._processService = processService;
             this._downloader = downloader;
@@ -33,18 +33,20 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
-        public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url) {
+        public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url,
+            [FromQuery] bool urlTypeRequired = false) {
             try {
-                var result = await _processService.ValidateUrl(url);
+                var result = await _processService.ValidateUrl(url, urlTypeRequired);
                 return Ok(result);
             } catch (UrlParseException) {
                 return NoContent();
             }
         }
+
         [HttpGet("process")]
         public async Task<ActionResult<RemoteUrlStatus>> ProcessUrl([FromQuery] string url) {
             try {
-                var result = await _processService.ValidateUrl(url);
+                var result = await _processService.ValidateUrl(url, false);
                 return Ok(result);
             } catch (UrlParseException) {
                 return NoContent();

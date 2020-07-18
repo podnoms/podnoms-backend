@@ -51,6 +51,7 @@ namespace PodNoms.Data.Models {
 
         public NotificationOptions EmailNotificationOptions { get; set; }
 
+        public virtual List<IssuedApiKey> IssuedApiKeys { get; set; }
 
         public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
             RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));
