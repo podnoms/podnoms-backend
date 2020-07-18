@@ -103,15 +103,13 @@ namespace PodNoms.Common.Services.Downloader {
                 return RemoteUrlType.SingleItem;
             }
 
-            if (!goDeep) {
-                if (_youTubeParser.ValidateUrl(url)) {
-                    //we're youtube. bypass youtube_dl for info - it's very slow
-                    var urlType = await _youTubeParser.GetUrlType(url);
-                    if (urlType == RemoteUrlType.SingleItem) {
-                        Properties = await _youTubeParser.GetInformation(url);
-                    }
-                    return urlType;
+            if (_youTubeParser.ValidateUrl(url)) {
+                //we're youtube. bypass youtube_dl for info - it's very slow
+                var urlType = await _youTubeParser.GetUrlType(url);
+                if (urlType == RemoteUrlType.SingleItem) {
+                    Properties = await _youTubeParser.GetInformation(url);
                 }
+                return urlType;
             }
 
             var info = await __getInfo(url);

@@ -181,7 +181,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 return RemoteUrlType.Playlist;
             }
             var channelId = ChannelId.TryParse(url);
-            if (!string.IsNullOrEmpty(videoId)) {
+            if (!string.IsNullOrEmpty(channelId) || url.Contains("/c/")) {
                 return RemoteUrlType.Channel;
             }
             return RemoteUrlType.Invalid;

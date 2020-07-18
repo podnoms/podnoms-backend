@@ -95,7 +95,7 @@ namespace PodNoms.Common.Services.Processor {
 
             if (fileType != RemoteUrlType.Invalid) {
                 return new RemoteUrlStatus {
-                    Type = RemoteUrlType.ParsedLinks.ToString(),
+                    Type = fileType.ToString(),
                     Title = "",
                     Image = "",
                     Description = "",
