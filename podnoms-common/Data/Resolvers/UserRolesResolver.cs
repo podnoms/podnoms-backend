@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data {
+namespace PodNoms.Common.Data.Resolvers {
     internal class UserRolesResolver : IValueResolver<ApplicationUser, ProfileViewModel, List<string>> {
         private readonly UserManager<ApplicationUser> _userManager;
 

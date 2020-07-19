@@ -1,14 +1,8 @@
 using System;
-using System.Net;
 using System.Net.Http;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using PodNoms.Common.Auth;
-using PodNoms.Common.Persistence;
-using PodNoms.Data.Models;
+using PodNoms.Common.Services.Network;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -31,6 +25,10 @@ namespace PodNoms.Common.Services.Startup {
                 c.BaseAddress = new Uri("https://api.mixcloud.com/");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
             });
+
+            services.AddHttpClient("patreon", c => {
+                c.BaseAddress = new Uri("https://www.patreon.com/api/");
+            })/*.ConfigurePrimaryHttpMessageHandler(() => HttpProxyFactory.GetZapProxy())*/;
 
             services.AddHttpClient("unsplash", c => {
                 c.BaseAddress = new Uri("https://api.unsplash.com/");

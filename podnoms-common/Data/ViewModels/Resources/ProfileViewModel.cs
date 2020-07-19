@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using PodNoms.Common.Data.Enums;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {
@@ -16,11 +17,9 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string ThumbnailImageUrl { get; set; }
         public string ApiKey { get; set; }
         public int EmailNotificationOptions { get; set; }
-        public bool HasSubscribed { get; set; }
-        public string SubscriptionType { get; set; }
-        public bool SubscriptionValid { get; set; }
-        public bool IsFluent { get; set; }
         public DateTime? SubscriptionValidUntil { get; set; }
+        public bool IsFluent { get; set; }
         public List<string> Roles { get; set; }
+        public SubscriptionViewModel Subscription { get; set; }
     }
 }

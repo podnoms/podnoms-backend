@@ -36,8 +36,6 @@ namespace PodNoms.Data.Models {
         public List<Donation> Donations { get; set; }
         public List<Podcast> Podcasts { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
-        public bool IsAdmin { get; set; } = false;
-
         public DateTime LastSeen { get; set; }
         public string IpAddress { get; set; }
         public string CountryCode { get; set; }
@@ -48,7 +46,9 @@ namespace PodNoms.Data.Models {
         public string Zip { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
-
+        
+        public PatreonToken PatreonToken { get; set; }
+        
         public NotificationOptions EmailNotificationOptions { get; set; }
 
         public virtual List<IssuedApiKey> IssuedApiKeys { get; set; }

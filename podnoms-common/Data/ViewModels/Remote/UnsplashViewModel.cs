@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 
 namespace PodNoms.Common.Data.ViewModels.Remote {
-
     public class Urls {
         public string raw { get; set; }
         public string full { get; set; }

@@ -187,18 +187,6 @@ namespace PodNoms.Common.Data {
                        _options.GetSection("StorageSettings")["ImageUrl"],
                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
-                    src => src.HasSubscribed,
-                    map => map.MapFrom<ProfileHasSubscribedResolver>()
-                )
-                .ForMember(
-                    src => src.SubscriptionType,
-                    map => map.MapFrom<ProfileSubscriptionResolver>()
-                )
-                .ForMember(
-                    src => src.SubscriptionValid,
-                    map => map.MapFrom<ProfileSubscriptionValidResolver>()
-                )
-                .ForMember(
                     src => src.SubscriptionValidUntil,
                     map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
                 )
@@ -210,7 +198,22 @@ namespace PodNoms.Common.Data {
                    src => src.Roles,
                    map => map.MapFrom<UserRolesResolver>()
                );
-
+            CreateMap<ApplicationUser, SubscriptionViewModel>()
+                .ForMember(
+                    src => src.UserId,
+                    map => map.MapFrom(r => r.Id.ToString())
+                ).ForMember(
+                    src => src.HasSubscribed,
+                    map => map.MapFrom<ProfileHasSubscribedResolver>()
+                )
+                .ForMember(
+                    src => src.SubscriptionType,
+                    map => map.MapFrom<ProfileSubscriptionResolver>()
+                )
+                .ForMember(
+                    src => src.SubscriptionValid,
+                    map => map.MapFrom<ProfileSubscriptionValidResolver>()
+                );
             CreateMap<BaseNotificationConfig, NotificationConfigViewModel>()
                 .ForMember(
                     src => src.Options,
