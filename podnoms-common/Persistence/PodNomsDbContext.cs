@@ -77,9 +77,9 @@ namespace PodNoms.Common.Persistence {
                 .HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<ApplicationUser>()
-                .Property(p => p.IsAdmin)
-                .IsRequired()
-                .HasDefaultValue(false);
+                .HasOne(r => r.PatreonToken)
+                .WithOne(a => a.AppUser)
+                .HasForeignKey<PatreonToken>(t => t.AppUserId);
 
             modelBuilder.Entity<ApplicationUser>(ConfigureUser);
 
@@ -176,6 +176,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<AccountSubscription> AccountSubscriptions { get; set; }
         public DbSet<ApplicationUserSlugRedirects> ApplicationUserSlugRedirects { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<PatreonToken> PatreonTokens { get; set; }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }

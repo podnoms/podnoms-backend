@@ -19,6 +19,5 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
 
         public int PodcastCount { get; set; }
         public int EntryCount { get; set; }
-        public bool IsAdmin { get; set; }
     }
 }

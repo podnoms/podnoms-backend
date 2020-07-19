@@ -66,6 +66,9 @@ namespace PodNoms.Common.Auth {
             return await base.UpdateAsync(user);
         }
 
+        public async Task AddPatreonToken(PatreonToken token) {
+            
+        }
         private async Task _imageify(ApplicationUser user) {
             if (string.IsNullOrEmpty(user.PictureUrl)) {
                 var gravatar = await _gravatarClient.GetGravatarImage(user.Email);
