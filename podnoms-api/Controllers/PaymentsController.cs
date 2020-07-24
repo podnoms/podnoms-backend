@@ -57,6 +57,7 @@ namespace PodNoms.Api.Controllers {
                     TransactionId = e.TransactionId,
                     Amount = e.Amount,
                     WasSuccessful = e.WasSuccessful,
+                    Tier = e.Tier,
                     Type = e.Type,
                     CreateDate = e.CreateDate,
                     StartDate = e.StartDate,
@@ -76,7 +77,7 @@ namespace PodNoms.Api.Controllers {
                 "PodNoms subscription",
                 _applicationUser.Id,
                 new object[] { _applicationUser.Email, payment.Token });
-            if (payment.Type == AccountSubscriptionType.Free && result.Paid) {
+            if (payment.Tier == AccountSubscriptionTier.Free && result.Paid) {
                 this._donationRepository.AddOrUpdate(new Donation {
                     AppUser = _applicationUser,
                     Amount = payment.Amount,
@@ -93,7 +94,7 @@ namespace PodNoms.Api.Controllers {
                 this._paymentRepository.AddPayment(
                     _applicationUser, orderId,
                     payment.Amount, // convert from cents to 
-                    payment.Type,
+                    payment.Tier,
                     result.Paid,
                     result.ReceiptURL);
             }
@@ -132,7 +133,7 @@ namespace PodNoms.Api.Controllers {
         [AllowAnonymous]
         [HttpGet("pricingtier/{tierType}")]
         public ActionResult<PricingTierController> GetPricingTier(string tierType) {
-            if (Enum.TryParse(tierType, out AccountSubscriptionType type)) {
+            if (Enum.TryParse(tierType, out AccountSubscriptionTier type)) {
                 var tiers = new PricingTierController().PricingTiers.Where(r => r.Type == type);
                 if (tiers.Count() != 0) {
                     return Ok(tiers.FirstOrDefault());

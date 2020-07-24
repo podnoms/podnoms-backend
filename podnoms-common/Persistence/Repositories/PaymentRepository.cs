@@ -10,7 +10,7 @@ using PodNoms.Data.Extensions;
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IPaymentRepository : IRepository<AccountSubscription> {
         bool Overlaps(string appUserId, DateTime startDate, DateTime endDate);
-        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, AccountSubscriptionType paymentType, bool paid, string receipt);
+        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, AccountSubscriptionTier paymentType, bool paid, string receipt);
         IEnumerable<AccountSubscription> GetAllValidSubscriptions(string id);
     }
 
@@ -26,7 +26,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
 
         public void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount,
-            AccountSubscriptionType paymentType, bool paid, string receipt) {
+            AccountSubscriptionTier paymentType, bool paid, string receipt) {
             var existingSubscription = GetAll()
                 .Where(r => r.AppUser == appUser)
                 .OrderByDescending(e => e.EndDate)
@@ -38,7 +38,8 @@ namespace PodNoms.Common.Persistence.Repositories {
                 : existingSubscription.AddHours(1);
 
             var newPayment = new AccountSubscription {
-                Type = paymentType,
+                Tier = paymentType,
+                Type = AccountSubscriptionType.Stripe,
                 AppUser = appUser,
                 StartDate = startDate,
                 EndDate = startDate.AddMonths(1),

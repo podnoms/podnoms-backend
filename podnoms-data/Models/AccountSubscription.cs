@@ -4,6 +4,11 @@ using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     public enum AccountSubscriptionType {
+        Stripe,
+        Patreon
+    }
+
+    public enum AccountSubscriptionTier {
         Free,
         Personal,
         Professional
@@ -21,6 +26,7 @@ namespace PodNoms.Data.Models {
         public long Amount { get; set; }
         public string TransactionId { get; set; }
 
+        public AccountSubscriptionTier Tier { get; set; }
         public AccountSubscriptionType Type { get; set; }
 
         public DateTime CreateDate { get; set; }

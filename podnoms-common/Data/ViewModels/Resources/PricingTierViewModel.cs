@@ -3,7 +3,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PricingTierViewModel {
-        public AccountSubscriptionType Type { get; set; }
+        public AccountSubscriptionTier Type { get; set; }
         public string Title { get; set; }
         public long CostPerMonth { get; set; }
         public List<string> Details { get; set; }
@@ -11,9 +11,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PricingTierController {
         public PricingTierController() {
             this.PricingTiers = new List<PricingTierViewModel>();
-            this.PricingTiers.Add(new PricingTierViewModel
-            {
-                Type = AccountSubscriptionType.Free,
+            this.PricingTiers.Add(new PricingTierViewModel {
+                Type = AccountSubscriptionTier.Free,
                 Title = "Free",
                 CostPerMonth = 0,
                 Details = new List<string>(new string[]{
@@ -24,9 +23,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
                     "Email support",
                 })
             });
-            this.PricingTiers.Add(new PricingTierViewModel
-            {
-                Type = AccountSubscriptionType.Personal,
+            this.PricingTiers.Add(new PricingTierViewModel {
+                Type = AccountSubscriptionTier.Personal,
                 Title = "Personal",
                 CostPerMonth = 499,
                 Details = new List<string>(new string[]{
@@ -37,9 +35,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
                     "Priority email support"
                 })
             });
-            this.PricingTiers.Add(new PricingTierViewModel
-            {
-                Type = AccountSubscriptionType.Professional,
+            this.PricingTiers.Add(new PricingTierViewModel {
+                Type = AccountSubscriptionTier.Professional,
                 Title = "Professional",
                 CostPerMonth = 999,
                 Details = new List<string>(new string[]{
