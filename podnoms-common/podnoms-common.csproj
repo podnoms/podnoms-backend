@@ -84,13 +84,11 @@
         <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
         <PackageReference Include="TweetinviAPI" Version="4.0.3" />
         <PackageReference Include="WebPush" Version="1.0.11" />
+        <PackageReference Include="YoutubeExplode" Version="5.1.1" />
         <PackageReference Include="zxcvbn-core" Version="2.1.44" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="/home/fergalm/working/YoutubeExplode/YoutubeExplode/YoutubeExplode.csproj" />
-        <!--        <ProjectReference Include="..\..\..\..\working\ImageSharp.Web\src\ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj" />-->
-        <!--        <ProjectReference Include="..\..\..\..\working\ImageSharp.Web\src\ImageSharp.Web\ImageSharp.Web.csproj" />-->
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
     </ItemGroup>
 

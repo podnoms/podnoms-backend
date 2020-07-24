@@ -46,9 +46,9 @@ namespace PodNoms.Data.Models {
         public string Zip { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
-        
+
         public PatreonToken PatreonToken { get; set; }
-        
+
         public NotificationOptions EmailNotificationOptions { get; set; }
 
         public virtual List<IssuedApiKey> IssuedApiKeys { get; set; }
