@@ -119,8 +119,8 @@ namespace PodNoms.Common.Services.Processor {
                     if (links.Count > 0) {
                         return new RemoteUrlStatus {
                             Type = RemoteUrlType.ParsedLinks.ToString(),
-                            Title = "",
-                            Image = "",
+                            Title = title,
+                            Image = image,
                             Description = "",
                             Links = links
                                 .GroupBy(r => r.Key) // note to future me

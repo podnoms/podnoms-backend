@@ -56,7 +56,7 @@ namespace PodNoms.Api.Controllers.Subscriptions {
                 new KeyValuePair<string, string>("code", accessKey),
                 new KeyValuePair<string, string>("client_id", _patreonSettings.ClientId),
                 new KeyValuePair<string, string>("client_secret", _patreonSettings.ClientSecret),
-                new KeyValuePair<string, string>("redirect_uri", "https://dev.pdnm.be:4200/auth/redir/patreon")
+                new KeyValuePair<string, string>("redirect_uri", $"{_appSettings.SiteUrl}/auth/redir/patreon")
             });
 
             var client = _httpClientFactory.CreateClient("patreon");
