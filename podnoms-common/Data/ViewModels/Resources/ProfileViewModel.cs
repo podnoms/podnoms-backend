@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PodNoms.Common.Data.Enums;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {

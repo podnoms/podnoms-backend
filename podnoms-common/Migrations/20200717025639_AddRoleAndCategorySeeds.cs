@@ -10,6 +10,7 @@ namespace PodNoms.Comon.Migrations {
                 values: new object[,]
                 {
                     { "f1c6e6a8-2461-48f2-ab7a-569a3b75b280", "5bbeb1b1-09b6-45ab-8fd2-7131445bb72b", "website-admin", "WEBSITE-ADMIN" },
+                    { "6105993d-c572-4c5c-9c9f-acc1a031e4f3", "ddba6285-ea21-453c-b4c8-d381c118603e",  "god-mode", "GOD-MODE"},
                     { "dba18578-271a-40de-8cb3-e21f97fcf159", "da355d84-9e05-4c71-8356-cc433ca4e42c", "catastrophic-api-calls-allowed", "CATASTROPHIC-API-CALLS-ALLOWED" }
                 });
 

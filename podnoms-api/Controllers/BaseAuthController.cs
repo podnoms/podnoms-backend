@@ -34,11 +34,13 @@ namespace PodNoms.Api.Controllers {
                     _userId = _caller.Claims.Single(c => c.Type == "id")?.Value;
                     if (_userId != null) {
                         _applicationUser = userManager.FindByIdAsync(_userId).Result;
+                        if (_applicationUser is null) {
+                            throw new NotAuthorisedException("Unable to find authorised user for this request");
+                        }
                     }
                 }
             } catch (System.InvalidOperationException ex) {
                 _logger.LogError($"Error constructing BaseAuthController: \n{ex.Message}");
-
             }
         }
     }

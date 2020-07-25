@@ -7,7 +7,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Common.Services;
 using PodNoms.Data.Enums;
-using PodNoms.Common.Data.Enums;
 
 namespace PodNoms.Common.Data.Resolvers {
     internal class ProfileSubscriptionResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, string> {
@@ -22,10 +21,9 @@ namespace PodNoms.Common.Data.Resolvers {
 
         public string Resolve(ApplicationUser source, SubscriptionViewModel destination,
                                 string destMember, ResolutionContext context) {
-            var isAdmin = AsyncHelper.RunSync(() => {
-                return _userManager.IsInRoleAsync(source, "god-mode");
-            });
-            return isAdmin ? SubscriptionType.VIP.ToString() : SubscriptionType.Freeloader.ToString();
+            var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
+            
+            return isAdmin ? AccountSubscriptionTier.VIP.ToString() : AccountSubscriptionTier.Freeloader.ToString();
         }
     }
 }

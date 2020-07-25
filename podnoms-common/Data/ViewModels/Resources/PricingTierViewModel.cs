@@ -12,7 +12,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public PricingTierController() {
             this.PricingTiers = new List<PricingTierViewModel>();
             this.PricingTiers.Add(new PricingTierViewModel {
-                Type = AccountSubscriptionTier.Free,
+                Type = AccountSubscriptionTier.Freeloader,
                 Title = "Free",
                 CostPerMonth = 0,
                 Details = new List<string>(new string[]{
@@ -24,7 +24,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
                 })
             });
             this.PricingTiers.Add(new PricingTierViewModel {
-                Type = AccountSubscriptionTier.Personal,
+                Type = AccountSubscriptionTier.Patron,
                 Title = "Personal",
                 CostPerMonth = 499,
                 Details = new List<string>(new string[]{
@@ -36,7 +36,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
                 })
             });
             this.PricingTiers.Add(new PricingTierViewModel {
-                Type = AccountSubscriptionTier.Professional,
+                Type = AccountSubscriptionTier.AllAccess,
                 Title = "Professional",
                 CostPerMonth = 999,
                 Details = new List<string>(new string[]{

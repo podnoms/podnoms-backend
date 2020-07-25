@@ -30,6 +30,14 @@ namespace PodNoms.Common.Services.Startup {
                 c.BaseAddress = new Uri("https://www.patreon.com/api/");
             })/*.ConfigurePrimaryHttpMessageHandler(() => HttpProxyFactory.GetZapProxy())*/;
 
+            services.AddHttpClient("youtube", c => {
+                c.BaseAddress = new Uri("https://www.googleapis.com/youtube/v3/");
+                c.DefaultRequestHeaders.Add(
+                    "Accept",
+                    "*/*"
+                );
+            });
+
             services.AddHttpClient("unsplash", c => {
                 c.BaseAddress = new Uri("https://api.unsplash.com/");
                 c.DefaultRequestHeaders.Add(

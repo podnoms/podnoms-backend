@@ -77,7 +77,7 @@ namespace PodNoms.Api.Controllers {
                 "PodNoms subscription",
                 _applicationUser.Id,
                 new object[] { _applicationUser.Email, payment.Token });
-            if (payment.Tier == AccountSubscriptionTier.Free && result.Paid) {
+            if (payment.Tier == AccountSubscriptionTier.Freeloader && result.Paid) {
                 this._donationRepository.AddOrUpdate(new Donation {
                     AppUser = _applicationUser,
                     Amount = payment.Amount,

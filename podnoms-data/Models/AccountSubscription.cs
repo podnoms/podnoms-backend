@@ -9,9 +9,10 @@ namespace PodNoms.Data.Models {
     }
 
     public enum AccountSubscriptionTier {
-        Free,
-        Personal,
-        Professional
+        Freeloader,
+        Patron,
+        AllAccess,
+        VIP
     }
     public class AccountSubscription : IEntity {
 

@@ -14,11 +14,11 @@ namespace PodNoms.Data.Models {
         StorageExceeded = 8,
         PlaylistEntryCountExceeded = 16
     }
+
     //TODO: Perhaps this shouldn't be a slug, it's the most visible slug in the application
     //TODO: And it causes confusion for users as it isn't an everyday term
     //TODO: It's really just a unique username
     public class ApplicationUser : IdentityUser, ISluggedEntity {
-
         // Extended Properties
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -32,10 +32,10 @@ namespace PodNoms.Data.Models {
         [SlugField(sourceField: "FullName")] public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
-        public List<AccountSubscription> AccountSubscriptions { get; set; }
-        public List<Donation> Donations { get; set; }
-        public List<Podcast> Podcasts { get; set; }
-        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public virtual List<AccountSubscription> AccountSubscriptions { get; set; } = new List<AccountSubscription>();
+        public virtual List<Donation> Donations { get; set; } = new List<Donation>();
+        public virtual List<Podcast> Podcasts { get; set; }
+        public virtual List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public DateTime LastSeen { get; set; }
         public string IpAddress { get; set; }
         public string CountryCode { get; set; }
@@ -51,7 +51,7 @@ namespace PodNoms.Data.Models {
 
         public NotificationOptions EmailNotificationOptions { get; set; }
 
-        public virtual List<IssuedApiKey> IssuedApiKeys { get; set; }
+        public virtual List<IssuedApiKey> IssuedApiKeys { get; set; } = new List<IssuedApiKey>();
 
         public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
             RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));
@@ -65,23 +65,37 @@ namespace PodNoms.Data.Models {
             if (!string.IsNullOrEmpty(FullName?.Trim())) {
                 return FullName;
             }
+
             if (!string.IsNullOrEmpty(FirstName?.Trim()) || !string.IsNullOrEmpty(LastName?.Trim())) {
                 return $"{FirstName} {LastName}".Trim();
             }
+
             return Email.Split('@')[0];
         }
+
         public string GetImageUrl(string cdnUrl, string containerName) =>
             GetImageUrl(cdnUrl, containerName, "jpg");
+
         public string GetImageUrl(string cdnUrl, string containerName, string extension) =>
-            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com") ? //TODO: <-- this is temporary
-                PictureUrl :
-                $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=725&height=748";
+            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com")
+                ? //TODO: <-- this is temporary
+                PictureUrl
+                : $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=725&height=748";
 
         public string GetThumbnailUrl(string cdnUrl, string containerName) =>
             GetThumbnailUrl(cdnUrl, containerName, "jpg");
+
         public string GetThumbnailUrl(string cdnUrl, string containerName, string extension) =>
-            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com") ? //TODO: <-- this is temporary
-                PictureUrl :
-                $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=64&height=64";
+            PictureUrl.StartsWith("http") && !PictureUrl.Contains("cdn.podnoms.com")
+                ? //TODO: <-- this is temporary
+                PictureUrl
+                : $"{cdnUrl}/{containerName}/profile/{Id}.{extension}?width=64&height=64";
+
+        public AccountSubscription GetCurrentSubscription() {
+            return this.AccountSubscriptions
+                .FirstOrDefault(r =>
+                    DateTime.Now >= r.StartDate &&
+                    DateTime.Now <= r.EndDate);
+        }
     }
 }

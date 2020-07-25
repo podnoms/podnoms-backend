@@ -20,14 +20,12 @@ namespace PodNoms.Common.Data.Resolvers {
 
         public bool Resolve(ApplicationUser source, SubscriptionViewModel destination, bool destMember, ResolutionContext context) {
 
-            var isAdmin = AsyncHelper.RunSync(() => {
-                return _userManager.IsInRoleAsync(source, "god-mode");
-            });
+            var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
             if (isAdmin) return true;
 
-            var subs = _repository.GetAll()
-                .Where(r => r.AppUser == source)
-                .Count() != 0;
+            var subs = _repository
+                .GetAll()
+                .Count(r => r.AppUser == source) != 0;
             return subs;
         }
     }
