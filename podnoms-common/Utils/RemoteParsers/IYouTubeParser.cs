@@ -5,6 +5,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         Task<string> GetVideoId(string url);
         Task<string> GetChannelId(string channelName);
         Task<string> GetChannelIdentifier(string url);
+        Task<string> ConvertUserToChannel(string url);
         Task<RemoteVideoInfo> GetInformation(string url);
     }
 }

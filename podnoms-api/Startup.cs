@@ -35,12 +35,12 @@ using System.Text.Json;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Rss;
-using PodNoms.Data.Utils;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
 using PodNoms.Data.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using PodNoms.Common.Auth;
 
 namespace PodNoms.Api {
     public class Startup {
@@ -153,6 +153,8 @@ namespace PodNoms.Api {
 
             UpdateDatabase(app, userManager, Configuration);
 
+            app.UseMiddleware<AuthExceptionMiddleware>();
+
             if (!Env.IsDevelopment()) {
                 app.UseHttpsRedirection();
             }
@@ -217,7 +219,7 @@ namespace PodNoms.Api {
                 .CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext>();
             context.Database.Migrate();
-            PodNomsDbInitialiser.SeedUsers(userManager, config);
+            PodNomsDbInitialiser.SeedUsers(userManager, context, config);
         }
     }
     public static class MessagingExtensions {

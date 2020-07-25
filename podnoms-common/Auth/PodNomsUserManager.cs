@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -66,9 +65,6 @@ namespace PodNoms.Common.Auth {
             return await base.UpdateAsync(user);
         }
 
-        public async Task AddPatreonToken(PatreonToken token) {
-            
-        }
         private async Task _imageify(ApplicationUser user) {
             if (string.IsNullOrEmpty(user.PictureUrl)) {
                 var gravatar = await _gravatarClient.GetGravatarImage(user.Email);

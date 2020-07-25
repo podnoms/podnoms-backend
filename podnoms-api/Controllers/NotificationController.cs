@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Google.Apis.Logging;
-using Google.Apis.YouTube.v3.Data;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,9 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
-using PodNoms.Common;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -24,7 +18,6 @@ using PodNoms.Common.Services;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]

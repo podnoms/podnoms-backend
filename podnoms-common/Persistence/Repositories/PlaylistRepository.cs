@@ -23,6 +23,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(i => i.PodcastEntries)
                 .Include(p => p.Podcast)
                 .Include(u => u.Podcast.AppUser)
+                .Include(u => u.Podcast.AppUser.AccountSubscriptions)
                 .SingleOrDefaultAsync(i => i.Id == id);
         }
 
@@ -34,7 +35,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .PodcastEntries
                 .OrderByDescending(p => p.SourceCreateDate)
                 .FirstOrDefault();
-            return item?.CreateDate ?? DateTime.MinValue ;
+            return item?.CreateDate ?? DateTime.MinValue;
         }
     }
 }

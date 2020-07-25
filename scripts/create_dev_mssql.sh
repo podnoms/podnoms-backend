@@ -6,4 +6,4 @@ docker run \
     -e "SA_PASSWORD=H8ckMyB88lz" \
     -v /opt/mssql:/var/opt/mssql \
     -p 1433:1433 \
-    -d mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    -d microsoft/mssql-server-linux:latest

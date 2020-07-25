@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
 using EasyNetQ;
 using EasyNetQ.Logging;
 using Hangfire;
@@ -8,12 +6,9 @@ using Hangfire.Console;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Jobs;
@@ -22,12 +17,9 @@ using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Services.Waveforms;
-using PodNoms.Data.Models;
 using PodNoms.Jobs.Services;
-using PodNoms.Common.Utils.RemoteParsers.PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Social;
-using EntitySignal.Extensions;
 using HangfireBasicAuthenticationFilter;
 
 namespace PodNoms.Jobs {

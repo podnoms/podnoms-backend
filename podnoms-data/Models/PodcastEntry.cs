@@ -39,6 +39,11 @@ namespace PodNoms.Data.Models {
         public Guid PodcastId { get; set; }
 
         [JsonIgnore]
+        public Guid? PlaylistId { get; set; }
+        [JsonIgnore]
+        public Playlist Playlist { get; set; }
+
+        [JsonIgnore]
         public Podcast Podcast { get; set; }
 
         [JsonIgnore]
@@ -46,6 +51,7 @@ namespace PodNoms.Data.Models {
 
         [JsonIgnore]
         public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
+
 
         public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
 

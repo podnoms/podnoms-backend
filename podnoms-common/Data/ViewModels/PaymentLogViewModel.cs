@@ -15,6 +15,7 @@ namespace PodNoms.Common.Data.ViewModels {
         public DateTime CreateDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public AccountSubscriptionTier Tier { get; set; }
         public AccountSubscriptionType Type { get; set; }
         public string ReceiptURL { get; set; }
     }

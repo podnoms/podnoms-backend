@@ -51,6 +51,12 @@ namespace PodNoms.Comon.Migrations {
                         NormalizedName = "WEBSITE-ADMIN"
                     },
                     new {
+                        Id = "6105993d-c572-4c5c-9c9f-acc1a031e4f3",
+                        ConcurrencyStamp = "ddba6285-ea21-453c-b4c8-d381c118603e",
+                        Name = "god-mode",
+                        NormalizedName = "GOD-MODE"
+                    },
+                    new {
                         Id = "dba18578-271a-40de-8cb3-e21f97fcf159",
                         ConcurrencyStamp = "da355d84-9e05-4c71-8356-cc433ca4e42c",
                         Name = "catastrophic-api-calls-allowed",

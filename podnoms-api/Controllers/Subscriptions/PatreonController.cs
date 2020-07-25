@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -10,12 +8,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels.Remote;
+using PodNoms.Common.Data.ViewModels.Remote.Patreon;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
@@ -88,7 +85,7 @@ namespace PodNoms.Api.Controllers.Subscriptions {
 
                 _repository.AddOrUpdate(existingToken);
                 await _unitOfWork.CompleteAsync();
-                
+
                 return Content("You have successfully connected your Patreon account", "text/plain", Encoding.UTF8);
             }
             _logger.LogError($"Unable to connect to Patreon: {response.ReasonPhrase}");

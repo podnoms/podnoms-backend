@@ -58,6 +58,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         [MaximumConcurrentExecutions(1)]
+        [DisableConcurrentExecution(timeoutInSeconds: 60 * 60 * 2)]
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             _setContext(context);
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
@@ -102,7 +103,8 @@ namespace PodNoms.Common.Services.Jobs {
                         ImageUrl = _audioDownloader.Properties?.Thumbnail,
                         SourceCreateDate = item.UploadDate,
                         SourceItemId = item.Id,
-                        SourceUrl = url
+                        SourceUrl = url,
+                        Playlist = playlist
                     };
                     podcast.PodcastEntries.Add(entry);
                     await _unitOfWork.CompleteAsync();

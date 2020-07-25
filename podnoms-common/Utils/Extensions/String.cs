@@ -18,6 +18,12 @@ namespace PodNoms.Common.Utils.Extensions {
             return result;
         }
 
+        public static string ConvertToChannel(this string url) {
+            return url.Contains("/user/") ? 
+                Flurl.Url.Combine(url.Replace("/user/", "/c/"), "videos") : 
+                url;
+        }
+
         public static string UrlParse(this string url, params string[] parts) {
             url = url.TrimEnd('/');
             return parts.Aggregate(url, (current, u) => string.Format("{0}/{1}", current, u.TrimStart('/')));
