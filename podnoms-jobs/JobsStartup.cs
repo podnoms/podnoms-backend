@@ -35,7 +35,11 @@ namespace PodNoms.Jobs {
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
             services.AddHangfire(options => {
-                options.UseSqlServerStorage(Configuration.GetConnectionString("JobSchedulerConnection"));
+                options.UseSqlServerStorage(
+                    Configuration.GetConnectionString("JobSchedulerConnection"),
+                    new Hangfire.SqlServer.SqlServerStorageOptions {
+                        QueuePollInterval = TimeSpan.FromSeconds(30)
+                    });
                 options.UseSimpleAssemblyNameTypeSerializer();
                 options.UseRecommendedSerializerSettings();
                 options.UseConsole();
@@ -60,7 +64,7 @@ namespace PodNoms.Jobs {
                 .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddSingleton<RemoteImageCacher>()
                 .AddSingleton<ITweetListener, EpisodeFromTweetHandler>()
-                .AddScoped<IYouTubeParser, YouTubeExplodeParser>()
+                .AddScoped<IYouTubeParser, YouTubeParser>()
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
@@ -76,7 +80,10 @@ namespace PodNoms.Jobs {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHangfireServer();
+            app.UseHangfireServer(new BackgroundJobServerOptions {
+                WorkerCount = 3
+            });
+
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
                 Authorization = new[] { new HangfireCustomBasicAuthenticationFilter{
                     User = Configuration.GetSection("HangfireDashboardSettings:UserName").Value,

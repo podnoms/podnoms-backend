@@ -174,22 +174,24 @@ namespace PodNoms.Common.Services.PageParser {
         }
         private KeyValuePair<string, string> _createItem(string url) {
             return new KeyValuePair<string, string>(
-                 _normaliseUrl(_url, url),
+                 _cleanUrl(_url, url),
                 Path.GetFileName(url)
             );
         }
-        private string _normaliseUrl(string baseUrl, string remoteUrl) {
-            if (!remoteUrl.StartsWith("http")) {
-                if (remoteUrl.StartsWith("/")) {
-                    //site absolute URL
-                    var uri = new Uri(baseUrl);
-                    if (Uri.TryCreate(new Uri(uri.GetLeftPart(UriPartial.Authority)), remoteUrl, out var result)) {
-                        return result.ToString();
-                    }
-                } else {
-                    if (Uri.TryCreate(new Uri(baseUrl), remoteUrl, out var result)) {
-                        return result.ToString();
-                    }
+        private string _cleanUrl(string baseUrl, string remoteUrl) {
+            if (remoteUrl.StartsWith("http")) {
+                return remoteUrl;
+            }
+
+            if (remoteUrl.StartsWith("/")) {
+                //site absolute URL
+                var uri = new Uri(baseUrl);
+                if (Uri.TryCreate(new Uri(uri.GetLeftPart(UriPartial.Authority)), remoteUrl, out var result)) {
+                    return result.ToString();
+                }
+            } else {
+                if (Uri.TryCreate(new Uri(baseUrl), remoteUrl, out var result)) {
+                    return result.ToString();
                 }
             }
             return remoteUrl;

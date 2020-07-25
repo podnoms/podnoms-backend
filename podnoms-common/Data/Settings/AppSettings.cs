@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
         public string ApiUrl { get; set; }
@@ -9,8 +12,13 @@ namespace PodNoms.Common.Data.Settings {
         public string RssUrl { get; set; }
         public string PagesUrl { get; set; }
         public string JobServerUrl { get; set; }
-        public string GoogleApiKey { get; set; }
+        public List<string> GoogleApiKeys { get; set; }
         public string IPStackKey { get; set; }
         public string Downloader { get; set; }
+
+        //TODO: This should be a randomiser to cycle through our keys
+        internal string GetGoogleApiKey() {
+            return GoogleApiKeys[^1];
+        }
     }
 }

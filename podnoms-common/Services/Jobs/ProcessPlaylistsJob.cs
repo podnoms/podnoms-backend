@@ -122,15 +122,11 @@ namespace PodNoms.Common.Services.Jobs {
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing YouTube");
                     var url = playlist.SourceUrl;
-                    if (url.Contains("/c/") || url.Contains("/user/")) {
-                        url = await _youTubeParser.GetChannelIdentifier(url);
-                    }
                     resultList = await _youTubeParser
                         .GetEntries(
                             url,
                             cutoffDate,
                             count);
-
                 } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing MixCloud");
                     var entries = await _mixcloudParser
@@ -144,9 +140,8 @@ namespace PodNoms.Common.Services.Jobs {
                 Log($"Found {resultList.Count} candidates");
 
                 //order in reverse so the newest item is added first
-                foreach (var item in resultList) {
-                    if (playlist.PodcastEntries.Any(e => e.SourceItemId == item.Id))
-                        continue;
+                foreach (var item in resultList.Where(item => 
+                        playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
                     await _trimPlaylist(playlist);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob

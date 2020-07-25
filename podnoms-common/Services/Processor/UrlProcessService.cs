@@ -20,6 +20,8 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
     public class UrlParseException : Exception {
+        public UrlParseException(string message) : base(message) {
+        }
     }
 
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
@@ -59,46 +61,53 @@ namespace PodNoms.Common.Services.Processor {
         public async Task<RemoteUrlStatus> ValidateUrl(string url, bool urlTypeRequired = false) {
             url = url.Trim();
             if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
-                throw new UrlParseException();
+                throw new UrlParseException($"Unable to validate url: {url}");
             }
 
-            var fileType = await _downloader.GetInfo(url);
+            var fileType = await _youTubeParser.GetUrlType(url);
             // so at this point - it will be a playlist whether it's a channel, user or a playlist
             _logger.LogInformation($"Validating Url: {url}");
-            if (fileType == RemoteUrlType.Playlist || fileType == RemoteUrlType.Invalid && urlTypeRequired) {
-                fileType = await _downloader.GetInfo(url, true);
-                if (_downloader.Properties != null) {
-                    //we could be a playlist or a channel or a user
-                    // fileType = await _downloader.GetInfo(url, true);
-                    fileType = url.Contains("/user/") ? RemoteUrlType.User :
-                        url.Contains("/channel/ ") || url.Contains("/c/") ? RemoteUrlType.Channel :
-                        RemoteUrlType.Playlist;
-
-                    if (fileType != RemoteUrlType.Invalid) {
-                        return new RemoteUrlStatus {
-                            Type = fileType.ToString(),
-                            Title = "",
-                            Image = "",
-                            Description = "",
-                            Links = new[] {
-                                new RemoteLinkInfo {
-                                    Title = _downloader.Properties?.Title,
-                                    Key = url,
-                                    Value = url
-                                }
-                            }.ToList()
-                        };
-                    }
+            if (fileType == RemoteUrlType.Playlist) {
+                if (fileType != RemoteUrlType.Invalid) {
+                    return new RemoteUrlStatus {
+                        Type = fileType.ToString(),
+                        Title = "",
+                        Image = "",
+                        Description = "",
+                        Links = new[] {
+                            new RemoteLinkInfo {
+                                Title = _downloader.Properties?.Title,
+                                Key = url,
+                                Value = url
+                            }
+                        }.ToList()
+                    };
                 }
             }
 
-
-            if (fileType != RemoteUrlType.Invalid) {
+            if (fileType == RemoteUrlType.SingleItem) {
+                var videoInfo = await _youTubeParser.GetVideoInformation(url);
                 return new RemoteUrlStatus {
                     Type = fileType.ToString(),
                     Title = "",
                     Image = "",
                     Description = "",
+                    Links = new[] {
+                        new RemoteLinkInfo {
+                            Title = videoInfo.Title,
+                            Key = url,
+                            Value = url
+                        }
+                    }.ToList()
+                };
+            }
+
+            if (fileType != RemoteUrlType.Invalid || _youTubeParser.ValidateUrl(url)) {
+                return new RemoteUrlStatus {
+                    Type = fileType.ToString(),
+                    Title = _downloader.Properties?.Title,
+                    Image = _downloader.Properties?.Thumbnail,
+                    Description = _downloader.Properties?.Description,
                     Links = new[] {
                         new RemoteLinkInfo {
                             Title = _downloader.Properties?.Title,
@@ -109,32 +118,30 @@ namespace PodNoms.Common.Services.Processor {
                 };
             }
 
-            if (fileType == RemoteUrlType.Invalid && !_youTubeParser.ValidateUrl(url)) {
-                if (await _parser.Initialise(url)) {
-                    var title = _parser.GetPageTitle();
-                    var image = _parser.GetHeadTag("og:image");
-                    var description = _parser.GetHeadTag("og:description");
+            if (await _parser.Initialise(url)) {
+                var title = _parser.GetPageTitle();
+                var image = _parser.GetHeadTag("og:image");
+                var description = _parser.GetHeadTag("og:description");
 
-                    var links = await _parser.GetAllAudioLinks();
-                    if (links.Count > 0) {
-                        return new RemoteUrlStatus {
-                            Type = RemoteUrlType.ParsedLinks.ToString(),
-                            Title = title,
-                            Image = image,
-                            Description = "",
-                            Links = links
-                                .GroupBy(r => r.Key) // note to future me
-                                .Select(g => g.First()) // these lines dedupe on key - neato!!
-                                .Select(r => new RemoteLinkInfo {
-                                    Title = "",
-                                    Key = r.Key,
-                                    Value = r.Value
-                                }).ToList()
-                        };
-                    }
-                } else {
-                    throw new UrlParseException();
+                var links = await _parser.GetAllAudioLinks();
+                if (links.Count > 0) {
+                    return new RemoteUrlStatus {
+                        Type = RemoteUrlType.ParsedLinks.ToString(),
+                        Title = title,
+                        Image = image,
+                        Description = "",
+                        Links = links
+                            .GroupBy(r => r.Key) // note to future me
+                            .Select(g => g.First()) // these lines dedupe on key - neato!!
+                            .Select(r => new RemoteLinkInfo {
+                                Title = "",
+                                Key = r.Key,
+                                Value = r.Value
+                            }).ToList()
+                    };
                 }
+            } else {
+                throw new UrlParseException($"Unable to initialise parser for {url}");
             }
 
             return new RemoteUrlStatus {
@@ -215,7 +222,10 @@ namespace PodNoms.Common.Services.Processor {
                     }
                 };
 
-                var sourceFile = await _downloader.DownloadAudio(entry.Id.ToString(), entry.SourceUrl, outputFile);
+                var sourceFile = await _downloader.DownloadAudio(
+                    entry.Id.ToString(),
+                    entry.SourceUrl,
+                    outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
 

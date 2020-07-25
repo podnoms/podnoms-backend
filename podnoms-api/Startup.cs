@@ -135,7 +135,7 @@ namespace PodNoms.Api {
             services.AddSharedDependencies()
                 //the query service is orders of magnitude faster than the API 
                 //but it will get rate limited if we use it on the job server
-                .AddTransient<IYouTubeParser, YouTubeExplodeParser>()
+                .AddTransient<IYouTubeParser, YouTubeParser>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddScoped<RssFeedParser>()
                 .AddScoped<UserLoggingFilter>()
@@ -210,7 +210,6 @@ namespace PodNoms.Api {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
-
         }
 
         private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager, IConfiguration config) {

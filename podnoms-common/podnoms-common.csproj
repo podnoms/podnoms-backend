@@ -65,6 +65,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="Nito.AsyncEx" Version="5.0.0" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
+        <PackageReference Include="NYoutubeDL" Version="0.11.0" />
         <PackageReference Include="Polly" Version="7.2.1" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
         <PackageReference Include="RestSharp" Version="106.11.4" />
@@ -84,7 +85,6 @@
         <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
         <PackageReference Include="TweetinviAPI" Version="4.0.3" />
         <PackageReference Include="WebPush" Version="1.0.11" />
-        <PackageReference Include="YoutubeExplode" Version="5.1.1" />
         <PackageReference Include="zxcvbn-core" Version="2.1.44" />
     </ItemGroup>
 

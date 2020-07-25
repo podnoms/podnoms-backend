@@ -63,7 +63,7 @@ namespace PodNoms.Common.Services.Jobs {
                     if (string.IsNullOrEmpty(file) && !string.IsNullOrEmpty(entry.SourceUrl)) {
                         if (_youTubeParser.ValidateUrl(entry.SourceUrl)) {
                             Log($"YouTube gave us a 404: {entry.ImageUrl}");
-                            var info = await _youTubeParser.GetInformation(entry.SourceUrl);
+                            var info = await _youTubeParser.GetVideoInformation(entry.SourceUrl);
                             if (info != null) {
                                 Log($"Parser gave us: {info} - attempting a cache");
                                 file = await _imageCacher.CacheImage(info.Thumbnail, entry.Id.ToString());

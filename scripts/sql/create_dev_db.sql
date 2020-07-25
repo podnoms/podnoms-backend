@@ -1,6 +1,8 @@
 USE master
 GO
-WHILE EXISTS(select NULL from sys.databases where name='PodNoms')
+WHILE EXISTS(select NULL
+from sys.databases
+where name='PodNoms')
 BEGIN
     DECLARE @SQL varchar(max)
     SELECT @SQL = COALESCE(@SQL,'') + 'Kill ' + Convert(varchar, SPId) + ';'
