@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
@@ -20,6 +21,9 @@ namespace PodNoms.Common.Data.Settings {
         //TODO: This should be a randomiser to cycle through our keys
         // internal string GetGoogleApiKey() => GoogleApiKeys[^1];
         internal string GetGoogleApiKey() =>
-            GoogleApiKeys.OrderBy(n => Guid.NewGuid()).FirstOrDefault();
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").Equals(
+                    Microsoft.Extensions.Hosting.Environments.Development) ?
+                GoogleApiKeys[^1] :
+                GoogleApiKeys.OrderBy(n => Guid.NewGuid()).FirstOrDefault();
     }
 }

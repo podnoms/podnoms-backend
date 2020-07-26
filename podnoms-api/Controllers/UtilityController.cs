@@ -145,19 +145,13 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("randomimage")]
         public async Task<ActionResult> GetRandomImage() {
-            var client = _httpClientFactory.CreateClient("unsplash");
-
-            var response = await client.GetAsync("/photos/random");
-            if (response.IsSuccessStatusCode) {
-                var body = await response.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(body)) {
-                    var imageData = JsonConvert.DeserializeObject<UnsplashViewModel>(body);
-                    var base64 = await ImageUtils.GetRemoteImageAsBase64(imageData.urls.regular);
-                    return Content(base64, "text/plain", Encoding.UTF8);
-                }
+            var image = await ImageUtils.GetRandomImageAsBase64(_httpClientFactory);
+            if (!string.IsNullOrEmpty(image)) {
+                return Content(image, "text/plain", Encoding.UTF8);
             }
             return new NotFoundResult();
         }
+
         [HttpGet("opml/{userSlug}")]
         [Produces("application/xml")]
         [AllowAnonymous]

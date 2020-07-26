@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static PodNoms.Common.Services.Processor.EntryPreProcessor;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistItemJob : AbstractHostedJob {
@@ -26,6 +27,8 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly HelpersSettings _helpersSettings;
         private readonly AudioDownloader _audioDownloader;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUrlProcessService _processor;
+        private readonly EntryPreProcessor _preProcessor;
 
         public ProcessPlaylistItemJob(
             IPlaylistRepository playlistRepository,
@@ -36,10 +39,14 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<StorageSettings> storageSettings,
             IOptions<HelpersSettings> helpersSettings,
             IUnitOfWork unitOfWork,
+            IUrlProcessService processor,
+            EntryPreProcessor preProcessor,
             AudioDownloader audioDownloader,
             ILogger<ProcessPlaylistItemJob> logger) : base(logger) {
 
             _unitOfWork = unitOfWork;
+            _processor = processor;
+            _preProcessor = preProcessor;
             _playlistRepository = playlistRepository;
             _uploadService = uploadService;
             _appSettings = appSettings.Value;
@@ -86,6 +93,20 @@ namespace PodNoms.Common.Services.Jobs {
                     Log($"Downloading audio");
                     var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                     try {
+                        var entry = new PodcastEntry {
+                            SourceUrl = url,
+                            ProcessingStatus = ProcessingStatus.Uploading,
+                            Playlist = playlist,
+                            Podcast = podcast
+                        };
+                        await _processor.GetInformation(entry);
+                        podcast.PodcastEntries.Add(entry);
+                        await _unitOfWork.CompleteAsync();
+                        var result = await _preProcessor.PreProcessEntry(podcast.AppUser, entry);
+                        return result == EntryProcessResult.Succeeded;
+                        /* What the fuck is this nonsense?
+                           Entry should be processed by ProcessNewEntryJob
+
                         var file = await _audioDownloader.DownloadAudio(
                             uid.ToString(),
                             url,
@@ -100,13 +121,10 @@ namespace PodNoms.Common.Services.Jobs {
                         var entry = new PodcastEntry {
                             Title = _audioDownloader.Properties?.Title,
                             Description = _audioDownloader.Properties?.Description,
-                            ProcessingStatus = ProcessingStatus.Uploading,
                             ImageUrl = _audioDownloader.Properties?.Thumbnail,
                             SourceCreateDate = item.UploadDate,
                             SourceItemId = item.Id,
                             SourceUrl = url,
-                            Playlist = playlist,
-                            Podcast = podcast
                         };
                         podcast.PodcastEntries.Add(entry);
                         await _unitOfWork.CompleteAsync();
@@ -140,6 +158,7 @@ namespace PodNoms.Common.Services.Jobs {
                                 $"{entry.Title} has finished processing",
                                 entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
                             ));
+                        */
                     } catch (AudioDownloadException e) {
                         //TODO: we should mark this as failed
                         //so we don't continuously process it

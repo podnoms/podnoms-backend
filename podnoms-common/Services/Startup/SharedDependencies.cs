@@ -40,6 +40,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IDonationRepository, DonationRepository>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
+                .AddScoped<EntryPreProcessor>()
                 .AddScoped<IMailSender, MailgunSender>()
                 .AddScoped<IFileUtilities, AzureFileUtilities>()
                 .AddScoped<INotificationHandler, SlackNotificationHandler>()

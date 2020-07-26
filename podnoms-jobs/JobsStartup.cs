@@ -21,6 +21,7 @@ using PodNoms.Jobs.Services;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Social;
 using HangfireBasicAuthenticationFilter;
+using PodNoms.Common.Utils;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
@@ -81,7 +82,7 @@ namespace PodNoms.Jobs {
             }
 
             app.UseHangfireServer(new BackgroundJobServerOptions {
-                WorkerCount = 3
+                WorkerCount = HardwareUtils.CPUAndCoreCount
             });
 
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
