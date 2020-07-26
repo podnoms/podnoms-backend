@@ -58,6 +58,7 @@ namespace PodNoms.Common.Services.Jobs {
             Log("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
             var playlists = await _playlistRepository.GetAll()
+                .Where(r => r.Id == Guid.Parse("49c8d76d-05a9-489f-991b-08d830faf155"))
                 .ToListAsync();
 
             foreach (var playlist in playlists) {
@@ -118,7 +119,8 @@ namespace PodNoms.Common.Services.Jobs {
                 Log("Quotas passed");
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-                var count = _storageSettings.DefaultEntryCount;
+                var count = user.PlaylistAllowedEntryCount ?? _storageSettings.DefaultEntryCount;
+
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing YouTube");
                     var url = playlist.SourceUrl;
@@ -140,9 +142,9 @@ namespace PodNoms.Common.Services.Jobs {
                 Log($"Found {resultList.Count} candidates");
 
                 //order in reverse so the newest item is added first
-                foreach (var item in resultList.Where(item => 
+                foreach (var item in resultList.Where(item =>
                         playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
-                    await _trimPlaylist(playlist);
+                    await _trimPlaylist(playlist, count);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob
                         .Enqueue<ProcessPlaylistItemJob>(
@@ -163,13 +165,13 @@ namespace PodNoms.Common.Services.Jobs {
             return false;
         }
 
-        private async Task _trimPlaylist(Playlist playlist) {
+        private async Task _trimPlaylist(Playlist playlist, int count) {
             var currentCount = playlist.PodcastEntries.Count(r => playlist.PodcastEntries.Contains(r));
             if (currentCount >= _storageSettings.DefaultEntryCount) {
                 LogError($"Entry count exceeded for {playlist.Podcast.AppUser.GetBestGuessName()}");
                 var toDelete = playlist.PodcastEntries
                     .OrderByDescending(o => o.SourceCreateDate)
-                    .Take(currentCount - _storageSettings.DefaultEntryCount + 1);
+                    .Take(currentCount - count + 1);
 
                 foreach (var item in toDelete) {
                     await _entryRepository.DeleteAsync(item.Id);

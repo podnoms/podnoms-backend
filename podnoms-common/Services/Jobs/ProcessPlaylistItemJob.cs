@@ -105,7 +105,8 @@ namespace PodNoms.Common.Services.Jobs {
                             SourceCreateDate = item.UploadDate,
                             SourceItemId = item.Id,
                             SourceUrl = url,
-                            Playlist = playlist
+                            Playlist = playlist,
+                            Podcast = podcast
                         };
                         podcast.PodcastEntries.Add(entry);
                         await _unitOfWork.CompleteAsync();

@@ -111,6 +111,12 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             return response.Items.FirstOrDefault()?.Id.ChannelId;
         }
 
+        public async Task<string> GetPlaylistId(string url) {
+            return await Task.Run(() => {
+                var query = System.Web.HttpUtility.ParseQueryString(new Uri(url).Query);
+                return query["list"] ?? string.Empty;
+            });
+        }
         public async Task<string> GetVideoId(string url) {
             return await Task.Run(() => {
                 if (url.Contains("v=")) {
@@ -129,6 +135,9 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         private async Task<List<ParsedItemResult>> _getPlaylistItems(string playlistId, DateTime cutoff, int count) {
+            if (string.IsNullOrEmpty(playlistId))
+                return null;
+
             var query = _youtube.PlaylistItems.List("snippet");
             query.PlaylistId = playlistId;
             query.MaxResults = count;
@@ -178,9 +187,10 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         public async Task<List<ParsedItemResult>> GetEntries(string url, DateTime cutoffDate, int count = 10) {
             List<ParsedItemResult> results = null;
             var channelType = await GetUrlType(url);
-            results = channelType switch {
+            results = channelType switch
+            {
                 RemoteUrlType.Channel => await _getChannelItems(url, System.DateTime.Now.AddDays(-28), count),
-                RemoteUrlType.Playlist => await _getChannelItems(url, System.DateTime.Now.AddDays(-28), count),
+                RemoteUrlType.Playlist => await _getPlaylistItems(await GetPlaylistId(url), System.DateTime.Now.AddDays(-28), count),
                 _ => results
             };
             return results;
@@ -195,7 +205,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             if (!(video is null)) {
                 return video;
             }
-            
+
             _logger.LogError($"Unable to get info for video {url}");
             return null;
         }

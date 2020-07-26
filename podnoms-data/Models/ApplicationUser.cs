@@ -53,6 +53,8 @@ namespace PodNoms.Data.Models {
 
         public virtual List<IssuedApiKey> IssuedApiKeys { get; set; } = new List<IssuedApiKey>();
 
+        public int? PlaylistAllowedEntryCount { get; set; }
+
         public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
             RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));
         }

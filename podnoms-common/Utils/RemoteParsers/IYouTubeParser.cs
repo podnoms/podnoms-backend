@@ -9,6 +9,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         /// <param name="url"></param>
         /// <returns></returns>
         Task<string> GetVideoId(string url);
+        Task<string> GetPlaylistId(string url);
         Task<string> ConvertUserToChannel(string url);
         Task<RemoteVideoInfo> GetVideoInformation(string url);
     }

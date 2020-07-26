@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Comon.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200726001108_AddPlaylistItemCount")]
+    partial class AddPlaylistItemCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,22 +50,22 @@ namespace PodNoms.Comon.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "8c0efe25-6f4e-47f1-ae00-12be72112ad8",
-                            ConcurrencyStamp = "9448c90b-ecf4-4b32-94bd-2721a04022bf",
+                            Id = "7588800d-2d7a-4dc9-aa06-2e84b4468fde",
+                            ConcurrencyStamp = "9140dd01-f5a5-4f22-9987-8a7a123f36a3",
                             Name = "website-admin",
                             NormalizedName = "WEBSITE-ADMIN"
                         },
                         new
                         {
-                            Id = "6591d620-5f60-4dac-bdf2-667716726ae5",
-                            ConcurrencyStamp = "816198b6-6072-4c90-9792-7a144247c99f",
+                            Id = "b8d2d010-37fa-488e-ba14-42b7f14e7c07",
+                            ConcurrencyStamp = "d3f40e72-a312-4358-ab8f-cf10932b45e9",
                             Name = "catastrophic-api-calls-allowed",
                             NormalizedName = "CATASTROPHIC-API-CALLS-ALLOWED"
                         },
                         new
                         {
-                            Id = "389a825a-8c49-459d-a307-4e898d1e58e5",
-                            ConcurrencyStamp = "ef6d218d-3d80-413f-aa36-bc9ff7f9b31d",
+                            Id = "7895848c-69da-455b-8fce-d5b8127b1ccc",
+                            ConcurrencyStamp = "09dcf53b-04c1-446c-abb8-fa13d026ecbb",
                             Name = "god-mode",
                             NormalizedName = "GOD-MODE"
                         });
@@ -368,7 +370,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PlaylistAllowedEntryCount")
+                    b.Property<int>("PlaylistAllowedEntryCount")
                         .HasColumnType("int");
 
                     b.Property<string>("RegionCode")
@@ -503,114 +505,114 @@ namespace PodNoms.Comon.Migrations
                         new
                         {
                             Id = new Guid("29c0716a-94bc-4b79-bb7a-1acb2d872101"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4015),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(4990),
                             Description = "Comedy",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4016)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(4991)
                         },
                         new
                         {
                             Id = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4719),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5476),
                             Description = "Technology",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4720)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5476)
                         },
                         new
                         {
                             Id = new Guid("50495352-2339-4498-aad3-3f8c85f6ac69"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4747),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5494),
                             Description = "Science & Medicine",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4748)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5495)
                         },
                         new
                         {
                             Id = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4752),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5497),
                             Description = "Business",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4753)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5498)
                         },
                         new
                         {
                             Id = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4756),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5500),
                             Description = "Religion & Spirituality",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4756)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5500)
                         },
                         new
                         {
                             Id = new Guid("3219621b-8311-4b65-bb48-6f68fba4957c"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4759),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5503),
                             Description = "Kids & Family",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4760)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5503)
                         },
                         new
                         {
                             Id = new Guid("a6aa8e20-8729-4698-a254-976012afdbf3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4763),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5505),
                             Description = "TV & Film",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4763)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5506)
                         },
                         new
                         {
                             Id = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4766),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5508),
                             Description = "Sports & Recreation",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4766)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5508)
                         },
                         new
                         {
                             Id = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4769),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5510),
                             Description = "Society & Culture",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4770)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5510)
                         },
                         new
                         {
                             Id = new Guid("27fb7005-b75c-490b-ae13-bcc88525be65"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4773),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5513),
                             Description = "Music",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4773)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5513)
                         },
                         new
                         {
                             Id = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4776),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5515),
                             Description = "Health",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4777)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5515)
                         },
                         new
                         {
                             Id = new Guid("5e023a7a-461d-46c6-bca8-c9049f6d2ec5"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4780),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5517),
                             Description = "News & Politics",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4781)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5518)
                         },
                         new
                         {
                             Id = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4784),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5520),
                             Description = "Games & Hobbies",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4785)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5521)
                         },
                         new
                         {
                             Id = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4788),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5523),
                             Description = "Education",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4788)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5523)
                         },
                         new
                         {
                             Id = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4792),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5525),
                             Description = "Arts",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4793)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5525)
                         },
                         new
                         {
                             Id = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4797),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5527),
                             Description = "Government & Organizations",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 346, DateTimeKind.Utc).AddTicks(4797)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 594, DateTimeKind.Utc).AddTicks(5528)
                         });
                 });
 
@@ -1302,321 +1304,321 @@ namespace PodNoms.Comon.Migrations
                         {
                             Id = new Guid("1f4b0b76-d7b8-404c-af32-3428fc488e30"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(8685),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(7981),
                             Description = "Video Games",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(8686)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(7981)
                         },
                         new
                         {
                             Id = new Guid("84ed0b38-616d-4926-90c2-3cc7ae2f8e4e"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9129),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8387),
                             Description = "Professional",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9129)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8387)
                         },
                         new
                         {
                             Id = new Guid("867ae49c-ade1-41b9-ba18-3f4801ec18ee"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9150),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8406),
                             Description = "Fitness & Nutrition",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9150)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8406)
                         },
                         new
                         {
                             Id = new Guid("b4284990-c542-48e4-a000-42d27202153b"),
                             CategoryId = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9155),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8411),
                             Description = "Non-Profit",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9155)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8411)
                         },
                         new
                         {
                             Id = new Guid("c950eaac-f164-4f3c-8384-459679130aef"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9159),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8416),
                             Description = "Outdoor",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9160)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8416)
                         },
                         new
                         {
                             Id = new Guid("df0063a6-31ef-4f9a-be23-4f9178291bb3"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9164),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8420),
                             Description = "Higher Education",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9164)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8420)
                         },
                         new
                         {
                             Id = new Guid("2488b878-124a-42f9-a761-53daa1eefde1"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9168),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8424),
                             Description = "Literature",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9168)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8424)
                         },
                         new
                         {
                             Id = new Guid("5c40fa5a-72df-475b-bfa8-561955145762"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9172),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8428),
                             Description = "Other",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9172)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8428)
                         },
                         new
                         {
                             Id = new Guid("201fb42b-e241-4e16-bea5-5df768064402"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9176),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8432),
                             Description = "Investing",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9176)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8432)
                         },
                         new
                         {
                             Id = new Guid("4f006295-e8ea-4a87-92e0-69e32f8d3ad9"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9180),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8436),
                             Description = "Aviation",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9180)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8436)
                         },
                         new
                         {
                             Id = new Guid("8b2a590b-bb59-4f30-acb2-72fa01985e4b"),
                             CategoryId = new Guid("50495352-2339-4498-aad3-3f8c85f6ac69"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9184),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8439),
                             Description = "Social Sciences",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9184)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8439)
                         },
                         new
                         {
                             Id = new Guid("3e3f77a4-4cd3-4644-ace1-7923e84d403d"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9188),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8443),
                             Description = "Performing Arts",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9188)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8443)
                         },
                         new
                         {
                             Id = new Guid("f9167edb-5d9c-4e34-ad26-7a2630528682"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9192),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8447),
                             Description = "Places & Travel",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9192)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8447)
                         },
                         new
                         {
                             Id = new Guid("4ecd4db0-0786-4594-a49b-86ab1362bc3c"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9195),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8451),
                             Description = "Amateur",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9196)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8451)
                         },
                         new
                         {
                             Id = new Guid("375fa60d-8d6f-4684-a729-8a061ce2e062"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9199),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8455),
                             Description = "Management & Marketing",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9200)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8455)
                         },
                         new
                         {
                             Id = new Guid("5005a13d-45c9-40ea-b691-96ff5afa0e39"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9203),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8459),
                             Description = "Personal Journals",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9204)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8459)
                         },
                         new
                         {
                             Id = new Guid("d9d8f925-cf6f-4d8d-9404-990609b312ce"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9207),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8463),
                             Description = "Buddhism",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9207)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8463)
                         },
                         new
                         {
                             Id = new Guid("d5e38344-c701-406f-8762-9a793efb98d7"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9211),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8467),
                             Description = "Christianity",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9211)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8467)
                         },
                         new
                         {
                             Id = new Guid("bd367623-40c3-48f2-9a59-9b526c643905"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9215),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8471),
                             Description = "Hinduism",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9215)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8471)
                         },
                         new
                         {
                             Id = new Guid("797408d2-abbc-4d8d-92f4-9b74146d726d"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9219),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8475),
                             Description = "Business News",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9219)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8475)
                         },
                         new
                         {
                             Id = new Guid("7174aa7c-8df2-4f9f-84aa-9bc1e9793eda"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9222),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8479),
                             Description = "Other Games",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9222)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8479)
                         },
                         new
                         {
                             Id = new Guid("d69e2cc2-588f-49c5-933e-a6f963e79f32"),
                             CategoryId = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9226),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8483),
                             Description = "Local",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9226)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8483)
                         },
                         new
                         {
                             Id = new Guid("c8829517-5a62-4bcc-82cc-ab4a75c6312c"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9230),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8487),
                             Description = "K-12",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9230)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8487)
                         },
                         new
                         {
                             Id = new Guid("7be75c87-d18a-45ee-92c3-ab6afce3e5db"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9234),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8491),
                             Description = "Food",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9234)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8491)
                         },
                         new
                         {
                             Id = new Guid("1d5212bc-b31c-4130-bcea-ae7c9df2985f"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9238),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8494),
                             Description = "Philosophy",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9238)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8494)
                         },
                         new
                         {
                             Id = new Guid("4966ec0c-3f53-4710-9f21-afb2371ab3e2"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9241),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8498),
                             Description = "Sexuality",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9242)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8498)
                         },
                         new
                         {
                             Id = new Guid("d8c5c265-1fa1-4244-9d76-b181bd936846"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9245),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8502),
                             Description = "Education Technology",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9245)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8502)
                         },
                         new
                         {
                             Id = new Guid("7e371ab3-cc53-4f16-9de9-c2d10faa8938"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9249),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8506),
                             Description = "Visual Arts",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9249)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8506)
                         },
                         new
                         {
                             Id = new Guid("c546f84f-643a-4f44-9bdf-ce4b44926e0a"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9253),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8541),
                             Description = "Training",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9253)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8542)
                         },
                         new
                         {
                             Id = new Guid("149f1619-eb42-4d9b-a4d6-da68ec0541d9"),
                             CategoryId = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9257),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8546),
                             Description = "Podcasting",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9257)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8546)
                         },
                         new
                         {
                             Id = new Guid("37f4f907-7b02-4268-8e38-db8700c1dc87"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9261),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8550),
                             Description = "Judaism",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9261)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8550)
                         },
                         new
                         {
                             Id = new Guid("8114a581-24bb-451e-ba21-dcacd175bde4"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9265),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8554),
                             Description = "Language Courses",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9265)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8554)
                         },
                         new
                         {
                             Id = new Guid("35cf95e2-6506-47ad-bd5d-df3b5e389a8f"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9269),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8558),
                             Description = "Fashion & Beauty",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9269)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8558)
                         },
                         new
                         {
                             Id = new Guid("8fb81212-5911-4190-9635-e478e2119c0c"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9273),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8562),
                             Description = "Spirituality",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9273)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8563)
                         },
                         new
                         {
                             Id = new Guid("23eb4b47-fc1d-45ac-9a21-e4ea5313f3d8"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9277),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8566),
                             Description = "Hobbies",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9277)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8566)
                         },
                         new
                         {
                             Id = new Guid("c7465257-d5b6-46f3-8521-e7a8f91e17b8"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9281),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8570),
                             Description = "Shopping",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9281)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8570)
                         },
                         new
                         {
                             Id = new Guid("cbcf3c5f-f7c9-44b3-9b2d-edc6523d8c3c"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9284),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8574),
                             Description = "Self-Help",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9285)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8574)
                         },
                         new
                         {
                             Id = new Guid("fb7c2755-4b09-4d9f-a457-eebb39abac3b"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9288),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8578),
                             Description = "Careers",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9289)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8578)
                         },
                         new
                         {
                             Id = new Guid("eb082ac8-856b-4bb0-a22f-f4062d4347d2"),
                             CategoryId = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9293),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8582),
                             Description = "Software How-To",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9293)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8582)
                         },
                         new
                         {
                             Id = new Guid("56a5dc3b-3dc5-46d2-9972-f846a4ca9909"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9297),
+                            CreateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8585),
                             Description = "Islam",
-                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 54, 347, DateTimeKind.Utc).AddTicks(9297)
+                            UpdateDate = new DateTime(2020, 7, 26, 0, 11, 7, 595, DateTimeKind.Utc).AddTicks(8586)
                         });
                 });
 
