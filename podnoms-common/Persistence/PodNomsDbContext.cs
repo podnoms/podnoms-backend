@@ -188,7 +188,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<EntryComment> EntryComments { get; set; }
         public DbSet<ActivityLogPodcastEntry> ActivityLogPodcastEntry { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
-        public DbSet<ServerShowcase> ServerShowcases { get; set; }
+        public DbSet<SiteMessages> SiteMessages { get; set; }
         public DbSet<UserRequest> UserRequests { get; set; }
 
         public DbSet<Podcast> Podcasts { get; set; }

@@ -239,10 +239,13 @@ namespace PodNoms.Common.Data {
                     map => map.MapFrom(r => r.CreateDate)
                 );
 
-            CreateMap<ServerShowcase, ServerShowcaseViewModel>()
+            CreateMap<SiteMessages, SiteMessageViewModel>()
                 .ForMember(
                     dest => dest.Id,
                     map => map.MapFrom(r => r.Id.ToString())
+                ).ForMember(
+                    dest => dest.Type,
+                    map => map.MapFrom(r => r.Type.ToString())
                 );
 
             CreateMap<Notification, NotificationViewModel>()
@@ -320,6 +323,21 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
+
+            CreateMap<SiteMessageViewModel, SiteMessages>()
+                .ForMember(
+                    dest => dest.Type,
+                    map => map.MapFrom(r => Enum.Parse(typeof(SiteMessageType), r.Type))
+                ).ForMember(
+                    dest => dest.IsActive,
+                    map => map.MapFrom(r => true)
+                ).ForMember(
+                    dest => dest.StartDate,
+                    map => map.MapFrom(r => DateTime.Now)
+                ).ForMember(
+                    dest => dest.EndDate,
+                    map => map.MapFrom(r => DateTime.Now.AddMonths(1))
+                );
 
             CreateMap<NotificationViewModel, Notification>()
                 .ForMember(

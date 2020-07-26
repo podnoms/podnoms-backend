@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
@@ -17,8 +18,8 @@ namespace PodNoms.Common.Data.Settings {
         public string Downloader { get; set; }
 
         //TODO: This should be a randomiser to cycle through our keys
-        internal string GetGoogleApiKey() {
-            return GoogleApiKeys[^1];
-        }
+        // internal string GetGoogleApiKey() => GoogleApiKeys[^1];
+        internal string GetGoogleApiKey() =>
+            GoogleApiKeys.OrderBy(n => Guid.NewGuid()).FirstOrDefault();
     }
 }

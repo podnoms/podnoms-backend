@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
-
-    public class ServerShowcase : BaseEntity {
+    public enum SiteMessageType {
+        Showcase,
+        Banner
+    }
+    public class SiteMessages : BaseEntity {
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -11,6 +14,8 @@ namespace PodNoms.Data.Models {
         public string Title { get; set; }
         public string Description { get; set; }
         public string Url { get; set; }
+
+        public SiteMessageType Type { get; set; }
 
         public int? PodcastCountThreshold { get; set; }
         public int? EntryCountThreshold { get; set; }
