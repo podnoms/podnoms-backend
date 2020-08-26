@@ -5,7 +5,7 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Auth {
+namespace PodNoms.Common.Data.Extensions {
     public static class AppUserExtensions {
         public static async Task<string> GetOpmlFeed(this ApplicationUser user, IPodcastRepository repository, string rssUrl, string siteUrl) {
             var podcasts = await repository.GetAllForUserAsync(user.Id);

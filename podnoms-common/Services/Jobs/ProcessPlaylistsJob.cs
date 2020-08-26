@@ -81,16 +81,6 @@ namespace PodNoms.Common.Services.Jobs {
                 var isGod = await _userManager.IsInRoleAsync(user, "god-mode");
                 if (subs is null && !isGod) {
                     LogWarning($"User: {user.Id} does not have a valid subscription");
-                    // BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                    //     service => service.NotifyUser(
-                    //         user.Id.ToString(),
-                    //         $"Failure processing playlist\n{playlist.Podcast.Title}\n",
-                    //         $"You do not have a current subscription",
-                    //         playlist.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                    //         playlist.Podcast.GetThumbnailUrl(_storageSettings.CdnUrl,
-                    //             _imageFileStorageSettings.ContainerName),
-                    //         NotificationOptions.StorageExceeded
-                    //     ));
                     return false;
                 }
 
