@@ -28,8 +28,6 @@ namespace PodNoms.Common.Persistence {
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
             var connectionString = TEMP_CONN;
-            //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
-            builder.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
             builder.UseSqlServer(connectionString);
 
             return new PodNomsDbContext(builder.Options, null, null);

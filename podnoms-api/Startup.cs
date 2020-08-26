@@ -67,8 +67,6 @@ namespace PodNoms.Api {
 
             Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddDbContext<PodNomsDbContext>(options => {
-                //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
-                options.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
                           .EnableRetryOnFailure());
