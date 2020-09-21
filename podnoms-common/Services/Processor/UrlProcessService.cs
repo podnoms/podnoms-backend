@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -67,6 +68,15 @@ namespace PodNoms.Common.Services.Processor {
             var fileType = await _youTubeParser.GetUrlType(url);
             // so at this point - it will be a playlist whether it's a channel, user or a playlist
             _logger.LogInformation($"Validating Url: {url}");
+
+            if (fileType == RemoteUrlType.Invalid){
+                //call on the audio downloader to validate the URL
+                //this is kind of a last resort as it spawns a youtube-dl process 
+                //and we don't want to call it too often
+
+                fileType = await _downloader.GetInfo(url, true);
+            }
+
             if (fileType == RemoteUrlType.Playlist) {
                 if (fileType != RemoteUrlType.Invalid) {
                     return new RemoteUrlStatus {
@@ -87,6 +97,11 @@ namespace PodNoms.Common.Services.Processor {
 
             if (fileType == RemoteUrlType.SingleItem) {
                 var videoInfo = await _youTubeParser.GetVideoInformation(url);
+                if (videoInfo == null){
+                    if (await _downloader.GetInfo(url, true) == RemoteUrlType.SingleItem){
+                        videoInfo = _downloader.Properties;
+                    };
+                }
                 return new RemoteUrlStatus {
                     Type = fileType.ToString(),
                     Title = "",

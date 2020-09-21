@@ -61,7 +61,7 @@ namespace PodNoms.Api.Controllers {
 
         // POST api/auth/login
         [HttpPost("login")]
-        public async Task<ActionResult<JwtRefreshTokenModel>> Post([FromBody] CredentialsViewModel credentials) {
+        public async Task<ActionResult<AuthTokenResult>> Post([FromBody] CredentialsViewModel credentials) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
@@ -90,7 +90,12 @@ namespace PodNoms.Api.Controllers {
                     Secure = false
                 }
             );
-            return Ok(refresh);
+            return Ok(new AuthTokenResult {
+                Id = user.Id,
+                Slug = user.Slug,
+                Name = user.GetBestGuessName(),
+                Auth = refresh
+            });
         }
         private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName, string[] roles, ApplicationUser user) {
             var jwt = await TokenIssuer.GenerateJwt(

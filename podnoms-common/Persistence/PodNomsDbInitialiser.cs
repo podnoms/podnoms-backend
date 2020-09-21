@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PodNoms.Data.Models;
+using PodNoms.Common.Auth;
 
 namespace PodNoms.Common.Persistence {
     public static class PodNomsDbInitialiser {
@@ -58,7 +59,8 @@ namespace PodNoms.Common.Persistence {
         }
 
         private static ApplicationUser _createUserIfNeeded(string userName, string name, string email, string password, string[] roles, UserManager<ApplicationUser> userManager) {
-            if (userManager.FindByEmailAsync(email).Result == null) {
+            var existing = userManager.FindBySlugAsync(userName).Result;
+            if (existing == null) {
                 var user = new ApplicationUser {
                     UserName = email,
                     FirstName = name,

@@ -56,9 +56,9 @@ namespace PodNoms.Api.Controllers {
 
         //TODO: This shouldn't be a List?
         [HttpGet]
-        public ActionResult<List<ProfileViewModel>> Get() {
+        public ActionResult<ProfileViewModel> Get() {
             var result = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
-            return Ok(new List<ProfileViewModel> { result });
+            return Ok(result);
         }
 
         [HttpPost]
