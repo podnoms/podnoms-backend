@@ -53,7 +53,7 @@ namespace PodNoms.Api.Controllers.Public {
                 var content = await HttpUtils.DownloadText(url, "application/xml");
                 if (!string.IsNullOrEmpty(content)) {
                     var result = JsonConvert.DeserializeObject<IcecastResult>(content);
-                    return Ok(result.icestats.source.title.Truncate(45));
+                    return Ok(result.icestats.source.title.Truncate(45, true));
                 }
             } catch (Exception) {
                 _logger.LogWarning("Unable to get now playing url");

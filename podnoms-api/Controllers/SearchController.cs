@@ -43,7 +43,7 @@ namespace PodNoms.Api.Controllers {
                 .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
                 .Select(p => new SearchResultsViewModel {
                     Title = p.Title,
-                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100),
+                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
                     ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
                     Url = p.Slug,
                     Type = "Podcast",
@@ -57,7 +57,7 @@ namespace PodNoms.Api.Controllers {
                 .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
                 .Select(p => new SearchResultsViewModel {
                     Title = p.Title,
-                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100),
+                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
                     ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
                     Url = p.Podcast.Slug,
                     Type = "Entry",

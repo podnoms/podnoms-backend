@@ -18,6 +18,7 @@ using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Enums;
+using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
@@ -87,9 +88,9 @@ namespace PodNoms.Api.Controllers {
                 var template = Handlebars.Compile(xml);
                 var compiled = new PodcastEnclosureViewModel {
                     Title = podcast.Title,
-                    Description = podcast.Description,
+                    Description = podcast.Description.RemoveUnwantedHtmlTags(),
                     Author = "PodNoms Podcasts",
-                    Image = podcast.GetRssImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
+                    Image = podcast.GetRawImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
                     Link = $"{_appSettings.PagesUrl}/{user.Slug}/{podcast.Slug}",
                     PublishDate = podcast.CreateDate.ToRFC822String(),
                     Category = podcast.Category?.Description,
@@ -102,10 +103,10 @@ namespace PodNoms.Api.Controllers {
                     Items = (
                         from e in podcast.PodcastEntries
                         select new PodcastEnclosureItemViewModel {
-                            Title = e.Title.StripNonXmlChars(),
+                            Title = e.Title.StripNonXmlChars().RemoveUnwantedHtmlTags(),
                             Uid = e.Id.ToString(),
                             Description = e.Description.StripNonXmlChars(),
-                            Author = e.Author.StripNonXmlChars(),
+                            Author = e.Author.StripNonXmlChars().Truncate(252, true),
                             EntryImage = e.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
                             UpdateDate = e.CreateDate.ToRFC822String(),
                             AudioUrl = e.GetRssAudioUrl(_appSettings.AudioUrl),
