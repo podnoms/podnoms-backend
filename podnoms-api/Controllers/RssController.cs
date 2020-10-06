@@ -105,6 +105,7 @@ namespace PodNoms.Api.Controllers {
                         select new PodcastEnclosureItemViewModel {
                             Title = e.Title.StripNonXmlChars().RemoveUnwantedHtmlTags(),
                             Uid = e.Id.ToString(),
+                            Summary = e.Description.StripNonXmlChars().RemoveUnwantedHtmlTags(),
                             Description = e.Description.StripNonXmlChars(),
                             Author = e.Author.StripNonXmlChars().Truncate(252, true),
                             EntryImage = e.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),

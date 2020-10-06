@@ -21,7 +21,7 @@ namespace PodNoms.Common.Services.Startup {
             var connectionString = config.GetSection("StorageSettings")["ConnectionString"];
             var containerName = config.GetSection("ImageFileStorageSettings")["ContainerName"];
 
-            services.AddImageSharpCore()
+            services.AddImageSharp()
                 .SetRequestParser<QueryCollectionRequestParser>()
                 .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
                 .SetCache<PhysicalFileSystemCache>()

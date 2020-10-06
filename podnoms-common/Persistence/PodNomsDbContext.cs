@@ -20,7 +20,6 @@ using PodNoms.Data.Models.Notifications;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PodNoms.Common.Persistence {
-
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
         public PodNomsDbContext CreateDbContext(string[] args) {
             var TEMP_CONN =
@@ -52,6 +51,7 @@ namespace PodNoms.Common.Persistence {
                 .Where(p => p.Name == columnName)
                 .Select(p => modelBuilder.Entity(p.DeclaringEntityType.ClrType).Property(p.Name));
         }
+
         public void ConfigureUser(EntityTypeBuilder<ApplicationUser> builder) {
             var navigation = builder.Metadata.FindNavigation(nameof(ApplicationUser.RefreshTokens));
             //EF access the RefreshTokens collection property through its backing field
@@ -113,11 +113,11 @@ namespace PodNoms.Common.Persistence {
                 .IsUnique();
 
             modelBuilder.Entity<Playlist>()
-                .HasIndex(p => new { p.SourceUrl })
+                .HasIndex(p => new {p.SourceUrl})
                 .IsUnique(true);
 
             modelBuilder.Entity<BoilerPlate>()
-                .HasIndex(p => new { p.Key })
+                .HasIndex(p => new {p.Key})
                 .IsUnique(true);
 
             var converter = new EnumToNumberConverter<NotificationOptions, int>();
@@ -153,12 +153,13 @@ namespace PodNoms.Common.Persistence {
                 .Select(e => e as ICachedEntity)) {
                 foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
                     try {
-                        if (entity != null) { //entity could not be cast as above
+                        if (entity != null) {
+                            //entity could not be cast as above
                             var key = entity.GetCacheKey(type);
                             if (!string.IsNullOrEmpty(key)) {
                                 _cache.InvalidateCacheResponseAsync(
-                                   entity.GetCacheKey(type)
-                               );
+                                    entity.GetCacheKey(type)
+                                );
                             }
                         }
                     } catch (Exception) {
@@ -194,5 +195,8 @@ namespace PodNoms.Common.Persistence {
         public DbSet<ServerConfig> ServerConfig { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<IssuedApiKey> IssuedApiKeys { get; set; }
+
+        public DbSet<ServicesApiKey> ServicesApiKeys { get; set; }
+        public DbSet<ServicesApiKeyLog> ServicesApiKeyLogs { get; set; }
     }
 }

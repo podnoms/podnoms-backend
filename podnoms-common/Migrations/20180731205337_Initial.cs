@@ -66,7 +66,8 @@ namespace PodNoms.Comon.Migrations {
                 name: "AspNetRoleClaims",
                 columns: table => new {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -85,7 +86,8 @@ namespace PodNoms.Comon.Migrations {
                 name: "AspNetUserClaims",
                 columns: table => new {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -109,7 +111,7 @@ namespace PodNoms.Comon.Migrations {
                     UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table => {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new {x.LoginProvider, x.ProviderKey});
                     table.ForeignKey(
                         name: "FK_AspNetUserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -125,7 +127,7 @@ namespace PodNoms.Comon.Migrations {
                     RoleId = table.Column<string>(nullable: false)
                 },
                 constraints: table => {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new {x.UserId, x.RoleId});
                     table.ForeignKey(
                         name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
                         column: x => x.RoleId,
@@ -149,7 +151,7 @@ namespace PodNoms.Comon.Migrations {
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table => {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new {x.UserId, x.LoginProvider, x.Name});
                     table.ForeignKey(
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -212,7 +214,7 @@ namespace PodNoms.Comon.Migrations {
                     Id = table.Column<Guid>(nullable: false),
                     CreateDate = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
                     UpdateDate = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
-                    SourceUrl = table.Column<string>(nullable: true),
+                    SourceUrl = table.Column<string>(maxLength: 2000, nullable: true),
                     PodcastId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table => {
@@ -346,7 +348,7 @@ namespace PodNoms.Comon.Migrations {
             migrationBuilder.CreateIndex(
                 name: "IX_ParsedPlaylistItems_VideoId_PlaylistId",
                 table: "ParsedPlaylistItems",
-                columns: new[] { "VideoId", "PlaylistId" },
+                columns: new[] {"VideoId", "PlaylistId"},
                 unique: true,
                 filter: "[VideoId] IS NOT NULL");
 

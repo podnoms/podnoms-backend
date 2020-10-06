@@ -12,10 +12,10 @@ echo Creating SQL Server
 #     -p 1433:1433 \
 #     -d microsoft/mssql-server-linux:latest
 
-echo Waiting for docker
-until [ "`/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql`"=="healthy" ]; do
-    sleep 0.1;
-done;
+# echo Waiting for docker
+# until [ "`/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql`"=="healthy" ]; do
+#     sleep 0.1;
+# done;
 
 echo Creating databases
 mssql-cli -S localhost -d master -U sa -P $PASSWORD \
