@@ -7,6 +7,7 @@ namespace PodNoms.Data.Models {
         Showcase,
         Banner
     }
+
     public class SiteMessages : BaseEntity {
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
@@ -14,8 +15,7 @@ namespace PodNoms.Data.Models {
 
         public string Title { get; set; }
         public string Description { get; set; }
-        [MaxLength(2000)]
-        public string Url { get; set; }
+        [MaxLength(2000)] public string Url { get; set; }
 
         public SiteMessageType Type { get; set; }
 

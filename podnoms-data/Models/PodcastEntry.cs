@@ -15,19 +15,24 @@ namespace PodNoms.Data.Models {
         Private = (1 << 1),
         Download = (1 << 2)
     }
-    public class PodcastEntry : BaseEntity, ISluggedEntity, ICachedEntity, IHubNotifyEntity {
 
+    public class PodcastEntry : BaseEntity, ISluggedEntity, ICachedEntity, IHubNotifyEntity {
         [SlugField(sourceField: "Title")] public string Slug { get; set; }
 
         public string Author { get; set; }
         public string Title { get; set; }
+
         public string Description { get; set; }
+
         [MaxLength(2000)]
         public string SourceUrl { get; set; }
+
         [MaxLength(2000)]
         public string AudioUrl { get; set; }
         public float AudioLength { get; set; }
+
         public long AudioFileSize { get; set; }
+
         [MaxLength(2000)]
         public string ImageUrl { get; set; }
         public string ProcessingPayload { get; set; }
@@ -42,43 +47,41 @@ namespace PodNoms.Data.Models {
         public bool WaveformGenerated { get; set; }
         public Guid PodcastId { get; set; }
 
-        [JsonIgnore]
-        public Guid? PlaylistId { get; set; }
-        [JsonIgnore]
-        public Playlist Playlist { get; set; }
+        [JsonIgnore] public Guid? PlaylistId { get; set; }
+        [JsonIgnore] public Playlist Playlist { get; set; }
 
-        [JsonIgnore]
-        public Podcast Podcast { get; set; }
+        [JsonIgnore] public Podcast Podcast { get; set; }
 
-        [JsonIgnore]
-        public List<PodcastEntrySharingLink> SharingLinks { get; set; }
+        [JsonIgnore] public List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
-        [JsonIgnore]
-        public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
+        [JsonIgnore] public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
 
 
         public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
 
         private string extension => "jpg";
+
         public override string ToString() {
             return $"PodcastEntry: {this.Id}: {this.Slug} -- {this.Podcast?.Slug} -- {this.Podcast?.AppUser?.Slug}";
         }
+
         public string GetDownloadUrl(string downloadUrlRoot) => $"{downloadUrlRoot}/{this.Id}";
         public string GetPcmUrl(string cdnUrl, string containerName) => $"{cdnUrl}/{containerName}/{Id}.json";
         public string GetAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, "mp3");
         public string GetAudioUrl(string audioUrl, string extension) => $"{audioUrl}/{Id}.{extension}";
         public string GetRssAudioUrl(string audioUrl) => GetAudioUrl(audioUrl, "mp3");
+
         public string GetRawAudioUrl(string cdnUrl, string containerName, string extension) =>
             Flurl.Url.Combine(cdnUrl, containerName, $"{Id}.{extension}");
 
-        public string GetImageUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
-                ImageUrl :
-                Flurl.Url.Combine(cdnUrl, containerName,
+        public string GetImageUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http")
+            ? ImageUrl
+            : Flurl.Url.Combine(cdnUrl, containerName,
                 $"entry/{Id}.{extension}?width=725&height=748&cb={System.Guid.NewGuid()}");
 
-        public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http") ?
-                ImageUrl :
-                Flurl.Url.Combine(cdnUrl, containerName,
+        public string GetThumbnailUrl(string cdnUrl, string containerName) => ImageUrl.StartsWith("http")
+            ? ImageUrl
+            : Flurl.Url.Combine(cdnUrl, containerName,
                 $"entry/{Id}.{extension}?width=64&height=64&cb={System.Guid.NewGuid()}");
 
         public string GetInternalStorageUrl(string cdnUrl) => $"{cdnUrl}/{AudioUrl}";
@@ -92,6 +95,7 @@ namespace PodNoms.Data.Models {
         public string GetDebugString(CacheType type) => this.Podcast?.GetCacheKey(type);
 
         public string GetHubMethodName() => "podcast-entry-added";
+
         public RealtimeEntityUpdateMessage SerialiseForHub() => new RealtimeEntityUpdateMessage {
             Channel = GetHubMethodName(),
             Id = this.Id.ToString(),

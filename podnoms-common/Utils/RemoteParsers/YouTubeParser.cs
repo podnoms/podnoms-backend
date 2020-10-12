@@ -6,15 +6,26 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Google.Apis.Requests;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using Google.Apis.YouTube.v3.Data;
 using PodNoms.Common.Data.ViewModels.Remote.Google;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
+using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
-    namespace PodNoms.Common.Utils.RemoteParsers {
+    public static class YouTubeParserExtensions {
+        public static Task<T> ExecuteWrappedAsync<T>(this ClientServiceRequest<T> request) {
+            try {
+                return request.ExecuteAsync();
+            } catch (Exception e) {
+                //alert me
+                Console.WriteLine($"API Key Fuckup{e.Message}");
+                throw;
+            }
+        }
     }
 
     public class YouTubeParser : IYouTubeParser {
@@ -23,21 +34,22 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
         private readonly AppSettings _settings;
         private readonly ILogger<YouTubeParser> _logger;
-        public YouTubeService _youtube;
+        private readonly IApiKeyRepository _keyRepository;
 
         public YouTubeParser(
             IOptions<AppSettings> options,
             ILogger<YouTubeParser> logger,
+            IApiKeyRepository keyRepository,
             IHttpClientFactory httpFactory) {
             _logger = logger;
+            _keyRepository = keyRepository;
             _settings = options.Value;
             _httpFactory = httpFactory;
-            _youtube = _getYouTubeService();
         }
 
-        private YouTubeService _getYouTubeService() {
+        private async Task<YouTubeService> _getYouTubeService() {
             return new YouTubeService(new BaseClientService.Initializer() {
-                ApiKey = _settings.GetGoogleApiKey(),
+                ApiKey = await _keyRepository.GetApiKey("YouTube"),
                 ApplicationName = GetType().ToString()
             });
         }
@@ -64,7 +76,8 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
                 if (!string.IsNullOrEmpty(channelName)) {
                     using var client = _httpFactory.CreateClient("youtube");
-                    var requestUrl = $"channels?part=id&forUsername={channelName}&key={_settings.GetGoogleApiKey()}";
+                    var requestUrl =
+                        $"channels?part=id&forUsername={channelName}&key={_keyRepository.GetApiKey("Google")}";
 
                     using var httpResponse = await client.GetAsync(requestUrl);
                     if (httpResponse.IsSuccessStatusCode) {
@@ -86,10 +99,11 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         private async Task<RemoteVideoInfo> _getVideoFromId(string videoId) {
-            var request = _youtube.Videos.List("snippet");
+            using var service = await _getYouTubeService();
+            var request = service.Videos.List("snippet");
             request.Id = videoId;
             request.MaxResults = 1;
-            var response = await request.ExecuteAsync();
+            var response = await request.ExecuteWrappedAsync();
 
             return response.Items
                 .Select(video => new RemoteVideoInfo {
@@ -104,10 +118,11 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         private async Task<string> _getChannelId(string url) {
-            var search = _youtube.Search.List("snippet");
+            using var service = await _getYouTubeService();
+            var search = service.Search.List("snippet");
             search.Type = "channel";
             search.Q = url;
-            var response = await search.ExecuteAsync();
+            var response = await search.ExecuteWrappedAsync();
             return response.Items.FirstOrDefault()?.Id.ChannelId;
         }
 
@@ -117,32 +132,33 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 return query["list"] ?? string.Empty;
             });
         }
+
         public async Task<string> GetVideoId(string url) {
             return await Task.Run(() => {
-                if (url.Contains("v=")) {
-                    var videoId = url.Split("v=")[1];
-                    var ampersandPosition = videoId.IndexOf("&", StringComparison.Ordinal);
-                    if (ampersandPosition != -1) {
-                        videoId = videoId.Substring(0, ampersandPosition);
-                    }
-
-                    if (!string.IsNullOrEmpty(videoId))
-                        return videoId;
+                if (!url.Contains("v=")) {
+                    return string.Empty;
                 }
 
-                return string.Empty;
+                var videoId = url.Split("v=")[1];
+                var ampersandPosition = videoId.IndexOf("&", StringComparison.Ordinal);
+                if (ampersandPosition != -1) {
+                    videoId = videoId.Substring(0, ampersandPosition);
+                }
+
+                return !string.IsNullOrEmpty(videoId) ? videoId : string.Empty;
             });
         }
 
         private async Task<List<ParsedItemResult>> _getPlaylistItems(string playlistId, DateTime cutoff, int count) {
             if (string.IsNullOrEmpty(playlistId))
                 return null;
+            using var service = await _getYouTubeService();
 
-            var query = _youtube.PlaylistItems.List("snippet");
+            var query = service.PlaylistItems.List("snippet");
             query.PlaylistId = playlistId;
             query.MaxResults = count;
 
-            var results = await query.ExecuteAsync();
+            var results = await query.ExecuteWrappedAsync();
             var response = results
                 .Items
                 .Select(r => new ParsedItemResult {
@@ -167,11 +183,12 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
             //First we need to get the playlist id of the "uploads" playlist
             //Awkward but that's what this dude said https://www.youtube.com/watch?v=RjUlmco7v2M
-            var query = _youtube.Channels.List("contentDetails");
+            using var service = await _getYouTubeService();
+            var query = service.Channels.List("contentDetails");
             query.Id = channelId;
             query.MaxResults = count;
 
-            var results = await query.ExecuteAsync();
+            var results = await query.ExecuteWrappedAsync();
             var uploadsPlaylistId = results.Items.FirstOrDefault()?
                 .ContentDetails.RelatedPlaylists.Uploads;
 
@@ -185,13 +202,12 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         public async Task<List<ParsedItemResult>> GetEntries(string url, DateTime cutoffDate, int count = 10) {
-            List<ParsedItemResult> results = null;
             var channelType = await GetUrlType(url);
-            results = channelType switch
-            {
+            var results = channelType switch {
                 RemoteUrlType.Channel => await _getChannelItems(url, System.DateTime.Now.AddDays(-28), count),
-                RemoteUrlType.Playlist => await _getPlaylistItems(await GetPlaylistId(url), System.DateTime.Now.AddDays(-28), count),
-                _ => results
+                RemoteUrlType.Playlist => await _getPlaylistItems(await GetPlaylistId(url),
+                    System.DateTime.Now.AddDays(-28), count),
+                _ => null
             };
             return results;
         }
@@ -201,6 +217,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             if (string.IsNullOrEmpty(videoId)) {
                 _logger.LogError($"Unable to get videoId for {url}");
             }
+
             var video = await _getVideoFromId(videoId);
             if (!(video is null)) {
                 return video;
@@ -212,19 +229,15 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
         public async Task<RemoteUrlType> GetUrlType(string url) {
             return await Task.Run(() => {
-                if (ValidateUrl(url)) {
-                    if (url.Contains("/channel/") || url.Contains("/c/") || url.Contains("/user/")) {
-                        return RemoteUrlType.Channel;
-                    }
-
-                    if (url.Contains("/playlist?")) {
-                        return RemoteUrlType.Playlist;
-                    }
-
-                    return RemoteUrlType.SingleItem;
+                if (!ValidateUrl(url)) {
+                    return RemoteUrlType.Invalid;
                 }
 
-                return RemoteUrlType.Invalid;
+                if (url.Contains("/channel/") || url.Contains("/c/") || url.Contains("/user/")) {
+                    return RemoteUrlType.Channel;
+                }
+
+                return url.Contains("/playlist?") ? RemoteUrlType.Playlist : RemoteUrlType.SingleItem;
             });
         }
     }

@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Interfaces;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
-    public interface IRepository<TEntity> where TEntity : class, IEntity {
+    public interface IRepository<TEntity> where TEntity : class {
 
         IQueryable<TEntity> GetAll();
         Task<TEntity> GetAsync(string id);
@@ -23,11 +24,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         PodNomsDbContext GetContext();
     }
 
-    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity {
-        private PodNomsDbContext _context;
-        protected readonly ILogger<GenericRepository<TEntity>> _logger;
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
+        private readonly PodNomsDbContext _context;
+        protected readonly ILogger<IRepository<TEntity>> _logger;
 
-        public GenericRepository(PodNomsDbContext context, ILogger<GenericRepository<TEntity>> logger) {
+        public GenericRepository(PodNomsDbContext context, ILogger<IRepository<TEntity>> logger) {
             _context = context;
             _logger = logger;
         }

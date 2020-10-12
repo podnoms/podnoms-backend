@@ -11,6 +11,7 @@ namespace PodNoms.Common.Persistence.Repositories {
     public interface IPlaylistRepository : IRepository<Playlist> {
         Task<DateTime> GetCutoffDate(Guid playlistId);
     }
+
     public class PlaylistRepository : GenericRepository<Playlist>, IPlaylistRepository {
 
         public PlaylistRepository(

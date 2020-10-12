@@ -3,19 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Common.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201006225600_MaxLenOnUrls")]
+    partial class MaxLenOnUrls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns(1, 1)
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0-rc.1.20451.13");
 
@@ -81,7 +83,7 @@ namespace PodNoms.Common.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn(1, 1);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -105,7 +107,7 @@ namespace PodNoms.Common.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn(1, 1);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -1139,7 +1141,7 @@ namespace PodNoms.Common.Migrations
                     b.Property<int>("LinkIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn(1, 1);
+                        .UseIdentityColumn();
 
                     b.Property<Guid?>("PodcastEntryId")
                         .HasColumnType("uniqueidentifier");
@@ -1229,73 +1231,6 @@ namespace PodNoms.Common.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServerConfig", "admin");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Key")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ServicesApiKeys");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApiKeyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Stack")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApiKeyId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ServicesApiKeyLogs");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.SiteMessages", b =>
@@ -1963,21 +1898,6 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ServicesApiKey", "ApiKey")
-                        .WithMany("Usages")
-                        .HasForeignKey("ApiKeyId");
-
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("ApiKey");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
                 {
                     b.HasOne("PodNoms.Data.Models.Category", "Category")
@@ -2045,11 +1965,6 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("SharingLinks");
-                });
-
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
-                {
-                    b.Navigation("Usages");
                 });
 #pragma warning restore 612, 618
         }

@@ -17,6 +17,7 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Slack;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils.RemoteParsers;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SharedDependencies {
@@ -38,6 +39,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<INotificationRepository, NotificationRepository>()
                 .AddScoped<IPaymentRepository, PaymentRepository>()
                 .AddScoped<IDonationRepository, DonationRepository>()
+                .AddScoped<IApiKeyRepository, ApiKeyRepository>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
                 .AddScoped<EntryPreProcessor>()
