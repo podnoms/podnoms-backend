@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
         <RootNamespace>PodNoms.Common</RootNamespace>
         <LangVersion>latest</LangVersion>
         <Configurations>Debug;Release;Debug_Live</Configurations>
@@ -43,8 +43,8 @@
         <PackageReference Include="Google.Apis.Plus.v1" Version="1.49.0.1627" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="9.2.0" />
 
-        <PackageReference Include="Hangfire.SqlServer" Version="1.7.14" />
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.14" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.7.16" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.16" />
 
         <PackageReference Include="Lib.Net.Http.WebPush" Version="2.3.0" />
         <PackageReference Include="AutoMapper" Version="10.1.0" />

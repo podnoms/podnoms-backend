@@ -109,7 +109,7 @@ namespace PodNoms.Common.Services.Processor {
                     Description = "",
                     Links = new[] {
                         new RemoteLinkInfo {
-                            Title = videoInfo.Title,
+                            Title = videoInfo?.Title ?? "Audio link",
                             Key = url,
                             Value = url
                         }

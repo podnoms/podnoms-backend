@@ -17,12 +17,14 @@ using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     public static class YouTubeParserExtensions {
-        public static Task<T> ExecuteWrappedAsync<T>(this ClientServiceRequest<T> request) {
+        public static Task<T> ExecuteWrappedAsync<T>(this ClientServiceRequest<T> request, ILogger logger) {
             try {
                 return request.ExecuteAsync();
             } catch (Exception e) {
                 //alert me
-                Console.WriteLine($"API Key Fuckup{e.Message}");
+                logger.LogError($"API Key Failure: {e.Message}");
+                logger.LogError($"API Key Failure: {request.Service.ApiKey}");
+                logger.LogError($"API Key Failure: {request.Service.ApplicationName}");
                 throw;
             }
         }
@@ -103,7 +105,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var request = service.Videos.List("snippet");
             request.Id = videoId;
             request.MaxResults = 1;
-            var response = await request.ExecuteWrappedAsync();
+            var response = await request.ExecuteWrappedAsync(_logger);
 
             return response.Items
                 .Select(video => new RemoteVideoInfo {
@@ -122,7 +124,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var search = service.Search.List("snippet");
             search.Type = "channel";
             search.Q = url;
-            var response = await search.ExecuteWrappedAsync();
+            var response = await search.ExecuteWrappedAsync(_logger);
             return response.Items.FirstOrDefault()?.Id.ChannelId;
         }
 
@@ -158,7 +160,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             query.PlaylistId = playlistId;
             query.MaxResults = count;
 
-            var results = await query.ExecuteWrappedAsync();
+            var results = await query.ExecuteWrappedAsync(_logger);
             var response = results
                 .Items
                 .Select(r => new ParsedItemResult {
@@ -188,7 +190,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             query.Id = channelId;
             query.MaxResults = count;
 
-            var results = await query.ExecuteWrappedAsync();
+            var results = await query.ExecuteWrappedAsync(_logger);
             var uploadsPlaylistId = results.Items.FirstOrDefault()?
                 .ContentDetails.RelatedPlaylists.Uploads;
 

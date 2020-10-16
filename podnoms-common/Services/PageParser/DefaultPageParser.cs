@@ -68,12 +68,12 @@ namespace PodNoms.Common.Services.PageParser {
                 Key = string.IsNullOrWhiteSpace(r.Key) ? _getFilenameFromUrl(r.Value) : r.Key,
                 Value = r.Value
             }).ToDictionary(x => x.Key, x => x.Value);
-            var textLinks = GetTextLinks(GetPageText());
+            var textLinks = _getTextLinks(GetPageText());
 
             var setA = documentLinks
                 .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase);
-            var setB = iframeLinks
+            var setB = iframeLinks?
                 .GroupBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First().Value.ToString(), StringComparer.OrdinalIgnoreCase);
             var setC = textLinks
@@ -87,10 +87,11 @@ namespace PodNoms.Common.Services.PageParser {
                 .ToDictionary(g => g.Key, g => g.First().Value);
         }
 
-        public Dictionary<string, string> GetTextLinks(string text) {
+        private Dictionary<string, string> _getTextLinks(string text) {
             var matches = Regex.Matches(text, PARSER_REGEX)
                 .Cast<Match>()
                 .Select(m => m.Value)
+                .Distinct()
                 .ToArray()
                 .Select(r => new {
                     Key = r,
