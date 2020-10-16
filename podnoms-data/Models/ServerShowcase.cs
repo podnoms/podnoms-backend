@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
@@ -10,6 +11,7 @@ namespace PodNoms.Data.Models {
 
         public string Title { get; set; }
         public string Description { get; set; }
+        [MaxLength(2000)]
         public string Url { get; set; }
 
         public int? PodcastCountThreshold { get; set; }

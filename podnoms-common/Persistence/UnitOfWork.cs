@@ -29,7 +29,7 @@ namespace PodNoms.Common.Persistence {
                 return true;
             } catch (DbUpdateException e) {
                 _logger.LogError($"Error completing unit of work: {e.Message}\n{e.InnerException.Message}");
-                throw e;
+                throw;
             }
         }
 

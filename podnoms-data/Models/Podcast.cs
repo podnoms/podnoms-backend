@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
@@ -10,7 +11,9 @@ namespace PodNoms.Data.Models {
 
     public class PodcastAggregator : BaseEntity {
         public string Name { get; set; }
+        [MaxLength(2000)]
         public string Url { get; set; }
+        [MaxLength(2000)]
         public string ImageUrl { get; set; }
         public virtual Podcast Podcast { get; set; }
 
@@ -36,7 +39,9 @@ namespace PodNoms.Data.Models {
         public List<Notification> Notifications { get; set; }
 
         public string PublicTitle { get; set; }
+        [MaxLength(2000)]
         public string FacebookUrl { get; set; }
+        [MaxLength(2000)]
         public string TwitterUrl { get; set; }
 
         public string GoogleAnalyticsTrackingId { get; set; }
@@ -52,8 +57,8 @@ namespace PodNoms.Data.Models {
 
         #endregion
 
-        public string GetRssImageUrl(string cdnUrl, string containerName) =>
-            Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=1400&height=1400");
+        public string GetRawImageUrl(string cdnUrl, string containerName) =>
+            Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg");
 
         public string GetRssUrl(string rssUrl) =>
             Flurl.Url.Combine(rssUrl, this.AppUser.Slug, this.Slug);

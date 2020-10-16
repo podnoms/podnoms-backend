@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Serialization;
 using PodNoms.Common.Data.Settings;
 using SixLabors.ImageSharp.Web;
 using SixLabors.ImageSharp.Web.Caching;
@@ -21,20 +19,23 @@ namespace PodNoms.Common.Services.Startup {
             var connectionString = config.GetSection("StorageSettings")["ConnectionString"];
             var containerName = config.GetSection("ImageFileStorageSettings")["ContainerName"];
 
-            services.AddImageSharpCore()
+            services.AddImageSharp()
                 .SetRequestParser<QueryCollectionRequestParser>()
                 .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
                 .SetCache<PhysicalFileSystemCache>()
                 .SetCacheHash<CacheHash>()
-                .AddProvider(PhysicalProviderFactory)
+                .RemoveProvider<PhysicalFileSystemProvider>()
+                .RemoveProvider<AzureBlobStorageImageProvider>()
+                .AddProvider(AzureProviderFactory)
+                // .AddProvider(PhysicalProviderFactory)
                 .Configure<AzureBlobStorageImageProviderOptions>(options => {
                     options.BlobContainers.Add(new AzureBlobContainerClientOptions {
                         ConnectionString = connectionString,
                         ContainerName = containerName
                     });
                 })
-                .AddProvider<AzureBlobStorageImageProvider>()
-                .AddProvider<PhysicalFileSystemProvider>()
+                // .AddProvider<AzureBlobStorageImageProvider>()
+                // .AddProvider<PhysicalFileSystemProvider>()
                 .AddProcessor<ResizeWebProcessor>();
             return services;
         }
@@ -47,11 +48,13 @@ namespace PodNoms.Common.Services.Startup {
 
         private static AzureBlobStorageImageProvider AzureProviderFactory(IServiceProvider provider) {
             var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
-
             return new AzureBlobStorageImageProvider(
                 provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
                 provider.GetRequiredService<FormatUtilities>()) {
-                Match = context => context.Request.Path.StartsWithSegments($"/{containerName}")
+                Match = context => {
+                    var match = context.Request.Path.StartsWithSegments($"/{containerName}");
+                    return match;
+                }
             };
         }
 
@@ -60,7 +63,10 @@ namespace PodNoms.Common.Services.Startup {
             return new PhysicalFileSystemProvider(
                 provider.GetRequiredService<IWebHostEnvironment>(),
                 provider.GetRequiredService<FormatUtilities>()) {
-                Match = context => !context.Request.Path.StartsWithSegments($"/{containerName}")
+                Match = context => {
+                    var match = context.Request.Path.StartsWithSegments($"/{containerName}");
+                    return match;
+                }
             };
         }
     }

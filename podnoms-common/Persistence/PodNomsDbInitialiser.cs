@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PodNoms.Data.Models;
+using PodNoms.Common.Auth;
 
 namespace PodNoms.Common.Persistence {
     public static class PodNomsDbInitialiser {
@@ -27,8 +28,11 @@ namespace PodNoms.Common.Persistence {
                 new string[] { "website-admin" },
                 userManager
             );
-            if (adminUser != null) {
-                var sql = @$"INSERT INTO dbo.IssuedApiKeys
+            if (adminUser == null) {
+                return;
+            }
+
+            var sql = @$"INSERT INTO dbo.IssuedApiKeys
                     (
                         Id,
                         CreateDate,
@@ -53,28 +57,31 @@ namespace PodNoms.Common.Persistence {
                         SYSDATETIME(),
                         N'{adminUser.Id}'
                         )";
-                context.Database.ExecuteSqlRaw(sql);
-            }
+            context.Database.ExecuteSqlRaw(sql);
         }
 
         private static ApplicationUser _createUserIfNeeded(string userName, string name, string email, string password, string[] roles, UserManager<ApplicationUser> userManager) {
-            if (userManager.FindByEmailAsync(email).Result == null) {
-                var user = new ApplicationUser {
-                    UserName = email,
-                    FirstName = name,
-                    Email = email,
-                    Slug = userName
-                };
+            var existing = userManager.FindBySlugAsync(userName).Result;
+            if (existing != null) {
+                return null;
+            }
 
-                var result = userManager.CreateAsync(user, password).Result;
-                if (result.Succeeded) {
-                    foreach (var role in roles) {
-                        userManager.AddToRoleAsync(user, role).Wait();
-                    }
-                }
+            var user = new ApplicationUser {
+                UserName = email,
+                FirstName = name,
+                Email = email,
+                Slug = userName
+            };
+
+            var result = userManager.CreateAsync(user, password).Result;
+            if (!result.Succeeded) {
                 return user;
             }
-            return null;
+
+            foreach (var role in roles) {
+                userManager.AddToRoleAsync(user, role).Wait();
+            }
+            return user;
         }
     }
 }

@@ -23,6 +23,7 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
+using static PodNoms.Common.Services.Processor.EntryPreProcessor;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -39,6 +40,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IYouTubeParser _youTubeParser;
         private readonly AppSettings _appSettings;
         private readonly IUrlProcessService _processor;
+        private readonly EntryPreProcessor _preProcessor;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
 
@@ -52,6 +54,7 @@ namespace PodNoms.Api.Controllers {
             IConfiguration options,
             IResponseCacheService cache,
             IUrlProcessService processor,
+            EntryPreProcessor preProcessor,
             ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
@@ -66,6 +69,7 @@ namespace PodNoms.Api.Controllers {
             _cache = cache;
             _youTubeParser = youTubeParser;
             _processor = processor;
+            _preProcessor = preProcessor;
         }
 
         [HttpGet]
@@ -128,35 +132,22 @@ namespace PodNoms.Api.Controllers {
             var status = await _processor.GetInformation(entry);
             if (status != RemoteUrlType.Invalid) {
                 // check user quota
-                var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
-                var totalUsed = (await _repository.GetAllForUserAsync(_applicationUser.Id))
-                    .Select(x => x.AudioFileSize)
-                    .Sum();
-                if (totalUsed >= quota) {
+                var result = await _preProcessor.PreProcessEntry(
+                    _applicationUser,
+                    entry);
+                if (result == EntryProcessResult.QuotaExceeded) {
                     return StatusCode(402);
+                } else if (result == EntryProcessResult.GeneralFailure) {
+                    return BadRequest();
                 }
 
-                if (entry.ProcessingStatus != ProcessingStatus.Processing)
-                    return BadRequest("Failed to create podcast entry");
+                _repository.GetContext()
+                    .Entry(entry)
+                    .State = EntityState.Detached;
 
-                if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                    entry.ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png";
-                }
+                entry = await _repository.GetAsync(entry.Id);
+                return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
 
-                entry.Processed = false;
-                _repository.AddOrUpdate(entry);
-                try {
-                    var succeeded = await _unitOfWork.CompleteAsync();
-                    await _repository.LoadPodcastAsync(entry);
-                    if (succeeded) {
-                        var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
-                        BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));
-                        return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-                    }
-                } catch (DbUpdateException e) {
-                    _logger.LogError(e.Message);
-                    return BadRequest(item);
-                }
             } else if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
                        MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;

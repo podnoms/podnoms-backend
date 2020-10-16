@@ -18,18 +18,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PodNoms.Common.Auth;
-using PodNoms.Common.Data;
+using PodNoms.Common.Data.Extensions;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Remote;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
+using PodNoms.Common.Persistence;
 
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
@@ -145,19 +144,13 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("randomimage")]
         public async Task<ActionResult> GetRandomImage() {
-            var client = _httpClientFactory.CreateClient("unsplash");
-
-            var response = await client.GetAsync("/photos/random");
-            if (response.IsSuccessStatusCode) {
-                var body = await response.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(body)) {
-                    var imageData = JsonConvert.DeserializeObject<UnsplashViewModel>(body);
-                    var base64 = await ImageUtils.GetRemoteImageAsBase64(imageData.urls.regular);
-                    return Content(base64, "text/plain", Encoding.UTF8);
-                }
+            var image = await ImageUtils.GetRandomImageAsBase64(_httpClientFactory);
+            if (!string.IsNullOrEmpty(image)) {
+                return Content(image, "text/plain", Encoding.UTF8);
             }
             return new NotFoundResult();
         }
+
         [HttpGet("opml/{userSlug}")]
         [Produces("application/xml")]
         [AllowAnonymous]

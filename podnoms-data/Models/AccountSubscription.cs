@@ -14,9 +14,8 @@ namespace PodNoms.Data.Models {
         AllAccess,
         VIP
     }
-    public class AccountSubscription : IEntity {
+    public class AccountSubscription : BaseEntity {
 
-        public Guid Id { get; set; }
         public ApplicationUser AppUser { get; set; }
 
         public DateTime StartDate { get; set; }
@@ -30,8 +29,6 @@ namespace PodNoms.Data.Models {
         public AccountSubscriptionTier Tier { get; set; }
         public AccountSubscriptionType Type { get; set; }
 
-        public DateTime CreateDate { get; set; }
-        public DateTime UpdateDate { get; set; }
         public string ReceiptURL { get; set; }
     }
 }

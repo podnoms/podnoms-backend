@@ -28,8 +28,6 @@ namespace PodNoms.Common.Persistence {
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
 
             var connectionString = TEMP_CONN;
-            //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
-            builder.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
             builder.UseSqlServer(connectionString);
 
             return new PodNomsDbContext(builder.Options, null, null);
@@ -188,7 +186,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<EntryComment> EntryComments { get; set; }
         public DbSet<ActivityLogPodcastEntry> ActivityLogPodcastEntry { get; set; }
         public DbSet<PodcastEntrySharingLink> PodcastEntrySharingLinks { get; set; }
-        public DbSet<ServerShowcase> ServerShowcases { get; set; }
+        public DbSet<SiteMessages> SiteMessages { get; set; }
         public DbSet<UserRequest> UserRequests { get; set; }
 
         public DbSet<Podcast> Podcasts { get; set; }
@@ -196,5 +194,7 @@ namespace PodNoms.Common.Persistence {
         public DbSet<ServerConfig> ServerConfig { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<IssuedApiKey> IssuedApiKeys { get; set; }
+
+        public DbSet<ServicesApiKey> ServicesApiKeys { get; set; }
     }
 }

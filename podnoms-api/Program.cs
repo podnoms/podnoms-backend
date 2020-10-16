@@ -23,19 +23,21 @@ namespace PodNoms.Api {
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
                       .ConfigureAppConfiguration((context, config) => {
-                          if (!_isDevelopment) {
-                              config.SetBasePath(Directory.GetCurrentDirectory())
-                                  .AddJsonFile("appsettings.json", optional: false)
-                                  .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                                  .AddEnvironmentVariables("ASPNET  CORE_");
-                              var builtConfig = config.Build();
-                              Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
-
-                              config.AddAzureKeyVault(
-                                  $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
-                                  builtConfig["KeyVaultSettings:ClientId"],
-                                  builtConfig["KeyVaultSettings:ClientSecret"]);
+                          if (_isDevelopment) {
+                              return;
                           }
+
+                          config.SetBasePath(Directory.GetCurrentDirectory())
+                              .AddJsonFile("appsettings.json", optional: false)
+                              .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
+                              .AddEnvironmentVariables("ASPNET  CORE_");
+                          var builtConfig = config.Build();
+                          Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
+
+                          config.AddAzureKeyVault(
+                              $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+                              builtConfig["KeyVaultSettings:ClientId"],
+                              builtConfig["KeyVaultSettings:ClientSecret"]);
                       });
 
             var t = builder.UseStartup<Startup>()

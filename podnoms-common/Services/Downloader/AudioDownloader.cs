@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.Settings;
@@ -14,10 +15,12 @@ using NYoutubeDL.Helpers;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
+using PodNoms.Common.Services.Processor;
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
         private readonly IYouTubeParser _youTubeParser;
+        private readonly ILogger<AudioDownloader> _logger;
 
         private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
         public RemoteVideoInfo Properties { get; set; }
@@ -30,9 +33,11 @@ namespace PodNoms.Common.Services.Downloader {
 
         public event EventHandler<ProcessingProgress> DownloadProgress;
 
-        public AudioDownloader(IYouTubeParser youTubeParser, IOptions<HelpersSettings> helpersSettings) {
+        public AudioDownloader(IYouTubeParser youTubeParser, IOptions<HelpersSettings> helpersSettings,
+            ILogger<AudioDownloader> logger) {
             _helpersSettings = helpersSettings.Value;
             _youTubeParser = youTubeParser;
+            _logger = logger;
         }
 
         public static string GetVersion(string downloader) {
@@ -60,7 +65,7 @@ namespace PodNoms.Common.Services.Downloader {
 
         private async Task<DownloadInfo> __getInfo(string url) {
             try {
-                var yt = new YoutubeDL { VideoUrl = url };
+                var yt = new YoutubeDL {VideoUrl = url};
 
                 yt.StandardErrorEvent += (sender, e) => {
                     if (e.Contains("ERROR: Unsupported URL")) {
@@ -69,7 +74,7 @@ namespace PodNoms.Common.Services.Downloader {
                 };
 
                 var cmdLine = await yt.PrepareDownloadAsync();
-                Console.WriteLine($"Getting download info {cmdLine}");
+                _logger.LogDebug($"Getting download info {cmdLine}");
                 var info = await yt.GetDownloadInfoAsync();
                 if (info is null ||
                     info.Errors.Count != 0 ||
@@ -78,28 +83,25 @@ namespace PodNoms.Common.Services.Downloader {
                      !_youTubeParser.ValidateUrl(url))) {
                     return null;
                 }
+
                 return info;
             } catch (TaskCanceledException) {
-                Console.WriteLine("Unable to parse url");
+                _logger.LogError("Unable to parse url");
             } catch (Exception e) {
-                Console.WriteLine($"Error geting info for {url}");
-                Console.WriteLine(e.Message);
+                _logger.LogError($"Error geting info for {url}");
+                _logger.LogError(e.Message);
             }
 
             return null;
         }
 
-        public async Task<string> GetChannelId(string url) {
-            var info = await __getInfo(url);
-            return info?.Title;
-        }
 
         public async Task<RemoteUrlType> GetInfo(string url, bool goDeep = false) {
             var ret = RemoteUrlType.Invalid;
 
             if (url.Contains("drive.google.com") ||
-                    url.Contains("dl.dropboxusercontent.com") ||
-                    url.EndsWith(".mp3")) {
+                url.Contains("dl.dropboxusercontent.com") ||
+                url.EndsWith(".mp3")) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -107,8 +109,9 @@ namespace PodNoms.Common.Services.Downloader {
                 //we're youtube. bypass youtube_dl for info - it's very slow
                 var urlType = await _youTubeParser.GetUrlType(url);
                 if (urlType == RemoteUrlType.SingleItem) {
-                    Properties = await _youTubeParser.GetInformation(url);
+                    Properties = await _youTubeParser.GetVideoInformation(url);
                 }
+
                 return urlType;
             }
 
@@ -129,33 +132,27 @@ namespace PodNoms.Common.Services.Downloader {
                 VideoId = parsed?.Id
             };
 
-            switch (info) {
+            ret = info switch {
                 // have to dump playlist handling for now
-                case PlaylistDownloadInfo _ when ((PlaylistDownloadInfo)info).Videos.Count > 0:
-                    ret = RemoteUrlType.Playlist;
-                    break;
-                case VideoDownloadInfo _:
-                    ret = RemoteUrlType.SingleItem;
-                    break;
-            }
+                PlaylistDownloadInfo downloadInfo when downloadInfo.Videos.Count > 0 => RemoteUrlType.Playlist,
+                VideoDownloadInfo _ => RemoteUrlType.SingleItem,
+                _ => ret
+            };
 
             return ret;
         }
 
         public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
-
             if (string.IsNullOrEmpty(outputFile)) {
-
             }
-            var templateFile = string.IsNullOrEmpty(outputFile) ?
-                    Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s") :
-                outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
+
+            var templateFile = string.IsNullOrEmpty(outputFile)
+                ? Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s")
+                : outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
 
             if (url.Contains("drive.google.com")) {
                 return _downloadFileDirect(url, outputFile);
             }
-
-            var cleanedUrl = await _normaliseUrl(url);
 
             var yt = new YoutubeDL();
             yt.Options.FilesystemOptions.Output = templateFile;
@@ -163,43 +160,38 @@ namespace PodNoms.Common.Services.Downloader {
             yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
             yt.Options.PostProcessingOptions.AudioQuality = "0";
 
-            yt.VideoUrl = cleanedUrl;
+            yt.VideoUrl = url;
+            yt.StandardErrorEvent += (s, o) => {
+                _logger.LogError($"YTERR: {o}");
+            };
 
             yt.StandardOutputEvent += (sender, output) => {
-                if (output.StartsWith("ERROR:")) {
-                    throw new AudioDownloadException(output);
-                }
-
                 if (output.Contains("%")) {
                     try {
                         var progress = _parseProgress(output);
                         DownloadProgress?.Invoke(this, progress);
                     } catch (Exception ex) {
-                        Console.WriteLine($"Error parsing progress {ex.Message}");
+                        _logger.LogError($"Error parsing progress {ex.Message}");
                     }
                 } else {
                     DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
                         ProcessingStatus = ProcessingStatus.Converting,
                         Progress = _statusLineToNarrative(output)
                     });
-                    ;
-                    Console.WriteLine(output);
                 }
             };
-            var commandText = yt.PrepareDownload();
-            Console.WriteLine(commandText);
-            Console.WriteLine(yt.RunCommand);
+            var commandText = await yt.PrepareDownloadAsync();
+            _logger.LogDebug(commandText);
+            _logger.LogDebug(yt.RunCommand);
 
             await yt.DownloadAsync();
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
         private async Task<string> _normaliseUrl(string url) {
-            if (_youTubeParser.ValidateUrl(url)) {
-                return $"https://www.youtube.com/watch?v={await _youTubeParser.GetVideoId(url)}";
-            }
-
-            return url;
+            return _youTubeParser.ValidateUrl(url)
+                ? $"https://www.youtube.com/watch?v={await _youTubeParser.GetVideoId(url)}"
+                : url;
         }
 
         private string _statusLineToNarrative(string output) {

@@ -29,21 +29,3 @@ EXEC sp_addrolemember N'db_owner', N'podnomsjobs'
 EXEC sp_addrolemember N'db_datareader', N'podnomsjobs'
 EXEC sp_addrolemember N'db_ddladmin', N'podnomsjobs'
 GO
-
-CREATE SCHEMA maintenance
-GO
-
-CREATE PROC maintenance.SP_ResetHangfire
-AS
-BEGIN
-    TRUNCATE TABLE [HangFire].[AggregatedCounter]
-    TRUNCATE TABLE [HangFire].[Counter]
-    TRUNCATE TABLE [HangFire].[JobParameter]
-    TRUNCATE TABLE [HangFire].[JobQueue]
-    TRUNCATE TABLE [HangFire].[List]
-    TRUNCATE TABLE [HangFire].[State]
-    DELETE FROM [HangFire].[Job]
-    DBCC CHECKIDENT ('[HangFire].[Job]', reseed, 0)
-    UPDATE [HangFire].[Hash] SET Value = 1 WHERE Field = 'LastJobId'
-END
-GO

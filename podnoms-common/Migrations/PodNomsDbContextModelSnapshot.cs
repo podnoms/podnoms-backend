@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
-namespace PodNoms.Comon.Migrations
+namespace PodNoms.Common.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
     partial class PodNomsDbContextModelSnapshot : ModelSnapshot
@@ -15,9 +15,9 @@ namespace PodNoms.Comon.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "5.0.0-rc.1.20451.13");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -29,18 +29,18 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex")
+                        .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
@@ -48,22 +48,29 @@ namespace PodNoms.Comon.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b7ae3daa-e2e5-4b02-8102-aa5ac17a5ff6",
-                            ConcurrencyStamp = "995a3078-7b68-4476-b96b-62e559048633",
+                            Id = "94e79a7b-2ec7-46e2-b890-fcf0e5eaaf80",
+                            ConcurrencyStamp = "35eb0496-26cf-4ce9-b106-03c16d4566fb",
+                            Name = "client-admin",
+                            NormalizedName = "CLIENT-ADMIN"
+                        },
+                        new
+                        {
+                            Id = "f1c6e6a8-2461-48f2-ab7a-569a3b75b280",
+                            ConcurrencyStamp = "75cd9bcf-91ef-4819-b66c-0c22918ba6e8",
                             Name = "website-admin",
                             NormalizedName = "WEBSITE-ADMIN"
                         },
                         new
                         {
-                            Id = "a1de37ce-e61b-49a9-a0b2-7330ca3aa697",
-                            ConcurrencyStamp = "a39fe0e4-e7f3-4ad0-8002-e5c131cca8b3",
+                            Id = "dba18578-271a-40de-8cb3-e21f97fcf159",
+                            ConcurrencyStamp = "1d5a0bcd-6aff-4158-801d-d455b4ce6c25",
                             Name = "catastrophic-api-calls-allowed",
                             NormalizedName = "CATASTROPHIC-API-CALLS-ALLOWED"
                         },
                         new
                         {
-                            Id = "f27a5f6c-2056-4c0c-866b-0ac6a433415b",
-                            ConcurrencyStamp = "4c32882e-58d0-415c-a91d-6e6e279fbd02",
+                            Id = "9517774b-a900-49ee-9ddf-c31b36938352",
+                            ConcurrencyStamp = "ffbb9e22-e3a1-4631-ab85-239f26267de7",
                             Name = "god-mode",
                             NormalizedName = "GOD-MODE"
                         });
@@ -74,7 +81,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -98,7 +105,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -310,8 +317,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
@@ -349,12 +356,12 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -367,6 +374,9 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PlaylistAllowedEntryCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("RegionCode")
                         .HasColumnType("nvarchar(max)");
@@ -387,8 +397,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Zip")
                         .HasColumnType("nvarchar(max)");
@@ -396,11 +406,11 @@ namespace PodNoms.Comon.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex")
+                        .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.HasIndex("Slug")
@@ -500,114 +510,114 @@ namespace PodNoms.Comon.Migrations
                         new
                         {
                             Id = new Guid("29c0716a-94bc-4b79-bb7a-1acb2d872101"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(2595),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Comedy",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(2596)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3118),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Technology",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3119)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("50495352-2339-4498-aad3-3f8c85f6ac69"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3137),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Science & Medicine",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3138)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3141),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Business",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3141)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3143),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Religion & Spirituality",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3143)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("3219621b-8311-4b65-bb48-6f68fba4957c"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3146),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Kids & Family",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3146)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("a6aa8e20-8729-4698-a254-976012afdbf3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3148),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "TV & Film",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3149)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3151),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Sports & Recreation",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3151)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3153),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Society & Culture",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3154)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("27fb7005-b75c-490b-ae13-bcc88525be65"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3156),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Music",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3156)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3159),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Health",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3159)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("5e023a7a-461d-46c6-bca8-c9049f6d2ec5"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3161),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "News & Politics",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3161)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3164),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Games & Hobbies",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3164)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3167),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Education",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3167)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3169),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Arts",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3169)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3171),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Government & Organizations",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 137, DateTimeKind.Utc).AddTicks(3172)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -743,12 +753,12 @@ namespace PodNoms.Comon.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(25)")
-                        .HasMaxLength(25);
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<string>("Prefix")
-                        .HasColumnType("nvarchar(7)")
-                        .HasMaxLength(7);
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<string>("Scopes")
                         .HasColumnType("nvarchar(max)");
@@ -890,7 +900,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SourceUrl")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -945,7 +956,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FacebookUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("GoogleAnalyticsTrackingId")
                         .HasColumnType("nvarchar(max)");
@@ -965,7 +977,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TwitterUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -997,7 +1010,8 @@ namespace PodNoms.Comon.Migrations
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -1011,7 +1025,8 @@ namespace PodNoms.Comon.Migrations
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.HasKey("Id");
 
@@ -1033,7 +1048,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("AudioUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Author")
                         .HasColumnType("nvarchar(max)");
@@ -1047,7 +1063,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int>("MetadataStatus")
                         .HasColumnType("int");
@@ -1080,7 +1097,8 @@ namespace PodNoms.Comon.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SourceUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -1121,7 +1139,7 @@ namespace PodNoms.Comon.Migrations
                     b.Property<int>("LinkIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<Guid?>("PodcastEntryId")
                         .HasColumnType("uniqueidentifier");
@@ -1210,10 +1228,81 @@ namespace PodNoms.Comon.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerConfig","admin");
+                    b.ToTable("ServerConfig", "admin");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServerShowcase", b =>
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServicesApiKeys");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApiKeyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Stack")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiKeyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ServicesApiKeyLog");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.SiteMessages", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1248,17 +1337,21 @@ namespace PodNoms.Comon.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerShowcases");
+                    b.ToTable("SiteMessages");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
@@ -1299,321 +1392,321 @@ namespace PodNoms.Comon.Migrations
                         {
                             Id = new Guid("1f4b0b76-d7b8-404c-af32-3428fc488e30"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(5975),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Video Games",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(5976)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("84ed0b38-616d-4926-90c2-3cc7ae2f8e4e"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6406),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Professional",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6406)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("867ae49c-ade1-41b9-ba18-3f4801ec18ee"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6426),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Fitness & Nutrition",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6426)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("b4284990-c542-48e4-a000-42d27202153b"),
                             CategoryId = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6431),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Non-Profit",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6431)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("c950eaac-f164-4f3c-8384-459679130aef"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6435),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Outdoor",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6436)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("df0063a6-31ef-4f9a-be23-4f9178291bb3"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6440),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Higher Education",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6440)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("2488b878-124a-42f9-a761-53daa1eefde1"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6444),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Literature",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6444)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("5c40fa5a-72df-475b-bfa8-561955145762"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6448),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Other",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6449)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("201fb42b-e241-4e16-bea5-5df768064402"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6452),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Investing",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6453)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("4f006295-e8ea-4a87-92e0-69e32f8d3ad9"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6456),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Aviation",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6457)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("8b2a590b-bb59-4f30-acb2-72fa01985e4b"),
                             CategoryId = new Guid("50495352-2339-4498-aad3-3f8c85f6ac69"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6460),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Social Sciences",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6461)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("3e3f77a4-4cd3-4644-ace1-7923e84d403d"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6464),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Performing Arts",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6465)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("f9167edb-5d9c-4e34-ad26-7a2630528682"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6469),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Places & Travel",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6469)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("4ecd4db0-0786-4594-a49b-86ab1362bc3c"),
                             CategoryId = new Guid("97735523-d87a-4b5f-9dd1-ab8289af2ae6"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6473),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Amateur",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6473)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("375fa60d-8d6f-4684-a729-8a061ce2e062"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6477),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Management & Marketing",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6477)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("5005a13d-45c9-40ea-b691-96ff5afa0e39"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6481),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Personal Journals",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6481)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d9d8f925-cf6f-4d8d-9404-990609b312ce"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6485),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Buddhism",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6485)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d5e38344-c701-406f-8762-9a793efb98d7"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6489),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Christianity",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6489)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("bd367623-40c3-48f2-9a59-9b526c643905"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6493),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Hinduism",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6494)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("797408d2-abbc-4d8d-92f4-9b74146d726d"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6497),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Business News",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6497)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("7174aa7c-8df2-4f9f-84aa-9bc1e9793eda"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6501),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Other Games",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6502)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d69e2cc2-588f-49c5-933e-a6f963e79f32"),
                             CategoryId = new Guid("2e23f263-062a-43c3-9e27-fb7555fb8e76"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6505),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Local",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6506)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("c8829517-5a62-4bcc-82cc-ab4a75c6312c"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6509),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "K-12",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6510)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("7be75c87-d18a-45ee-92c3-ab6afce3e5db"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6513),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Food",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6513)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("1d5212bc-b31c-4130-bcea-ae7c9df2985f"),
                             CategoryId = new Guid("f177d65b-5eca-4137-b202-af672cd11d70"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6517),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Philosophy",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6517)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("4966ec0c-3f53-4710-9f21-afb2371ab3e2"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6520),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Sexuality",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6521)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d8c5c265-1fa1-4244-9d76-b181bd936846"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6524),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Education Technology",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6525)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("7e371ab3-cc53-4f16-9de9-c2d10faa8938"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6528),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Visual Arts",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6528)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("c546f84f-643a-4f44-9bdf-ce4b44926e0a"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6532),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Training",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6532)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("149f1619-eb42-4d9b-a4d6-da68ec0541d9"),
                             CategoryId = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6535),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Podcasting",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6536)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("37f4f907-7b02-4268-8e38-db8700c1dc87"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6539),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Judaism",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6540)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("8114a581-24bb-451e-ba21-dcacd175bde4"),
                             CategoryId = new Guid("ad31686b-794b-4ebb-99a8-cdc812ca7e83"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6543),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Language Courses",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6543)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("35cf95e2-6506-47ad-bd5d-df3b5e389a8f"),
                             CategoryId = new Guid("41b9ee87-a9ca-4305-8ed8-ee69a3dbcfc3"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6547),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Fashion & Beauty",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6547)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("8fb81212-5911-4190-9635-e478e2119c0c"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6551),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Spirituality",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6551)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("23eb4b47-fc1d-45ac-9a21-e4ea5313f3d8"),
                             CategoryId = new Guid("b13cddb1-feff-42e1-9c80-cb8ad4a5f374"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6554),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Hobbies",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6555)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("c7465257-d5b6-46f3-8521-e7a8f91e17b8"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6559),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Shopping",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6559)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("cbcf3c5f-f7c9-44b3-9b2d-edc6523d8c3c"),
                             CategoryId = new Guid("c4911d87-2b6e-42ea-b771-be910cb01624"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6563),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Self-Help",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6563)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("fb7c2755-4b09-4d9f-a457-eebb39abac3b"),
                             CategoryId = new Guid("f0603194-6f45-4695-98c1-6288cffbfd94"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6567),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Careers",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6567)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("eb082ac8-856b-4bb0-a22f-f4062d4347d2"),
                             CategoryId = new Guid("db829bfe-a8fe-458e-9b67-2b00f4794750"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6571),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Software How-To",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6571)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("56a5dc3b-3dc5-46d2-9972-f846a4ca9909"),
                             CategoryId = new Guid("67d057a7-21b4-4462-a284-66ba62a6de1b"),
-                            CreateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6574),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Islam",
-                            UpdateDate = new DateTime(2020, 7, 25, 13, 36, 2, 138, DateTimeKind.Utc).AddTicks(6575)
+                            UpdateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -1705,6 +1798,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithMany("AccountSubscriptions")
                         .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ActivityLogPodcastEntry", b =>
@@ -1713,6 +1808,8 @@ namespace PodNoms.Comon.Migrations
                         .WithMany("ActivityLogs")
                         .HasForeignKey("PodcastEntryId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("PodcastEntry");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ApplicationUserSlugRedirects", b =>
@@ -1720,6 +1817,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
+
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ChatMessage", b =>
@@ -1731,6 +1830,10 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "ToUser")
                         .WithMany()
                         .HasForeignKey("ToUserId");
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Donation", b =>
@@ -1738,6 +1841,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithMany("Donations")
                         .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.EntryComment", b =>
@@ -1745,6 +1850,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.PodcastEntry", "PodcastEntry")
                         .WithMany("Comments")
                         .HasForeignKey("PodcastEntryId");
+
+                    b.Navigation("PodcastEntry");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b =>
@@ -1752,6 +1859,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "IssuedTo")
                         .WithMany("IssuedApiKeys")
                         .HasForeignKey("IssuedToId");
+
+                    b.Navigation("IssuedTo");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.Notification", b =>
@@ -1761,6 +1870,8 @@ namespace PodNoms.Comon.Migrations
                         .HasForeignKey("PodcastId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Podcast");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Notifications.NotificationLog", b =>
@@ -1770,6 +1881,8 @@ namespace PodNoms.Comon.Migrations
                         .HasForeignKey("NotificationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Notification");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.PatreonToken", b =>
@@ -1777,6 +1890,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithOne("PatreonToken")
                         .HasForeignKey("PodNoms.Data.Models.PatreonToken", "AppUserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
@@ -1786,6 +1901,8 @@ namespace PodNoms.Comon.Migrations
                         .HasForeignKey("PodcastId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Podcast");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
@@ -1799,6 +1916,10 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.PodcastAggregator", b =>
@@ -1806,6 +1927,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Podcast", "Podcast")
                         .WithMany("Aggregators")
                         .HasForeignKey("PodcastId");
+
+                    b.Navigation("Podcast");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
@@ -1819,6 +1942,10 @@ namespace PodNoms.Comon.Migrations
                         .HasForeignKey("PodcastId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Playlist");
+
+                    b.Navigation("Podcast");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.PodcastEntrySharingLink", b =>
@@ -1827,6 +1954,8 @@ namespace PodNoms.Comon.Migrations
                         .WithMany("SharingLinks")
                         .HasForeignKey("PodcastEntryId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("PodcastEntry");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.RefreshToken", b =>
@@ -1834,6 +1963,23 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "AppUser")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.ServicesApiKey", "ApiKey")
+                        .WithMany("Usages")
+                        .HasForeignKey("ApiKeyId");
+
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("ApiKey");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.Subcategory", b =>
@@ -1847,6 +1993,8 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.Podcast", null)
                         .WithMany("Subcategories")
                         .HasForeignKey("PodcastId");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.UserRequest", b =>
@@ -1854,6 +2002,58 @@ namespace PodNoms.Comon.Migrations
                     b.HasOne("PodNoms.Data.Models.ApplicationUser", "FromUser")
                         .WithMany()
                         .HasForeignKey("FromUserId");
+
+                    b.Navigation("FromUser");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("AccountSubscriptions");
+
+                    b.Navigation("Donations");
+
+                    b.Navigation("IssuedApiKeys");
+
+                    b.Navigation("PatreonToken");
+
+                    b.Navigation("Podcasts");
+
+                    b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.Category", b =>
+                {
+                    b.Navigation("Subcategories");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.Playlist", b =>
+                {
+                    b.Navigation("PodcastEntries");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.Podcast", b =>
+                {
+                    b.Navigation("Aggregators");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("PodcastEntries");
+
+                    b.Navigation("Subcategories");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.PodcastEntry", b =>
+                {
+                    b.Navigation("ActivityLogs");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("SharingLinks");
+                });
+
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
+                {
+                    b.Navigation("Usages");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,8 +5,10 @@ using HtmlAgilityPack;
 
 namespace PodNoms.Common.Utils.Extensions {
     public static class HtmlStringExtensions {
-        public static string RemoveUnwantedHtmlTags(
-                    this string html) {
+        public static string RemoveUnwantedHtmlTags(this string html) {
+            if (string.IsNullOrEmpty(html))
+                return string.Empty;
+
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
 
@@ -15,6 +17,7 @@ namespace PodNoms.Common.Utils.Extensions {
             sw.Flush();
             return sw.ToString();
         }
+
         private static void _convertContentTo(HtmlNode node, TextWriter outText) {
             foreach (HtmlNode subnode in node.ChildNodes) {
                 _convertTo(subnode, outText);
@@ -49,6 +52,7 @@ namespace PodNoms.Common.Utils.Extensions {
                     if (html.Trim().Length > 0) {
                         outText.Write(HtmlEntity.DeEntitize(html));
                     }
+
                     break;
 
                 case HtmlNodeType.Element:
@@ -68,6 +72,7 @@ namespace PodNoms.Common.Utils.Extensions {
                     if (node.HasChildNodes) {
                         _convertContentTo(node, outText);
                     }
+
                     break;
             }
         }

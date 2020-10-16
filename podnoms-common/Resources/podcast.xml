@@ -3,22 +3,22 @@
     xmlns:atom="http://www.w3.org/2005/Atom" 
     version="2.0">
     <channel>
-        <title> {{title}} </title>
-        <description>Podcast {{title}} from PodNoms</description>
+        <title>{{title}}</title>
+        <description>{{descriptions}}</description>
         <image>
-            <url>{{image}}</url>
-            <title>Image for {{title}}</title>
+            <url>{{image}}?width=144&amp;height=400</url>
+            <title>{{title}}</title>
             <link>{{showUrl}}</link>
-            <width>1400</width>
-            <height>1400</height>
+            <width>144</width>
+            <height>400</height>
         </image>
-        <itunes:author>{{author}} </itunes:author>
+        <itunes:author>{{author}}</itunes:author>
         <itunes:summary>Podcast {{title}} from PodNoms</itunes:summary>
         <category>{{category}}</category>
         <itunes:category text="{{category}}">
         </itunes:category>
         <link>{{showUrl}}</link>
-        <itunes:image href="{{image}}" />
+        <itunes:image href="{{image}}?width=1400&amp;height=1400" />
         <itunes:explicit>no</itunes:explicit>
         <itunes:owner>
             <itunes:name>{{owner}}</itunes:name>
@@ -36,7 +36,7 @@
             <guid isPermaLink="false">{{uid}}</guid>
             <description>{{description}}</description>
             <itunes:author>{{author}}</itunes:author>
-            <itunes:summary>{{description}}</itunes:summary>
+            <itunes:summary>{{summary}}</itunes:summary>
             <itunes:duration>{{duration}}</itunes:duration>
             <itunes:image href="{{entryImage}}" />
             <pubDate> {{updateDate}}</pubDate>

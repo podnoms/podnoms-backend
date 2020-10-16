@@ -29,7 +29,8 @@ namespace PodNoms.Data.Models {
 
         public long? DiskQuota { get; set; }
 
-        [SlugField(sourceField: "FullName")] public string Slug { get; set; }
+        [SlugField(sourceField: "FullName")]
+        public string Slug { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
         public virtual List<AccountSubscription> AccountSubscriptions { get; set; } = new List<AccountSubscription>();
@@ -52,6 +53,8 @@ namespace PodNoms.Data.Models {
         public NotificationOptions EmailNotificationOptions { get; set; }
 
         public virtual List<IssuedApiKey> IssuedApiKeys { get; set; } = new List<IssuedApiKey>();
+
+        public int? PlaylistAllowedEntryCount { get; set; }
 
         public void AddRefreshToken(string token, string remoteIpAddress, double daysToExpire = 5) {
             RefreshTokens.Add(new RefreshToken(token, DateTime.UtcNow.AddDays(daysToExpire), this, remoteIpAddress));

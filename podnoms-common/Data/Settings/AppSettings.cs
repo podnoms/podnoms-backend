@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Hosting;
+
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
         public string ApiUrl { get; set; }
@@ -9,7 +14,6 @@ namespace PodNoms.Common.Data.Settings {
         public string RssUrl { get; set; }
         public string PagesUrl { get; set; }
         public string JobServerUrl { get; set; }
-        public string GoogleApiKey { get; set; }
         public string IPStackKey { get; set; }
         public string Downloader { get; set; }
     }

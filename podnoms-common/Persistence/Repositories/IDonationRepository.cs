@@ -6,7 +6,8 @@ namespace PodNoms.Common.Persistence.Repositories {
 
     }
     public class DonationRepository : GenericRepository<Donation>, IDonationRepository {
-        public DonationRepository(PodNomsDbContext context, ILogger<GenericRepository<Donation>> logger) : base(context, logger) {
+        public DonationRepository(PodNomsDbContext context, ILogger<GenericRepository<Donation>> logger) :
+                base(context, logger) {
         }
     }
 }

@@ -9,11 +9,6 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
-using PodNoms.Common.Services.Storage;
-using PodNoms.Common.Utils;
-using PodNoms.Data.Models;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace PodNoms.Common.Services.Jobs {
     public class CacheRemoteImageJob : IHostedJob {

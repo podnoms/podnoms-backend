@@ -4,13 +4,13 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using EasyNetQ.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Enums;
+using StackExchange.Redis;
 
 namespace PodNoms.Common.Services.Caching {
     public class CachedAttribute : Attribute, IAsyncActionFilter {
@@ -35,10 +35,17 @@ namespace PodNoms.Common.Services.Caching {
                 return;
             }
 
-            var cache = context.HttpContext.RequestServices.GetRequiredService<IResponseCacheService>();
             var key = _getCacheKey(_itemType, _cacheType.ToString().ToLower(), context.HttpContext.Request);
+            var cache = context.HttpContext.RequestServices.GetRequiredService<IResponseCacheService>();
 
-            var cachedResponse = await cache.GetCacheResponseAsync(key);
+            var cachedResponse = string.Empty;
+            try {
+                cachedResponse = await cache.GetCacheResponseAsync(key);
+            } catch (RedisConnectionException) {
+                await next();
+                return;
+            }
+
             if (!string.IsNullOrEmpty(cachedResponse)) {
                 logger.LogDebug($"Cache hit: {key}");
                 var contentResult = new ContentResult {
@@ -55,6 +62,7 @@ namespace PodNoms.Common.Services.Caching {
             if (executedContext.Result is ContentResult result) {
                 await cache.CacheResponseAsync(key, result.Content, TimeSpan.FromSeconds(_ttl));
             }
+
         }
 
         private static string _getCacheKey(string itemType, string cacheType, HttpRequest request) {

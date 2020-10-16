@@ -44,7 +44,6 @@ using PodNoms.Common.Auth;
 
 namespace PodNoms.Api {
     public class Startup {
-
         public static IConfiguration Configuration { get; private set; }
         public IWebHostEnvironment Env { get; }
 
@@ -67,11 +66,9 @@ namespace PodNoms.Api {
 
             Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddDbContext<PodNomsDbContext>(options => {
-                //FIXME Remove when https://github.com/aspnet/EntityFrameworkCore/issues/18943 is deployed
-                options.ReplaceService<IMigrationsModelDiffer, ModelDiffer>();
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
-                          .EnableRetryOnFailure());
+                        .EnableRetryOnFailure());
             });
 
             Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
@@ -97,19 +94,19 @@ namespace PodNoms.Api {
             services.AddPodNomsCors(Configuration);
 
             services.AddMvc(options => {
-                //TODO: This needs to be investigated
-                options.Filters.Add<UserLoggingFilter>();
-                options.Filters.Add<UserLoggingFilter>();
-                options.EnableEndpointRouting = false;
-                options.OutputFormatters
-                    .OfType<StringOutputFormatter>()
-                    .Single().SupportedMediaTypes.Add("text/html");
-            })
-            .AddXmlSerializerFormatters()
-            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+                    //TODO: This needs to be investigated
+                    options.Filters.Add<UserLoggingFilter>();
+                    options.Filters.Add<UserLoggingFilter>();
+                    options.EnableEndpointRouting = false;
+                    options.OutputFormatters
+                        .OfType<StringOutputFormatter>()
+                        .Single().SupportedMediaTypes.Add("text/html");
+                })
+                .AddXmlSerializerFormatters()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PodNoms.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "PodNoms.API", Version = "v1"});
                 c.DocumentFilter<LowercaseDocumentFilter>();
             });
 
@@ -135,12 +132,13 @@ namespace PodNoms.Api {
             services.AddSharedDependencies()
                 //the query service is orders of magnitude faster than the API 
                 //but it will get rate limited if we use it on the job server
-                .AddTransient<IYouTubeParser, YouTubeExplodeParser>()
+                .AddTransient<IYouTubeParser, YouTubeParser>()
                 .AddTransient<IRealTimeUpdater, SignalRUpdater>()
                 .AddScoped<RssFeedParser>()
                 .AddScoped<UserLoggingFilter>()
                 .AddScoped<ISupportChatService, SupportChatService>()
-                .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService>(); //register this on it's own as the job server does it's own thing here..
+                .AddScoped<INotifyJobCompleteService, NotifyJobCompleteService
+                >(); //register this on it's own as the job server does it's own thing here..
 
             //register the codepages (required for slugify)
             var instance = CodePagesEncodingProvider.Instance;
@@ -161,10 +159,9 @@ namespace PodNoms.Api {
 
             app.UseSqlitePushSubscriptionStore();
 
-
             app.UseMessageQueue("ClientMessageService", Assembly.GetExecutingAssembly());
 
-            //use the forwarded headers from nginx, not the proxyy headers
+            //use the forwarded headers from nginx, not the proxy headers
             app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
@@ -210,10 +207,10 @@ namespace PodNoms.Api {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PodNoms.API");
                 c.RoutePrefix = "";
             });
-
         }
 
-        private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager, IConfiguration config) {
+        private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager,
+            IConfiguration config) {
             using var serviceScope = app.ApplicationServices
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
@@ -222,8 +219,10 @@ namespace PodNoms.Api {
             PodNomsDbInitialiser.SeedUsers(userManager, context, config);
         }
     }
+
     public static class MessagingExtensions {
-        public static IApplicationBuilder UseMessageQueue(this IApplicationBuilder appBuilder, string subscriptionIdPrefix, Assembly assembly) {
+        public static IApplicationBuilder UseMessageQueue(this IApplicationBuilder appBuilder,
+            string subscriptionIdPrefix, Assembly assembly) {
             var services = appBuilder.ApplicationServices.CreateScope().ServiceProvider;
 
             var lifeTime = services.GetService<IHostApplicationLifetime>();
