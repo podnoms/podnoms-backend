@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,10 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly IYouTubeParser _youTubeParser;
         private readonly ILogger<AudioDownloader> _logger;
 
-        private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        private static readonly List<string> _audioFileTypes = new List<string>() {
+            "audio/mpeg"
+        };
+        
         public RemoteVideoInfo Properties { get; set; }
         public DownloadInfo RawProperties { get; private set; }
 
@@ -40,6 +44,12 @@ namespace PodNoms.Common.Services.Downloader {
             _logger = logger;
         }
 
+        private static async Task<bool> _remoteIsAudio(string url) =>
+            url.Contains("drive.google.com") ||
+            url.Contains("dl.dropboxusercontent.com") ||
+            url.EndsWith(".mp3") ||
+            _audioFileTypes.Contains(await HttpUtils.GetRemoteMimeType(url));
+        
         public static string GetVersion(string downloader) {
             try {
                 var proc = new Process {
@@ -98,10 +108,7 @@ namespace PodNoms.Common.Services.Downloader {
 
         public async Task<RemoteUrlType> GetInfo(string url, bool goDeep = false) {
             var ret = RemoteUrlType.Invalid;
-
-            if (url.Contains("drive.google.com") ||
-                url.Contains("dl.dropboxusercontent.com") ||
-                url.EndsWith(".mp3")) {
+            if (await _remoteIsAudio(url)) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -150,7 +157,7 @@ namespace PodNoms.Common.Services.Downloader {
                 ? Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s")
                 : outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
 
-            if (url.Contains("drive.google.com")) {
+            if (await _remoteIsAudio(url)) {
                 return _downloadFileDirect(url, outputFile);
             }
 
@@ -194,18 +201,14 @@ namespace PodNoms.Common.Services.Downloader {
                 : url;
         }
 
-        private string _statusLineToNarrative(string output) {
-            //[youtube] rzfmZC3kg3M: Downloading webpage
-            if (output.Contains(":")) {
-                return output.Split(':')[1];
-            }
-
-            return "Converting (this may take a bit)";
-        }
-
-        private ProcessingProgress _parseProgress(string output) {
-            var result = new ProcessingProgress(new TransferProgress());
-            result.ProcessingStatus = ProcessingStatus.Downloading;
+        private static string _statusLineToNarrative(string output) => 
+             output.Contains(":") ? output.Split(':')[1] : "Converting (this may take a bit)";
+        
+        private static ProcessingProgress _parseProgress(string output) {
+            var result = new ProcessingProgress(
+                new TransferProgress()) {
+                    ProcessingStatus = ProcessingStatus.Downloading
+                };
 
             var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
             var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
@@ -223,7 +226,6 @@ namespace PodNoms.Common.Services.Downloader {
                     output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
                 result.Progress = rateString;
             }
-
             return result;
         }
 
