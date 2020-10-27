@@ -42,8 +42,6 @@ namespace PodNoms.Common.Services.Jobs {
             //get all the unprocessed images
             var entries = await _entryRepository.GetAll()
                 .Where(x => x.ImageUrl.StartsWith("http"))
-                // .Where(x => x.Id == System.Guid.Parse("47d667a6-1973-41fb-ef47-08d7846d75d6"))
-                // .Where(x => x.ImageUrl.Equals("https://img.youtube.com/vi/-Zr_aNXS2RE/sddefault.jpg"))
                 .ToListAsync();
             var count = entries.Count();
             int i = 1;
@@ -63,7 +61,9 @@ namespace PodNoms.Common.Services.Jobs {
                     if (string.IsNullOrEmpty(file) && !string.IsNullOrEmpty(entry.SourceUrl)) {
                         if (_youTubeParser.ValidateUrl(entry.SourceUrl)) {
                             Log($"YouTube gave us a 404: {entry.ImageUrl}");
-                            var info = await _youTubeParser.GetVideoInformation(entry.SourceUrl);
+                            var info = await _youTubeParser.GetVideoInformation(
+                                entry.SourceUrl,
+                                entry.Podcast.AppUserId);
                             if (info != null) {
                                 Log($"Parser gave us: {info} - attempting a cache");
                                 file = await _imageCacher.CacheImage(info.Thumbnail, entry.Id.ToString());

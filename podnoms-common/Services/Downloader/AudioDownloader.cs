@@ -26,7 +26,7 @@ namespace PodNoms.Common.Services.Downloader {
         private static readonly List<string> _audioFileTypes = new List<string>() {
             "audio/mpeg"
         };
-        
+
         public RemoteVideoInfo Properties { get; set; }
         public DownloadInfo RawProperties { get; private set; }
 
@@ -49,7 +49,7 @@ namespace PodNoms.Common.Services.Downloader {
             url.Contains("dl.dropboxusercontent.com") ||
             url.EndsWith(".mp3") ||
             _audioFileTypes.Contains(await HttpUtils.GetRemoteMimeType(url));
-        
+
         public static string GetVersion(string downloader) {
             try {
                 var proc = new Process {
@@ -106,7 +106,7 @@ namespace PodNoms.Common.Services.Downloader {
         }
 
 
-        public async Task<RemoteUrlType> GetInfo(string url, bool goDeep = false) {
+        public async Task<RemoteUrlType> GetInfo(string url, string userId) {
             var ret = RemoteUrlType.Invalid;
             if (await _remoteIsAudio(url)) {
                 return RemoteUrlType.SingleItem;
@@ -116,7 +116,7 @@ namespace PodNoms.Common.Services.Downloader {
                 //we're youtube. bypass youtube_dl for info - it's very slow
                 var urlType = await _youTubeParser.GetUrlType(url);
                 if (urlType == RemoteUrlType.SingleItem) {
-                    Properties = await _youTubeParser.GetVideoInformation(url);
+                    Properties = await _youTubeParser.GetVideoInformation(url, userId);
                 }
 
                 return urlType;
@@ -195,20 +195,14 @@ namespace PodNoms.Common.Services.Downloader {
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
-        private async Task<string> _normaliseUrl(string url) {
-            return _youTubeParser.ValidateUrl(url)
-                ? $"https://www.youtube.com/watch?v={await _youTubeParser.GetVideoId(url)}"
-                : url;
-        }
+        private static string _statusLineToNarrative(string output) =>
+            output.Contains(":") ? output.Split(':')[1] : "Converting (this may take a bit)";
 
-        private static string _statusLineToNarrative(string output) => 
-             output.Contains(":") ? output.Split(':')[1] : "Converting (this may take a bit)";
-        
         private static ProcessingProgress _parseProgress(string output) {
             var result = new ProcessingProgress(
                 new TransferProgress()) {
-                    ProcessingStatus = ProcessingStatus.Downloading
-                };
+                ProcessingStatus = ProcessingStatus.Downloading
+            };
 
             var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
             var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
@@ -226,6 +220,7 @@ namespace PodNoms.Common.Services.Downloader {
                     output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
                 result.Progress = rateString;
             }
+
             return result;
         }
 

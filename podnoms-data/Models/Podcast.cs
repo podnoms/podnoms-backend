@@ -8,17 +8,16 @@ using PodNoms.Data.Models.Notifications;
 using PodNoms.Data.Enums;
 
 namespace PodNoms.Data.Models {
-
     public class PodcastAggregator : BaseEntity {
         public string Name { get; set; }
-        [MaxLength(2000)]
-        public string Url { get; set; }
-        [MaxLength(2000)]
-        public string ImageUrl { get; set; }
+        [MaxLength(2000)] public string Url { get; set; }
+        [MaxLength(2000)] public string ImageUrl { get; set; }
         public virtual Podcast Podcast { get; set; }
-
     }
+
     public class Podcast : BaseEntity, ISluggedEntity, ICachedEntity {
+        private List<PodcastAggregator> _aggregators;
+
         public Podcast() {
             PodcastEntries = new List<PodcastEntry>();
             Aggregators = new List<PodcastAggregator>();
@@ -39,14 +38,15 @@ namespace PodNoms.Data.Models {
         public List<Notification> Notifications { get; set; }
 
         public string PublicTitle { get; set; }
-        [MaxLength(2000)]
-        public string FacebookUrl { get; set; }
-        [MaxLength(2000)]
-        public string TwitterUrl { get; set; }
+        [MaxLength(2000)] public string FacebookUrl { get; set; }
+        [MaxLength(2000)] public string TwitterUrl { get; set; }
 
         public string GoogleAnalyticsTrackingId { get; set; }
 
-        public List<PodcastAggregator> Aggregators { get; set; }
+        public List<PodcastAggregator> Aggregators {
+            get => _aggregators;
+            set => _aggregators = value;
+        }
 
         #region AuthStuff
 
@@ -62,26 +62,30 @@ namespace PodNoms.Data.Models {
 
         public string GetRssUrl(string rssUrl) =>
             Flurl.Url.Combine(rssUrl, this.AppUser.Slug, this.Slug);
+
         public string GetCoverImageUrl(string cdnUrl, string containerName) =>
             Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=1920&height=1080&rmode=stretch");
+
         public string GetImageUrl(string cdnUrl, string containerName) =>
             Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=725&height=748");
+
         public string GetThumbnailUrl(string cdnUrl, string containerName) =>
             Flurl.Url.Combine(cdnUrl, containerName, $"podcast/{Id}.jpg?width=32&height=32");
+
         public string GetAuthenticatedUrl(string siteUrl) =>
             Flurl.Url.Combine(siteUrl, $"/podcasts/{Slug}");
+
         public string GetPagesUrl(string siteUrl) =>
             Flurl.Url.Combine(siteUrl, this.AppUser.Slug, this.Slug);
 
-        public DateTime? GetLastEntryDate() {
-            var lastEntry = this.PodcastEntries
+        public DateTime GetLastEntryDate() {
+            return this.PodcastEntries
                 .OrderByDescending(e => e.UpdateDate)
                 .Select(r => r.UpdateDate)
                 .FirstOrDefault();
-            return lastEntry == null ? this.UpdateDate : lastEntry;
         }
+
         public string GetCacheKey(CacheType type) =>
             $"podcast|{this.AppUser.Slug}|{this.Slug}|{type.ToString()}";
-
     }
 }

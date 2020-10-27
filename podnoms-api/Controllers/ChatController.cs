@@ -56,7 +56,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet]
         public async Task<ActionResult<ChatViewModel>> Get() {
-            var chats = await _chatRepository.GetAllChats(_userId);
+            var chats = await _chatRepository.GetAllChats(UserId);
             var response = _mapper.Map<ChatViewModel>(chats);
             return Ok(response);
         }
@@ -64,7 +64,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<ChatViewModel>>> GetAdmin(int take = 10) {
             var chatUser = await _userManager.FindByEmailAsync(_chatSettings.CurrentChatUser);
             if (chatUser != null) {
-                var chats = await _chatRepository.GetChats(_userId, chatUser.Id, take);
+                var chats = await _chatRepository.GetChats(UserId, chatUser.Id, take);
                 var response = _mapper.Map<List<ChatViewModel>>(chats);
                 return Ok(response);
             }

@@ -13,31 +13,34 @@ namespace PodNoms.Api.Controllers {
     public abstract class BaseAuthController : BaseController {
         private readonly ClaimsPrincipal _caller;
         protected readonly UserManager<ApplicationUser> _userManager;
-        protected readonly string _userId;
+
         protected readonly ApplicationUser _applicationUser;
+
         //TODO: IMPORTANT
         //This should be the IHttpContextAccessor 
         //and should be used like _httpContextAccessor.HttpContext AT POINT OF USE
         protected readonly IHttpContextAccessor _httpContextAccessor;
-        public BaseAuthController(IHttpContextAccessor contextAccessor,
+        protected string UserId => _applicationUser.Id;
+
+        protected BaseAuthController(IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
             ILogger logger) : base(logger) {
-            _caller = contextAccessor.HttpContext.User;
+            _caller = contextAccessor?.HttpContext?.User;
             _userManager = userManager;
             _httpContextAccessor = contextAccessor;
+            if (_caller == null) {
+                throw new NotAuthorisedException("Unable to find authorised user for this request");
+            }
+
             try {
-                if (!_caller.Identity.IsAuthenticated) {
+                if (_caller?.Identity != null && !_caller.Identity.IsAuthenticated) {
                     return;
                 }
-                var claim = _caller.Claims.Single(c => c.Type == "id");
-                if (claim != null) {
-                    _userId = _caller.Claims.Single(c => c.Type == "id")?.Value;
-                    if (_userId != null) {
-                        _applicationUser = userManager.FindByIdAsync(_userId).Result;
-                        if (_applicationUser is null) {
-                            throw new NotAuthorisedException("Unable to find authorised user for this request");
-                        }
-                    }
+
+                var userId = _caller.Claims.Single(c => c.Type == "id")?.Value;
+                _applicationUser = userManager.FindByIdAsync(userId).Result;
+                if (_applicationUser is null) {
+                    throw new NotAuthorisedException("Unable to find authorised user for this request");
                 }
             } catch (System.InvalidOperationException ex) {
                 _logger.LogError($"Error constructing BaseAuthController: \n{ex.Message}");

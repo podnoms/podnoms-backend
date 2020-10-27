@@ -6,9 +6,9 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
     public interface IUrlProcessService {
-        Task<RemoteUrlStatus> ValidateUrl(string url, bool urlTypeRequired);
-        Task<RemoteUrlType> GetInformation(string entryId);
-        Task<RemoteUrlType> GetInformation(PodcastEntry entry);
+        Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId);
+        Task<RemoteUrlType> GetInformation(string entryId, string requesterId);
+        Task<RemoteUrlType> GetInformation(PodcastEntry entry, string requesterId);
         Task<bool> DownloadAudio(Guid entryId, string outputFile);
 
         Task<bool> DownloadAudioV2(string outputId, string url, string outputFile,
