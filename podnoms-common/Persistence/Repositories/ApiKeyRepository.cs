@@ -7,7 +7,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IApiKeyRepository : IRepository<ServicesApiKey> {
-        Task<string> GetApiKey(string type);
+        Task<ServicesApiKey> GetApiKey(string type);
     }
 
     public class ApiKeyRepository : GenericRepository<ServicesApiKey>, IApiKeyRepository {
@@ -15,11 +15,10 @@ namespace PodNoms.Common.Persistence.Repositories {
             context, logger) {
         }
 
-        public async Task<string> GetApiKey(string type) {
+        public async Task<ServicesApiKey> GetApiKey(string type) {
             var result = await GetAll()
                 .Where(k => k.Type.Equals(type))
                 .OrderBy(r => Guid.NewGuid())
-                .Select(r => r.Key)
                 .FirstOrDefaultAsync();
             return result;
         }

@@ -43,7 +43,6 @@ namespace PodNoms.Common.Services.Jobs {
             EntryPreProcessor preProcessor,
             AudioDownloader audioDownloader,
             ILogger<ProcessPlaylistItemJob> logger) : base(logger) {
-
             _unitOfWork = unitOfWork;
             _processor = processor;
             _preProcessor = preProcessor;
@@ -55,7 +54,6 @@ namespace PodNoms.Common.Services.Jobs {
             _imageStorageSettings = imageStorageSettings.Value;
             _helpersSettings = helpersSettings.Value;
             _audioDownloader = audioDownloader;
-
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -71,21 +69,19 @@ namespace PodNoms.Common.Services.Jobs {
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
                 return false;
             }
+
             Log($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
 
             var playlist = await _playlistRepository.GetAsync(playlistId);
-            var url = item.VideoType.ToLower().Equals("youtube") ?
-                $"https://www.youtube.com/watch?v={item.Id}" :
-                item.VideoType.Equals("mixcloud") ?
-                    $"https://mixcloud.com/{item.Id}" :
-                    string.Empty;
+            var url = item.VideoType.ToLower().Equals("youtube") ? $"https://www.youtube.com/watch?v={item.Id}" :
+                item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.Id}" :
+                string.Empty;
             if (string.IsNullOrEmpty(url)) {
                 LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
                 Log($"Getting info");
-                var info = await _audioDownloader.GetInfo(url);
+                var info = await _audioDownloader.GetInfo(url, playlist.Podcast.AppUserId);
                 if (info != RemoteUrlType.Invalid) {
-
                     Log($"URL is valid");
 
                     var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
@@ -99,66 +95,11 @@ namespace PodNoms.Common.Services.Jobs {
                             Playlist = playlist,
                             Podcast = podcast
                         };
-                        await _processor.GetInformation(entry);
+                        await _processor.GetInformation(entry, podcast.AppUserId);
                         podcast.PodcastEntries.Add(entry);
                         await _unitOfWork.CompleteAsync();
                         var result = await _preProcessor.PreProcessEntry(podcast.AppUser, entry);
                         return result == EntryProcessResult.Succeeded;
-                        /* What the fuck is this nonsense?
-                           Entry should be processed by ProcessNewEntryJob
-
-                        var file = await _audioDownloader.DownloadAudio(
-                            uid.ToString(),
-                            url,
-                            localFile);
-                        Log($"Downloaded audio");
-
-                        if (!File.Exists(file)) {
-                            LogError("Downloaded file does not exist");
-                            return true;
-                        }
-                        //we have the file so lets create the entry and ship to CDN
-                        var entry = new PodcastEntry {
-                            Title = _audioDownloader.Properties?.Title,
-                            Description = _audioDownloader.Properties?.Description,
-                            ImageUrl = _audioDownloader.Properties?.Thumbnail,
-                            SourceCreateDate = item.UploadDate,
-                            SourceItemId = item.Id,
-                            SourceUrl = url,
-                        };
-                        podcast.PodcastEntries.Add(entry);
-                        await _unitOfWork.CompleteAsync();
-
-                        var uploaded = await _uploadService.UploadAudio(entry.Id, file);
-                        if (!uploaded) {
-                            entry.ProcessingStatus = ProcessingStatus.Failed;
-                            await _unitOfWork.CompleteAsync();
-                            return true;
-                        }
-
-                        entry.ProcessingStatus = ProcessingStatus.Processed;
-                        entry.Processed = true;
-                        await _unitOfWork.CompleteAsync();
-
-                        BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                            service => service.NotifyUser(entry.Podcast.AppUser.Id, "PodNoms",
-                                $"{entry.Title} has finished processing",
-                                entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl),
-                                entry.Podcast.GetThumbnailUrl(
-                                    _storageSettings.CdnUrl,
-                                    _imageStorageSettings.ContainerName),
-                                NotificationOptions.NewPlaylistEpisode
-                            ));
-
-                        BackgroundJob.Enqueue<INotifyJobCompleteService>(
-                            service => service.SendCustomNotifications(
-                                entry.Podcast.Id,
-                                entry.Podcast.AppUser.GetBestGuessName(),
-                                "PodNoms",
-                                $"{entry.Title} has finished processing",
-                                entry.Podcast.GetAuthenticatedUrl(_appSettings.SiteUrl)
-                            ));
-                        */
                     } catch (AudioDownloadException e) {
                         //TODO: we should mark this as failed
                         //so we don't continuously process it

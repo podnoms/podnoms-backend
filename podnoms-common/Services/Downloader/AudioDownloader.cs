@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,10 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly IYouTubeParser _youTubeParser;
         private readonly ILogger<AudioDownloader> _logger;
 
-        private VideoDownloadInfo __Properties => RawProperties is VideoDownloadInfo info ? info : null;
+        private static readonly List<string> _audioFileTypes = new List<string>() {
+            "audio/mpeg"
+        };
+
         public RemoteVideoInfo Properties { get; set; }
         public DownloadInfo RawProperties { get; private set; }
 
@@ -39,6 +43,12 @@ namespace PodNoms.Common.Services.Downloader {
             _youTubeParser = youTubeParser;
             _logger = logger;
         }
+
+        private static async Task<bool> _remoteIsAudio(string url) =>
+            url.Contains("drive.google.com") ||
+            url.Contains("dl.dropboxusercontent.com") ||
+            url.EndsWith(".mp3") ||
+            _audioFileTypes.Contains(await HttpUtils.GetRemoteMimeType(url));
 
         public static string GetVersion(string downloader) {
             try {
@@ -96,12 +106,9 @@ namespace PodNoms.Common.Services.Downloader {
         }
 
 
-        public async Task<RemoteUrlType> GetInfo(string url, bool goDeep = false) {
+        public async Task<RemoteUrlType> GetInfo(string url, string userId) {
             var ret = RemoteUrlType.Invalid;
-
-            if (url.Contains("drive.google.com") ||
-                url.Contains("dl.dropboxusercontent.com") ||
-                url.EndsWith(".mp3")) {
+            if (await _remoteIsAudio(url)) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -109,7 +116,7 @@ namespace PodNoms.Common.Services.Downloader {
                 //we're youtube. bypass youtube_dl for info - it's very slow
                 var urlType = await _youTubeParser.GetUrlType(url);
                 if (urlType == RemoteUrlType.SingleItem) {
-                    Properties = await _youTubeParser.GetVideoInformation(url);
+                    Properties = await _youTubeParser.GetVideoInformation(url, userId);
                 }
 
                 return urlType;
@@ -150,7 +157,7 @@ namespace PodNoms.Common.Services.Downloader {
                 ? Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s")
                 : outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
 
-            if (url.Contains("drive.google.com")) {
+            if (await _remoteIsAudio(url)) {
                 return _downloadFileDirect(url, outputFile);
             }
 
@@ -188,24 +195,14 @@ namespace PodNoms.Common.Services.Downloader {
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
-        private async Task<string> _normaliseUrl(string url) {
-            return _youTubeParser.ValidateUrl(url)
-                ? $"https://www.youtube.com/watch?v={await _youTubeParser.GetVideoId(url)}"
-                : url;
-        }
+        private static string _statusLineToNarrative(string output) =>
+            output.Contains(":") ? output.Split(':')[1] : "Converting (this may take a bit)";
 
-        private string _statusLineToNarrative(string output) {
-            //[youtube] rzfmZC3kg3M: Downloading webpage
-            if (output.Contains(":")) {
-                return output.Split(':')[1];
-            }
-
-            return "Converting (this may take a bit)";
-        }
-
-        private ProcessingProgress _parseProgress(string output) {
-            var result = new ProcessingProgress(new TransferProgress());
-            result.ProcessingStatus = ProcessingStatus.Downloading;
+        private static ProcessingProgress _parseProgress(string output) {
+            var result = new ProcessingProgress(
+                new TransferProgress()) {
+                ProcessingStatus = ProcessingStatus.Downloading
+            };
 
             var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
             var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);

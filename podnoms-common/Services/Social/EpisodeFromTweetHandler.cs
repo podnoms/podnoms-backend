@@ -133,7 +133,7 @@ namespace PodNoms.Common.Services.Social {
                     SourceUrl = sourceTweet.Url
                 };
 
-                var status = await processor.GetInformation(entry);
+                var status = await processor.GetInformation(entry, podcast.AppUserId);
                 if (status != RemoteUrlType.SingleItem) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
@@ -201,7 +201,6 @@ namespace PodNoms.Common.Services.Social {
 
         private async Task<Podcast?> __getTargetPodcast(string twitterText, string userId,
             IPodcastRepository podcastRepository) {
-
             _logger.LogDebug($"Finding podcast for tweet");
             var podcastSlug = twitterText
                 .FindStringFollowing(_twitterSettings.Track)
@@ -230,7 +229,7 @@ namespace PodNoms.Common.Services.Social {
                 user.UserName,
                 roles.ToArray<string>(),
                 _jwtOptions,
-                new JsonSerializerSettings { Formatting = Formatting.Indented });
+                new JsonSerializerSettings {Formatting = Formatting.Indented});
             return jwt;
         }
 

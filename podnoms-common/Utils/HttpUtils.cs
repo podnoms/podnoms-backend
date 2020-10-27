@@ -47,23 +47,36 @@ namespace PodNoms.Common.Utils {
             };
             return handler;
         }
-
-        public static async Task<string> GetUrlExtension(string url) {
-            using (var client = new HttpClient()) {
-                var request = new HttpRequestMessage(HttpMethod.Head, url);
-                var response = await client.SendAsync(request);
-                // var response = await client.GetAsync (url, HttpCompletionOption.ResponseHeadersRead);
-                if (response.StatusCode == HttpStatusCode.OK &&
-                    response.Content.Headers.ContentType != null) {
-                    var extension = MimeTypeMap.GetExtension(
-                        response.Content.Headers.ContentType.MediaType
-                            .Replace("image/jpg", "image/jpeg")
-                        );
-                    if (!string.IsNullOrEmpty(extension))
-                        return extension.TrimStart('.');
-                }
+        public static async Task<string> GetRemoteMimeType(string url){
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Head, url);
+            var response = await client.SendAsync(request);
+            
+            if (response.StatusCode == HttpStatusCode.OK &&
+                response.Content.Headers.ContentType != null) {
+                return response.Content.Headers.ContentType.MediaType;
             }
+
             return string.Empty;
+        }
+        public static async Task<string> GetUrlExtension(string url) {
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Head, url);
+            var response = await client.SendAsync(request);
+
+            if (response.StatusCode != HttpStatusCode.OK || 
+                response?.Content?.Headers?.ContentType == null) {
+                return string.Empty;
+            }
+
+            var extension = MimeTypeMap.GetExtension(
+                response.Content.Headers.ContentType.MediaType
+                    .Replace("image/jpg", "image/jpeg")
+            );
+            
+            return !string.IsNullOrEmpty(extension) ? 
+                extension.TrimStart('.') : 
+                string.Empty;
         }
     }
 }

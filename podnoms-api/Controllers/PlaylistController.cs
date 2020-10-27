@@ -44,7 +44,7 @@ namespace PodNoms.Api.Controllers {
             if (string.IsNullOrEmpty(entry.SourceUrl)) {
                 return BadRequest("SourceUrl is empty");
             }
-            var sourceUrl = await _youTubeParser.ConvertUserToChannel(entry.SourceUrl);
+            var sourceUrl = await _youTubeParser.ConvertUserToChannel(entry.SourceUrl, podcast.AppUserId);
             var playlist = new Playlist {
                 Podcast = podcast,
                 SourceUrl = sourceUrl

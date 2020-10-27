@@ -30,14 +30,14 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly StorageSettings _storageSettings;
 
         public ConvertUrlToMp3Service(
-                    ILogger<ConvertUrlToMp3Service> logger,
-                    HubLifetimeManager<PublicUpdatesHub> hub,
-                    AudioDownloader downloader,
-                    IOptions<AppSettings> appSettings,
-                    IOptions<StorageSettings> storageSettings,
-                    IUrlProcessService urlProcessService,
-                    IFileUploader fileUploader,
-                    IMP3Tagger tagger) : base(logger) {
+            ILogger<ConvertUrlToMp3Service> logger,
+            HubLifetimeManager<PublicUpdatesHub> hub,
+            AudioDownloader downloader,
+            IOptions<AppSettings> appSettings,
+            IOptions<StorageSettings> storageSettings,
+            IUrlProcessService urlProcessService,
+            IFileUploader fileUploader,
+            IMP3Tagger tagger) : base(logger) {
             _hub = hub;
             _downloader = downloader;
             _urlProcessService = urlProcessService;
@@ -54,8 +54,8 @@ namespace PodNoms.Common.Services.Jobs {
         [AutomaticRetry(Attempts = 0)]
         public async Task<bool> ProcessEntry(string url, string processId, PerformContext context) {
             var connection = new HubConnectionBuilder()
-                    .WithUrl($"{_appSettings.RealtimeUrl}/publicupdates")
-                    .Build();
+                .WithUrl($"{_appSettings.RealtimeUrl}/publicupdates")
+                .Build();
             await connection.StartAsync();
 
             var fileName = $"{processId}.mp3";
@@ -69,31 +69,31 @@ namespace PodNoms.Common.Services.Jobs {
                 return false;
             }
 
-            var info = await _downloader.GetInfo(url);
+            var info = await _downloader.GetInfo(url, string.Empty);
 
             var localImageFile = await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
             _tagger.CreateTags(
                 outputFile,
                 localImageFile,
-                 _downloader.RawProperties?.Title ?? "Downloaded by PodNoms",
-                 "Downloaded by PodNoms",
-                 "Downloaded By PodNoms",
-                 "Downloaded By PodNoms",
-                 "Downloaded By PodNoms");
+                _downloader.RawProperties?.Title ?? "Downloaded by PodNoms",
+                "Downloaded by PodNoms",
+                "Downloaded By PodNoms",
+                "Downloaded By PodNoms",
+                "Downloaded By PodNoms");
 
 
             var cdnFilename = $"processed/{fileName}";
             var uploadResult = await _fileUploader.UploadFile(
                 outputFile, "public", cdnFilename, "audio/mpeg",
                 async (p, t) => {
-                    var message = new ProcessingProgress(new TransferProgress {
+                    var progress = new ProcessingProgress(new TransferProgress {
                         Percentage = p,
                         TotalSize = t.ToString()
                     }) {
                         Progress = "Caching",
                         ProcessingStatus = ProcessingStatus.Uploading
                     };
-                    await connection.InvokeAsync("SendMessage", processId, "processing", message);
+                    await connection.InvokeAsync("SendMessage", processId, "processing", progress);
                 }
             );
             var message = new ProcessingProgress(null) {
@@ -105,5 +105,4 @@ namespace PodNoms.Common.Services.Jobs {
             return true;
         }
     }
-
 }

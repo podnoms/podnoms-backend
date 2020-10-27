@@ -8,12 +8,12 @@ namespace PodNoms.Data.Models {
         [MaxLength(100)] public string Key { get; set; }
         [MaxLength(2048)] public string Url { get; set; }
 
-        public virtual List<ServicesApiKeyLog> Usages { get; set; }
-    }
+        public virtual List<ServicesApiKeyLog> Usages { get; set; } = new List<ServicesApiKeyLog>();
 
-    public class ServicesApiKeyLog : BaseEntity {
-        public string Stack { get; set; }
-        public ServicesApiKey ApiKey { get; set; }
-        public ApplicationUser User { get; set; }
+        public ServicesApiKeyLog LogRequest(string requesterId, string stackTrace) {
+            var log = new ServicesApiKeyLog(this, requesterId, stackTrace);
+            Usages.Add(log);
+            return log;
+        }
     }
 }

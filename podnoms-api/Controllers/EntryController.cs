@@ -129,7 +129,7 @@ namespace PodNoms.Api.Controllers {
             //we're adding a new entry
             //TODO: This should return the properties bundle
             //with the status as a member
-            var status = await _processor.GetInformation(entry);
+            var status = await _processor.GetInformation(entry, this.UserId);
             if (status != RemoteUrlType.Invalid) {
                 // check user quota
                 var result = await _preProcessor.PreProcessEntry(
@@ -192,7 +192,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {
             var entry = await _repository.GetAsync(item.Id);
             entry.ProcessingStatus = ProcessingStatus.Accepted;
-            var response = _processor.GetInformation(item.Id);
+            var response = _processor.GetInformation(item.Id, this.UserId);
             entry.ProcessingStatus = ProcessingStatus.Processing;
             await _unitOfWork.CompleteAsync();
 
