@@ -55,6 +55,7 @@ namespace PodNoms.Data.Models {
 
 
         public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
+        public ICollection<EntryTag> Tags { get; set; } = new List<EntryTag>();
 
         private string extension => "jpg";
 

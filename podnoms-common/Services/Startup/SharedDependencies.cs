@@ -35,6 +35,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IEntryRepository, EntryRepository>()
                 .AddScoped<IActivityLogPodcastEntryRepository, ActivityLogPodcastEntryRepository>()
                 .AddScoped<ICategoryRepository, CategoryRepository>()
+                .AddScoped<ITagRepository, TagRepository>()
                 .AddScoped<IPlaylistRepository, PlaylistRepository>()
                 .AddScoped<IChatRepository, ChatRepository>()
                 .AddScoped<INotificationRepository, NotificationRepository>()
