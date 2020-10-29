@@ -127,7 +127,8 @@ namespace PodNoms.Common.Services.Jobs {
                     entry.Podcast.AppUser.GetBestGuessName(),
                     $"Copyright © {System.DateTime.Now.Year} {entry.Podcast.AppUser.GetBestGuessName()}",
                     $"Robot Powered Podcasts from{Environment.NewLine}https://podnoms.com/");
-
+                entry.AudioLength = _tagger.GetDuration(localFile);
+                
                 if (updateEntry) {
                     entry.MetadataStatus = 1;
                     await _unitOfWork.CompleteAsync();

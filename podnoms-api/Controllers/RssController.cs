@@ -111,7 +111,7 @@ namespace PodNoms.Api.Controllers {
                             EntryImage = e.GetImageUrl(_storageOptions.CdnUrl, _imageStorageOptions.ContainerName),
                             UpdateDate = e.CreateDate.ToRFC822String(),
                             AudioUrl = e.GetRssAudioUrl(_appSettings.AudioUrl),
-                            Duration = TimeSpan.FromSeconds(e.AudioLength).ToString(@"hh\:mm\:ss"),
+                            AudioDuration = TimeSpan.FromSeconds(e.AudioLength).ToString(@"hh\:mm\:ss"),
                             AudioFileSize = e.AudioFileSize
                         }
                     ).ToList()
