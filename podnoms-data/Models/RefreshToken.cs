@@ -19,7 +19,7 @@ namespace PodNoms.Data.Models {
         public DateTime Expires { get; private set; }
 
         public string AppUserId { get; set; }
-        public ApplicationUser AppUser { get; set; }
+        public virtual ApplicationUser AppUser { get; set; }
 
         public bool Active => DateTime.UtcNow <= Expires;
 

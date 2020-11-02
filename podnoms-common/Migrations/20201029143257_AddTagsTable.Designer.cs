@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Common.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201029143257_AddTagsTable")]
+    partial class AddTagsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -755,7 +757,7 @@ namespace PodNoms.Common.Migrations
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("TagName")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -763,10 +765,6 @@ namespace PodNoms.Common.Migrations
                         .HasDefaultValueSql("getdate()");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TagName")
-                        .IsUnique()
-                        .HasFilter("[TagName] IS NOT NULL");
 
                     b.ToTable("EntryTags");
                 });

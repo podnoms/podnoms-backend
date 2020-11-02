@@ -48,7 +48,7 @@ namespace PodNoms.Data.Models {
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
-        public PatreonToken PatreonToken { get; set; }
+        public virtual PatreonToken PatreonToken { get; set; }
 
         public NotificationOptions EmailNotificationOptions { get; set; }
 

@@ -8,6 +8,6 @@ namespace PodNoms.Data.Models {
         public string FromUser { get; set; }
         public string FromUserEmail { get; set; }
         public int? Timestamp { get; set; }
-        public PodcastEntry PodcastEntry { get; set; }
+        public virtual PodcastEntry PodcastEntry { get; set; }
     }
 }

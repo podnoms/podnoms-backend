@@ -34,13 +34,13 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     v => v.CoverImageUrl,
                     e => e.MapFrom(m => m.GetCoverImageUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     v => v.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     v => v.Notifications,
                     e => e.MapFrom(m => m.Notifications)
@@ -52,8 +52,8 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     v => v.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.PagesUrl,
                     e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])))
@@ -72,17 +72,17 @@ namespace PodNoms.Common.Data {
                     src => src.PcmUrl,
                     e => e.MapFrom(m => m.GetPcmUrl(
                         _options.GetSection("StorageSettings")["CdnUrl"],
-                       _options.GetSection("WaveformDataFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("WaveformDataFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ImageUrl,
                     e => e.MapFrom(m => m.GetImageUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ThumbnailUrl,
                     e => e.MapFrom(m => m.GetThumbnailUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.AudioUrl,
                     e => e.MapFrom(m => m.GetAudioUrl(_options.GetSection("AppSettings")["AudioUrl"])))
@@ -100,7 +100,7 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.Podcast.Title))
                 .ForMember(
                     src => src.UserSlug,
-                    e => e.MapFrom(m => m.Podcast.AppUser.Slug))                
+                    e => e.MapFrom(m => m.Podcast.AppUser.Slug))
                 .ForMember(
                     src => src.UserName,
                     e => e.MapFrom(m => m.Podcast.AppUser.GetBestGuessName()))
@@ -130,13 +130,13 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.LargeImageUrl,
                     e => e.MapFrom(m =>
-                       m.GetImageUrl(_options.GetSection("StorageSettings")["CdnUrl"],
-                           _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        m.GetImageUrl(_options.GetSection("StorageSettings")["CdnUrl"],
+                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ThumbnailUrl,
                     e => e.MapFrom(m =>
-                       m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrl"],
-                           _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
+                        m.GetThumbnailUrl(_options.GetSection("StorageSettings")["CdnUrl"],
+                            _options.GetSection("ImageFileStorageSettings")["ContainerName"])));
 
             CreateMap<Playlist, PlaylistViewModel>();
             CreateMap<EntryComment, PodcastEntryCommentViewModel>()
@@ -161,6 +161,7 @@ namespace PodNoms.Common.Data {
                     src => src.Children,
                     e => e.MapFrom(m => m.Subcategories)
                 );
+            CreateMap<EntryTag, TagViewModel>();
 
             CreateMap<Subcategory, SubcategoryViewModel>();
 
@@ -182,13 +183,13 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.ProfileImageUrl,
                     map => map.MapFrom(s => s.GetImageUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.ThumbnailImageUrl,
                     map => map.MapFrom(s => s.GetThumbnailUrl(
-                       _options.GetSection("StorageSettings")["ImageUrl"],
-                       _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
                 .ForMember(
                     src => src.SubscriptionValidUntil,
                     map => map.MapFrom<ProfileSubscriptionValidUntilResolver>()
@@ -197,10 +198,10 @@ namespace PodNoms.Common.Data {
                     src => src.IsFluent,
                     map => map.MapFrom<ProfileIsFluentResolver>()
                 )
-               .ForMember(
-                   src => src.Roles,
-                   map => map.MapFrom<UserRolesResolver>()
-               );
+                .ForMember(
+                    src => src.Roles,
+                    map => map.MapFrom<UserRolesResolver>()
+                );
             CreateMap<ApplicationUser, SubscriptionViewModel>()
                 .ForMember(
                     src => src.UserId,
@@ -278,16 +279,16 @@ namespace PodNoms.Common.Data {
                     map => map.MapFrom(src => src.PodcastEntry.Title));
 
             CreateMap<ChatMessage, ChatViewModel>()
-            .ForMember(
+                .ForMember(
                     dest => dest.MessageId,
                     src => src.MapFrom(s => s.Id.ToString()))
-            .ForMember(
+                .ForMember(
                     dest => dest.MessageDate,
                     src => src.MapFrom(s => s.CreateDate))
-            .ForMember(
+                .ForMember(
                     dest => dest.FromUserId,
                     src => src.MapFrom(s => s.FromUser.Id.ToString()))
-            .ForMember(
+                .ForMember(
                     dest => dest.ToUserId,
                     src => src.MapFrom(s => s.ToUser.Id.ToString()))
                 .ForMember(
@@ -326,6 +327,11 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
+
+            CreateMap<TagViewModel, EntryTag>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(vm => string.IsNullOrEmpty(vm.Id) ? Guid.Empty : Guid.Parse(vm.Id)));
 
             CreateMap<SiteMessageViewModel, SiteMessages>()
                 .ForMember(

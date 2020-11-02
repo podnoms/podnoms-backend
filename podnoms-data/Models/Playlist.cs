@@ -10,7 +10,7 @@ namespace PodNoms.Data.Models {
         public string SourceUrl { get; set; }
 
         public Guid PodcastId { get; set; }
-        public Podcast Podcast { get; set; }
+        public virtual Podcast Podcast { get; set; }
         public virtual List<PodcastEntry> PodcastEntries { get; set; }
     }
 }
