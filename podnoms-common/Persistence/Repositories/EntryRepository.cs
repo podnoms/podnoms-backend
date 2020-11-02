@@ -23,9 +23,16 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<List<PodcastEntry>> GetMissingWaveforms();
         Task<PodcastEntry> GetEntryForShareId(string sharingId);
         Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50);
+        Task<PodcastEntry> AddOrUpdateWithTags(PodcastEntry entity);
     }
+
     public class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
-        public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger) : base(context, logger) { }
+        private readonly ITagRepository _tagRepository;
+
+        public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger, ITagRepository tagRepository)
+            : base(context, logger) {
+            _tagRepository = tagRepository;
+        }
 
         public new async Task<PodcastEntry> GetAsync(string id) {
             return await GetAsync(Guid.Parse(id));
@@ -77,6 +84,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .OrderByDescending(e => e.CreateDate)
                 .FirstOrDefaultAsync(e => e.Podcast == podcast);
         }
+
         public async Task<List<PodcastEntry>> GetAllButFeatured(Podcast podcast) {
             return await GetContext()
                 .PodcastEntries
@@ -85,6 +93,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Skip(1)
                 .ToListAsync();
         }
+
         public async Task<PodcastEntry> GetForUserAndPodcast(string user, string podcast, string entry) {
             return await GetContext()
                 .PodcastEntries
@@ -114,18 +123,19 @@ namespace PodNoms.Common.Persistence.Repositories {
         /// <param name="model">The incoming model to convert</param>
         /// <returns>Base36 encoded string</returns>
         public async Task<PodcastEntrySharingLink> CreateNewSharingLink(SharingViewModel model) {
-
             var entry = await GetAsync(model.Id);
             if (entry is null) return null;
 
             var token = TokenGenerator.GenerateToken();
             while (await GetContext()
-                    .PodcastEntrySharingLinks
-                    .Where(x => x.LinkId == token)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync() != null) {
+                .PodcastEntrySharingLinks
+                .Where(x => x.LinkId == token)
+                .AsNoTracking()
+                .FirstOrDefaultAsync() != null) {
                 token = TokenGenerator.GenerateToken();
-            };
+            }
+
+            ;
             var link = new PodcastEntrySharingLink {
                 LinkId = token,
                 ValidFrom = model.ValidFrom,
@@ -153,6 +163,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .FirstOrDefaultAsync();
             return entry;
         }
+
         public async Task<IEnumerable<PodcastEntry>> GetRandomPlaylistItems(int amount = 50) {
             var results = await GetAll()
                 .Where(e => e.Podcast.Private == false)
@@ -161,6 +172,11 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Take(amount)
                 .ToListAsync();
             return results;
+        }
+
+        public async Task<PodcastEntry> AddOrUpdateWithTags(PodcastEntry entity) {
+            entity.Tags = await _tagRepository.UpdateAndMerge(entity.Tags);
+            return base.AddOrUpdate(entity);
         }
     }
 }

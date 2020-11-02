@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PodcastEntryViewModel {
@@ -8,6 +9,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Slug { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public List<TagViewModel> Tags { get; set; }
         public string SourceUrl { get; set; }
         public string AudioUrl { get; set; }
         public string PcmUrl { get; set; }

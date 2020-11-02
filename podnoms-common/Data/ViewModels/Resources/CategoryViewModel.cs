@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class TagViewModel {
+        public string Id { get; set; }
         public string TagName { get; set; }
     }
 

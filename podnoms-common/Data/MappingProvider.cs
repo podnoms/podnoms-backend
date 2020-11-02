@@ -328,7 +328,10 @@ namespace PodNoms.Common.Data {
                     e => e.UserName,
                     map => map.MapFrom(vm => vm.Email));
 
-            CreateMap<TagViewModel, EntryTag>();
+            CreateMap<TagViewModel, EntryTag>()
+                .ForMember(
+                    dest => dest.Id,
+                    map => map.MapFrom(vm => string.IsNullOrEmpty(vm.Id) ? Guid.Empty : Guid.Parse(vm.Id)));
 
             CreateMap<SiteMessageViewModel, SiteMessages>()
                 .ForMember(

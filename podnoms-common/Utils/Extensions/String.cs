@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -18,12 +19,11 @@ namespace PodNoms.Common.Utils.Extensions {
             return result;
         }
 
-        public static string ConvertToChannel(this string url) {
-            return url.Contains("/user/") ? 
-                Flurl.Url.Combine(url.Replace("/user/", "/c/"), "videos") : 
-                url;
+        public static string ToTitleCase(this string phrase) {
+            TextInfo textInfo = new CultureInfo("en-IE", false).TextInfo;
+            return textInfo.ToTitleCase(phrase); 
         }
-
+        
         public static string UrlParse(this string url, params string[] parts) {
             url = url.TrimEnd('/');
             return parts.Aggregate(url, (current, u) => string.Format("{0}/{1}", current, u.TrimStart('/')));

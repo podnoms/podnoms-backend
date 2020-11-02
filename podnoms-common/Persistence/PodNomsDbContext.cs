@@ -105,6 +105,10 @@ namespace PodNoms.Common.Persistence {
                 .IsRequired()
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<EntryTag>()
+                .HasIndex(b => b.TagName)
+                .IsUnique();
+
             modelBuilder.Entity<PodcastEntrySharingLink>()
                 .HasIndex(l => l.LinkIndex)
                 .IsUnique();
