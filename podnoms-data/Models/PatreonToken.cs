@@ -13,6 +13,6 @@ namespace PodNoms.Data.Models {
         public string Version { get; set; }
 
         public string AppUserId { get; set; }
-        public ApplicationUser AppUser { get; set; }
+        public virtual ApplicationUser AppUser { get; set; }
     }
 }

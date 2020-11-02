@@ -8,7 +8,7 @@ namespace PodNoms.Data.Models {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LinkIndex { get; set; }
         public string LinkId { get; set; }
-        public PodcastEntry PodcastEntry { get; set; }
+        public virtual PodcastEntry PodcastEntry { get; set; }
         public DateTime? ValidFrom { get; set; }
         public DateTime? ValidTo { get; set; }
     }

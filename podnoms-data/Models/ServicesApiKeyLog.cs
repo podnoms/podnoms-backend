@@ -9,7 +9,7 @@
             this.Stack = stackTrace;
         }
 
-        public ServicesApiKey ApiKey { get; set; }
+        public virtual ServicesApiKey ApiKey { get; set; }
         public string RequesterId { get; set; }
         public string Stack { get; set; }
     }

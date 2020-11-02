@@ -45,17 +45,17 @@ namespace PodNoms.Data.Models {
         public Guid PodcastId { get; set; }
 
         [JsonIgnore] public Guid? PlaylistId { get; set; }
-        [JsonIgnore] public Playlist Playlist { get; set; }
+        [JsonIgnore] public virtual Playlist Playlist { get; set; }
 
-        [JsonIgnore] public Podcast Podcast { get; set; }
+        [JsonIgnore] public virtual Podcast Podcast { get; set; }
 
-        [JsonIgnore] public List<PodcastEntrySharingLink> SharingLinks { get; set; }
+        [JsonIgnore] public virtual List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
-        [JsonIgnore] public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
+        [JsonIgnore] public virtual List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
 
 
-        public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
-        public ICollection<EntryTag> Tags { get; set; } = new List<EntryTag>();
+        public virtual List<EntryComment> Comments { get; set; } = new List<EntryComment>();
+        public virtual ICollection<EntryTag> Tags { get; set; } = new List<EntryTag>();
 
         private string extension => "jpg";
 

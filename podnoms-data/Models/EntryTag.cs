@@ -9,6 +9,6 @@ namespace PodNoms.Data.Models {
         public string TagName { get; set; }
 
         //back relationship
-        public ICollection<PodcastEntry> Entries { get; set; } = new List<PodcastEntry>();
+        public virtual ICollection<PodcastEntry> Entries { get; set; } = new List<PodcastEntry>();
     }
 }
