@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Google;
 using Google.Apis.Requests;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
@@ -186,6 +187,11 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             try {
                 //TODO: request.ToString should be the API key in use
                 return request.ExecuteAsync();
+            } catch (GoogleApiException gae) {
+                _logger.LogError($"API Key Failure: {gae.Message}");
+                _logger.LogError($"API Key Failure: {request.Service.ApiKey}");
+                _logger.LogError($"API Key Failure: {request.Service.ApplicationName}");
+                throw;
             } catch (Exception e) {
                 //alert me
                 _logger.LogError($"API Key Failure: {e.Message}");
@@ -199,18 +205,19 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var request = _useClient(requesterId).Videos.List("snippet");
             request.Id = videoId;
             request.MaxResults = 1;
-            var response = await _executeRequest(request, requesterId);
+                var response = await _executeRequest(request, requesterId);
 
-            return response.Items
-                .Select(video => new RemoteVideoInfo {
-                    VideoId = video.Id.ToString(),
-                    Title = video.Snippet.Title,
-                    Description = video.Snippet.Description,
-                    Thumbnail = video.Snippet.Thumbnails.High.Url,
-                    Uploader = video.Snippet.ChannelTitle,
-                    UploadDate = DateTime.Parse(video.Snippet.PublishedAt, null,
-                        System.Globalization.DateTimeStyles.RoundtripKind)
-                }).FirstOrDefault();
+                return response.Items
+                    .Select(video => new RemoteVideoInfo {
+                        VideoId = video.Id.ToString(),
+                        Title = video.Snippet.Title,
+                        Description = video.Snippet.Description,
+                        Thumbnail = video.Snippet.Thumbnails.High.Url,
+                        Uploader = video.Snippet.ChannelTitle,
+                        UploadDate = DateTime.Parse(video.Snippet.PublishedAt, null,
+                            System.Globalization.DateTimeStyles.RoundtripKind)
+                    }).FirstOrDefault();
+
         }
 
         private async Task<string> _getChannelId(string url, string requesterId) {

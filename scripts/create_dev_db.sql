@@ -1,6 +1,8 @@
 USE master
 GO
-WHILE EXISTS(select NULL from sys.databases where name='PodNoms')
+WHILE EXISTS(select NULL
+from sys.databases
+where name='PodNoms')
 BEGIN
     DECLARE @SQL varchar(max)
     SELECT @SQL = COALESCE(@SQL,'') + 'Kill ' + Convert(varchar, SPId) + ';'
@@ -27,4 +29,5 @@ GO
 EXEC sp_addrolemember N'db_owner', N'podnomsweb'
 EXEC sp_addrolemember N'db_datareader', N'podnomsweb'
 EXEC sp_addrolemember N'db_ddladmin', N'podnomsweb'
+
 GO

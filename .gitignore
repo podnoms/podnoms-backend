@@ -311,3 +311,4 @@ scripts/.env
 *.webm
 mono_crash*
 scripts/copy_live_db.sh
+scripts/create_dev_google_keys.sql

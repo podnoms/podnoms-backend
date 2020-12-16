@@ -16,5 +16,7 @@ namespace PodNoms.Common.Data.Settings {
         public string JobServerUrl { get; set; }
         public string IPStackKey { get; set; }
         public string Downloader { get; set; }
+
+        public string[] GoogleApiKeys { get; set; }
     }
 }
