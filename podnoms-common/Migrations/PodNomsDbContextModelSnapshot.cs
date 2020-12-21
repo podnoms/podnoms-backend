@@ -17,7 +17,22 @@ namespace PodNoms.Common.Migrations
             modelBuilder
                 .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.0-rc.1.20451.13");
+                .HasAnnotation("ProductVersion", "5.0.0-rc.2.20475.6");
+
+            modelBuilder.Entity("EntryTagPodcastEntry", b =>
+                {
+                    b.Property<Guid>("EntriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("EntriesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("EntryTagPodcastEntry");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -728,6 +743,34 @@ namespace PodNoms.Common.Migrations
                     b.ToTable("EntryComments");
                 });
 
+            modelBuilder.Entity("PodNoms.Data.Models.EntryTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("TagName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TagName")
+                        .IsUnique()
+                        .HasFilter("[TagName] IS NOT NULL");
+
+                    b.ToTable("EntryTags");
+                });
+
             modelBuilder.Entity("PodNoms.Data.Models.IssuedApiKey", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1044,8 +1087,8 @@ namespace PodNoms.Common.Migrations
                     b.Property<long>("AudioFileSize")
                         .HasColumnType("bigint");
 
-                    b.Property<float>("AudioLength")
-                        .HasColumnType("real");
+                    b.Property<double>("AudioLength")
+                        .HasColumnType("float");
 
                     b.Property<string>("AudioUrl")
                         .HasMaxLength(2000)
@@ -1231,10 +1274,13 @@ namespace PodNoms.Common.Migrations
                     b.ToTable("ServerConfig", "admin");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
+            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
@@ -1246,9 +1292,21 @@ namespace PodNoms.Common.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Key")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("Tainted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("TaintedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TaintedReason")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(200)
@@ -1263,9 +1321,14 @@ namespace PodNoms.Common.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ServicesApiKeys");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ServiceApiKeys");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
@@ -1740,6 +1803,21 @@ namespace PodNoms.Common.Migrations
                     b.ToTable("UserRequests");
                 });
 
+            modelBuilder.Entity("EntryTagPodcastEntry", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.PodcastEntry", null)
+                        .WithMany()
+                        .HasForeignKey("EntriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PodNoms.Data.Models.EntryTag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1965,9 +2043,18 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
+                {
+                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.ServicesApiKey", "ApiKey")
+                    b.HasOne("PodNoms.Data.Models.ServiceApiKey", "ApiKey")
                         .WithMany("Usages")
                         .HasForeignKey("ApiKeyId");
 
@@ -2043,7 +2130,7 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("SharingLinks");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
+            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
                 {
                     b.Navigation("Usages");
                 });

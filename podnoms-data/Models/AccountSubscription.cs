@@ -16,7 +16,7 @@ namespace PodNoms.Data.Models {
     }
     public class AccountSubscription : BaseEntity {
 
-        public ApplicationUser AppUser { get; set; }
+        public virtual ApplicationUser AppUser { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

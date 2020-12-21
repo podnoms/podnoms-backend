@@ -82,7 +82,7 @@ namespace PodNoms.Jobs {
             }
 
             app.UseHangfireServer(new BackgroundJobServerOptions {
-                WorkerCount = HardwareUtils.CPUAndCoreCount
+                WorkerCount = 5 //HardwareUtils.CPUAndCoreCount
             });
 
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {

@@ -23,7 +23,8 @@ namespace PodNoms.Common.Persistence.Repositories {
 
     public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
         public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) :
-            base(context, logger) { }
+            base(context, logger) {
+        }
 
         public async Task<Podcast> GetAsync(string userId, string id) {
             return await GetAsync(userId, Guid.Parse(id));
@@ -32,11 +33,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<Podcast> GetAsync(string userId, Guid id) {
             var ret = await GetAll()
                 .Where(p => p.Id == id && p.AppUser.Id == userId)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.AppUser)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
-                .Include(p => p.Notifications)
+                // .Include(p => p.PodcastEntries)
+                // .Include(p => p.AppUser)
+                // .Include(p => p.Category)
+                // .Include(p => p.Subcategories)
+                // .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
             ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
             return ret;
@@ -45,11 +46,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         public new async Task<Podcast> GetAsync(Guid podcastId) {
             var ret = await GetAll()
                 .Where(p => p.Id == podcastId)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.AppUser)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
-                .Include(p => p.Notifications)
+                // .Include(p => p.PodcastEntries)
+                // .Include(p => p.AppUser)
+                // .Include(p => p.Category)
+                // .Include(p => p.Subcategories)
+                // .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
             ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
             return ret;
@@ -57,20 +58,21 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<Podcast> GetRandomForUser(string userId) {
             return await GetAll()
-                .Include(r => r.AppUser)
+                // .Include(r => r.AppUser)
                 .Where(r => r.AppUser.Id == userId)
                 .OrderBy(r => System.Guid.NewGuid().ToString())
                 .Take(1)
                 .SingleOrDefaultAsync();
         }
+
         public async Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug) {
             var ret = await GetAll()
                 .Where(r => r.AppUser.Id == userId.ToString() && r.Slug == podcastSlug)
-                .Include(p => p.AppUser)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
-                .Include(p => p.Notifications)
+                // .Include(p => p.AppUser)
+                // .Include(p => p.PodcastEntries)
+                // .Include(p => p.Category)
+                // .Include(p => p.Subcategories)
+                // .Include(p => p.Notifications)
                 .OrderByDescending(r =>
                     r.PodcastEntries
                         .OrderByDescending(e => e.UpdateDate)
@@ -82,20 +84,23 @@ namespace PodNoms.Common.Persistence.Repositories {
                     .OrderByDescending(r => r.CreateDate)
                     .ToList();
             }
+
             return ret;
         }
+
         public async Task<Podcast> GetForUserAndSlugAsync(string userSlug, string podcastSlug) {
             var ret = await GetAll()
                 .Where(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug)
-                .Include(p => p.AppUser)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
-                .Include(p => p.Notifications)
+                // .Include(p => p.AppUser)
+                // .Include(p => p.PodcastEntries)
+                // .Include(p => p.Category)
+                // .Include(p => p.Subcategories)
+                // .Include(p => p.Notifications)
                 .FirstOrDefaultAsync();
             if (ret != null && ret.PodcastEntries != null) {
                 ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
             }
+
             return ret;
         }
 
@@ -103,17 +108,18 @@ namespace PodNoms.Common.Persistence.Repositories {
             var ret = GetAll()
                 .Where(u => u.AppUser.Id == userId)
                 .OrderByDescending(p => p.PodcastEntries
-                        .OrderByDescending(c => c.CreateDate)
-                        .Select(c => c.CreateDate)
-                        .FirstOrDefault()
-                )
-                .Include(p => p.AppUser)
-                .Include(p => p.PodcastEntries)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategories)
-                .Include(p => p.Notifications);
+                    .OrderByDescending(c => c.CreateDate)
+                    .Select(c => c.CreateDate)
+                    .FirstOrDefault()
+                );
+            // .Include(p => p.AppUser)
+            // .Include(p => p.PodcastEntries)
+            // .Include(p => p.Category)
+            // .Include(p => p.Subcategories)
+            // .Include(p => p.Notifications);
             return await ret.ToListAsync();
         }
+
         public async Task<string> GetActivePodcast(string userId) {
             var podcast = await GetAll()
                 .Where(p => p.AppUser.Id == userId)
@@ -121,6 +127,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .FirstOrDefaultAsync();
             return podcast?.Slug;
         }
+
         public async Task<List<PodcastAggregator>> GetAggregators(Guid podcastId) {
             return await GetContext()
                 .PodcastAggregators

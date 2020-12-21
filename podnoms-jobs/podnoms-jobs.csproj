@@ -10,11 +10,11 @@
         <PackageReference Include="EntitySignal.Server" Version="1.0.4" />
         <PackageReference Include="Hangfire.Console" Version="1.4.2" />
         <PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="1.1.1" />
-        <PackageReference Include="Hangfire.SqlServer" Version="1.7.16" />
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.16" />
-        <PackageReference Include="Hangfire.Core" Version="1.7.16" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.0-rc.1.20451.17" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.8" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.7.17" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.7.17" />
+        <PackageReference Include="Hangfire.Core" Version="1.7.17" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.0-rc.2.20475.17" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.9" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />

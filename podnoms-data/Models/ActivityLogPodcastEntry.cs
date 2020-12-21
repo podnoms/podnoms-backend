@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace PodNoms.Data.Models {
     public class ActivityLogPodcastEntry : BaseEntity {
         [JsonIgnore]
-        public PodcastEntry PodcastEntry { get; set; }
+        public virtual PodcastEntry PodcastEntry { get; set; }
         public string Referrer { get; set; }
         public string UserAgent { get; set; }
         public string ClientAddress { get; set; }

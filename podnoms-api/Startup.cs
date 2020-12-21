@@ -65,11 +65,7 @@ namespace PodNoms.Api {
             services.AddPodNomsCacheService(Configuration, true);
 
             Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
-            services.AddDbContext<PodNomsDbContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("podnoms-common")
-                        .EnableRetryOnFailure());
-            });
+            services.AddPodNomsDataContext(Configuration);
 
             Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
             services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));

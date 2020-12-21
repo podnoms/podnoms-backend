@@ -24,17 +24,14 @@ namespace PodNoms.Data.Models {
 
         public string Description { get; set; }
 
-        [MaxLength(2000)]
-        public string SourceUrl { get; set; }
+        [MaxLength(2000)] public string SourceUrl { get; set; }
 
-        [MaxLength(2000)]
-        public string AudioUrl { get; set; }
-        public float AudioLength { get; set; }
+        [MaxLength(2000)] public string AudioUrl { get; set; }
+        public double AudioLength { get; set; }
 
         public long AudioFileSize { get; set; }
 
-        [MaxLength(2000)]
-        public string ImageUrl { get; set; }
+        [MaxLength(2000)] public string ImageUrl { get; set; }
         public string ProcessingPayload { get; set; }
         public ProcessingStatus ProcessingStatus { get; set; } = ProcessingStatus.Accepted;
         public DateTime? SourceCreateDate { get; set; }
@@ -48,16 +45,17 @@ namespace PodNoms.Data.Models {
         public Guid PodcastId { get; set; }
 
         [JsonIgnore] public Guid? PlaylistId { get; set; }
-        [JsonIgnore] public Playlist Playlist { get; set; }
+        [JsonIgnore] public virtual Playlist Playlist { get; set; }
 
-        [JsonIgnore] public Podcast Podcast { get; set; }
+        [JsonIgnore] public virtual Podcast Podcast { get; set; }
 
-        [JsonIgnore] public List<PodcastEntrySharingLink> SharingLinks { get; set; }
+        [JsonIgnore] public virtual List<PodcastEntrySharingLink> SharingLinks { get; set; }
 
-        [JsonIgnore] public List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
+        [JsonIgnore] public virtual List<ActivityLogPodcastEntry> ActivityLogs { get; set; }
 
 
-        public List<EntryComment> Comments { get; set; } = new List<EntryComment>();
+        public virtual List<EntryComment> Comments { get; set; } = new List<EntryComment>();
+        public virtual ICollection<EntryTag> Tags { get; set; } = new List<EntryTag>();
 
         private string extension => "jpg";
 

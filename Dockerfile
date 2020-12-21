@@ -1,7 +1,12 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 
 WORKDIR /app
 EXPOSE 80
+
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-sos
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-trace
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-dump
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-counters
 
 # copy csproj and restore as distinct layers
 COPY podnoms-api/*.csproj ./podnoms-api/
@@ -29,8 +34,13 @@ FROM fergalmoran/podnoms-alpine-dotnet AS runtime
 
 EXPOSE 80
 COPY --from=build /app/podnoms-api/out ./
-RUN mkdir ./data
 
+#install diagnostic tools
+COPY --from=build /dotnetcore-tools /opt/dotnetcore-tools
+ENV PATH="/opt/dotnetcore-tools:${PATH}"
+#RUN /opt/dotnetcore-tools/dotnet-sos install
+
+RUN mkdir ./data
 RUN youtube-dl -U
 
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]

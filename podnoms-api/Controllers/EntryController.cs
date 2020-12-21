@@ -109,7 +109,7 @@ namespace PodNoms.Api.Controllers {
 
             if (item.Id != null) {
                 entry = await _repository.GetAsync(item.Id);
-                _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item, entry);
+                _mapper.Map(item, entry);
             } else {
                 entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
             }
@@ -120,7 +120,7 @@ namespace PodNoms.Api.Controllers {
             if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
                 entry.ProcessingStatus == ProcessingStatus.Processed) {
                 // we're editing an existing entry
-                _repository.AddOrUpdate(entry);
+                await _repository.AddOrUpdateWithTags(entry);
                 await _unitOfWork.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
@@ -148,8 +148,10 @@ namespace PodNoms.Api.Controllers {
                 entry = await _repository.GetAsync(entry.Id);
                 return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
 
-            } else if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
-                       MixcloudParser.ValidateUrl(item.SourceUrl)) {
+            }
+
+            if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
+                MixcloudParser.ValidateUrl(item.SourceUrl)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);

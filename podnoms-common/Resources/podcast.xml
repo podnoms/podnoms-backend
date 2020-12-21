@@ -37,7 +37,7 @@
             <description>{{description}}</description>
             <itunes:author>{{author}}</itunes:author>
             <itunes:summary>{{summary}}</itunes:summary>
-            <itunes:duration>{{duration}}</itunes:duration>
+            <itunes:duration>{{audioDuration}}</itunes:duration>
             <itunes:image href="{{entryImage}}" />
             <pubDate> {{updateDate}}</pubDate>
             <enclosure url="{{audioUrl}}" 

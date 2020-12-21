@@ -11,6 +11,5 @@ namespace PodNoms.Data.Models {
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
-
     }
 }

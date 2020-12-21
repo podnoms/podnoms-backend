@@ -112,9 +112,8 @@ namespace PodNoms.Api.Controllers {
             if (string.IsNullOrEmpty(pwd))
                 return BadRequest();
 
-            var z = new Zxcvbn.Zxcvbn();
-            var r = z.EvaluatePassword(pwd);
-            return await Task.FromResult<int>(new Zxcvbn.Zxcvbn().EvaluatePassword(pwd).Score);
+            var r = Zxcvbn.Core.EvaluatePassword(pwd);
+            return await Task.FromResult(r.Score);
         }
 
         [HttpGet("temppodcastimage")]

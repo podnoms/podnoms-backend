@@ -39,6 +39,7 @@ namespace PodNoms.Api.Controllers.Public {
             var podcast = await _podcastRepository.GetAll()
                 .OrderByDescending(p => p.CreateDate)
                 .Include(p => p.PodcastEntries)
+                .Include(p => p.AppUser)
                 .SingleOrDefaultAsync(r => r.AppUser.Slug == userSlug && r.Slug == podcastSlug);
 
             var result = await _entryRepository.GetFeaturedEpisode(podcast);

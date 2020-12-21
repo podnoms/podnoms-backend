@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +40,10 @@ namespace PodNoms.Api.Controllers {
                 return Ok(result);
             } catch (UrlParseException) {
                 return NoContent();
+            } catch (NoKeyAvailableException) {
+                return StatusCode(417); //HttpStatusCode.ExpectationFailed
+            } catch (ExpiredKeyException) {
+                return StatusCode(417); //HttpStatusCode.ExpectationFailed
             }
         }
 
