@@ -3,13 +3,13 @@
         public ServicesApiKeyLog() {
         }
 
-        public ServicesApiKeyLog(ServicesApiKey apiKey, string requesterId, string stackTrace) {
+        public ServicesApiKeyLog(ServiceApiKey apiKey, string requesterId, string stackTrace) {
             this.ApiKey = apiKey;
             this.RequesterId = requesterId;
             this.Stack = stackTrace;
         }
 
-        public virtual ServicesApiKey ApiKey { get; set; }
+        public virtual ServiceApiKey ApiKey { get; set; }
         public string RequesterId { get; set; }
         public string Stack { get; set; }
     }

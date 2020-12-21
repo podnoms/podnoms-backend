@@ -40,6 +40,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddScoped<IChatRepository, ChatRepository>()
                 .AddScoped<INotificationRepository, NotificationRepository>()
                 .AddScoped<IServicesApiKeyLoggerRepository, ServicesApiKeyLoggerRepository>()
+                .AddScoped<IServiceApiKeyRepository, ServiceApiKeyRepository>()
                 .AddScoped<IPaymentRepository, PaymentRepository>()
                 .AddScoped<IDonationRepository, DonationRepository>()
                 .AddScoped<IApiKeyRepository, ApiKeyRepository>()

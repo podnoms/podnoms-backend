@@ -242,7 +242,7 @@ namespace PodNoms.Common.Data {
                     dest => dest.DateIssued,
                     map => map.MapFrom(r => r.CreateDate)
                 );
-
+            CreateMap<ServiceApiKey, ServiceApiKeyViewModel>();
             CreateMap<SiteMessages, SiteMessageViewModel>()
                 .ForMember(
                     dest => dest.Id,
@@ -355,6 +355,7 @@ namespace PodNoms.Common.Data {
                 );
 
             CreateMap<ChatViewModel, ChatMessage>();
+            CreateMap<ServiceApiKeyViewModel, ServiceApiKey>();
         }
     }
 }

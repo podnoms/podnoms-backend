@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PodNoms.Common.Persistence;
 
 namespace PodNoms.Common.Migrations
 {
     [DbContext(typeof(PodNomsDbContext))]
-    partial class PodNomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201218175115_AddTaintedFieldsToApiKeys")]
+    partial class AddTaintedFieldsToApiKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1274,13 +1276,10 @@ namespace PodNoms.Common.Migrations
                     b.ToTable("ServerConfig", "admin");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
@@ -1321,14 +1320,9 @@ namespace PodNoms.Common.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ServiceApiKeys");
+                    b.ToTable("ServicesApiKeys");
                 });
 
             modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
@@ -2043,18 +2037,9 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
-                {
-                    b.HasOne("PodNoms.Data.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKeyLog", b =>
                 {
-                    b.HasOne("PodNoms.Data.Models.ServiceApiKey", "ApiKey")
+                    b.HasOne("PodNoms.Data.Models.ServicesApiKey", "ApiKey")
                         .WithMany("Usages")
                         .HasForeignKey("ApiKeyId");
 
@@ -2130,7 +2115,7 @@ namespace PodNoms.Common.Migrations
                     b.Navigation("SharingLinks");
                 });
 
-            modelBuilder.Entity("PodNoms.Data.Models.ServiceApiKey", b =>
+            modelBuilder.Entity("PodNoms.Data.Models.ServicesApiKey", b =>
                 {
                     b.Navigation("Usages");
                 });

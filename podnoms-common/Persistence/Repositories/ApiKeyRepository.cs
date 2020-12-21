@@ -1,26 +1,47 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HandlebarsDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
-    public interface IApiKeyRepository : IRepository<ServicesApiKey> {
-        Task<ServicesApiKey> GetApiKey(string type);
+    public interface IApiKeyRepository : IRepository<ServiceApiKey> {
+        Task<ServiceApiKey> GetApiKey(string type, string userId);
+        Task TaintKey(ServiceApiKey key, int taintDays = 7, string reason = "");
     }
 
-    public class ApiKeyRepository : GenericRepository<ServicesApiKey>, IApiKeyRepository {
-        public ApiKeyRepository(PodNomsDbContext context, ILogger<GenericRepository<ServicesApiKey>> logger) : base(
+    public class ApiKeyRepository : GenericRepository<ServiceApiKey>, IApiKeyRepository {
+        public ApiKeyRepository(PodNomsDbContext context, ILogger<GenericRepository<ServiceApiKey>> logger) : base(
             context, logger) {
         }
 
-        public async Task<ServicesApiKey> GetApiKey(string type) {
+        public async Task<ServiceApiKey> GetApiKey(string type, string userId) {
             var result = await GetAll()
+                .Where(u => u.ApplicationUserId.ToString().Equals(userId) ||
+                            string.IsNullOrEmpty(u.ApplicationUserId.ToString()))
                 .Where(k => k.Type.Equals(type))
-                .OrderBy(r => Guid.NewGuid())
+                .Where(k => k.Enabled)
+                .Where(k => k.TaintedDate == null ||
+                            k.TaintedDate <= System.DateTime.Now.AddDays(ServiceApiKey.TAINT_LENGTH * -1))
+                .OrderByDescending(r => r.ApplicationUserId)
+                .ThenBy(r => Guid.NewGuid())
                 .FirstOrDefaultAsync();
             return result;
+        }
+
+        public async Task TaintKey(ServiceApiKey key, int taintDays = 7, string reason = "") {
+            var record = await GetAll()
+                .Where(k => k.Key.Equals(key.Key))
+                .FirstOrDefaultAsync();
+            if (record is null)
+                return;
+
+            record.Tainted = true;
+            record.TaintedDate = DateTime.Now;
+            record.TaintedReason = reason;
+            await GetContext().SaveChangesAsync();
         }
     }
 }

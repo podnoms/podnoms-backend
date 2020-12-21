@@ -201,6 +201,6 @@ namespace PodNoms.Common.Persistence {
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<IssuedApiKey> IssuedApiKeys { get; set; }
 
-        public DbSet<ServicesApiKey> ServicesApiKeys { get; set; }
+        public DbSet<ServiceApiKey> ServiceApiKeys { get; set; }
     }
 }
