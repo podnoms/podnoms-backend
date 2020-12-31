@@ -138,8 +138,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost("realtime")]
         public async Task<IActionResult> Realtime([FromBody] string message) {
             await _hub.SendUserAsync(User.Identity.Name, "Send",
-                new string[] { $"User {User.Identity.Name}: {message}" });
-            await _hub.SendAllAsync("Send", new string[] { $"All: {message}" });
+                new string[] {$"User {User.Identity.Name}: {message}"});
+            await _hub.SendAllAsync("Send", new string[] {$"All: {message}"});
             return Ok(message);
         }
 
@@ -179,9 +179,9 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> ReadOgTags([FromQuery] string url) {
             // var parser = await _pageParser.Create(url);
             if (await _pageParser.Initialise(url)) {
-                var title = _pageParser.GetHeadTag("og:title");
-                var image = _pageParser.GetHeadTag("og:image");
-                var description = _pageParser.GetHeadTag("og:description");
+                var title = await _pageParser.GetHeadTag("og:title");
+                var image = await _pageParser.GetHeadTag("og:image");
+                var description = await _pageParser.GetHeadTag("og:description");
                 if (!string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(image)) {
                     return Ok(new {
                         title = title,

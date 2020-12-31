@@ -59,7 +59,7 @@ namespace PodNoms.Common.Services.Processor {
             }
         }
 
-        public async Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId) {
+        public async Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId, bool deepParse) {
             url = url.Trim();
             if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
                 throw new UrlParseException($"Unable to validate url: {url}");
@@ -150,7 +150,11 @@ namespace PodNoms.Common.Services.Processor {
                 var image = await _parser.GetHeadTag("og:image");
                 var description = _parser.GetHeadTag("og:description");
 
-                var links = await _parser.GetAllAudioLinks();
+                var links = await _parser.GetAllAudioLinks(deepParse);
+                if (links.Count == 0 && !deepParse) {
+                    links = await _parser.GetAllAudioLinks(true);
+                }
+
                 if (links.Count > 0) {
                     return new RemoteUrlStatus {
                         Type = RemoteUrlType.ParsedLinks.ToString(),
