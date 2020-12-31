@@ -23,7 +23,7 @@ namespace PodNoms.Common.Services.Startup {
     public static class SharedDependencies {
         public static IServiceCollection AddSharedDependencies(this IServiceCollection services) {
             services.AddTransient<IFileUploader, AzureFileUploader>()
-                .AddTransient<IPageParser, DefaultPageParser>()
+                .AddTransient<IPageParser, ExternalPageParser>()
                 .AddTransient<IMP3Tagger, MP3Tagger>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()

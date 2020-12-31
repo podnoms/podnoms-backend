@@ -146,8 +146,8 @@ namespace PodNoms.Common.Services.Processor {
             }
 
             if (await _parser.Initialise(url)) {
-                var title = _parser.GetPageTitle();
-                var image = _parser.GetHeadTag("og:image");
+                var title = await _parser.GetPageTitle();
+                var image = await _parser.GetHeadTag("og:image");
                 var description = _parser.GetHeadTag("og:description");
 
                 var links = await _parser.GetAllAudioLinks();
