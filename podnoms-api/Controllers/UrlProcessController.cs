@@ -34,9 +34,10 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpGet("validate")]
-        public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url) {
+        public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url,
+            [FromQuery] bool deep = false) {
             try {
-                var result = await _processService.ValidateUrl(url, UserId);
+                var result = await _processService.ValidateUrl(url, UserId, deep);
                 return Ok(result);
             } catch (UrlParseException) {
                 return NoContent();

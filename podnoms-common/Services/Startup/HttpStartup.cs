@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using Flurl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Services.Network;
@@ -48,6 +49,11 @@ namespace PodNoms.Common.Services.Startup {
 
             services.AddHttpClient("StripeInvoices", c => {
                 c.DefaultRequestHeaders.Add("Accept", "text/html");
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            services.AddHttpClient("RemotePageParser", c => {
+                c.BaseAddress = new Uri(config.GetSection("AppSettings")["ScraperUrl"]);
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddHttpClient("CachedAudio", c => {
