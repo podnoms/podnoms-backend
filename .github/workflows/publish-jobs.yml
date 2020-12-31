@@ -3,7 +3,7 @@ name: Publish Jobs
 on:
   push:
     branches:
-      - develop
+      - trunk
     tags:
       - v*
 
