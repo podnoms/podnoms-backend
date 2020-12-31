@@ -1,4 +1,4 @@
-name: Docker
+name: Publish API
 
 on:
   push:
@@ -12,10 +12,10 @@ on:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: podnoms-backend
+  IMAGE_NAME: podnoms-api
 
 jobs:
-  push:
+  build_images:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 

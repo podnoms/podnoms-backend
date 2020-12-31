@@ -15,7 +15,7 @@ env:
   IMAGE_NAME: podnoms-jobs
 
 jobs:
-  push:
+  build_images:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
