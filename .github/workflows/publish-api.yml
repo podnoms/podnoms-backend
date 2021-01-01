@@ -1,4 +1,4 @@
-name: Publish API
+name: PodNoms API
 
 on:
   push:

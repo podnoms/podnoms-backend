@@ -1,4 +1,4 @@
-name: Publish Jobs
+name: PodNoms Jobs
 
 on:
   push:
