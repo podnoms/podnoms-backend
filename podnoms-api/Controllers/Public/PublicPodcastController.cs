@@ -59,6 +59,7 @@ namespace PodNoms.Api.Controllers.Public {
 
             return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
         }
+
         [HttpGet("{podcastId}/allbutfeatured")]
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllButFeatured(string podcastId) {
             var podcast = await _podcastRepository.GetAsync(podcastId);
@@ -69,14 +70,24 @@ namespace PodNoms.Api.Controllers.Public {
 
             return _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(result);
         }
+
         [HttpGet("{podcastId}/aggregators")]
-        public async Task<ActionResult<List<PodcastAggregator>>> GetAggregators(string podcastId) {
+        public async Task<ActionResult<List<PodcastAggregator>>> GetAggregators(string podcastId,
+            [FromQuery] string type = "") {
             //TODO: This should definitely have its own ViewModel
             var aggregators = (await _podcastRepository.GetAggregators(Guid.Parse(podcastId)));
-
             if (aggregators is null) return NotFound();
+            if (!string.IsNullOrEmpty(type)) {
+                aggregators = aggregators
+                    .Where(a => a.Name.Equals(type))
+                    .ToList();
+            }
 
-            return Ok(aggregators);
+            return Ok(aggregators.Select(a => new {
+                a.Url,
+                a.ImageUrl,
+                a.Name
+            }));
         }
     }
 }

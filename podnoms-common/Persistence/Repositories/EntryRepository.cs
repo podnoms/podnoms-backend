@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Common.Utils;
+using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
@@ -81,6 +82,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<PodcastEntry> GetFeaturedEpisode(Podcast podcast) {
             return await GetContext()
                 .PodcastEntries
+                .Where(p => p.ProcessingStatus == ProcessingStatus.Processed)
                 .OrderByDescending(e => e.CreateDate)
                 .FirstOrDefaultAsync(e => e.Podcast == podcast);
         }
@@ -89,6 +91,7 @@ namespace PodNoms.Common.Persistence.Repositories {
             return await GetContext()
                 .PodcastEntries
                 .OrderByDescending(e => e.CreateDate)
+                .Where(p => p.ProcessingStatus == ProcessingStatus.Processed)
                 .Where(e => e.Podcast == podcast)
                 .Skip(1)
                 .ToListAsync();
