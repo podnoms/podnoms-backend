@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TagLib;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {
@@ -20,5 +21,8 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public bool IsFluent { get; set; }
         public List<string> Roles { get; set; }
         public SubscriptionViewModel Subscription { get; set; }
+
+        public int PodcastCount { get; set; }
+        public int EpisodeCount { get; set; }
     }
 }

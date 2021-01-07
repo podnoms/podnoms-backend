@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using NYoutubeDL;
+using YoutubeDLSharp;
 
 namespace PodNoms.Common.Services.Jobs {
     public class UpdateYouTubeDlJob : IHostedJob {
@@ -22,8 +22,8 @@ namespace PodNoms.Common.Services.Jobs {
                 _logger.LogInformation("Updating YoutubeDL");
 
                 var yt = new YoutubeDL();
-                yt.Options.GeneralOptions.Update = true;
-                yt.Download("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
+                // yt.Options.GeneralOptions.Update = true;
+                // yt.Download("https://www.youtube.com/watch?v=OJ2wOKDzKyI");
 
                 return true;
             });

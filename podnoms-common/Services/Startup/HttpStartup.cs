@@ -54,6 +54,7 @@ namespace PodNoms.Common.Services.Startup {
             services.AddHttpClient("RemotePageParser", c => {
                 c.BaseAddress = new Uri(config.GetSection("AppSettings")["ScraperUrl"]);
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
+                c.Timeout = TimeSpan.FromSeconds(20);
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddHttpClient("CachedAudio", c => {

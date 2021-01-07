@@ -11,8 +11,11 @@ RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-counters
 # copy csproj and restore as distinct layers
 COPY podnoms-api/*.csproj ./podnoms-api/
 COPY podnoms-common/*.csproj ./podnoms-common/
+COPY podnoms-audio-parser/*.csproj ./podnoms-audio-parser/
 COPY podnoms-data/*.csproj ./podnoms-data/
+
 WORKDIR /app/podnoms-api
+
 RUN dotnet restore \
     --source https://api.nuget.org/v3/index.json \
     --source https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json \
@@ -21,8 +24,10 @@ RUN dotnet restore \
 
 # copy and publish app and libraries
 WORKDIR /app/
+
 COPY podnoms-api/. ./podnoms-api/
 COPY podnoms-common/. ./podnoms-common/
+COPY podnoms-audio-parser/. ./podnoms-audio-parser/
 COPY podnoms-data/. ./podnoms-data/
 
 # build the api project

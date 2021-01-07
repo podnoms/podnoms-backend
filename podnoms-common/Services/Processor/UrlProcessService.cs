@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.UrlParsers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -63,6 +62,23 @@ namespace PodNoms.Common.Services.Processor {
             url = url.Trim();
             if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
                 throw new UrlParseException($"Unable to validate url: {url}");
+            }
+
+            var firstPass = await new UrlTypeParser().GetUrlType(url);
+            if (firstPass == UrlType.Direct) {
+                return new RemoteUrlStatus {
+                    Type = RemoteUrlType.SingleItem.ToString(),
+                    Title = "",
+                    Image = "",
+                    Description = "",
+                    Links = new[] {
+                        new RemoteLinkInfo {
+                            Title = "(changeme) New Audio link",
+                            Key = url,
+                            Value = url
+                        }
+                    }.ToList()
+                };
             }
 
             var fileType = await _youTubeParser.GetUrlType(url);
@@ -146,30 +162,36 @@ namespace PodNoms.Common.Services.Processor {
             }
 
             if (await _parser.Initialise(url)) {
-                var title = await _parser.GetPageTitle();
-                var image = await _parser.GetHeadTag("og:image");
-                var description = _parser.GetHeadTag("og:description");
+                try {
+                    var title = await _parser.GetPageTitle();
+                    var image = await _parser.GetHeadTag("og:image");
+                    var description = _parser.GetHeadTag("og:description");
 
-                var links = await _parser.GetAllAudioLinks(deepParse);
-                if (links.Count == 0 && !deepParse) {
-                    links = await _parser.GetAllAudioLinks(true);
-                }
+                    var links = await _parser.GetAllAudioLinks(deepParse);
+                    if (links.Count == 0 && !deepParse) {
+                        links = await _parser.GetAllAudioLinks(true);
+                    }
 
-                if (links.Count > 0) {
-                    return new RemoteUrlStatus {
-                        Type = RemoteUrlType.ParsedLinks.ToString(),
-                        Title = title,
-                        Image = image,
-                        Description = "",
-                        Links = links
-                            .GroupBy(r => r.Key) // note to future me
-                            .Select(g => g.First()) // these lines dedupe on key - neato!!
-                            .Select(r => new RemoteLinkInfo {
-                                Title = "",
-                                Key = r.Key,
-                                Value = r.Value
-                            }).ToList()
-                    };
+
+                    if (links.Count > 0) {
+                        return new RemoteUrlStatus {
+                            Type = RemoteUrlType.ParsedLinks.ToString(),
+                            Title = title,
+                            Image = image,
+                            Description = "",
+                            Links = links
+                                .GroupBy(r => r.Key) // note to future me
+                                .Select(g => g.First()) // these lines dedupe on key - neato!!
+                                .Select(r => new RemoteLinkInfo {
+                                    Title = "",
+                                    Key = r.Key,
+                                    Value = r.Value
+                                }).ToList()
+                        };
+                    }
+                } catch (TaskCanceledException) {
+                    //we timed out scraping
+                    throw new UrlParseException($"Timed out scraping {url}");
                 }
             } else {
                 throw new UrlParseException($"Unable to initialise parser for {url}");

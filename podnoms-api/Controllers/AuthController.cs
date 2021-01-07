@@ -30,6 +30,8 @@ namespace PodNoms.Api.Controllers {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
         private readonly IRecaptchaService _recaptcha;
+        private readonly StorageSettings _storageSettings;
+        private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly IMailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
         public RoleManager<IdentityRole> _roleManager;
@@ -45,6 +47,8 @@ namespace PodNoms.Api.Controllers {
             IRecaptchaService recaptcha,
             IOptions<JwtIssuerOptions> jwtOptions,
             IOptions<AppSettings> appSettings,
+            IOptions<StorageSettings> storageSettings,
+            IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IMailSender mailSender,
             IUnitOfWork unitOfWork,
             ILogger<AuthController> logger) : base(logger) {
@@ -57,6 +61,8 @@ namespace PodNoms.Api.Controllers {
             _contextAccessor = contextAccessor;
             _appSettings = appSettings.Value;
             _jwtOptions = jwtOptions.Value;
+            _storageSettings = storageSettings.Value;
+            _imageFileStorageSettings = imageFileStorageSettings.Value;
         }
 
         // POST api/auth/login
@@ -71,16 +77,20 @@ namespace PodNoms.Api.Controllers {
             if (user is null) {
                 user = await _userManager.FindByNameAsync(credentials.UserName);
             }
+
             if (user is null) {
                 return Unauthorized();
             }
+
             var roles = await _userManager.GetRolesAsync(user);
 
             if (identity is null) {
-                return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
+                return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.",
+                    ModelState));
             }
 
-            var (token, refresh) = await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
+            var (token, refresh) =
+                await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
             Response.Cookies.Append(
                 "SESSIONID",
                 token,
@@ -97,14 +107,16 @@ namespace PodNoms.Api.Controllers {
                 Auth = refresh
             });
         }
-        private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName, string[] roles, ApplicationUser user) {
+
+        private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName,
+            string[] roles, ApplicationUser user) {
             var jwt = await TokenIssuer.GenerateJwt(
                 identity,
                 _jwtFactory,
                 userName,
                 roles,
                 _jwtOptions,
-                new JsonSerializerSettings { Formatting = Formatting.Indented }
+                new JsonSerializerSettings {Formatting = Formatting.Indented}
             );
             var refresh = TokenIssuer.GenerateRefreshToken(128);
             user.AddRefreshToken(
@@ -114,20 +126,23 @@ namespace PodNoms.Api.Controllers {
             await _unitOfWork.CompleteAsync();
             return (jwt.Token, new JwtRefreshTokenModel(refresh, jwt));
         }
+
         [HttpPost("refreshtoken")]
-        public async Task<ActionResult<JwtRefreshTokenModel>> RefreshToken([FromBody] ExchangeRefreshTokenRequest request) {
+        public async Task<ActionResult<AuthTokenResult>> RefreshToken(
+            [FromBody] ExchangeRefreshTokenRequest request) {
             var userName = _jwtFactory.DecodeToken(request.AccessToken);
             if (userName == null) {
                 return BadRequest("No user with that auth token");
             }
+
             var user = await _userManager
                 .Users
                 .Include(u => u.RefreshTokens)
                 .SingleOrDefaultAsync(
                     r => r.UserName == userName &&
-                    r.RefreshTokens.Any(p =>
-                        p.Token.Equals(request.RefreshToken) &&
-                        p.CreateDate >= System.DateTime.Now.AddDays(-28)));
+                         r.RefreshTokens.Any(p =>
+                             p.Token.Equals(request.RefreshToken) &&
+                             p.CreateDate >= System.DateTime.Now.AddDays(-28)));
 
             if (user == null) {
                 return BadRequest("Cannot find your refresh token");
@@ -136,8 +151,13 @@ namespace PodNoms.Api.Controllers {
             var roles = await _userManager.GetRolesAsync(user);
             var identity = _jwtFactory.GenerateClaimsIdentity(userName, user.Id);
 
-            var token = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
-            return Ok(token);
+            var (token, refresh) = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
+            return Ok(new AuthTokenResult {
+                Id = user.Id,
+                Slug = user.Slug,
+                Name = user.GetBestGuessName(),
+                Auth = refresh
+            });
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {
@@ -169,8 +189,10 @@ namespace PodNoms.Api.Controllers {
                     _logger.LogWarning($"Password reset requested for {model.Email}");
                     return Ok(model);
                 }
+
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
+                var callbackUrl =
+                    $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
                 await _emailSender.SendEmailAsync(
                     model.Email,
                     "PodNoms Reset Password Request",
@@ -184,6 +206,7 @@ namespace PodNoms.Api.Controllers {
                     });
                 return Ok(model);
             }
+
             return BadRequest(model);
         }
 
@@ -193,14 +216,17 @@ namespace PodNoms.Api.Controllers {
             if (!ModelState.IsValid) {
                 return BadRequest("Unable to reset your password at this time");
             }
+
             var user = await _userManager.FindByNameAsync(model.Email);
             if (user is null) {
                 return BadRequest("Unable to reset your password at this time");
             }
+
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded) {
                 return Ok(model);
             }
+
             return BadRequest();
         }
 
@@ -209,6 +235,7 @@ namespace PodNoms.Api.Controllers {
             if (!await _roleManager.RoleExistsAsync(role)) {
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
+
             return Json(_roleManager.Roles);
         }
 
@@ -219,23 +246,29 @@ namespace PodNoms.Api.Controllers {
                 _logger.LogDebug("Creating role");
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
+
             ApplicationUser user = await _userManager.FindBySlugAsync(slug);
             if (user == null) {
                 _logger.LogError("Unable to find user");
                 return NotFound();
             }
+
             if (!User.IsInRole(role)) {
                 await _userManager.AddToRoleAsync(user, role);
             }
+
             return Json(await _userManager.GetRolesAsync(user));
         }
+
         [HttpPost("validaterecaptha")]
-        public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha([FromBody] TokenValidationViewModel model) {
+        public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha(
+            [FromBody] TokenValidationViewModel model) {
             var recaptcha = await _recaptcha.Validate(model.Token);
             if (!recaptcha.success) {
                 model.IsValid = false;
                 BadRequest(model);
             }
+
             model.IsValid = true;
             return Ok(model);
         }

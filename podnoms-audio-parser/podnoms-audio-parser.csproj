@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>PodNoms.AudioParsing</AssemblyName>
+        <RootNamespace>PodNoms.AudioParsing</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CliWrap" Version="3.2.4" />
+        <PackageReference Include="CommandLineParser" Version="2.8.0" />
+        <PackageReference Include="YoutubeDLSharp" Version="0.3.0" />
+    </ItemGroup>
+
+</Project>
