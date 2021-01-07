@@ -23,7 +23,6 @@ namespace PodNoms.Data.Models {
         public string Title { get; set; }
 
         public string Description { get; set; }
-
         [MaxLength(2000)] public string SourceUrl { get; set; }
 
         [MaxLength(2000)] public string AudioUrl { get; set; }

@@ -20,7 +20,7 @@
         <PackageReference Include="AspNetcore.HealthChecks.UI" Version="3.1.3" />
         <PackageReference Include="AspNetcore.HealthChecks.UI.Client" Version="3.1.2" />
         <PackageReference Include="AspNetcore.HealthChecks.Uris" Version="3.1.2" />
-        <PackageReference Include="CliWrap" Version="3.2.2" />
+        <PackageReference Include="CliWrap" Version="3.2.4" />
         <PackageReference Include="CodeHollow.FeedReader" Version="1.2.1" />
         <PackageReference Include="DNS" Version="6.1.0" />
         <PackageReference Include="DnsClient" Version="1.4.0-beta-20200912.4" />
@@ -66,7 +66,6 @@
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
-        <PackageReference Include="NYoutubeDL" Version="0.11.0" />
         <PackageReference Include="Polly" Version="7.2.1" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
         <PackageReference Include="RestSharp" Version="106.11.8-alpha.0.7" />
@@ -84,6 +83,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\podnoms-audio-parser\podnoms-audio-parser.csproj" />
         <ProjectReference Include="..\podnoms-data\podnoms-data.csproj" />
     </ItemGroup>
 

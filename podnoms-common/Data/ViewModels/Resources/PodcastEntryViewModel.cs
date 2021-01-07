@@ -9,6 +9,7 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string Slug { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string StrippedDescription { get; set; }
         public List<TagViewModel> Tags { get; set; }
         public string SourceUrl { get; set; }
         public string AudioUrl { get; set; }

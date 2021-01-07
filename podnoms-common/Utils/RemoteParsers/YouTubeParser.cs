@@ -333,6 +333,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var videoId = await GetVideoId(url, requesterId);
             if (string.IsNullOrEmpty(videoId)) {
                 _logger.LogError($"Unable to get videoId for {url}");
+                return null;
             }
 
             var video = await _getVideoFromId(videoId, requesterId);

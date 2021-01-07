@@ -32,6 +32,9 @@ namespace PodNoms.Common.Data {
                     v => v.UserDisplayName,
                     e => e.MapFrom(m => m.AppUser.GetBestGuessName()))
                 .ForMember(
+                    v => v.StrippedDescription,
+                    e => e.MapFrom(m => m.Description.StripHtmlTags()))
+                .ForMember(
                     v => v.CoverImageUrl,
                     e => e.MapFrom(m => m.GetCoverImageUrl(
                         _options.GetSection("StorageSettings")["ImageUrl"],
@@ -68,6 +71,9 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => string.IsNullOrEmpty(m.PublicTitle) ? m.Title : m.PublicTitle));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
+                .ForMember(
+                    v => v.StrippedDescription,
+                    e => e.MapFrom(m => m.Description.StripHtmlTags()))
                 .ForMember(
                     src => src.PcmUrl,
                     e => e.MapFrom(m => m.GetPcmUrl(
@@ -201,6 +207,12 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.Roles,
                     map => map.MapFrom<UserRolesResolver>()
+                ).ForMember(
+                    src => src.PodcastCount,
+                    map => map.MapFrom<PodcastCountResolver>()
+                ).ForMember(
+                    src => src.EpisodeCount,
+                    map => map.MapFrom<EpisodeCountResolver>()
                 );
             CreateMap<ApplicationUser, SubscriptionViewModel>()
                 .ForMember(

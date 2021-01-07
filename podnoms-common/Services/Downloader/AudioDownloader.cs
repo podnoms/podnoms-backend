@@ -10,13 +10,13 @@ using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
-using NYoutubeDL;
-using NYoutubeDL.Models;
-using NYoutubeDL.Helpers;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
-using PodNoms.Common.Services.Processor;
+using YoutubeDLSharp;
+using YoutubeDLSharp.Metadata;
+using YoutubeDLSharp.Options;
+
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
@@ -28,7 +28,7 @@ namespace PodNoms.Common.Services.Downloader {
         };
 
         public RemoteVideoInfo Properties { get; set; }
-        public DownloadInfo RawProperties { get; private set; }
+        public VideoData RawProperties { get; private set; }
 
         private const string DOWNLOADRATESTRING = "iB/s";
         private const string DOWNLOADSIZESTRING = "iB";
@@ -43,6 +43,15 @@ namespace PodNoms.Common.Services.Downloader {
             _youTubeParser = youTubeParser;
             _logger = logger;
         }
+
+        private static readonly Lazy<YoutubeDL> __ytdl = new Lazy<YoutubeDL>
+        (() => new YoutubeDL {
+            YoutubeDLPath = "/usr/bin/youtube-dl",
+            FFmpegPath = "/usr/bin/ffmpeg",
+            OutputFolder = Path.GetTempPath()
+        });
+
+        private static YoutubeDL ytdl { get { return __ytdl.Value; } }
 
         private static async Task<bool> _remoteIsAudio(string url) =>
             url.Contains("drive.google.com") ||
@@ -73,28 +82,21 @@ namespace PodNoms.Common.Services.Downloader {
             }
         }
 
-        private async Task<DownloadInfo> __getInfo(string url) {
+        void _handleError(string error) {
+            if (error.Contains("ERROR: Unsupported URL") ||
+                error.Contains("ERROR: There's no video in this")) {
+                throw new AudioDownloadException(error);
+            }
+        }
+
+        private async Task<VideoData> __getInfo(string url) {
             try {
-                var yt = new YoutubeDL {VideoUrl = url};
-
-                yt.StandardErrorEvent += (sender, e) => {
-                    if (e.Contains("ERROR: Unsupported URL")) {
-                        yt.CancelDownload();
-                    }
-                };
-
-                var cmdLine = await yt.PrepareDownloadAsync();
-                _logger.LogDebug($"Getting download info {cmdLine}");
-                var info = await yt.GetDownloadInfoAsync();
-                if (info is null ||
-                    info.Errors.Count != 0 ||
-                    (info.GetType() == typeof(PlaylistDownloadInfo) &&
-                     !MixcloudParser.ValidateUrl(url) &&
-                     !_youTubeParser.ValidateUrl(url))) {
-                    return null;
+                RunResult<VideoData> result = await ytdl.RunVideoDataFetch(url);
+                if (result.Success) {
+                    return result.Data;
                 }
 
-                return info;
+                throw new AudioDownloadException("No audio found in that URL");
             } catch (TaskCanceledException) {
                 _logger.LogError("Unable to parse url");
             } catch (Exception e) {
@@ -104,7 +106,6 @@ namespace PodNoms.Common.Services.Downloader {
 
             return null;
         }
-
 
         public async Task<RemoteUrlType> GetInfo(string url, string userId) {
             var ret = RemoteUrlType.Invalid;
@@ -119,34 +120,40 @@ namespace PodNoms.Common.Services.Downloader {
                     Properties = await _youTubeParser.GetVideoInformation(url, userId);
                 }
 
-                return urlType;
+                if (!string.IsNullOrEmpty(Properties?.Title)) {
+                    return urlType;
+                }
             }
 
-            var info = await __getInfo(url);
-            if (info == null) {
-                return ret;
+            try {
+                var info = await __getInfo(url);
+                if (info == null) {
+                    return ret;
+                }
+
+                var props = new RemoteVideoInfo {
+                    Title = info.Title,
+                    Description = info.Description,
+                    Thumbnail = info.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
+                    Uploader = info.Uploader,
+                    UploadDate = (info?.UploadDate ?? System.DateTime.Now).ToString().ParseBest(),
+                    VideoId = info.ID
+                };
+
+                Properties = props;
+
+                // ret = info switch {
+                //     // have to dump playlist handling for now
+                //     PlaylistDownloadInfo downloadInfo when downloadInfo.Videos.Count > 0 => RemoteUrlType.Playlist,
+                //     VideoDownloadInfo _ => RemoteUrlType.SingleItem,
+                //     _ => ret
+                // };
+
+                //TODO: ^^ handle playlists above
+                return RemoteUrlType.SingleItem;
+            } catch (AudioDownloadException) {
+                return RemoteUrlType.Invalid;
             }
-
-            RawProperties = info;
-            var parsed = info as VideoDownloadInfo;
-
-            Properties = new RemoteVideoInfo {
-                Title = parsed?.Title,
-                Description = parsed?.Description,
-                Thumbnail = parsed?.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
-                Uploader = parsed?.Description,
-                UploadDate = (parsed?.UploadDate ?? System.DateTime.Now.ToString()).ParseBest(),
-                VideoId = parsed?.Id
-            };
-
-            ret = info switch {
-                // have to dump playlist handling for now
-                PlaylistDownloadInfo downloadInfo when downloadInfo.Videos.Count > 0 => RemoteUrlType.Playlist,
-                VideoDownloadInfo _ => RemoteUrlType.SingleItem,
-                _ => ret
-            };
-
-            return ret;
         }
 
         public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
@@ -161,37 +168,37 @@ namespace PodNoms.Common.Services.Downloader {
                 return _downloadFileDirect(url, outputFile);
             }
 
-            var yt = new YoutubeDL();
-            yt.Options.FilesystemOptions.Output = templateFile;
-            yt.Options.PostProcessingOptions.ExtractAudio = true;
-            yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
-            yt.Options.PostProcessingOptions.AudioQuality = "0";
-
-            yt.VideoUrl = url;
-            yt.StandardErrorEvent += (s, o) => {
-                _logger.LogError($"YTERR: {o}");
-            };
-
-            yt.StandardOutputEvent += (sender, output) => {
-                if (output.Contains("%")) {
-                    try {
-                        var progress = _parseProgress(output);
-                        DownloadProgress?.Invoke(this, progress);
-                    } catch (Exception ex) {
-                        _logger.LogError($"Error parsing progress {ex.Message}");
-                    }
-                } else {
-                    DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
-                        ProcessingStatus = ProcessingStatus.Converting,
-                        Progress = _statusLineToNarrative(output)
-                    });
-                }
-            };
-            var commandText = await yt.PrepareDownloadAsync();
-            _logger.LogDebug(commandText);
-            _logger.LogDebug(yt.RunCommand);
-
-            await yt.DownloadAsync();
+            // var yt = new YoutubeDL();
+            // yt.Options.FilesystemOptions.Output = templateFile;
+            // yt.Options.PostProcessingOptions.ExtractAudio = true;
+            // yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
+            // yt.Options.PostProcessingOptions.AudioQuality = "0";
+            //
+            // yt.VideoUrl = url;
+            // yt.StandardErrorEvent += (s, o) => {
+            //     _logger.LogError($"YTERR: {o}");
+            // };
+            //
+            // yt.StandardOutputEvent += (sender, output) => {
+            //     if (output.Contains("%")) {
+            //         try {
+            //             var progress = _parseProgress(output);
+            //             DownloadProgress?.Invoke(this, progress);
+            //         } catch (Exception ex) {
+            //             _logger.LogError($"Error parsing progress {ex.Message}");
+            //         }
+            //     } else {
+            //         DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
+            //             ProcessingStatus = ProcessingStatus.Converting,
+            //             Progress = _statusLineToNarrative(output)
+            //         });
+            //     }
+            // };
+            // var commandText = await yt.PrepareDownloadAsync();
+            // _logger.LogDebug(commandText);
+            // _logger.LogDebug(yt.RunCommand);
+            //
+            // await yt.DownloadAsync();
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 

@@ -17,18 +17,20 @@ namespace PodNoms.Common.Persistence {
         private readonly ILogger<UnitOfWork> _logger;
         private readonly HubLifetimeManager<EntityUpdatesHub> _hub;
 
-        public UnitOfWork(PodNomsDbContext context, ILogger<UnitOfWork> logger, HubLifetimeManager<EntityUpdatesHub> hub) {
+        public UnitOfWork(PodNomsDbContext context, ILogger<UnitOfWork> logger,
+            HubLifetimeManager<EntityUpdatesHub> hub) {
             _logger = logger;
             _hub = hub;
             _context = context;
         }
+
         public async Task<bool> CompleteAsync() {
             try {
                 await _notifyHubs();
                 await _context.SaveChangesAsync();
                 return true;
             } catch (DbUpdateException e) {
-                _logger.LogError($"Error completing unit of work: {e.Message}\n{e.InnerException.Message}");
+                _logger.LogError($"Error completing unit of work: {e.Message}\n{e?.InnerException?.Message}");
                 throw;
             }
         }
@@ -48,7 +50,7 @@ namespace PodNoms.Common.Persistence {
                         var payload = entity?.SerialiseForHub();
                         await _hub.SendUserAsync(
                             user,
-                            method, new object[] { payload });
+                            method, new object[] {payload});
                     }
                 }
             }

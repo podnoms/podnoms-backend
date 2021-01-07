@@ -102,14 +102,15 @@ namespace PodNoms.Common.Services.Startup {
                    .AllowAnyHeader()
                    .WithOrigins(
                        //TODO: Will have to add all Podcast.CustomUrl values into here
-                       "http://localhost:8080",
-                       "http://localhost:8080",
+                       "http://localhost:3000",
                        "http://localhost:4200",
                        "https://localhost:4200",
                        "https://localhost:5003",
+                       "http://localhost:8080",
+                       "http://localhost:8081",
+                       "http://10.1.1.1:8080",
                        "https://dev.podnoms.com:4200",
                        "https://dev.pdnm.be:4200",
-                       "http://10.1.1.1:8080",
                        "http://dev.pdnm.be:8080",
                        "https://podnoms.com",
                        "chrome-extension://ckjjhlmhcdeneallemnklpdbkneinepf",
