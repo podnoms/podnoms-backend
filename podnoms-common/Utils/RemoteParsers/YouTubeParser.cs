@@ -177,10 +177,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                     Description = video.Snippet.Description,
                     Thumbnail = video.Snippet.Thumbnails.High.Url,
                     Uploader = video.Snippet.ChannelTitle,
-                    UploadDate = DateTime.Parse(
-                        video.Snippet.PublishedAt,
-                        null,
-                        System.Globalization.DateTimeStyles.RoundtripKind)
+                    UploadDate = video.Snippet.PublishedAt
                 }).FirstOrDefault();
         }
 
@@ -209,8 +206,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                     Id = r.Snippet.ResourceId.VideoId,
                     Title = r.Snippet.Title,
                     VideoType = "YouTube",
-                    UploadDate = DateTime.Parse(r.Snippet.PublishedAt, null,
-                        System.Globalization.DateTimeStyles.RoundtripKind)
+                    UploadDate = r.Snippet.PublishedAt
                 })
                 .OrderByDescending(r => r.UploadDate)
                 .Take(count)

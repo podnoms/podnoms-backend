@@ -22,9 +22,9 @@ namespace PodNoms.Common.Services.Hosted {
             _logger = logger;
 
             _subscriber = new AutoSubscriber(_bus, "_applications_subscriptionId_prefix");
-            _subscriber.Subscribe(Assembly.GetExecutingAssembly());
+            _subscriber.Subscribe(new[] {Assembly.GetExecutingAssembly()});
             try {
-                _bus.Subscribe<NotifyUserMessage>(
+                _bus.PubSub.Subscribe<NotifyUserMessage>(
                     "podnoms_message_notifyuser",
                     message => {
                         Console.WriteLine($"(RabbitMQService) Consuming: {message.Body}");
@@ -39,21 +39,21 @@ namespace PodNoms.Common.Services.Hosted {
                             message.Image, NotificationOptions.UploadCompleted);
                     }
                 );
-                _bus.Subscribe<CustomNotificationMessage>(
-                   "podnoms_message_customnotification",
-                   message => {
-                       _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
-                       using (var scope = serviceScopeFactory.CreateScope()) {
-                           var service =
-                               scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
-                           service.SendCustomNotifications(
-                               message.PodcastId,
-                               "YOU NEED TO CHANGE THIS",
-                               "PodNoms",
-                               $"{message.Title} has finished processing",
-                               message.Url);
-                       }
-                   }
+                _bus.PubSub.Subscribe<CustomNotificationMessage>(
+                    "podnoms_message_customnotification",
+                    message => {
+                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
+                        using (var scope = serviceScopeFactory.CreateScope()) {
+                            var service =
+                                scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
+                            service.SendCustomNotifications(
+                                message.PodcastId,
+                                "YOU NEED TO CHANGE THIS",
+                                "PodNoms",
+                                $"{message.Title} has finished processing",
+                                message.Url);
+                        }
+                    }
                 );
             } catch (Exception e) {
                 _logger.LogError("Unable to start realtime queue listeners");
@@ -66,6 +66,7 @@ namespace PodNoms.Common.Services.Hosted {
             while (!stoppingToken.IsCancellationRequested) {
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
+
             _bus.Dispose();
         }
     }

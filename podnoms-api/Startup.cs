@@ -144,7 +144,6 @@ namespace PodNoms.Api {
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IHostApplicationLifetime lifetime,
             UserManager<ApplicationUser> userManager) {
-
             UpdateDatabase(app, userManager, Configuration);
 
             app.UseMiddleware<AuthExceptionMiddleware>();
@@ -225,8 +224,8 @@ namespace PodNoms.Api {
             var bus = services.GetService<IBus>();
             lifeTime.ApplicationStarted.Register(() => {
                 var subscriber = new AutoSubscriber(bus, subscriptionIdPrefix);
-                subscriber.Subscribe(assembly);
-                subscriber.SubscribeAsync(assembly);
+                subscriber.Subscribe(new[] {assembly});
+                subscriber.SubscribeAsync(new[] {assembly});
             });
             lifeTime.ApplicationStopped.Register(() => bus.Dispose());
             return appBuilder;

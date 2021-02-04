@@ -16,7 +16,8 @@ namespace PodNoms.Jobs.Services {
             _bus = bus;
         }
 
-        public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image, NotificationOptions notificationType) {
+        public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image,
+            NotificationOptions notificationType) {
             _logger.LogDebug($"Notifiying user");
             var message = new NotifyUserMessage {
                 UserId = userId,
@@ -25,10 +26,11 @@ namespace PodNoms.Jobs.Services {
                 Target = target,
                 Image = image
             };
-            await _bus.PublishAsync(message).ContinueWith(task => {
+            await _bus.PubSub.PublishAsync(message).ContinueWith(task => {
                 if (task.IsCompleted && !task.IsFaulted) {
                     _logger.LogDebug("Successfully sent custom notification");
                 }
+
                 if (task.IsFaulted) {
                     _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
                 }
@@ -36,7 +38,8 @@ namespace PodNoms.Jobs.Services {
             return true;
         }
 
-        public async Task<bool> SendCustomNotifications(Guid podcastId, string userName, string title, string body, string url) {
+        public async Task<bool> SendCustomNotifications(Guid podcastId, string userName, string title, string body,
+            string url) {
             _logger.LogDebug($"Sending custom notification");
             var message = new CustomNotificationMessage {
                 PodcastId = podcastId,
@@ -44,15 +47,16 @@ namespace PodNoms.Jobs.Services {
                 Body = body,
                 Url = url
             };
-            await _bus.PublishAsync(message)
-               .ContinueWith(task => {
-                   if (task.IsCompleted && !task.IsFaulted) {
-                       _logger.LogDebug("Successfully sent custom notification");
-                   }
-                   if (task.IsFaulted) {
-                       _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
-                   }
-               });
+            await _bus.PubSub.PublishAsync(message)
+                .ContinueWith(task => {
+                    if (task.IsCompleted && !task.IsFaulted) {
+                        _logger.LogDebug("Successfully sent custom notification");
+                    }
+
+                    if (task.IsFaulted) {
+                        _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
+                    }
+                });
             return true;
         }
     }
