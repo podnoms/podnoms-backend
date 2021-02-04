@@ -35,11 +35,11 @@ namespace PodNoms.AudioParsing {
             //get the type of the URL
             var urlParser = new UrlTypeParser();
             var urlType = await urlParser.GetUrlType(url);
-            string outputFile = string.Empty;
+            string outputFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
             //perform the appropriate processing
             switch (urlType) {
                 case UrlType.Direct:
-                    outputFile = await new DirectDownloader().DownloadFromUrl(url, callbackUrl);
+                    outputFile = await new DirectDownloader().DownloadFromUrl(url, outputFile, callbackUrl, null);
                     break;
                 default:
                     throw new UnknownUrlTypeException($"URL: {url}\n\tcannot be processed");

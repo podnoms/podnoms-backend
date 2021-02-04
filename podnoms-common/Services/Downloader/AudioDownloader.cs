@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
+using PodNoms.AudioParsing.Downloaders;
+using PodNoms.AudioParsing.ErrorHandling;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
-using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
-using YoutubeDLSharp.Options;
 
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
         private readonly IYouTubeParser _youTubeParser;
+        private readonly IDownloader _downloader;
         private readonly ILogger<AudioDownloader> _logger;
 
         private static readonly List<string> _audioFileTypes = new List<string>() {
@@ -38,20 +39,12 @@ namespace PodNoms.Common.Services.Downloader {
         public event EventHandler<ProcessingProgress> DownloadProgress;
 
         public AudioDownloader(IYouTubeParser youTubeParser, IOptions<HelpersSettings> helpersSettings,
-            ILogger<AudioDownloader> logger) {
+            IDownloader downloader, ILogger<AudioDownloader> logger) {
             _helpersSettings = helpersSettings.Value;
             _youTubeParser = youTubeParser;
+            _downloader = downloader;
             _logger = logger;
         }
-
-        private static readonly Lazy<YoutubeDL> __ytdl = new Lazy<YoutubeDL>
-        (() => new YoutubeDL {
-            YoutubeDLPath = "/usr/bin/youtube-dl",
-            FFmpegPath = "/usr/bin/ffmpeg",
-            OutputFolder = Path.GetTempPath()
-        });
-
-        private static YoutubeDL ytdl { get { return __ytdl.Value; } }
 
         private static async Task<bool> _remoteIsAudio(string url) =>
             url.Contains("drive.google.com") ||
@@ -91,11 +84,7 @@ namespace PodNoms.Common.Services.Downloader {
 
         private async Task<VideoData> __getInfo(string url) {
             try {
-                RunResult<VideoData> result = await ytdl.RunVideoDataFetch(url);
-                if (result.Success) {
-                    return result.Data;
-                }
-
+                var result = await _downloader.GetVideoInformation(url);
                 throw new AudioDownloadException("No audio found in that URL");
             } catch (TaskCanceledException) {
                 _logger.LogError("Unable to parse url");
@@ -158,47 +147,36 @@ namespace PodNoms.Common.Services.Downloader {
 
         public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
             if (string.IsNullOrEmpty(outputFile)) {
+                outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             }
-
-            var templateFile = string.IsNullOrEmpty(outputFile)
-                ? Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s")
-                : outputFile.Replace(".mp3", ".%(ext)s"); //hacky but can't see a way to specify final filename
 
             if (await _remoteIsAudio(url)) {
                 return _downloadFileDirect(url, outputFile);
             }
 
-            // var yt = new YoutubeDL();
-            // yt.Options.FilesystemOptions.Output = templateFile;
-            // yt.Options.PostProcessingOptions.ExtractAudio = true;
-            // yt.Options.PostProcessingOptions.AudioFormat = Enums.AudioFormat.mp3;
-            // yt.Options.PostProcessingOptions.AudioQuality = "0";
-            //
-            // yt.VideoUrl = url;
-            // yt.StandardErrorEvent += (s, o) => {
-            //     _logger.LogError($"YTERR: {o}");
-            // };
-            //
-            // yt.StandardOutputEvent += (sender, output) => {
-            //     if (output.Contains("%")) {
-            //         try {
-            //             var progress = _parseProgress(output);
-            //             DownloadProgress?.Invoke(this, progress);
-            //         } catch (Exception ex) {
-            //             _logger.LogError($"Error parsing progress {ex.Message}");
-            //         }
-            //     } else {
-            //         DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
-            //             ProcessingStatus = ProcessingStatus.Converting,
-            //             Progress = _statusLineToNarrative(output)
-            //         });
-            //     }
-            // };
-            // var commandText = await yt.PrepareDownloadAsync();
-            // _logger.LogDebug(commandText);
-            // _logger.LogDebug(yt.RunCommand);
-            //
-            // await yt.DownloadAsync();
+            _downloader.OnError += (sender, output) => {
+                _logger.LogError($"YTERR: {output}");
+            };
+            _downloader.OnOutput += (sender, output) => {
+                _logger.LogError($"YTERR: {output}");
+                if (output.Contains("%")) {
+                    try {
+                        var progress = _parseProgress(output);
+                        DownloadProgress?.Invoke(this, progress);
+                    } catch (Exception ex) {
+                        _logger.LogError($"Error parsing progress {ex.Message}");
+                    }
+                } else {
+                    DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
+                        ProcessingStatus = ProcessingStatus.Converting,
+                        Progress = _statusLineToNarrative(output)
+                    });
+                }
+            };
+            outputFile = await _downloader.DownloadFromUrl(url, outputFile, string.Empty, new Dictionary<string, string> {
+                {"Downloader", _helpersSettings.Downloader},
+                {"FFMPeg", _helpersSettings.Downloader}
+            });
             return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 

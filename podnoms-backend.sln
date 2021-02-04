@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "podnoms-tests", "podnoms-te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "podnoms-audio-parser", "podnoms-audio-parser\podnoms-audio-parser.csproj", "{67C848EA-26DC-4567-A0F4-AA2AAEE905AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeDLSharp", "..\..\..\working\YoutubeDLSharp\YoutubeDLSharp\YoutubeDLSharp.csproj", "{A6A48BD8-21B4-4EE8-BFA5-2EC328CB26D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{67C848EA-26DC-4567-A0F4-AA2AAEE905AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67C848EA-26DC-4567-A0F4-AA2AAEE905AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67C848EA-26DC-4567-A0F4-AA2AAEE905AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6A48BD8-21B4-4EE8-BFA5-2EC328CB26D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A48BD8-21B4-4EE8-BFA5-2EC328CB26D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6A48BD8-21B4-4EE8-BFA5-2EC328CB26D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A48BD8-21B4-4EE8-BFA5-2EC328CB26D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

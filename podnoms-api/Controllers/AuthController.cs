@@ -89,23 +89,28 @@ namespace PodNoms.Api.Controllers {
                     ModelState));
             }
 
-            var (token, refresh) =
-                await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
-            Response.Cookies.Append(
-                "SESSIONID",
-                token,
-                new CookieOptions() {
-                    Path = "/",
-                    HttpOnly = false,
-                    Secure = false
-                }
-            );
-            return Ok(new AuthTokenResult {
-                Id = user.Id,
-                Slug = user.Slug,
-                Name = user.GetBestGuessName(),
-                Auth = refresh
-            });
+            try {
+                var (token, refresh) =
+                    await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
+                Response.Cookies.Append(
+                    "SESSIONID",
+                    token,
+                    new CookieOptions() {
+                        Path = "/",
+                        HttpOnly = false,
+                        Secure = false
+                    }
+                );
+                return Ok(new AuthTokenResult {
+                    Id = user.Id,
+                    Slug = user.Slug,
+                    Name = user.GetBestGuessName(),
+                    Auth = refresh
+                });
+            } catch (DbUpdateConcurrencyException e) {
+                _logger.LogError($"Error updating user's token.\n{e.Message}");
+                return StatusCode(503);
+            }
         }
 
         private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName,
@@ -150,14 +155,18 @@ namespace PodNoms.Api.Controllers {
 
             var roles = await _userManager.GetRolesAsync(user);
             var identity = _jwtFactory.GenerateClaimsIdentity(userName, user.Id);
-
-            var (token, refresh) = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
-            return Ok(new AuthTokenResult {
-                Id = user.Id,
-                Slug = user.Slug,
-                Name = user.GetBestGuessName(),
-                Auth = refresh
-            });
+            try {
+                var (token, refresh) = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
+                return Ok(new AuthTokenResult {
+                    Id = user.Id,
+                    Slug = user.Slug,
+                    Name = user.GetBestGuessName(),
+                    Auth = refresh
+                });
+            } catch (DbUpdateConcurrencyException e) {
+                _logger.LogError($"Error updating user's token.\n{e.Message}");
+                return StatusCode(503);
+            }
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {

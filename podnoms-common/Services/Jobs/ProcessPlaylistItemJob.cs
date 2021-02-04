@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using PodNoms.AudioParsing.ErrorHandling;
 using static PodNoms.Common.Services.Processor.EntryPreProcessor;
 
 namespace PodNoms.Common.Services.Jobs {

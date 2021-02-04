@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using Google;
 using Google.Apis.Requests;
 using Microsoft.Extensions.Options;
@@ -152,8 +153,8 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             var key = await _keyRepository.GetApiKey("YouTube", requesterId);
             if (key is null) {
                 throw new NoKeyAvailableException();
-            }   
-            
+            }
+
             var client = new ServiceWrapper(requesterId, key);
             await _serviceRequestLogger
                 .LogRequest(
@@ -301,16 +302,10 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
         public async Task<string> GetVideoId(string url, string requesterId) {
             return await Task.Run(() => {
-                if (!url.Contains("v=")) {
-                    return string.Empty;
-                }
-
-                var videoId = url.Split("v=")[1];
-                var ampersandPosition = videoId.IndexOf("&", StringComparison.Ordinal);
-                if (ampersandPosition != -1) {
-                    videoId = videoId.Substring(0, ampersandPosition);
-                }
-
+                var uri = new Uri(url);
+                var query = HttpUtility.ParseQueryString(uri.Query);
+                string videoId;
+                videoId = query.AllKeys.Contains("v") ? query["v"] : uri.Segments.Last();
                 return !string.IsNullOrEmpty(videoId) ? videoId : string.Empty;
             });
         }
