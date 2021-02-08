@@ -14,7 +14,7 @@ namespace PodNoms.Common.Services.PageParser {
     public class ExternalPageParser : IPageParser {
         private class ExternalPageParserResult {
             public string Result { get; set; }
-            public string[] Data { get; set; }
+            public Dictionary<string, string> Data { get; set; }
         }
 
         private HttpClient _httpClient;
@@ -33,24 +33,25 @@ namespace PodNoms.Common.Services.PageParser {
 
         public async Task<string> GetPageTitle() {
             var result = await _httpClient.GetFromJsonAsync<ExternalPageParserResult>($"get-page-title?url={_url}");
-            return result != null ? result.Data.FirstOrDefault() : string.Empty;
+            return result != null && result.Data.Count != 0 && result.Data.ContainsKey("title")
+                ? result.Data["title"]
+                : string.Empty;
         }
 
-        public async Task<string[]> GetHeadTags() {
+        public async Task<Dictionary<string, string>> GetHeadTags() {
             var result = await _httpClient.GetFromJsonAsync<ExternalPageParserResult>($"get-head-meta-tags?url={_url}");
             return result?.Data;
         }
 
         public async Task<string> GetHeadTag(string tagName) {
-            var result = await GetHeadTags();
-            return result != null ? result.FirstOrDefault() : string.Empty;
+            var result = (await GetHeadTags());
+            return result != null && result.ContainsKey(tagName) ? result[tagName] : String.Empty;
         }
 
         public async Task<Dictionary<string, string>> GetAllAudioLinks(bool isDeep = false) {
             var parser = isDeep ? "deep-check-url" : "shallow-check-url";
             var result = await _httpClient.GetFromJsonAsync<ExternalPageParserResult>($"{parser}?url={_url}");
-            return result?.Data
-                .ToDictionary(o => o.GetFilenameFromUrl(), o => o);
+            return result?.Data;
         }
     }
 

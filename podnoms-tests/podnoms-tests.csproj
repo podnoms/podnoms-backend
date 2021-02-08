@@ -24,4 +24,10 @@
       <ProjectReference Include="..\podnoms-common\podnoms-common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\..\..\..\working\YoutubeDLSharp\YoutubeDLSharp\YoutubeDLSharp.csproj">
+        <Link>YoutubeDLSharp.csproj</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>

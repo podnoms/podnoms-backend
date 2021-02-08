@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PodNoms.AudioParsing.Downloaders;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Auth.ApiKeys;
 using PodNoms.Common.Persistence;
@@ -25,6 +26,7 @@ namespace PodNoms.Common.Services.Startup {
             services.AddTransient<IFileUploader, AzureFileUploader>()
                 .AddTransient<IPageParser, ExternalPageParser>()
                 .AddTransient<IMP3Tagger, MP3Tagger>()
+                .AddSingleton<IDownloader, YtDlDownloader>()
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
                 .AddSingleton<IGetApiKeyQuery, IssuedKeysGetApiKeyQuery>()

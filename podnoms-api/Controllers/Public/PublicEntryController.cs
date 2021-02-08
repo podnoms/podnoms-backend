@@ -28,11 +28,11 @@ namespace PodNoms.Api.Controllers.Public {
         private readonly IMapper _mapper;
 
         public PublicEntryController(IEntryRepository entryRepository,
-                                     IUnitOfWork unitOfWork,
-                                     AkismetClient akismet,
-                                     IConfiguration config,
-                                     IHttpContextAccessor contextAccessor,
-                                     IMapper mapper) {
+            IUnitOfWork unitOfWork,
+            AkismetClient akismet,
+            IConfiguration config,
+            IHttpContextAccessor contextAccessor,
+            IMapper mapper) {
             _entryRepository = entryRepository;
             _unitOfWork = unitOfWork;
             _akismet = akismet;
@@ -52,6 +52,7 @@ namespace PodNoms.Api.Controllers.Public {
 
             return _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(results);
         }
+
         [HttpGet("{user}/{podcast}/{entry}")]
         public async Task<ActionResult<PodcastEntryViewModel>> Get(string user, string podcast, string entry) {
             var result = await _entryRepository.GetForUserAndPodcast(user, podcast, entry);
@@ -63,8 +64,7 @@ namespace PodNoms.Api.Controllers.Public {
 
         [HttpPost("postcomment/{userSlug}/{entrySlug}")]
         public async Task<ActionResult<PodcastEntryCommentViewModel>> AddComment(
-                string userSlug, string entrySlug, [FromBody] PodcastEntryCommentViewModel comment) {
-
+            string userSlug, string entrySlug, [FromBody] PodcastEntryCommentViewModel comment) {
             var entry = await _entryRepository
                 .GetAll()
                 .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
@@ -75,7 +75,7 @@ namespace PodNoms.Api.Controllers.Public {
             }
 
             var spamCheckComment = new AkismetComment {
-                Blog = new Uri(_config["SpamFilterSettings:BlogUrl"]),
+                Blog = _config["SpamFilterSettings:BlogUrl"],
                 CommentAuthorEmail = comment.FromEmail,
                 CommentContent = comment.Comment,
                 UserIp = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
@@ -97,7 +97,8 @@ namespace PodNoms.Api.Controllers.Public {
         }
 
         [HttpGet("comment/{userSlug}/{entrySlug}")]
-        public async Task<ActionResult<List<PodcastEntryCommentViewModel>>> GetComments(string userSlug, string entrySlug) {
+        public async Task<ActionResult<List<PodcastEntryCommentViewModel>>> GetComments(string userSlug,
+            string entrySlug) {
             var entry = await _entryRepository
                 .GetAll()
                 .Include(r => r.Comments)
@@ -106,6 +107,7 @@ namespace PodNoms.Api.Controllers.Public {
             if (entry is null) {
                 return BadRequest($"Could not find entry");
             }
+
             return _mapper.Map<List<EntryComment>, List<PodcastEntryCommentViewModel>>(
                 entry.Comments
                     .OrderByDescending(c => c.CreateDate)

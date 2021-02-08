@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 
 namespace PodNoms.Common.Services.Hubs {
     [EnableCors("PodNomsClientPolicy")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserUpdatesHub : Hub {
         public class UserUpdateMessage {
             public string Title { get; set; }

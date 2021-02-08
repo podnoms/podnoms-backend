@@ -1,7 +1,4 @@
-﻿using EasyNetQ;
-
-namespace PodNoms.Common.Data.Messages {
-    [Queue("PodNoms.Client", ExchangeName = "PodNoms.Client")]
+﻿namespace PodNoms.Common.Data.Messages {
     public sealed class NotifyUserMessage {
         public string UserId { get; set; }
         public string Title { get; set; }

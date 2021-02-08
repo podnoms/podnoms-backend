@@ -16,11 +16,7 @@ COPY podnoms-data/*.csproj ./podnoms-data/
 
 WORKDIR /app/podnoms-api
 
-RUN dotnet restore \
-    --source https://api.nuget.org/v3/index.json \
-    --source https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json \
-    --source https://dotnet.myget.org/F/aspnetcore-ci-dev/api/v3/index.json \
-    --source https://www.myget.org/F/sixlabors/api/v3/index.json
+RUN dotnet restore 
 
 # copy and publish app and libraries
 WORKDIR /app/

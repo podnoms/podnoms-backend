@@ -1,34 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
+using PodNoms.AudioParsing.ErrorHandling;
 using PodNoms.AudioParsing.Helpers;
 using YoutubeDLSharp;
+using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 
 namespace PodNoms.AudioParsing.Downloaders {
     public class YtDlDownloader : IDownloader {
-        public async Task<string> DownloadFromUrl(string url, string callbackUrl) {
-            var id = System.Guid.NewGuid().ToString();
+        public event Action<object, string> OnOutput;
+        public event Action<object, string> OnError;
 
-            var templateFile = Path.Combine(Path.GetTempPath(), $"{id}.%(ext)s");
-
-            var ytdl = new YoutubeDL {
-                YoutubeDLPath = "/usr/bin/youtube-dl",
-                FFmpegPath = "/usr/bin/ffmpeg",
-                OutputFolder = Path.GetTempPath()
+        public async Task<string> DownloadFromUrl(string url,  string outputFile, string callbackUrl, Dictionary<string, string> args) {
+            var ytdl = new YoutubeDLProcess(args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl");
+            ytdl.OutputReceived += (s, e) => {
+                this.OnOutput(s, e.Data);
+            };
+            ytdl.ErrorReceived += (s, e) => {
+                this.OnError(s, e.Data);
             };
 
-            var result = await ytdl.RunAudioDownload(
-                url,
-                AudioConversionFormat.Mp3,
-                overrideOptions: new OptionSet() {
-                    Output = templateFile
-                });
+            var options = new OptionSet() {
+                Output = outputFile,
+                ExtractAudio = true,
+                AudioFormat = AudioConversionFormat.Mp3,
+                AudioQuality = 0,
+            };
+            var result = await ytdl.RunAsync(new string[] {url}, options);
 
-            var resultFile = result.Data.Replace("'", "");
-            return File.Exists(resultFile)
-                ? resultFile
-                : string.Empty;
+            return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;
+        }
+
+        public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args) {
+            var ytdl = new YoutubeDL() {
+                YoutubeDLPath = args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
+                FFmpegPath = args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
+                OutputFolder = Path.GetTempPath(),
+            };
+
+            RunResult<VideoData> result = await ytdl.RunVideoDataFetch(url);
+            if (result.Success) {
+                return result.Data;
+            }
+
+            throw new AudioDownloadException($"Unable to get url information\n${url}");
         }
     }
 }
