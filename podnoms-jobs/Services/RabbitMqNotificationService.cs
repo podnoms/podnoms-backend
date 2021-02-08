@@ -18,7 +18,7 @@ namespace PodNoms.Jobs.Services {
 
         public async Task<bool> NotifyUser(string userId, string title, string body, string target, string image,
             NotificationOptions notificationType) {
-            _logger.LogDebug($"Notifiying user");
+            _logger.LogDebug($"Notifying user");
             var message = new NotifyUserMessage {
                 UserId = userId,
                 Title = title,

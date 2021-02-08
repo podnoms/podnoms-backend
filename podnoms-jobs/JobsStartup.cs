@@ -69,7 +69,7 @@ namespace PodNoms.Jobs {
                 .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
                 .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
                 .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
-                .AddScoped<IRealTimeUpdater, SignalRClientUpdater>();
+                .AddScoped<IRealTimeUpdater, RabbitMQClientUpdater>();
 
             services.AddHostedService<TweetListenerService>();
 
@@ -86,10 +86,12 @@ namespace PodNoms.Jobs {
             });
 
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
-                Authorization = new[] { new HangfireCustomBasicAuthenticationFilter{
-                    User = Configuration.GetSection("HangfireDashboardSettings:UserName").Value,
-                    Pass = Configuration.GetSection("HangfireDashboardSettings:Password").Value
-                }}
+                Authorization = new[] {
+                    new HangfireCustomBasicAuthenticationFilter {
+                        User = Configuration.GetSection("HangfireDashboardSettings:UserName").Value,
+                        Pass = Configuration.GetSection("HangfireDashboardSettings:Password").Value
+                    }
+                }
             });
             app.Run(async (context) => {
                 await context.Response.WriteAsync("Hello World!");
