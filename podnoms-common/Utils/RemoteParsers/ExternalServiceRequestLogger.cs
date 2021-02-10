@@ -7,7 +7,11 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
-    public class ExternalServiceRequestLogger {
+    public interface IExternalServiceRequestLogger {
+        Task<ServicesApiKeyLog> LogRequest(ServiceApiKey apiKey, string requesterId, string stackTrace);
+    }
+
+    public class ExternalServiceRequestLogger : IExternalServiceRequestLogger {
         private readonly IServicesApiKeyLoggerRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ExternalServiceRequestLogger> _logger;

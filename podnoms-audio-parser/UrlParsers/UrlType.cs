@@ -4,6 +4,8 @@
         YouTube,
         YtDl,
         PageParser,
+        Playlist,
+        Channel,
         Invalid
     }
 }

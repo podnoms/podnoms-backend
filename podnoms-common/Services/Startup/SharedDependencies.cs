@@ -30,7 +30,7 @@ namespace PodNoms.Common.Services.Startup {
                 .AddSingleton<IJwtFactory, JwtFactory>()
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
                 .AddSingleton<IGetApiKeyQuery, IssuedKeysGetApiKeyQuery>()
-                .AddScoped<ExternalServiceRequestLogger>()
+                .AddScoped<IExternalServiceRequestLogger, ExternalServiceRequestLogger>()
                 .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPodcastRepository, PodcastRepository>()

@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using k8s.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.UrlParsers;
-using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -31,17 +31,13 @@ namespace PodNoms.Common.Services.Processor {
         private readonly IYouTubeParser _youTubeParser;
         private readonly IEntryRepository _repository;
 
-        private readonly HelpersSettings _helpersSettings;
-
         public UrlProcessService(
             IEntryRepository repository, IUnitOfWork unitOfWork,
-            IOptions<HelpersSettings> helpersSettings,
             AudioDownloader downloader,
             IPageParser parser,
             IYouTubeParser youTubeParser,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
-            _helpersSettings = helpersSettings.Value;
             _repository = repository;
             _unitOfWork = unitOfWork;
             _downloader = downloader;
@@ -59,6 +55,64 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId, bool deepParse) {
+            var urlType = await new UrlTypeParser().GetUrlType(url.Trim());
+
+
+            if (urlType != UrlType.Invalid) {
+                var downloader = await new UrlTypeParser().GetDownloader(url);
+                var info = await downloader.GetVideoInformation(url);
+                if (urlType.Equals(UrlType.YtDl) && string.IsNullOrEmpty(info?.Url)) {
+                    //urlType will be YtDl even if it's not a YtDl parseable link
+                    //as the parser is greedy - so if we didn't get any info above we can pass
+                    //the request off to the remote page parser
+                    await _parser.Initialise(url);
+                    var links = await _parser.GetAllAudioLinks(true);
+                    var title = await _parser.GetPageTitle();
+                    var image = await _parser.GetHeadTag("og:image");
+                    var description = await _parser.GetHeadTag("og:description");
+
+                    if (links.Count != 0) {
+                        return new RemoteUrlStatus {
+                            Type = RemoteUrlType.ParsedLinks.ToString(),
+                            Title = title,
+                            Image = image,
+                            Description = description,
+                            Links = links.GroupBy(r => r.Key) // note to future me
+                                .Select(g => g.First()) // these lines dedupe on key - neato!!
+                                .Select(r => new RemoteLinkInfo {
+                                    Title = r.Value,
+                                    Key = r.Key,
+                                    Value = r.Value
+                                }).ToList()
+                        };
+                    }
+                }
+
+                return new RemoteUrlStatus {
+                    Type = urlType switch {
+                        UrlType.Direct => RemoteUrlType.SingleItem.ToString(),
+                        UrlType.YouTube => RemoteUrlType.SingleItem.ToString(),
+                        UrlType.YtDl => RemoteUrlType.SingleItem.ToString(),
+                        UrlType.Invalid => RemoteUrlType.Invalid.ToString(),
+                        _ => RemoteUrlType.Invalid.ToString()
+                    },
+                    Title = info?.Title,
+                    Image = info?.Thumbnail,
+                    Description = info?.Description,
+                    Links = new[] {
+                        new RemoteLinkInfo {
+                            Title = "New Audio link",
+                            Key = url,
+                            Value = url
+                        }
+                    }.ToList()
+                };
+            }
+
+            throw new UrlParseException("Unable to find any audio here");
+        }
+
+        public async Task<RemoteUrlStatus> __ValidateUrl(string url, string requesterId, bool deepParse) {
             url = url.Trim();
             if (string.IsNullOrEmpty(url) || !url.ValidateAsUrl()) {
                 throw new UrlParseException($"Unable to validate url: {url}");
@@ -87,7 +141,7 @@ namespace PodNoms.Common.Services.Processor {
             if (firstPass == UrlType.YtDl && fileType == RemoteUrlType.Invalid) {
                 //we have a ytdl URL that can't be parsed using youtube
                 fileType = RemoteUrlType.SingleItem;
-            }else if (fileType == RemoteUrlType.Invalid) {
+            } else if (fileType == RemoteUrlType.Invalid) {
                 //call on the audio downloader to validate the URL
                 //this is kind of a last resort as it spawns a youtube-dl process 
                 //and we don't want to call it too often
