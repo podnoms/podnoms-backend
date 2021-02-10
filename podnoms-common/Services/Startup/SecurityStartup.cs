@@ -53,20 +53,12 @@ namespace PodNoms.Common.Services.Startup {
                     options.SaveToken = true;
                     options.Events = new JwtBearerEvents {
                         OnMessageReceived = context => {
-                            //check first if we're chatter from the job server
-                            var realTimeToken = context.Request.Query["rttkn"];
-                            if (!string.IsNullOrEmpty(realTimeToken)) {
-                                context.Request.Headers.Add(
-                                    ApiKeyAuthenticationHandler.ApiKeyHeaderName,
-                                    realTimeToken);
-                            } else {
-                                //keep cookie auth off for now
-                                var accessToken = context.Request.Query["access_token"];
-                                var path = context.HttpContext.Request.Path;
-                                if (!string.IsNullOrEmpty(accessToken) &&
-                                    (path.StartsWithSegments("/hubs"))) {
-                                    context.Token = accessToken[0];
-                                }
+                            //keep cookie auth off for now
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/hubs"))) {
+                                context.Token = accessToken[0];
                             }
 
                             return Task.CompletedTask;

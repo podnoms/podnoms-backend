@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Rest.Azure;
 using PodNoms.Common.Services.PageParser;
 using Xunit;
 using Xunit.Sdk;

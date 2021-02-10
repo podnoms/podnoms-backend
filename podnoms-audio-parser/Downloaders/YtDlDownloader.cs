@@ -14,14 +14,11 @@ namespace PodNoms.AudioParsing.Downloaders {
         public event Action<object, string> OnOutput;
         public event Action<object, string> OnError;
 
-        public async Task<string> DownloadFromUrl(string url,  string outputFile, string callbackUrl, Dictionary<string, string> args) {
-            var ytdl = new YoutubeDLProcess(args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl");
-            ytdl.OutputReceived += (s, e) => {
-                this.OnOutput(s, e.Data);
-            };
-            ytdl.ErrorReceived += (s, e) => {
-                this.OnError(s, e.Data);
-            };
+        public async Task<string> DownloadFromUrl(string url, string outputFile,
+            string callbackUrl, Dictionary<string, string> args) {
+            var ytdl = new YoutubeDLProcess(args != null && args.ContainsKey("Downloader")
+                ? args["Downloader"]
+                : "youtube-dl");
 
             var options = new OptionSet() {
                 Output = outputFile,

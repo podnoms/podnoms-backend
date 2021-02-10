@@ -16,15 +16,18 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Hosted {
     public class RabbitMQService : BackgroundService {
         private readonly IBus _bus;
-        private readonly HubLifetimeManager<AudioProcessingHub> _hub;
+        private readonly HubLifetimeManager<AudioProcessingHub> _audioProcessingHub;
+        private readonly HubLifetimeManager<UserUpdatesHub> _userUpdateHub;
         private readonly ILogger<RabbitMQService> _logger;
         private readonly AutoSubscriber _subscriber;
 
         public RabbitMQService(IBus bus,
-            HubLifetimeManager<AudioProcessingHub> hub,
+            HubLifetimeManager<AudioProcessingHub> audioProcessingHub,
+            HubLifetimeManager<UserUpdatesHub> userUpdateHub,
             IServiceScopeFactory serviceScopeFactory, ILogger<RabbitMQService> logger) {
             _bus = bus;
-            _hub = hub;
+            _audioProcessingHub = audioProcessingHub;
+            _userUpdateHub = userUpdateHub;
             _logger = logger;
 
             _subscriber = new AutoSubscriber(_bus, "_applications_subscriptionId_prefix");
@@ -33,10 +36,19 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<RealtimeUpdateMessage>(
                     "podnoms_message_realtimeupdate",
                     message => {
-                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Data}");
-                        _hub.SendUserAsync(
+                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Message}");
+                        _userUpdateHub.SendUserAsync(
                             message.UserId,
-                            message.ChannelName, //userId, 
+                            message.ChannelName,
+                            new object[] {message});
+                    });
+                _bus.PubSub.Subscribe<ProcessingUpdateMessage>(
+                    "podnoms_message_audioprocessing",
+                    message => {
+                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Data}");
+                        _audioProcessingHub.SendUserAsync(
+                            message.UserId,
+                            message.ChannelName,
                             new[] {message.Data});
                     });
                 _bus.PubSub.Subscribe<NotifyUserMessage>(

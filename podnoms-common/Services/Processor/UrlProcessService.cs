@@ -84,8 +84,10 @@ namespace PodNoms.Common.Services.Processor {
             var fileType = await _youTubeParser.GetUrlType(url);
             // so at this point - it will be a playlist whether it's a channel, user or a playlist
             _logger.LogInformation($"Validating Url: {url}");
-
-            if (fileType == RemoteUrlType.Invalid) {
+            if (firstPass == UrlType.YtDl && fileType == RemoteUrlType.Invalid) {
+                //we have a ytdl URL that can't be parsed using youtube
+                fileType = RemoteUrlType.SingleItem;
+            }else if (fileType == RemoteUrlType.Invalid) {
                 //call on the audio downloader to validate the URL
                 //this is kind of a last resort as it spawns a youtube-dl process 
                 //and we don't want to call it too often
@@ -287,7 +289,7 @@ namespace PodNoms.Common.Services.Processor {
 
                 return true;
             } catch (Exception ex) {
-                _logger.LogError($"Entry: {entryId}\n{ex.Message}");
+                _logger.LogError($"Entry: {entryId}\n{ex.Message}\n\n\n{ex.StackTrace}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
                 await _unitOfWork.CompleteAsync();

@@ -19,6 +19,7 @@ namespace PodNoms.Common.Services.Jobs {
                 RecurringJob.AddOrUpdate<CheckItemImagesJob>(x => x.Execute(null), Cron.Yearly(1));
 
                 // RecurringJob.AddOrUpdate<DebugJobby>(x => x.Execute(null), Cron.Yearly(1));
+                RecurringJob.AddOrUpdate<DebugUserUpdateJob>(x => x.Execute(null), Cron.Yearly(1));
             }
         }
     }

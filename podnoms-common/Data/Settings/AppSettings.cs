@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
+        public string DebugUserId { get; set; }
         public string ApiUrl { get; set; }
         public string RealtimeUrl { get; set; }
         public string SiteUrl { get; set; }
