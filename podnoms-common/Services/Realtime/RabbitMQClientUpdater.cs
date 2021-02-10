@@ -17,7 +17,7 @@ namespace PodNoms.Common.Services.Realtime {
         }
 
         public async Task<bool> SendProcessUpdate(string authToken, string channelName, object data) {
-            var message = new RealtimeUpdateMessage {
+            var message = new ProcessingUpdateMessage {
                 UserId = authToken,
                 ChannelName = channelName,
                 Data = data

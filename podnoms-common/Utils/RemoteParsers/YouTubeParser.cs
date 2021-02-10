@@ -47,7 +47,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         const string URL_REGEX = @"^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+";
 
         private readonly IHttpClientFactory _httpFactory;
-        private readonly ExternalServiceRequestLogger _serviceRequestLogger;
+        private readonly IExternalServiceRequestLogger _serviceRequestLogger;
         private readonly ILogger<YouTubeParser> _logger;
         private readonly IApiKeyRepository _keyRepository;
 
@@ -56,7 +56,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             ILogger<YouTubeParser> logger,
             IApiKeyRepository keyRepository,
             IHttpClientFactory httpFactory,
-            ExternalServiceRequestLogger serviceRequestLogger) {
+            IExternalServiceRequestLogger serviceRequestLogger) {
             _logger = logger;
             _keyRepository = keyRepository;
             _httpFactory = httpFactory;

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.UrlParsers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -129,16 +130,22 @@ namespace PodNoms.Api.Controllers {
             //we're adding a new entry
             //TODO: This should return the properties bundle
             //with the status as a member
-            var status = await _processor.GetInformation(entry, this.UserId);
-            if (status != RemoteUrlType.Invalid) {
+            var parser = new UrlTypeParser();
+            var urlType = await parser.GetUrlType(entry.SourceUrl);
+
+            if (!urlType.Equals(UrlType.Invalid) &&
+                !urlType.Equals(UrlType.Playlist) &&
+                !urlType.Equals(UrlType.Channel)) {
                 // check user quota
                 var result = await _preProcessor.PreProcessEntry(
                     _applicationUser,
                     entry);
-                if (result == EntryProcessResult.QuotaExceeded) {
-                    return StatusCode(402);
-                } else if (result == EntryProcessResult.GeneralFailure) {
-                    return BadRequest();
+                
+                switch (result) {
+                    case EntryProcessResult.QuotaExceeded:
+                        return StatusCode(402);
+                    case EntryProcessResult.GeneralFailure:
+                        return BadRequest();
                 }
 
                 _repository.GetContext()
@@ -147,11 +154,9 @@ namespace PodNoms.Api.Controllers {
 
                 entry = await _repository.GetAsync(entry.Id);
                 return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
-
             }
 
-            if ((status == RemoteUrlType.Playlist && _youTubeParser.ValidateUrl(item.SourceUrl)) ||
-                MixcloudParser.ValidateUrl(item.SourceUrl)) {
+            if (urlType.Equals(UrlType.Playlist)) {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);
@@ -173,6 +178,7 @@ namespace PodNoms.Api.Controllers {
                 _logger.LogError("Error deleting entries");
                 _logger.LogError(ex.Message);
             }
+
             return BadRequest("Unable to delete entries");
         }
 
@@ -187,6 +193,7 @@ namespace PodNoms.Api.Controllers {
                 _logger.LogError("Error deleting entry");
                 _logger.LogError(ex.Message);
             }
+
             return BadRequest("Unable to delete entry");
         }
 

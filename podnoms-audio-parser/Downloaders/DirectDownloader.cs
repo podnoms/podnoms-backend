@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using PodNoms.AudioParsing.Helpers;
 using YoutubeDLSharp.Metadata;
@@ -13,13 +12,19 @@ namespace PodNoms.AudioParsing.Downloaders {
         public event Action<object, string> OnOutput;
         public event Action<object, string> OnError;
 
-        public async Task<string> DownloadFromUrl(string url, string outputFile, string callbackUrl, Dictionary<string, string> args) {
+        public async Task<string> DownloadFromUrl(string url, string outputFile, string callbackUrl,
+            Dictionary<string, string> args) {
             var result = await HttpHelper.DownloadFile(url, outputFile);
             return result;
         }
 
-        public Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args) {
-            throw new System.NotImplementedException();
+        public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args = null) {
+            var result = new VideoData {
+                Title = new Uri(url).Segments[^1],
+                Description = string.Empty,
+                Thumbnail = "https://cdn.podnoms.com/static/images/default-entry.png"
+            };
+            return await Task.FromResult(result);
         }
     }
 }

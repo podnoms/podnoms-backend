@@ -27,12 +27,6 @@ namespace PodNoms.Api.Controllers {
             this._downloader = downloader;
         }
 
-        [HttpGet("_v")]
-        [AllowAnonymous]
-        public async Task<ActionResult<RemoteUrlStatus>> ValidateUrlPublic([FromQuery] string url) {
-            return await ValidateUrl(url);
-        }
-
         [HttpGet("validate")]
         public async Task<ActionResult<RemoteUrlStatus>> ValidateUrl([FromQuery] string url,
             [FromQuery] bool deep = false) {

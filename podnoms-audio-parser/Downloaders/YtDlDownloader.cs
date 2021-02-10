@@ -14,14 +14,11 @@ namespace PodNoms.AudioParsing.Downloaders {
         public event Action<object, string> OnOutput;
         public event Action<object, string> OnError;
 
-        public async Task<string> DownloadFromUrl(string url,  string outputFile, string callbackUrl, Dictionary<string, string> args) {
-            var ytdl = new YoutubeDLProcess(args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl");
-            ytdl.OutputReceived += (s, e) => {
-                this.OnOutput(s, e.Data);
-            };
-            ytdl.ErrorReceived += (s, e) => {
-                this.OnError(s, e.Data);
-            };
+        public async Task<string> DownloadFromUrl(string url, string outputFile,
+            string callbackUrl, Dictionary<string, string> args) {
+            var ytdl = new YoutubeDLProcess(args != null && args.ContainsKey("Downloader")
+                ? args["Downloader"]
+                : "youtube-dl");
 
             var options = new OptionSet() {
                 Output = outputFile,
@@ -34,10 +31,10 @@ namespace PodNoms.AudioParsing.Downloaders {
             return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
-        public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args) {
+        public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args = null) {
             var ytdl = new YoutubeDL() {
-                YoutubeDLPath = args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
-                FFmpegPath = args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
+                YoutubeDLPath = args != null && args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
+                FFmpegPath = args != null && args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
                 OutputFolder = Path.GetTempPath(),
             };
 

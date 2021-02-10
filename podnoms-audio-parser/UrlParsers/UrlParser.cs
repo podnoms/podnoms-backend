@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using PodNoms.AudioParsing.Downloaders;
 
 namespace PodNoms.AudioParsing.UrlParsers {
     /// <summary>
@@ -28,6 +30,20 @@ namespace PodNoms.AudioParsing.UrlParsers {
                 return UrlType.YtDl;
 
             return UrlType.PageParser;
+        }
+
+        public async Task<IDownloader> GetDownloader(string url) {
+            var type = await GetUrlType(url);
+            switch (type) {
+                case UrlType.Direct:
+                    return new DirectDownloader();
+                case UrlType.YouTube:
+                    return new YouTubeDownloader();
+                case UrlType.YtDl:
+                    return new YtDlDownloader();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }
