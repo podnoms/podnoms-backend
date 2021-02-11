@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using CommandLine;
 using PodNoms.AudioParsing.Downloaders;
@@ -39,7 +38,7 @@ namespace PodNoms.AudioParsing {
             //perform the appropriate processing
             switch (urlType) {
                 case UrlType.Direct:
-                    outputFile = await new DirectDownloader().DownloadFromUrl(url, outputFile, callbackUrl, null);
+                    outputFile = await new DirectDownloader().DownloadFromUrl(url, outputFile);
                     break;
                 default:
                     throw new UnknownUrlTypeException($"URL: {url}\n\tcannot be processed");

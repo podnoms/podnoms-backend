@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.Audio;
@@ -14,7 +15,7 @@ using PodNoms.Common.Services.Hubs;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils;
-using PodNoms.Data.Enums;
+using ProcessingStatus = PodNoms.Data.Enums.ProcessingStatus;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ConvertUrlToMp3Service : AbstractHostedJob {
@@ -91,7 +92,7 @@ namespace PodNoms.Common.Services.Jobs {
                         TotalSize = t.ToString()
                     }) {
                         Progress = "Caching",
-                        ProcessingStatus = ProcessingStatus.Uploading
+                        ProcessingStatus = ProcessingStatus.Uploading.ToString()
                     };
                     await connection.InvokeAsync("SendMessage", processId, "processing", progress);
                 }
@@ -99,7 +100,7 @@ namespace PodNoms.Common.Services.Jobs {
             var message = new ProcessingProgress(null) {
                 Payload = Flurl.Url.Combine(_storageSettings.CdnUrl, "public", cdnFilename),
                 Progress = "Processed",
-                ProcessingStatus = ProcessingStatus.Processed
+                ProcessingStatus = ProcessingStatus.Processed.ToString()
             };
             await connection.InvokeAsync("SendMessage", processId, "processing", message);
             return true;

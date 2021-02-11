@@ -29,8 +29,13 @@ namespace PodNoms.Common.Services.Processor {
                     return string.Empty;
                 var extension = await HttpUtils.GetUrlExtension(imageUrl);
 
+
                 if (!extension.Equals("jpg")) {
-                    (sourceFile, extension) = ImageUtils.ConvertFile(sourceFile, sourceFile, "jpg");
+                    if (extension.Equals("webp")) {
+                        (sourceFile, extension) = await ImageUtils.ConvertFileFromWebp(sourceFile, sourceFile, "jpg");
+                    } else {
+                        (sourceFile, extension) = await ImageUtils.ConvertFile(sourceFile, sourceFile, "jpg");
+                    }
                 }
 
                 var remoteFile = await _fileUploader.UploadFile(

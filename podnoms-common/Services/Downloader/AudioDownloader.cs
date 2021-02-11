@@ -10,17 +10,20 @@ using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.ErrorHandling;
+using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
+using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
-using PodNoms.Data.Enums;
 using YoutubeDLSharp.Metadata;
+using ProcessingStatus = PodNoms.Data.Enums.ProcessingStatus;
 
 
 namespace PodNoms.Common.Services.Downloader {
     public class AudioDownloader {
         private readonly IYouTubeParser _youTubeParser;
+        private readonly IRealTimeUpdater _clientUpdater;
         private readonly IDownloader _downloader;
         private readonly ILogger<AudioDownloader> _logger;
 
@@ -31,17 +34,15 @@ namespace PodNoms.Common.Services.Downloader {
         public RemoteVideoInfo Properties { get; set; }
         public VideoData RawProperties { get; private set; }
 
-        private const string DOWNLOADRATESTRING = "iB/s";
-        private const string DOWNLOADSIZESTRING = "iB";
-        protected const string OFSTRING = "of";
         private readonly HelpersSettings _helpersSettings;
 
         public event EventHandler<ProcessingProgress> DownloadProgress;
 
         public AudioDownloader(IYouTubeParser youTubeParser, IOptions<HelpersSettings> helpersSettings,
-            IDownloader downloader, ILogger<AudioDownloader> logger) {
+            IRealTimeUpdater clientUpdater, IDownloader downloader, ILogger<AudioDownloader> logger) {
             _helpersSettings = helpersSettings.Value;
             _youTubeParser = youTubeParser;
+            _clientUpdater = clientUpdater;
             _downloader = downloader;
             _logger = logger;
         }
@@ -145,7 +146,7 @@ namespace PodNoms.Common.Services.Downloader {
             }
         }
 
-        public async Task<string> DownloadAudio(string id, string url, string outputFile = "") {
+        public async Task<string> DownloadAudio(string id, string url, string userId, string outputFile = "") {
             if (string.IsNullOrEmpty(outputFile)) {
                 outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             }
@@ -154,59 +155,20 @@ namespace PodNoms.Common.Services.Downloader {
                 return _downloadFileDirect(url, outputFile);
             }
 
-            _downloader.OnError += (sender, output) => {
-                _logger.LogError($"YTERR: {output}");
-            };
-            _downloader.OnOutput += (sender, output) => {
-                _logger.LogError($"YTERR: {output}");
-                if (output.Contains("%")) {
-                    try {
-                        var progress = _parseProgress(output);
-                        DownloadProgress?.Invoke(this, progress);
-                    } catch (Exception ex) {
-                        _logger.LogError($"Error parsing progress {ex.Message}");
-                    }
-                } else {
-                    DownloadProgress?.Invoke(this, new ProcessingProgress(null) {
-                        ProcessingStatus = ProcessingStatus.Converting,
-                        Progress = _statusLineToNarrative(output)
-                    });
-                }
-            };
-            outputFile = await _downloader.DownloadFromUrl(url, outputFile, string.Empty, new Dictionary<string, string> {
-                {"Downloader", _helpersSettings.Downloader},
-                {"FFMPeg", _helpersSettings.Downloader}
-            });
-            return File.Exists(outputFile) ? outputFile : string.Empty;
-        }
 
-        private static string _statusLineToNarrative(string output) =>
-            output.Contains(":") ? output.Split(':')[1] : "Converting (this may take a bit)";
+            _logger.LogInformation(
+                $"Initiating download of ${url}\n\tTo: {outputFile}\n\tUsing: {_helpersSettings.Downloader}");
 
-        private static ProcessingProgress _parseProgress(string output) {
-            var result = new ProcessingProgress(
-                new TransferProgress()) {
-                ProcessingStatus = ProcessingStatus.Downloading
-            };
-
-            var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
-            var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
-            ((TransferProgress)result.Payload).Percentage = (int)Math.Round(double.Parse(progressString));
-
-            var sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal)) + 1;
-            var sizeString = output.Substring(sizeIndex,
-                output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal) - sizeIndex + 2);
-            ((TransferProgress)result.Payload).TotalSize = sizeString;
-
-            if (output.Contains(DOWNLOADRATESTRING)) {
-                var rateIndex =
-                    output.LastIndexOf(' ', output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal)) + 1;
-                var rateString = output.Substring(rateIndex,
-                    output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
-                result.Progress = rateString;
+            async Task<bool> ProgressCallback(ProcessingProgress progress) {
+                var result = await _clientUpdater.SendProcessUpdate(userId, id, progress);
+                return result;
             }
 
-            return result;
+            outputFile = await _downloader.DownloadFromUrl(url, outputFile, new Dictionary<string, string> {
+                {"Downloader", _helpersSettings.Downloader},
+                {"FFMPeg", _helpersSettings.FFMPeg}
+            }, string.IsNullOrEmpty(userId) ? null : ProgressCallback);
+            return File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
         private string _downloadFileDirect(string url, string fileName) {

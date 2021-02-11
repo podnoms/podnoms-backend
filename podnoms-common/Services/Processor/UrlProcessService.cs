@@ -5,6 +5,7 @@ using AutoMapper;
 using k8s.Models;
 using Microsoft.Extensions.Logging;
 using PodNoms.AudioParsing.Downloaders;
+using PodNoms.AudioParsing.Models;
 using PodNoms.AudioParsing.UrlParsers;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -315,7 +316,7 @@ namespace PodNoms.Common.Services.Processor {
                     entry.Podcast.AppUser.Id.ToString(),
                     entry.Id.ToString(),
                     new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
-                        ProcessingStatus = ProcessingStatus.Processing
+                        ProcessingStatus = ProcessingStatus.Processing.ToString()
                     }
                 );
 
@@ -334,6 +335,7 @@ namespace PodNoms.Common.Services.Processor {
                 var sourceFile = await _downloader.DownloadAudio(
                     entry.Id.ToString(),
                     entry.SourceUrl,
+                    entry.Podcast.AppUserId,
                     outputFile);
 
                 if (string.IsNullOrEmpty(sourceFile)) return false;
@@ -351,7 +353,7 @@ namespace PodNoms.Common.Services.Processor {
                     entry.Podcast.AppUser.Id,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
-                        ProcessingStatus = ProcessingStatus.Failed
+                        ProcessingStatus = ProcessingStatus.Failed.ToString()
                     }
                 );
             }
@@ -364,7 +366,7 @@ namespace PodNoms.Common.Services.Processor {
             _downloader.DownloadProgress += (s, e) => {
                 progressCallback(e);
             };
-            var sourceFile = await _downloader.DownloadAudio(outputId, url, outputFile);
+            var sourceFile = await _downloader.DownloadAudio(outputId, url, string.Empty, outputFile);
             return true;
         }
     }

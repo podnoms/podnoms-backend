@@ -27,11 +27,12 @@ namespace PodNoms.Api.Controllers {
         public readonly IFileUploader _fileUploader;
         private readonly StorageSettings _storageSettings;
 
-        public ImageUploadController(IPodcastRepository repository, IEntryRepository entryRepository, IUnitOfWork unitOfWork,
+        public ImageUploadController(IPodcastRepository repository, IEntryRepository entryRepository,
+            IUnitOfWork unitOfWork,
             IFileUploader fileUploader, IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-
+            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _fileUploader = fileUploader;
             _storageSettings = storageSettings.Value;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
@@ -78,6 +79,7 @@ namespace PodNoms.Api.Controllers {
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpPost("/profile/{id}/imageupload")]
         public async Task<ActionResult<ProfileViewModel>> UploadProfileImage(string id, IFormFile image) {
             var imageFile = await _commitImage(id, image, "profile");
@@ -85,22 +87,26 @@ namespace PodNoms.Api.Controllers {
             await _userManager.UpdateAsync(_applicationUser);
             return Ok(_mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser));
         }
+
         private async Task<string> _commitImage(string id, IFormFile image, string subDirectory) {
             if (image is null) {
                 throw new InvalidOperationException("Image in stream is null");
             }
+
             if (image is null || image.Length == 0) {
                 throw new InvalidOperationException("Image in stream has zero length");
             }
+
             if (image.Length > _imageFileStorageSettings.MaxUploadFileSize) {
                 throw new InvalidOperationException("Maximum file size exceeded");
             }
+
             if (!_imageFileStorageSettings.IsSupported(image.FileName)) {
                 throw new InvalidOperationException("Invalid file type");
             }
 
             var cacheFile = await CachedFormFileStorage.CacheItem(System.IO.Path.GetTempPath(), image);
-            (var finishedFile, var extension) = ImageUtils.ConvertFile(cacheFile, id);
+            var (finishedFile, extension) = await ImageUtils.ConvertFile(cacheFile, id);
             var destinationFile = $"{subDirectory}/{id}.{extension}";
 
             await _fileUploader.UploadFile(

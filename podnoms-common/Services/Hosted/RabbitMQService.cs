@@ -70,16 +70,15 @@ namespace PodNoms.Common.Services.Hosted {
                     "podnoms_message_customnotification",
                     message => {
                         _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
-                        using (var scope = serviceScopeFactory.CreateScope()) {
-                            var service =
-                                scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
-                            service.SendCustomNotifications(
-                                message.PodcastId,
-                                "YOU NEED TO CHANGE THIS",
-                                "PodNoms",
-                                $"{message.Title} has finished processing",
-                                message.Url);
-                        }
+                        using var scope = serviceScopeFactory.CreateScope();
+                        var service =
+                            scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
+                        service.SendCustomNotifications(
+                            message.PodcastId,
+                            "YOU NEED TO CHANGE THIS",
+                            "PodNoms",
+                            $"{message.Title} has finished processing",
+                            message.Url);
                     }
                 );
             } catch (Exception e) {

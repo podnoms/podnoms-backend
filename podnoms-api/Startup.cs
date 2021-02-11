@@ -129,7 +129,7 @@ namespace PodNoms.Api {
                 //the query service is orders of magnitude faster than the API 
                 //but it will get rate limited if we use it on the job server
                 .AddTransient<IYouTubeParser, YouTubeParser>()
-                .AddTransient<IRealTimeUpdater, SignalRUpdater>()
+                .AddTransient<IRealTimeUpdater, RabbitMQClientUpdater>()
                 .AddScoped<RssFeedParser>()
                 .AddScoped<UserLoggingFilter>()
                 .AddScoped<ISupportChatService, SupportChatService>()

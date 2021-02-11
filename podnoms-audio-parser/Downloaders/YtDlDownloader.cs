@@ -5,27 +5,69 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using PodNoms.AudioParsing.ErrorHandling;
 using PodNoms.AudioParsing.Helpers;
+using PodNoms.AudioParsing.Models;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 
 namespace PodNoms.AudioParsing.Downloaders {
     public class YtDlDownloader : IDownloader {
-        public event Action<object, string> OnOutput;
-        public event Action<object, string> OnError;
+        private const string DOWNLOADRATESTRING = "iB/s";
+        private const string DOWNLOADSIZESTRING = "iB";
+        protected const string OFSTRING = "of";
 
-        public async Task<string> DownloadFromUrl(string url, string outputFile,
-            string callbackUrl, Dictionary<string, string> args) {
+        private static ProcessingProgress _parseProgress(string output) {
+            var result = new ProcessingProgress(
+                new TransferProgress()) {
+                ProcessingStatus = "Downloading"
+            };
+            try {
+                var progressIndex = output.LastIndexOf(' ', output.IndexOf('%')) + 1;
+                var progressString = output.Substring(progressIndex, output.IndexOf('%') - progressIndex);
+                ((TransferProgress)result.Payload).Percentage = (int)Math.Round(double.Parse(progressString));
+
+                var sizeIndex = output.LastIndexOf(' ', output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal)) +
+                                1;
+                var sizeString = output.Substring(sizeIndex,
+                    output.IndexOf(DOWNLOADSIZESTRING, StringComparison.Ordinal) - sizeIndex + 2);
+                ((TransferProgress)result.Payload).TotalSize = sizeString;
+
+                if (!output.Contains(DOWNLOADRATESTRING)) {
+                    return result;
+                }
+
+                var rateIndex =
+                    output.LastIndexOf(' ', output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal)) + 1;
+                var rateString = output.Substring(rateIndex,
+                    output.LastIndexOf(DOWNLOADRATESTRING, StringComparison.Ordinal) - rateIndex + 4);
+                result.Progress = rateString;
+            } catch (Exception) {
+                // ignored
+            }
+
+            return result;
+        }
+
+        public async Task<string> DownloadFromUrl(string url, string outputFile, Dictionary<string, string> args = null,
+            Func<ProcessingProgress, Task<bool>> progressCallback = null) {
             var ytdl = new YoutubeDLProcess(args != null && args.ContainsKey("Downloader")
                 ? args["Downloader"]
                 : "youtube-dl");
 
             var options = new OptionSet() {
-                Output = outputFile,
+                Output = outputFile.ReplaceEnd("mp3", "%(ext)s"),
                 ExtractAudio = true,
                 AudioFormat = AudioConversionFormat.Mp3,
                 AudioQuality = 0,
             };
+
+            if (progressCallback != null) {
+                ytdl.OutputReceived += (sender, eventArgs) => {
+                    var progress = _parseProgress(eventArgs.Data);
+                    progressCallback(progress);
+                };
+            }
+
             var result = await ytdl.RunAsync(new string[] {url}, options);
 
             return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;

@@ -25,6 +25,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IAudioUploadProcessService _uploadService;
         private readonly AudioFileStorageSettings _audioStorageSettings;
         private readonly ILogger<ProcessMissingPodcastsJob> _logger;
+
         public ProcessMissingPodcastsJob(
             IOptions<AudioFileStorageSettings> audioStorageSettings,
             ILogger<ProcessMissingPodcastsJob> logger,
@@ -62,6 +63,7 @@ namespace PodNoms.Common.Services.Jobs {
                 await _process(entry.Id, entry.AudioUrl, true);
                 return true;
             }
+
             Log($"ExecuteForEntry: failed to locate {entryId}");
             return false;
         }
@@ -87,16 +89,18 @@ namespace PodNoms.Common.Services.Jobs {
                         LogError($"Error processing item: {entry.Id}", e);
                     }
                 }
+
                 return true;
             } catch (Exception e) {
                 LogError($"Fatal error in ProcessFailedPodcastsJob", e);
             }
+
             return false;
         }
 
         private async Task _process(Guid entryId, string audioUrl, bool forceReprocess = false) {
             var audioExists = !string.IsNullOrEmpty(audioUrl) &&
-                    await _fileUtils.CheckFileExists(audioUrl.Split('/')[0], audioUrl.Split('/')[1]);
+                              await _fileUtils.CheckFileExists(audioUrl.Split('/')[0], audioUrl.Split('/')[1]);
             if (!audioExists || forceReprocess) {
                 //TODO: This is all largely a duplicate of ProcessEntryJob, should call into that...
                 Log($"_process: Missing audio for: {entryId}");
@@ -109,6 +113,7 @@ namespace PodNoms.Common.Services.Jobs {
                     if (!uploaded) {
                         LogError($"Error uploading audio from {entryId}");
                     }
+
                     Log($"_process: Generating waveform for: {entryId}");
                     var (dat, json, png) = await _waveFormGenerator.GenerateWaveformLocalFile(localFile);
                     if (!File.Exists(json)) {
@@ -123,6 +128,7 @@ namespace PodNoms.Common.Services.Jobs {
                             null);
                         Log($"_process: Uploaded waveform for: {entryId}\n\tResult: {result}");
                     }
+
                     Log($"_process: Completed processing of: {entryId}");
                 } else {
                     LogError($"_process: Unable to process podcast entry: {entryId}");

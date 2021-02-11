@@ -27,10 +27,6 @@ namespace PodNoms.Jobs.Services {
                 Image = image
             };
             await _bus.PubSub.PublishAsync(message).ContinueWith(task => {
-                if (task.IsCompleted && !task.IsFaulted) {
-                    _logger.LogDebug("Successfully sent custom notification");
-                }
-
                 if (task.IsFaulted) {
                     _logger.LogError($"Unable to publish custom notification.\n{task.Exception}");
                 }

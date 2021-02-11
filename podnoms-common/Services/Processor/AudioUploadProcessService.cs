@@ -6,6 +6,7 @@ using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
@@ -38,27 +39,24 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<bool> UploadAudio(Guid entryId, string localFile) {
-
             _logger.LogInformation($"Starting to upload audio for {entryId} - {localFile}");
-
             var entry = await _repository.GetAsync(entryId);
             if (entry == null) {
                 _logger.LogError($"Unable to find entry with id: {entryId.ToString()}");
                 return false;
             }
+
             var userId = entry.Podcast.AppUser.Id.ToString();
 
             entry.ProcessingStatus = ProcessingStatus.Uploading;
             await _sendProgressUpdate(
-                    userId,
-                    entry.Id.ToString(),
-                    new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
-                        ProcessingStatus = ProcessingStatus.Uploading
-                    });
-            if (entry is null) {
-                _logger.LogError($"Unable to find entry with id: {entryId}");
-                return false;
-            }
+                userId,
+                entry.Id.ToString(),
+                new ProcessingProgress(
+                    _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
+                    ProcessingStatus = ProcessingStatus.Uploading.ToString()
+                }
+            );
 
             await _unitOfWork.CompleteAsync();
             _logger.LogInformation($"Updated item status {entryId} - {localFile}");
@@ -78,23 +76,25 @@ namespace PodNoms.Common.Services.Processor {
                         fileName,
                         "application/mpeg",
                         async (p, t) => {
-                            if (p % 1 == 0) {
-                                try {
-                                    await _sendProgressUpdate(
-                                        userId,
-                                        entry.Id.ToString(),
-                                        new ProcessingProgress(new TransferProgress {
-                                            Percentage = p,
-                                            TotalSize = t.ToString()
-                                        }) {
-                                            ProcessingStatus = ProcessingStatus.Uploading
-                                        });
-                                } catch (Exception e) {
-                                    _logger.LogError($"Error sending progress update.\n\t{e.Message}");
-                                    _logger.LogError($"p:\np\n\n\n");
-                                    _logger.LogError($"t:\n{ObjectDumper.Dump(t)}\n\n\n");
-                                    _logger.LogError(ObjectDumper.Dump(entry));
-                                }
+                            if (p % 1 != 0) {
+                                return;
+                            }
+
+                            try {
+                                await _sendProgressUpdate(
+                                    userId,
+                                    entry.Id.ToString(),
+                                    new ProcessingProgress(new TransferProgress {
+                                        Percentage = p,
+                                        TotalSize = t.ToString()
+                                    }) {
+                                        ProcessingStatus = ProcessingStatus.Uploading.ToString()
+                                    });
+                            } catch (Exception e) {
+                                _logger.LogError($"Error sending progress update.\n\t{e.Message}");
+                                _logger.LogError($"p:\np\n\n\n");
+                                _logger.LogError($"t:\n{ObjectDumper.Dump(t)}\n\n\n");
+                                _logger.LogError(ObjectDumper.Dump(entry));
                             }
                         });
                     entry.Processed = true;
@@ -108,7 +108,7 @@ namespace PodNoms.Common.Services.Processor {
                         userId,
                         entry.Id.ToString(),
                         new ProcessingProgress(entry) {
-                            ProcessingStatus = ProcessingStatus.Processed,
+                            ProcessingStatus = ProcessingStatus.Processed.ToString(),
                             Payload = vm
                         });
                     return true;
@@ -122,7 +122,7 @@ namespace PodNoms.Common.Services.Processor {
                     userId,
                     entry.Id.ToString(),
                     new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
-                        ProcessingStatus = ProcessingStatus.Failed
+                        ProcessingStatus = ProcessingStatus.Failed.ToString()
                     });
             } catch (Exception ex) {
                 _logger.LogError($"Error uploading audio file: {ex.Message}");
@@ -133,9 +133,10 @@ namespace PodNoms.Common.Services.Processor {
                     userId,
                     entry.Id.ToString(),
                     new ProcessingProgress(entry) {
-                        ProcessingStatus = ProcessingStatus.Failed
+                        ProcessingStatus = ProcessingStatus.Failed.ToString()
                     });
             }
+
             return false;
         }
     }

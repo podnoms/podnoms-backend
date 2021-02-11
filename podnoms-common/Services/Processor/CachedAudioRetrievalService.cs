@@ -10,6 +10,7 @@ using PodNoms.Common.Services.Realtime;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Data.ViewModels;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Utils.Extensions;
 
@@ -42,7 +43,7 @@ namespace PodNoms.Common.Services.Processor {
                 authToken,
                 entry.Id.ToString(),
                 new ProcessingProgress(entry) {
-                    ProcessingStatus = ProcessingStatus.Converting,
+                    ProcessingStatus = ProcessingStatus.Converting.ToString(),
                     Progress = "Retrieving cached file"
                 });
             string cacheFile = Path.Combine(
@@ -81,7 +82,7 @@ namespace PodNoms.Common.Services.Processor {
                                     authToken,
                                     entry.Id.ToString(),
                                     new ProcessingProgress(entry) {
-                                        ProcessingStatus = ProcessingStatus.Caching,
+                                        ProcessingStatus = ProcessingStatus.Caching.ToString(),
                                         Progress = "Retrieving cached file",
                                         Payload = new TransferProgress {
                                             Percentage = percentDone,
@@ -100,7 +101,7 @@ namespace PodNoms.Common.Services.Processor {
                 authToken,
                 entry.Id.ToString(),
                 new ProcessingProgress(entry) {
-                    ProcessingStatus = ProcessingStatus.Processing,
+                    ProcessingStatus = ProcessingStatus.Processing.ToString(),
                     Progress = "Retrieved cached file"
                 });
             return cacheFile;

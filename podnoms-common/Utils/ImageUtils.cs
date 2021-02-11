@@ -2,10 +2,10 @@
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ImageMagick;
 using Newtonsoft.Json;
 using PodNoms.Common.Data.ViewModels.Remote;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace PodNoms.Common.Utils {
@@ -29,32 +29,45 @@ namespace PodNoms.Common.Utils {
             return $"{type}/image-{Randomisers.RandomInteger(1, upperBound)}.{extension}";
         }
 
-        public static (string, string) ConvertFile(string file, string prefix, string outputType = "jpg") {
+        public static async Task<(string, string)> ConvertFileFromWebp(string file, string prefix,
+            string outputType = "jpg") {
+            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}.{outputType}");
+
+            if (File.Exists(outputFile))
+                File.Delete(outputFile);
+
+
+            using var image = new MagickImage(file);
+            // Save frame as jpg
+            await image.WriteAsync(
+                new FileStream(outputFile, FileMode.CreateNew),
+                MagickFormat.Jpeg
+            );
+            return (outputFile, outputType);
+        }
+
+        public static async Task<(string, string)> ConvertFile(string file, string prefix, string outputType = "jpg") {
             // return (cacheFile, "jpg");
             var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}.{outputType}");
             if (File.Exists(outputFile))
                 File.Delete(outputFile);
 
-            using (var image = Image.Load(file)) {
-                // remove this for now. Should ensure that source images are the correct size
-                // image.Mutate(x => x
-                //     .Resize(1400, 1400));
-                using (var outputStream = new FileStream(outputFile, FileMode.CreateNew)) {
-                    switch (outputType.ToLower()) {
-                        case "jpg":
-                            image.SaveAsJpeg(outputStream);
-                            break;
-                        case "gif":
-                            image.SaveAsGif(outputStream);
-                            break;
-                        case "bmp":
-                            image.SaveAsBmp(outputStream);
-                            break;
-                        default:
-                            image.SaveAsPng(outputStream);
-                            break;
-                    }
-                }
+            using var image = await Image.LoadAsync(file);
+
+            await using var outputStream = new FileStream(outputFile, FileMode.CreateNew);
+            switch (outputType.ToLower()) {
+                case "jpg":
+                    await image.SaveAsJpegAsync(outputStream);
+                    break;
+                case "gif":
+                    await image.SaveAsGifAsync(outputStream);
+                    break;
+                case "bmp":
+                    await image.SaveAsBmpAsync(outputStream);
+                    break;
+                default:
+                    await image.SaveAsPngAsync(outputStream);
+                    break;
             }
 
             return (outputFile, outputType);
@@ -68,7 +81,7 @@ namespace PodNoms.Common.Utils {
 
             using (var image = Image.Load(cacheFile)) {
                 image.Mutate(x => x
-                   .Resize(width, height));
+                    .Resize(width, height));
                 using (var outputStream = new FileStream(outputFile, FileMode.CreateNew)) {
                     image.SaveAsPng(outputStream);
                 }
@@ -89,6 +102,7 @@ namespace PodNoms.Common.Utils {
                     return base64;
                 }
             }
+
             return string.Empty;
         }
     }

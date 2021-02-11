@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;

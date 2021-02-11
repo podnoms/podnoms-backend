@@ -21,8 +21,7 @@ namespace PodNoms.Tests {
                 var downloader = await new UrlTypeParser().GetDownloader(url);
                 var file = await downloader.DownloadFromUrl(
                     url,
-                    PathHelper.GetTempFileNameWithExtension(".mp3"),
-                    string.Empty);
+                    PathHelper.GetTempFileNameWithExtension(".mp3"));
                 Assert.True(!string.IsNullOrEmpty(file) && File.Exists(file));
             }
         }
@@ -30,8 +29,9 @@ namespace PodNoms.Tests {
         [Fact]
         public async Task YtDl_InvalidLink_FailDownload() {
             var file = await new YtDlDownloader()
-                .DownloadFromUrl(_fixture.PARSEABLE_URL, PathHelper.GetTempFileNameWithExtension(".mp3"), string.Empty,
-                    null);
+                .DownloadFromUrl(
+                    _fixture.PARSEABLE_URL,
+                    PathHelper.GetTempFileNameWithExtension(".mp3"));
 
             Assert.False(!string.IsNullOrEmpty(file) && File.Exists(file));
         }
