@@ -33,7 +33,18 @@ namespace PodNoms.Common.Services.Jobs {
                 Message = "This is a debug message",
                 ImageUrl = "https://www.podnoms.com/assets/img/logo-icon.png"
             };
-            await _bus.PubSub.PublishAsync(message);
+            await _bus.PubSub.PublishAsync(message)
+                .ContinueWith(task => {
+                    _logger.LogInformation("Publish task completed");
+                    if (task.IsCompleted && !task.IsFaulted) {
+                        _logger.LogInformation("Successfully sent custom notification");
+                    }
+
+                    if (task.IsFaulted) {
+                        _logger.LogInformation($"Unable to publish custom notification.\n{task.Exception}");
+                    }
+                });
+            _logger.LogInformation($"Debug message sent to: {_settings.DebugUserId}");
             return true;
         }
     }

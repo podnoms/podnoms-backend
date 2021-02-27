@@ -67,12 +67,7 @@ namespace PodNoms.Api {
             Console.WriteLine($"Connecting to PodNoms db: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddPodNomsDataContext(Configuration);
 
-            Console.WriteLine($"Connecting to RabbitHutch: {Configuration["RabbitMq:ConnectionString"]}");
-            services.AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ConnectionString"]));
-            services.AddSingleton<AutoSubscriber>(provider =>
-                new AutoSubscriber(
-                    provider.GetRequiredService<IBus>(),
-                    Assembly.GetExecutingAssembly().GetName().Name));
+            services.AddPodnomsQueues(Configuration);
 
             Console.WriteLine($"Setting service scopes");
 

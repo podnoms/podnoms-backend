@@ -36,7 +36,8 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<RealtimeUpdateMessage>(
                     "podnoms_message_realtimeupdate",
                     message => {
-                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Message}");
+                        _logger.LogInformation(
+                            $"(RabbitMQService) Consuming: {message.Message}\n\tUser: {message.UserId}");
                         _userUpdateHub.SendUserAsync(
                             message.UserId,
                             message.ChannelName,
@@ -45,7 +46,8 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<ProcessingUpdateMessage>(
                     "podnoms_message_audioprocessing",
                     message => {
-                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Data}");
+                        _logger.LogInformation(
+                            $"(RabbitMQService) Consuming: {message.Data}\n\tUser: {message.UserId}");
                         _audioProcessingHub.SendUserAsync(
                             message.UserId,
                             message.ChannelName,

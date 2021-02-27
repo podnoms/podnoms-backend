@@ -35,6 +35,8 @@ namespace PodNoms.Jobs {
 
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
+            Console.WriteLine($"RabbitMQ Connection:\n\t{Configuration["RabbitMq:ExternalConnectionString"]}");
+            
             services.AddHangfire(options => {
                 options.UseSqlServerStorage(
                     Configuration.GetConnectionString("JobSchedulerConnection"),

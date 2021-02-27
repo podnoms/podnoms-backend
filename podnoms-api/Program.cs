@@ -42,7 +42,7 @@ namespace PodNoms.Api {
 
             var t = builder.UseStartup<Startup>()
                 .UseKestrel(options => {
-                    options.Limits.MaxRequestBodySize = 1073741824;
+                    options.Limits.MaxRequestBodySize = 2147483648; //2GB
                     if (!_isDevelopment) {
                         return;
                     }
