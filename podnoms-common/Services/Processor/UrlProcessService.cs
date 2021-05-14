@@ -57,12 +57,8 @@ namespace PodNoms.Common.Services.Processor {
 
         public async Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId, bool deepParse) {
             var urlType = await new UrlTypeParser().GetUrlType(url.Trim());
-
-
             if (urlType != UrlType.Invalid) {
-                var downloader = await new UrlTypeParser().GetDownloader(url);
-                var info = await downloader.GetVideoInformation(url);
-                if (urlType.Equals(UrlType.YtDl) && string.IsNullOrEmpty(info?.Url)) {
+                if (urlType.Equals(UrlType.PageParser)) {
                     //urlType will be YtDl even if it's not a YtDl parseable link
                     //as the parser is greedy - so if we didn't get any info above we can pass
                     //the request off to the remote page parser
@@ -88,7 +84,8 @@ namespace PodNoms.Common.Services.Processor {
                         };
                     }
                 }
-
+                var downloader = await new UrlTypeParser().GetDownloader(url);
+                var info = await downloader.GetVideoInformation(url);
                 return new RemoteUrlStatus {
                     Type = urlType switch {
                         UrlType.Direct => RemoteUrlType.SingleItem.ToString(),

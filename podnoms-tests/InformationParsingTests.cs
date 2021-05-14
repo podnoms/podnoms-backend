@@ -18,7 +18,7 @@ namespace PodNoms.Tests {
             foreach (var (title, url) in _fixture.TestList) {
                 var downloader = await new UrlTypeParser().GetDownloader(url);
                 var info = await downloader.GetVideoInformation(url);
-                Assert.Equal(title, info.Title);
+                Assert.Equal(title, info.Title);    
             }
         }
 

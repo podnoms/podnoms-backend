@@ -13,7 +13,7 @@ namespace PodNoms.AudioParsing.UrlParsers {
                 //according to this, youtube-dl returns 0 with the above command if we can parse
                 // https://github.com/ytdl-org/youtube-dl/issues/4503#issuecomment-67775061
                 return result.ExitCode.Equals(0);
-            } catch (CommandExecutionException) {
+            } catch (CommandExecutionException e) {
                 return false;
             }
         }

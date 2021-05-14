@@ -34,16 +34,13 @@ namespace PodNoms.AudioParsing.UrlParsers {
 
         public async Task<IDownloader> GetDownloader(string url) {
             var type = await GetUrlType(url);
-            switch (type) {
-                case UrlType.Direct:
-                    return new DirectDownloader();
-                case UrlType.YouTube:
-                    return new YouTubeDownloader();
-                case UrlType.YtDl:
-                    return new YtDlDownloader();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return type switch {
+                UrlType.Direct => new DirectDownloader(),
+                UrlType.YouTube => new YouTubeDownloader(),
+                UrlType.YtDl => new YtDlDownloader(),
+                _ => new YtDlDownloader()
+                // _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }
