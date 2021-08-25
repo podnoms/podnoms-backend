@@ -36,7 +36,7 @@
         <PackageReference Include="LtGt" Version="2.1.0" />
         <PackageReference Include="Magick.NET-Q8-x64" Version="7.23.2" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.16.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.2" />
         <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.2" />
         <PackageReference Include="Google.Apis.YouTube.v3" Version="1.49.0.2225" />
