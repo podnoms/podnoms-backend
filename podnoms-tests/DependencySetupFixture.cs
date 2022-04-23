@@ -10,7 +10,7 @@ using Xunit;
 
 namespace PodNoms.Tests {
     public class DependencySetupFixture {
-        public string ROOT_URL = "https://podnomscdn.blob.core.windows.net/testing/pageparser";
+        public string ROOT_URL = "https://podnoms.blob.core.windows.net/testing/pageparser";
 
         public Dictionary<string, string> YOUTUBE_URLS = new() {
             {"The Countdown Clock", "https://www.youtube.com/watch?v=M2dhD9zR6hk"}
@@ -25,7 +25,7 @@ namespace PodNoms.Tests {
         public Dictionary<string, string> AUDIO_URLS = new() {
             {
                 "7f06901a-d80e-430d-34c4-08d888d6cd8e.mp3",
-                "https://podnomscdn.blob.core.windows.net/audio/7f06901a-d80e-430d-34c4-08d888d6cd8e.mp3"
+                "https://podnoms.blob.core.windows.net/audio/7f06901a-d80e-430d-34c4-08d888d6cd8e.mp3"
             }
         };
 

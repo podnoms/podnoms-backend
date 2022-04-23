@@ -77,7 +77,7 @@ namespace PodNoms.Api.Controllers {
                     return NotFound();
                 }
 
-                var url = $"{_appSettings.RssUrl}{user.Slug}/{podcastSlug}";
+                var url = Flurl.Url.Combine(_appSettings.RssUrl, user.Slug, podcastSlug);
                 return RedirectPermanent(url);
             }
 
@@ -121,6 +121,7 @@ namespace PodNoms.Api.Controllers {
             } catch (NullReferenceException ex) {
                 _logger.LogError(ex, "Error getting RSS", user, userSlug);
             }
+
             return NotFound();
         }
     }

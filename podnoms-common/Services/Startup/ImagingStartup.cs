@@ -27,15 +27,12 @@ namespace PodNoms.Common.Services.Startup {
                 .RemoveProvider<PhysicalFileSystemProvider>()
                 .RemoveProvider<AzureBlobStorageImageProvider>()
                 .AddProvider(AzureProviderFactory)
-                // .AddProvider(PhysicalProviderFactory)
                 .Configure<AzureBlobStorageImageProviderOptions>(options => {
                     options.BlobContainers.Add(new AzureBlobContainerClientOptions {
                         ConnectionString = connectionString,
                         ContainerName = containerName
                     });
                 })
-                // .AddProvider<AzureBlobStorageImageProvider>()
-                // .AddProvider<PhysicalFileSystemProvider>()
                 .AddProcessor<ResizeWebProcessor>();
             return services;
         }
