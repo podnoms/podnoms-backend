@@ -98,7 +98,7 @@ namespace PodNoms.Api.Controllers {
                     Copyright = $"© {DateTime.Now.Year} PodNoms",
                     Owner = $"{user.FirstName} {user.LastName}",
                     OwnerEmail = user.Email,
-                    ShowUrl = $"{_appSettings.SiteUrl}/rss/{user.Slug}/{podcast.Slug}",
+                    ShowUrl = Flurl.Url.Combine(_appSettings.RssUrl, user.Slug, podcast.Slug),
 
                     Items = (
                         from e in podcast.PodcastEntries
