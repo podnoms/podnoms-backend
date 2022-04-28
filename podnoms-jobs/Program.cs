@@ -42,23 +42,25 @@ namespace PodNoms.Jobs {
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<JobsStartup>().UseKestrel(options => {
                         options.Limits.MaxRequestBodySize = 1073741824;
-                        if (_isDevelopment) {
-
-                            var c = new ConfigurationBuilder()
-                                .SetBasePath(Directory.GetCurrentDirectory())
-                                .AddJsonFile("appsettings.Development.json", optional: false)
-                                .AddEnvironmentVariables("ASPNETCORE_")
-                                .Build();
-
-                            var certificate = new X509Certificate2(
-                                c[$"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
-                                c["DevSettings:CertificateSecret"]);
-
-                            options.Listen(IPAddress.Any, 5003, listenOptions => {
-                                listenOptions.UseHttps(certificate);
-                            });
-                            options.Listen(IPAddress.Any, 5002);
+                        if (!_isDevelopment) {
+                            return;
                         }
+
+                        var c = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.Development.json", optional: false)
+                            .AddEnvironmentVariables("ASPNETCORE_")
+                            .Build();
+
+                        var certificate = new X509Certificate2(
+                            c[
+                                $"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
+                            c["DevSettings:CertificateSecret"]);
+
+                        options.Listen(IPAddress.Any, 5003, listenOptions => {
+                            listenOptions.UseHttps(certificate);
+                        });
+                        options.Listen(IPAddress.Any, 5002);
                     });
                 });
     }
