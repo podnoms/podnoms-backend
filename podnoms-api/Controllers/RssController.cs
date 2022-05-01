@@ -78,7 +78,7 @@ namespace PodNoms.Api.Controllers {
                 }
 
                 var url = Flurl.Url.Combine(_appSettings.RssUrl, user.Slug, podcastSlug);
-                return RedirectPermanent(url);
+                return Redirect(url);
             }
 
             var podcast = await _podcastRepository.GetForUserAndSlugAsync(userSlug, podcastSlug);
