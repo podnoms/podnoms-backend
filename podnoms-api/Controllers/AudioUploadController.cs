@@ -83,7 +83,10 @@ namespace PodNoms.Api.Controllers {
             _logger.LogDebug("Completing uow");
             await _unitOfWork.CompleteAsync();
 
-            var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+            var authToken = _httpContextAccessor?.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authToken)) {
+                return Unauthorized("Auth token is empty");
+            }
 
             //convert uploaded file to extension
             var audioUrl = localFile

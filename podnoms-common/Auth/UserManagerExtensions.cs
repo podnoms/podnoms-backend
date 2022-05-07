@@ -6,14 +6,23 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Auth {
     public static class UserManagerExtensions {
-        public static async Task<ApplicationUser> FindBySlugAsync(this UserManager<ApplicationUser> userManager, string slug) {
+        public static async Task<ApplicationUser> FindBySlugAsync(this UserManager<ApplicationUser> userManager,
+            string slug) {
             var user = await userManager.Users.SingleOrDefaultAsync(x => x.Slug == slug);
             return user;
         }
-        public static async Task<ApplicationUser> FindByTwitterHandleAsync(this UserManager<ApplicationUser> userManager, string twitterHandle) {
+
+        public static async Task<ApplicationUser> FindByTwitterHandleAsync(
+            this UserManager<ApplicationUser> userManager, string twitterHandle) {
             var user = await userManager.Users.SingleOrDefaultAsync(x => x.TwitterHandle == twitterHandle);
             return user;
         }
+
+        public static async Task<bool> CheckEmail(this UserManager<ApplicationUser> userManager, string email) {
+            var user = await userManager.FindByEmailAsync(email);
+            return (user is null);
+        }
+
         public static async Task<bool> CheckSlug(this UserManager<ApplicationUser> userManager, string slug) {
             var user = await userManager.Users.SingleOrDefaultAsync(x => x.Slug == slug);
             return (user is null);

@@ -91,6 +91,14 @@ namespace PodNoms.Api.Controllers {
         }
 
         [AllowAnonymous]
+        [HttpGet("checkemail/{email}")]
+        public async Task<ActionResult<bool>> CheckEmail(string email) {
+            var emailValid = await _userManager.CheckEmail(email) ||
+                             (_applicationUser != null && (email.ToLower().Equals(_applicationUser.Email.ToLower())));
+            return Ok(emailValid);
+        }
+
+        [AllowAnonymous]
         [HttpGet("checkslug/{slug}")]
         public async Task<ActionResult<bool>> CheckSlug(string slug) {
             var slugValid = await _userManager.CheckSlug(slug) ||
@@ -127,6 +135,7 @@ namespace PodNoms.Api.Controllers {
             if (newKey == null) {
                 return BadRequest();
             }
+
             newKey.Name = existingKey.Name;
             newKey.DateIssued = DateTime.Today;
             await _issuedApiKeyRepository.DeleteAsync(existingKey.Id);
@@ -140,6 +149,7 @@ namespace PodNoms.Api.Controllers {
             if (!ModelState.IsValid) return BadRequest("Invalid api key model");
             return await _generateApiKey(apiKeyRequest);
         }
+
         private async Task<ApiKeyViewModel> _generateApiKey(ApiKeyViewModel apiKeyRequest) {
             var prefix = ApiKeyGenerator.GetApiKey(7);
             var plainTextKey = $"{prefix}.{ApiKeyGenerator.GetApiKey(128)}";
