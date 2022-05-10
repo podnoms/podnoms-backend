@@ -50,7 +50,7 @@ namespace PodNoms.Common.Data {
                 )
                 .ForMember(
                     v => v.AuthPassword,
-                    e => e.MapFrom(m => "**********")
+                    e => e.MapFrom<string>(m => null)
                 )
                 .ForMember(
                     v => v.ThumbnailUrl,
