@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Notifications {
                 config["AccessToken"],
                 config["AccessTokenSecret"]);
             var user = Tweetinvi.User.GetAuthenticatedUser(auth);
-            var tweet = user.PublishTweet($"New podcast episide - {title}\n{message}\n{url}");
+            var tweet = user.PublishTweet($"New podcast episode - {title}\n{message}\n{url}");
 
             return $"Tweet Id: {tweet.Id.ToString()}";
         }

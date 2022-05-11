@@ -30,7 +30,7 @@ namespace PodNoms.Common.Persistence {
                 await _context.SaveChangesAsync();
                 return true;
             } catch (DbUpdateException e) {
-                _logger.LogError($"Error completing unit of work: {e.Message}\n{e?.InnerException?.Message}");
+                _logger.LogError(13756, e, "Error completing unit of work");
                 throw;
             }
         }
@@ -43,16 +43,20 @@ namespace PodNoms.Common.Persistence {
 
             foreach (var entity in newEntities) {
                 var method = entity?.GetHubMethodName();
-                if (!string.IsNullOrEmpty(method)) {
-                    _logger.LogDebug($"Notifying {method} hub of update to {entity}");
-                    var user = entity.UserIdForRealtime(_context);
-                    if (!string.IsNullOrEmpty(user)) {
-                        var payload = entity?.SerialiseForHub();
-                        await _hub.SendUserAsync(
-                            user,
-                            method, new object[] {payload});
-                    }
+                if (string.IsNullOrEmpty(method)) {
+                    continue;
                 }
+
+                var user = entity.UserIdForRealtime(_context);
+
+                if (string.IsNullOrEmpty(user)) {
+                    continue;
+                }
+
+                var payload = entity?.SerialiseForHub();
+                await _hub.SendUserAsync(
+                    user,
+                    method, new object[] {payload});
             }
         }
     }
