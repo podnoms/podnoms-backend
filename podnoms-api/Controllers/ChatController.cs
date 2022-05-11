@@ -28,7 +28,7 @@ namespace PodNoms.Api.Controllers {
     public class ChatController : BaseAuthController {
         private readonly ISupportChatService _supportChatService;
         private readonly IChatRepository _chatRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ChatSettings _chatSettings;
         private readonly AppSettings _appSettings;
         private readonly IPushSubscriptionStore _subscriptionStore;
@@ -40,11 +40,11 @@ namespace PodNoms.Api.Controllers {
                 IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
                 ILogger<ChatController> logger, IOptions<ChatSettings> chatSettings, IOptions<AppSettings> appSettings,
                 IPushSubscriptionStore subscriptionStore, IPushNotificationService notificationService,
-                HubLifetimeManager<ChatHub> hub, IMapper mapper, IUnitOfWork unitOfWork,
+                HubLifetimeManager<ChatHub> hub, IMapper mapper, IRepoAccessor repoAccessor,
                 IChatRepository chatRepository, ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
             _chatRepository = chatRepository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _chatSettings = chatSettings.Value;
             _appSettings = appSettings.Value;
             _subscriptionStore = subscriptionStore;
@@ -80,7 +80,7 @@ namespace PodNoms.Api.Controllers {
                 chat.ToUser = chatUser;
                 if (chat.FromUser != null) {
                     _chatRepository.AddOrUpdate(chat);
-                    await _unitOfWork.CompleteAsync();
+                    await _repoAccessor.CompleteAsync();
                 } else {
                     // it's an anonymous chat, we don't need to save item
                     chat.Id = System.Guid.NewGuid();
@@ -117,7 +117,7 @@ namespace PodNoms.Api.Controllers {
             chat.ToUser = await _userManager.FindByIdAsync(message.ToUserId);
 
             _chatRepository.AddOrUpdate(chat);
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
 
             var filledMessage = _mapper.Map<ChatViewModel>(chat);
             filledMessage.FromUserName = _applicationUser.GetBestGuessName();

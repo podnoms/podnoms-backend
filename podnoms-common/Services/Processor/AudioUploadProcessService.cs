@@ -21,18 +21,18 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Processor {
     public class AudioUploadProcessService : RealtimeUpdatingProcessService, IAudioUploadProcessService {
         private readonly IEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly AppSettings _appSettings;
         private readonly IFileUploader _fileUploader;
         private readonly AudioFileStorageSettings _audioStorageSettings;
 
-        public AudioUploadProcessService(IEntryRepository repository, IUnitOfWork unitOfWork,
+        public AudioUploadProcessService(IEntryRepository repository, IRepoAccessor repoAccessor,
             IFileUploader fileUploader, IOptions<AudioFileStorageSettings> audioStorageSettings,
             IOptions<AppSettings> appSettings,
             ILogger<AudioUploadProcessService> logger, IRealTimeUpdater realtimeUpdater, IMapper mapper)
             : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _appSettings = appSettings.Value;
             _fileUploader = fileUploader;
             _audioStorageSettings = audioStorageSettings.Value;
@@ -58,7 +58,7 @@ namespace PodNoms.Common.Services.Processor {
                 }
             );
 
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             _logger.LogInformation($"Updated item status {entryId} - {localFile}");
             try {
                 // TODO
@@ -102,7 +102,7 @@ namespace PodNoms.Common.Services.Processor {
                     entry.AudioUrl = entry.GetAudioUrl(_appSettings.AudioUrl);
                     _logger.LogDebug($"AudioUrl is: {entry.AudioUrl}");
                     entry.AudioFileSize = fileInfo.Length;
-                    await _unitOfWork.CompleteAsync();
+                    await _repoAccessor.CompleteAsync();
                     var vm = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                     await _sendProgressUpdate(
                         userId,
@@ -117,7 +117,7 @@ namespace PodNoms.Common.Services.Processor {
                 _logger.LogError($"Error uploading audio file: {entry.AudioUrl} does not exist");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = $"Unable to find {entry.AudioUrl}";
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
                 await _sendProgressUpdate(
                     userId,
                     entry.Id.ToString(),
@@ -128,7 +128,7 @@ namespace PodNoms.Common.Services.Processor {
                 _logger.LogError($"Error uploading audio file: {ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
                 await _sendProgressUpdate(
                     userId,
                     entry.Id.ToString(),

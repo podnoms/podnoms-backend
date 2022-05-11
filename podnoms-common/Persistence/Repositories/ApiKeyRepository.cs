@@ -12,8 +12,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task TaintKey(ServiceApiKey key, int taintDays = 7, string reason = "");
     }
 
-    public class ApiKeyRepository : GenericRepository<ServiceApiKey>, IApiKeyRepository {
-        public ApiKeyRepository(PodNomsDbContext context, ILogger<GenericRepository<ServiceApiKey>> logger) : base(
+    internal class ApiKeyRepository : GenericRepository<ServiceApiKey>, IApiKeyRepository {
+        public ApiKeyRepository(PodNomsDbContext context, ILogger logger) : base(
             context, logger) {
         }
 

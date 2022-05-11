@@ -24,33 +24,31 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("[controller]")]
     public class PodcastController : BaseAuthController {
-        private readonly IPodcastRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly StorageSettings _storageSettings;
         private readonly AppSettings _appSettings;
         private readonly ImageFileStorageSettings _fileStorageSettings;
         private readonly IFileUtilities _fileUtilities;
 
-        public PodcastController(IPodcastRepository repository, IMapper mapper, IUnitOfWork unitOfWork,
-            ILogger<PodcastController> logger,
+        public PodcastController(IMapper mapper, IRepoAccessor repo,
+            ILogger logger,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor,
             IOptions<AppSettings> appSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> fileStorageSettings,
             IFileUtilities fileUtilities) : base(contextAccessor, userManager, logger) {
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _storageSettings = storageSettings.Value;
             _appSettings = appSettings.Value;
             _fileStorageSettings = fileStorageSettings.Value;
             _fileUtilities = fileUtilities;
-            _repository = repository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<PodcastViewModel>>> Get() {
-            var podcasts = await _repository
+            var podcasts = await _repo.Podcasts
                 .GetAllForUserAsync(_applicationUser.Id);
             var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());
             return Ok(ret);
@@ -58,7 +56,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("{slug}")]
         public async Task<IActionResult> GetBySlug(string slug) {
-            var podcast = await _repository.GetForUserAndSlugAsync(Guid.Parse(_applicationUser.Id), slug);
+            var podcast = await _repo.Podcasts
+                .GetForUserAndSlugAsync(Guid.Parse(_applicationUser.Id), slug);
             if (podcast is null)
                 return NotFound();
             return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
@@ -66,7 +65,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("active")]
         public async Task<ActionResult<string>> GetActive() {
-            var item = await _repository.GetActivePodcast(_applicationUser.Id);
+            var item = await _repo.Podcasts
+                .GetActivePodcast(_applicationUser.Id);
             return this.Content($"\"{item}\"", "text/plain", Encoding.UTF8);
         }
 
@@ -78,9 +78,10 @@ namespace PodNoms.Api.Controllers {
 
             var isNew = string.IsNullOrEmpty(vm.Id);
             item.AppUser = _applicationUser;
-            var ret = _repository.AddOrUpdate(item);
+            var ret = _repo.Podcasts
+                .AddOrUpdate(item);
             try {
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
 
                 if (!isNew) return Ok(_mapper.Map<Podcast, PodcastViewModel>(ret));
 
@@ -108,40 +109,40 @@ namespace PodNoms.Api.Controllers {
             if (!ModelState.IsValid || string.IsNullOrEmpty(vm.Id)) return BadRequest("Invalid request data");
 
             var podcast = _mapper.Map<PodcastViewModel, Podcast>(vm);
-            if (podcast.AppUser is null)
-                podcast.AppUser = _applicationUser;
+            podcast.AppUser ??= _applicationUser;
 
-            _repository.AddOrUpdate(podcast);
-            await _unitOfWork.CompleteAsync();
+            _repo.Podcasts
+                .AddOrUpdate(podcast);
+            await _repo.CompleteAsync();
             return Ok(_mapper.Map<Podcast, PodcastViewModel>(podcast));
-
         }
+
         // TODO: This needs to be wrapped in an authorize - group=test-harness ASAP
         [HttpDelete]
         [Authorize(Roles = "catastrophic-api-calls-allowed")]
         public async Task<IActionResult> DeleteAllPodcasts() {
             try {
-                _repository.GetContext().Podcasts.RemoveRange(
-                    _repository.GetContext().Podcasts.ToList()
+                _repo.Context.Podcasts.RemoveRange(
+                    _repo.Context.Podcasts.ToList()
                 );
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
-                _logger.LogError("Error deleting podcasts");
-                _logger.LogError(ex.Message);
+                _logger.LogError(564378, ex, "Error deleting podcasts");
             }
+
             return BadRequest("Unable to delete podcasts");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
-                await _repository.DeleteAsync(new Guid(id));
-                await _unitOfWork.CompleteAsync();
+                await _repo.Podcasts
+                    .DeleteAsync(new Guid(id));
+                await _repo.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
-                _logger.LogError("Error deleting podcast");
-                _logger.LogError(ex.Message);
+                _logger.LogError(54738, ex, "Error deleting podcast");
             }
 
             return BadRequest("Unable to delete entry");
@@ -149,19 +150,24 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("checkslug/{slug}")]
         public async Task<ActionResult<string>> CheckSlug(string slug) {
-            var slugValid = (await _repository.GetAllForUserAsync(_applicationUser.Id))
+            var slugValid = (await _repo.Podcasts
+                    .GetAllForUserAsync(_applicationUser.Id))
                 .Where(r => r.Slug == slug);
-            var content = slugValid.Count() == 0 ? string.Empty : slugValid.First().Title;
+
+            var enumerable = slugValid as Podcast[] ?? slugValid.ToArray();
+            var content = !enumerable.Any() ? string.Empty : enumerable.First().Title;
+
             return base.Content(
                 $"\"{content}\"",
                 "text/plain"
             );
         }
+
         [HttpGet("opml")]
         [Produces("application/xml")]
         public async Task<ActionResult<string>> GetOpml() {
             var result = await _applicationUser.GetOpmlFeed(
-                _repository,
+                _repo,
                 _appSettings.RssUrl,
                 _appSettings.SiteUrl);
             return Content(result, "application/xml", Encoding.UTF8);

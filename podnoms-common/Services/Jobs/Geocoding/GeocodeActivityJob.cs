@@ -20,16 +20,16 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
     public class GeocodeActivityJob : IHostedJob {
         private readonly HttpClient _httpClient;
         private readonly IActivityLogPodcastEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ILogger _logger;
         private readonly AppSettings _appSettings;
 
         public GeocodeActivityJob(IActivityLogPodcastEntryRepository repository,
-                    IUnitOfWork unitOfWork,
+                    IRepoAccessor repoAccessor,
                     IHttpClientFactory httpClientFactory,
                     ILogger<GeocodeUsersJob> logger, IOptions<AppSettings> appSettings) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("ipstack_geocoder");
             _appSettings = appSettings.Value;
@@ -80,7 +80,7 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
                         record.Zip = result.zip;
                         record.Latitude = result.latitude;
                         record.Longitude = result.longitude;
-                        await _unitOfWork.CompleteAsync();
+                        await _repoAccessor.CompleteAsync();
                         return true;
                     }
                 } catch (Exception ex) {

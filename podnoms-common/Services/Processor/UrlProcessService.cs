@@ -26,21 +26,21 @@ namespace PodNoms.Common.Services.Processor {
     }
 
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly AudioDownloader _downloader;
         private readonly IPageParser _parser;
         private readonly IYouTubeParser _youTubeParser;
         private readonly IEntryRepository _repository;
 
         public UrlProcessService(
-            IEntryRepository repository, IUnitOfWork unitOfWork,
+            IEntryRepository repository, IRepoAccessor repoAccessor,
             AudioDownloader downloader,
             IPageParser parser,
             IYouTubeParser youTubeParser,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _downloader = downloader;
             _parser = parser;
             _youTubeParser = youTubeParser;
@@ -338,14 +338,14 @@ namespace PodNoms.Common.Services.Processor {
                 if (string.IsNullOrEmpty(sourceFile)) return false;
 
                 entry.ProcessingStatus = ProcessingStatus.Parsing;
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
 
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Entry: {entryId}\n{ex.Message}\n\n\n{ex.StackTrace}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
                 await _sendProgressUpdate(
                     entry.Podcast.AppUser.Id,
                     entry.Id.ToString(),

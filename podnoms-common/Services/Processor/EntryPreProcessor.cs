@@ -19,16 +19,16 @@ namespace PodNoms.Common.Services.Processor {
         }
         private readonly StorageSettings _storageSettings;
         private readonly IEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ILogger<EntryPreProcessor> _logger;
 
         public EntryPreProcessor(
                     IOptions<StorageSettings> storageSettings,
-                    IEntryRepository repository, IUnitOfWork unitOfWork,
+                    IEntryRepository repository, IRepoAccessor repoAccessor,
                     ILogger<EntryPreProcessor> logger) {
             _storageSettings = storageSettings.Value;
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _logger = logger;
         }
 
@@ -49,7 +49,7 @@ namespace PodNoms.Common.Services.Processor {
             entry.Processed = false;
             _repository.AddOrUpdate(entry);
             try {
-                var succeeded = await _unitOfWork.CompleteAsync();
+                var succeeded = await _repoAccessor.CompleteAsync();
                 if (succeeded) {
                     BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));
                     return EntryProcessResult.Succeeded;

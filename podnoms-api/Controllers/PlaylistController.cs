@@ -17,45 +17,44 @@ using PodNoms.Common.Utils.RemoteParsers;
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     public class PlaylistController : BaseAuthController {
-        private readonly IPlaylistRepository _playlistRepository;
-        private readonly IPodcastRepository _podcastRepository;
         private readonly IYouTubeParser _youTubeParser;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly IMapper _mapper;
 
-        public PlaylistController(IPlaylistRepository playlistRepository, IPodcastRepository podcastRepository,
-                IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                IYouTubeParser youTubeParser, IUnitOfWork unitOfWork,
-                IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor,
+        public PlaylistController(
+            IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+            IYouTubeParser youTubeParser, IRepoAccessor repo,
+            IMapper mapper, ILogger logger) : base(contextAccessor,
             userManager, logger) {
-            _playlistRepository = playlistRepository;
-            _podcastRepository = podcastRepository;
             _youTubeParser = youTubeParser;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _mapper = mapper;
         }
 
         [HttpPost]
         public async Task<ActionResult<PlaylistViewModel>> Post([FromBody] PodcastEntryViewModel entry) {
-            var podcast = await _podcastRepository.GetAsync(entry.PodcastId);
+            var podcast = await _repo.Podcasts.GetAsync(entry.PodcastId);
             if (podcast == null) {
                 return NotFound();
             }
+
             if (string.IsNullOrEmpty(entry.SourceUrl)) {
                 return BadRequest("SourceUrl is empty");
             }
+
             var sourceUrl = await _youTubeParser.ConvertUserToChannel(entry.SourceUrl, podcast.AppUserId);
             var playlist = new Playlist {
                 Podcast = podcast,
                 SourceUrl = sourceUrl
             };
-            _playlistRepository.AddOrUpdate(playlist);
+            _repo.Playlists.AddOrUpdate(playlist);
             try {
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
             } catch (DbUpdateException ex) {
                 if (ex.InnerException != null && ex.InnerException.Message.Contains("IX_Playlists_SourceUrl")) {
                     return Conflict("This podcast is already monitoring this playlist");
                 }
+
                 return BadRequest("There was an error adding this playlist");
             }
 

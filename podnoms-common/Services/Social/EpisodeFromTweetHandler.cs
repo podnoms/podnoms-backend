@@ -177,12 +177,12 @@ namespace PodNoms.Common.Services.Social {
             }
         }
 
-        private (IUrlProcessService, IPodcastRepository, IEntryRepository, IUnitOfWork unitOfWork) _getScopedServices(
+        private (IUrlProcessService, IPodcastRepository, IEntryRepository, IRepoAccessor unitOfWork) _getScopedServices(
             IServiceScope scope) {
             var processService = scope.ServiceProvider.GetRequiredService<IUrlProcessService>();
             var podcastRepository = scope.ServiceProvider.GetRequiredService<IPodcastRepository>();
             var entryRepository = scope.ServiceProvider.GetRequiredService<IEntryRepository>();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IRepoAccessor>();
             return (
                 processService,
                 podcastRepository,

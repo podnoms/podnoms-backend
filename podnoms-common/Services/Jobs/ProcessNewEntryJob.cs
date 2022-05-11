@@ -21,7 +21,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IEntryRepository _entryRepository;
         private readonly IResponseCacheService _cache;
         private readonly CachedAudioRetrievalService _audioRetriever;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ILogger<ProcessNewEntryJob> _logger;
         private readonly AppSettings _appSettings;
 
@@ -32,12 +32,12 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<AppSettings> appSettings,
             IResponseCacheService cache,
             CachedAudioRetrievalService audioRetriever,
-            IUnitOfWork unitOfWork) : base(logger) {
+            IRepoAccessor repoAccessor) : base(logger) {
             _options = options;
             _entryRepository = entryRepository;
             _cache = cache;
             _audioRetriever = audioRetriever;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _logger = logger;
             _appSettings = appSettings.Value;
         }
@@ -123,7 +123,7 @@ namespace PodNoms.Common.Services.Jobs {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 context.WriteLine($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
                 return false;
             }
         }

@@ -8,20 +8,21 @@ using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Common.Services.Jobs {
     public class DeleteOrphanAudioJob : BlobEnumerateJob {
-        private readonly IEntryRepository _entryRepository;
+        private readonly IRepoAccessor _repo;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioStorageSettings;
 
-        public DeleteOrphanAudioJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<DeleteOrphanAudioJob> logger) : base(logger) {
+        public DeleteOrphanAudioJob(IRepoAccessor repo, IOptions<StorageSettings> storageSettings,
+            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger logger) : base(logger) {
+            _repo = repo;
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
-            _entryRepository = entryRepository;
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -40,7 +41,6 @@ namespace PodNoms.Common.Services.Jobs {
 
                 await foreach (var blob in blobs) {
                     try {
-
                         if (blob.Name.Contains("backup/")) {
                             continue;
                         }
@@ -48,23 +48,26 @@ namespace PodNoms.Common.Services.Jobs {
                         var url = $"{_audioStorageSettings.ContainerName}/{blob.Name}";
                         var id = blob.Name.Split('.').First();
 
-                        var entry = await _entryRepository.GetAsync(Guid.Parse(id));
+                        var entry = await _repo.Entries.GetAsync(Guid.Parse(id));
                         if (entry is null) {
                             await container.RenameAsync(blob.Name, $"backup/{blob.Name}");
                             //await blob.DeleteIfExistsAsync();
                             deletedCount++;
                         }
+
                         blobCount++;
                         Log($"{id} : {blobCount} processed, {deletedCount} deleted.");
                     } catch (Exception e) {
                         LogWarning($"Error processing blob {blob.Uri}\n{e.Message}");
                     }
                 }
+
                 Log($"Successfully processed orphans, {blobCount} visited, {deletedCount} deleted.");
                 return true;
             } catch (Exception ex) {
                 LogError($"Error clearing orphans\n{ex.Message}");
             }
+
             return false;
         }
     }

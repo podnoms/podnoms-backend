@@ -22,7 +22,7 @@ namespace PodNoms.Api.Controllers.Subscriptions {
     [Route("subscriptions/[controller]")]
     public class PatreonController : BaseAuthController {
         private readonly IRepository<PatreonToken> _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly PatreonSettings _patreonSettings;
         private readonly AppSettings _appSettings;
@@ -31,12 +31,12 @@ namespace PodNoms.Api.Controllers.Subscriptions {
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
             IRepository<PatreonToken> repository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             ILogger<PatreonController> logger, IHttpClientFactory httpClientFactory,
             IOptions<PatreonSettings> patreonSettings,
             IOptions<AppSettings> appSettings) : base(contextAccessor, userManager, logger) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _httpClientFactory = httpClientFactory;
             _patreonSettings = patreonSettings.Value;
             _appSettings = appSettings.Value;
@@ -84,7 +84,7 @@ namespace PodNoms.Api.Controllers.Subscriptions {
                 existingToken.AppUserId = _applicationUser.Id;
 
                 _repository.AddOrUpdate(existingToken);
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
 
                 return Content("You have successfully connected your Patreon account", "text/plain", Encoding.UTF8);
             }

@@ -18,7 +18,7 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     public class SiteMessagesController : BaseAuthController {
         private readonly IRepository<SiteMessages> _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IMapper _mapper;
 
         public SiteMessagesController(
@@ -26,10 +26,10 @@ namespace PodNoms.Api.Controllers {
                         UserManager<ApplicationUser> userManager,
                         ILogger<SiteMessagesController> logger,
                         IRepository<SiteMessages> repository,
-                        IUnitOfWork unitOfWork,
+                        IRepoAccessor repoAccessor,
                         IMapper mapper) : base(contextAccessor, userManager, logger) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _mapper = mapper;
         }
 
@@ -63,7 +63,7 @@ namespace PodNoms.Api.Controllers {
             message.EndDate = DateTime.Today.AddMonths(1);
             message.IsActive = true;
             var result = _repository.AddOrUpdate(message);
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return _mapper.Map<SiteMessageViewModel>(result);
         }
     }

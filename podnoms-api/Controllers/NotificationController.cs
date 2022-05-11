@@ -25,7 +25,7 @@ namespace PodNoms.Api.Controllers {
     public class NotificationController : BaseAuthController {
         private readonly ISupportChatService _supportChatService;
         private readonly INotificationRepository _notificationRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly AppSettings _appSettings;
         private readonly INotifyJobCompleteService _notifyJobCompleteService;
         private readonly IMapper _mapper;
@@ -34,11 +34,11 @@ namespace PodNoms.Api.Controllers {
                 ILogger<NotificationController> logger,
                 INotifyJobCompleteService notifyJobCompleteService,
                 IOptions<AppSettings> appSettings,
-                IMapper mapper, IUnitOfWork unitOfWork, INotificationRepository notificationRepository,
+                IMapper mapper, IRepoAccessor repoAccessor, INotificationRepository notificationRepository,
                 ISupportChatService supportChatService) :
             base(contextAccessor, userManager, logger) {
             _notificationRepository = notificationRepository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _appSettings = appSettings.Value;
             _notifyJobCompleteService = notifyJobCompleteService;
             _mapper = mapper;
@@ -58,7 +58,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<NotificationViewModel>> Post([FromBody] NotificationViewModel notification) {
             var model = _mapper.Map<NotificationViewModel, Notification>(notification);
             var ret = _notificationRepository.AddOrUpdate(model);
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }
 
@@ -67,7 +67,7 @@ namespace PodNoms.Api.Controllers {
             if (!Guid.TryParse(id, out var parsedId)) return BadRequest("Invalid id");
 
             await _notificationRepository.DeleteAsync(parsedId);
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return Ok();
         }
 

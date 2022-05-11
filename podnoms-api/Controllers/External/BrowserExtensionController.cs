@@ -25,7 +25,7 @@ namespace PodNoms.Api.Controllers.External {
         private readonly IPodcastRepository _podcastRepository;
         private readonly IConfiguration _options;
         private readonly IRepository<UserRequest> _userRequestRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IPageParser _parser;
         private readonly ChatSettings _chatSettings;
 
@@ -37,13 +37,13 @@ namespace PodNoms.Api.Controllers.External {
             IConfiguration options,
             IOptions<ChatSettings> chatSettings,
             IRepository<UserRequest> userRequestRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             IPageParser parser) : base(contextAccessor, userManager, logger) {
             _podcastRepository = podcastRepository;
             _options = options;
             _chatSettings = chatSettings.Value;
             _userRequestRepository = userRequestRepository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             this._parser = parser;
         }
 
@@ -86,7 +86,7 @@ namespace PodNoms.Api.Controllers.External {
                     FromUser = _applicationUser
                 };
                 _userRequestRepository.AddOrUpdate(request);
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
 
                 return Ok();
             }

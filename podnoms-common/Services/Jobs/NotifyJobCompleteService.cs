@@ -17,7 +17,7 @@ namespace PodNoms.Common.Services.Jobs {
     public class NotifyJobCompleteService : INotifyJobCompleteService {
         private readonly ILogger<NotifyJobCompleteService> _logger;
         private readonly IMailSender _mailSender;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly INotificationHandler[] _handlers;
         private readonly IServiceScopeFactory _provider;
 
@@ -26,10 +26,10 @@ namespace PodNoms.Common.Services.Jobs {
             IServiceProvider serviceProvider,
             IMailSender mailSender,
             IServiceScopeFactory provider,
-            IUnitOfWork unitOfWork) {
+            IRepoAccessor repoAccessor) {
             _logger = logger;
             _mailSender = mailSender;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _provider = provider;
             _handlers = serviceProvider.GetServices<INotificationHandler>().ToArray();
         }
@@ -121,7 +121,7 @@ namespace PodNoms.Common.Services.Jobs {
                             url);
                         _logger.LogInformation("{Response}", response);
                         notificationRepository.AddLog(notification, response);
-                        await _unitOfWork.CompleteAsync();
+                        await _repoAccessor.CompleteAsync();
                     }
                 } catch (Exception ex) {
                     _logger.LogError(119157, ex, "Error sending custom notification");

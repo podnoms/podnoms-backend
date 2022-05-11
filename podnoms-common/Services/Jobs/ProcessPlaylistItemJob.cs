@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly ImageFileStorageSettings _imageStorageSettings;
         private readonly HelpersSettings _helpersSettings;
         private readonly AudioDownloader _audioDownloader;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IUrlProcessService _processor;
         private readonly EntryPreProcessor _preProcessor;
 
@@ -39,12 +39,12 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<ImageFileStorageSettings> imageStorageSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<HelpersSettings> helpersSettings,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             IUrlProcessService processor,
             EntryPreProcessor preProcessor,
             AudioDownloader audioDownloader,
             ILogger<ProcessPlaylistItemJob> logger) : base(logger) {
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _processor = processor;
             _preProcessor = preProcessor;
             _playlistRepository = playlistRepository;
@@ -98,7 +98,7 @@ namespace PodNoms.Common.Services.Jobs {
                         };
                         await _processor.GetInformation(entry, podcast.AppUserId);
                         podcast.PodcastEntries.Add(entry);
-                        await _unitOfWork.CompleteAsync();
+                        await _repoAccessor.CompleteAsync();
                         var result = await _preProcessor.PreProcessEntry(podcast.AppUser, entry);
                         return result == EntryProcessResult.Succeeded;
                     } catch (AudioDownloadException e) {

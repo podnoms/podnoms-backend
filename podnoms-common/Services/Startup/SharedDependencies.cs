@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -7,7 +6,6 @@ using PodNoms.AudioParsing.Downloaders;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Auth.ApiKeys;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Audio;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Gravatar;
@@ -18,7 +16,6 @@ using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Slack;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils.RemoteParsers;
-using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SharedDependencies {
@@ -31,21 +28,8 @@ namespace PodNoms.Common.Services.Startup {
                 .AddSingleton<IUserIdProvider, SignalRUserIdProvider>()
                 .AddSingleton<IGetApiKeyQuery, IssuedKeysGetApiKeyQuery>()
                 .AddScoped<IExternalServiceRequestLogger, ExternalServiceRequestLogger>()
-                .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
-                .AddScoped<IUnitOfWork, UnitOfWork>()
-                .AddScoped<IPodcastRepository, PodcastRepository>()
-                .AddScoped<IEntryRepository, EntryRepository>()
-                .AddScoped<IActivityLogPodcastEntryRepository, ActivityLogPodcastEntryRepository>()
-                .AddScoped<ICategoryRepository, CategoryRepository>()
-                .AddScoped<ITagRepository, TagRepository>()
-                .AddScoped<IPlaylistRepository, PlaylistRepository>()
-                .AddScoped<IChatRepository, ChatRepository>()
-                .AddScoped<INotificationRepository, NotificationRepository>()
-                .AddScoped<IServicesApiKeyLoggerRepository, ServicesApiKeyLoggerRepository>()
-                .AddScoped<IServiceApiKeyRepository, ServiceApiKeyRepository>()
-                .AddScoped<IPaymentRepository, PaymentRepository>()
-                .AddScoped<IDonationRepository, DonationRepository>()
-                .AddScoped<IApiKeyRepository, ApiKeyRepository>()
+                // .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
+                .AddScoped<IRepoAccessor, RepoAccessor>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
                 .AddScoped<EntryPreProcessor>()

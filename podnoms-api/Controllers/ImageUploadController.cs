@@ -19,27 +19,19 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("/podcast/{slug}/imageupload")]
     public class ImageUploadController : BaseAuthController {
-        private readonly IPodcastRepository _podcastRepository;
-        private readonly IEntryRepository _entryRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly IMapper _mapper;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
-        public readonly IFileUploader _fileUploader;
-        private readonly StorageSettings _storageSettings;
+        private readonly IFileUploader _fileUploader;
 
-        public ImageUploadController(IPodcastRepository repository, IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
-            IFileUploader fileUploader, IOptions<StorageSettings> storageSettings,
+        public ImageUploadController(IRepoAccessor repo,
+            IFileUploader fileUploader,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager,
+            ILogger logger, IMapper mapper, UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _fileUploader = fileUploader;
-            _storageSettings = storageSettings.Value;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
-            _podcastRepository = repository;
-            this._entryRepository = entryRepository;
-            //this._repository = repository;
-            _unitOfWork = unitOfWork;
+            this._repo = repo;
             _mapper = mapper;
         }
 
@@ -47,13 +39,13 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<string>> UploadPodcastImage(string id, IFormFile image) {
             _logger.LogDebug("Uploading new image");
 
-            var podcast = await _podcastRepository.GetAsync(_applicationUser.Id, Guid.Parse(id));
+            var podcast = await _repo.Podcasts.GetAsync(_applicationUser.Id, Guid.Parse(id));
             if (podcast is null)
                 return NotFound();
             try {
                 var imageFile = await _commitImage(id, image, "podcast");
-                _podcastRepository.AddOrUpdate(podcast);
-                await _unitOfWork.CompleteAsync();
+                _repo.Podcasts.AddOrUpdate(podcast);
+                await _repo.CompleteAsync();
 
                 return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
             } catch (InvalidOperationException ex) {
@@ -65,14 +57,14 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<PodcastEntryViewModel>> UploadEntryImage(string id, IFormFile image) {
             _logger.LogDebug("Uploading new entry image");
 
-            var entry = await _entryRepository.GetAsync(_applicationUser.Id, id);
+            var entry = await _repo.Entries.GetAsync(_applicationUser.Id, id);
             if (entry is null)
                 return NotFound();
             try {
                 var imageFile = await _commitImage(id, image, "entry");
                 entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageFile}";
-                _entryRepository.AddOrUpdate(entry);
-                await _unitOfWork.CompleteAsync();
+                _repo.Entries.AddOrUpdate(entry);
+                await _repo.CompleteAsync();
 
                 return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));
             } catch (InvalidOperationException ex) {

@@ -16,7 +16,7 @@ using PodNoms.Common.Utils.RemoteParsers;
 namespace PodNoms.Common.Services.Jobs {
     public class CheckItemImagesJob : AbstractHostedJob, IHostedJob {
         public readonly IEntryRepository _entryRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly RemoteImageCacher _imageCacher;
         private readonly IYouTubeParser _youTubeParser;
         public readonly StorageSettings _storageSettings;
@@ -24,13 +24,13 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IMailSender _mailSender;
 
         public CheckItemImagesJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<CheckItemImagesJob> logger, IUnitOfWork unitOfWork,
+            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<CheckItemImagesJob> logger, IRepoAccessor repoAccessor,
             RemoteImageCacher imageCacher, IYouTubeParser youTubeParser, IMailSender mailSender) : base(logger) {
             _mailSender = mailSender;
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
             _entryRepository = entryRepository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _imageCacher = imageCacher;
             _youTubeParser = youTubeParser;
         }
@@ -77,7 +77,7 @@ namespace PodNoms.Common.Services.Jobs {
                         entry.ImageUrl = file;
                     }
                 }
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
             }
             return true;
         }

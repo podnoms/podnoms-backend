@@ -12,21 +12,18 @@ using PodNoms.Common.Services.Processor;
 
 namespace PodNoms.Common.Services.Jobs {
     public class CacheRemoteImageJob : IHostedJob {
-        private readonly IEntryRepository _entryRepository;
+        private readonly IRepoAccessor _repo;
         private readonly RemoteImageCacher _imageCacher;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly StorageSettings _storageSettings;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ILogger _logger;
 
-        public CacheRemoteImageJob(IEntryRepository entryRepository,
+        public CacheRemoteImageJob(IRepoAccessor repo,
             RemoteImageCacher imageCacher,
-            IOptions<StorageSettings> storageSettings,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             ILoggerFactory logger) {
-            _entryRepository = entryRepository;
+            _repo = repo;
             _imageCacher = imageCacher;
-            _unitOfWork = unitOfWork;
-            _storageSettings = storageSettings.Value;
+            _repoAccessor = repoAccessor;
             _logger = logger.CreateLogger<CacheRemoteImageJob>();
         }
 
@@ -35,11 +32,10 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute(PerformContext context) {
-            var images = _entryRepository
+            var images = _repo.Entries
                 .GetAll()
                 .Where(r => r.Processed == true)
                 .Where(r => r.Id == Guid.Parse("0FDDCF04-A8CC-4C9C-EC62-08D66614297B"));
-            //.Where (r => r.ImageUrl.StartsWith ("https://i.ytimg.com/"));
 
             int i = 1;
             int count = images.Count();
@@ -54,20 +50,18 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<string> CacheImage(Guid entryId) {
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             if (entry is null) return string.Empty;
 
             var file = await CacheImage(entry.ImageUrl, entry.Id);
             entry.ImageUrl = file;
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return file;
         }
-        public async Task<string> CacheImage(string imageUrl, Guid entryId) {
 
+        private async Task<string> CacheImage(string imageUrl, Guid entryId) {
             var file = await _imageCacher.CacheImage(imageUrl, entryId.ToString());
-            if (string.IsNullOrEmpty(file)) return string.Empty;
-
-            return file;
+            return string.IsNullOrEmpty(file) ? string.Empty : file;
         }
     }
 }

@@ -17,18 +17,18 @@ using PodNoms.Common.Utils.Extensions;
 namespace PodNoms.Common.Services.Processor {
     public class CachedAudioRetrievalService : RealtimeUpdatingProcessService {
         private readonly IEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly AppSettings _appSettings;
         private readonly HttpClient _httpClient;
 
-        public CachedAudioRetrievalService(IEntryRepository repository, IUnitOfWork unitOfWork,
+        public CachedAudioRetrievalService(IEntryRepository repository, IRepoAccessor repoAccessor,
             ILogger<AudioUploadProcessService> logger,
             IOptions<AppSettings> appSettings,
             IHttpClientFactory httpClientFactory,
             IRealTimeUpdater realtimeUpdater, IMapper mapper)
             : base(logger, realtimeUpdater, mapper) {
             _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _appSettings = appSettings.Value;
             this._httpClient = httpClientFactory.CreateClient("CachedAudio");
         }

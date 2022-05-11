@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Api.Controllers {
@@ -18,19 +19,19 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     [ApiController]
     public class CategoryController : BaseAuthController {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IRepoAccessor _repo;
         private readonly IMapper _mapper;
 
         public CategoryController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger<CategoryController> logger, ICategoryRepository categoryRepository, IMapper mapper)
+            ILogger<CategoryController> logger, IRepoAccessor repo, IMapper mapper)
             : base(contextAccessor, userManager, logger) {
-            _categoryRepository = categoryRepository;
+            _repo = repo;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<CategoryViewModel>>> Get() {
-            var response = await _categoryRepository.GetAll()
+            var response = await _repo.Categories.GetAll()
                 .Include(c => c.Subcategories)
                 .OrderBy(r => r.Description)
                 .ToListAsync();

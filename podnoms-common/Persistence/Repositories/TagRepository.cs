@@ -12,8 +12,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<ICollection<EntryTag>> UpdateAndMerge(ICollection<EntryTag> entityTags);
     }
 
-    public class TagRepository : GenericRepository<EntryTag>, ITagRepository {
-        public TagRepository(PodNomsDbContext context, ILogger<TagRepository> logger) : base(context, logger) {
+    internal class TagRepository : GenericRepository<EntryTag>, ITagRepository {
+        public TagRepository(PodNomsDbContext context, ILogger logger) : base(context, logger) {
         }
 
         public async Task<ICollection<EntryTag>> UpdateAndMerge(ICollection<EntryTag> entityTags) {

@@ -28,7 +28,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IYouTubeParser _youTubeParser;
         private readonly MixcloudParser _mixcloudParser;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
 
         public ProcessPlaylistsJob(
@@ -36,14 +36,14 @@ namespace PodNoms.Common.Services.Jobs {
             UserManager<ApplicationUser> userManager,
             IPlaylistRepository playlistRepository,
             IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             IYouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) : base(logger) {
             _userManager = userManager;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
@@ -168,7 +168,7 @@ namespace PodNoms.Common.Services.Jobs {
                     await _entryRepository.DeleteAsync(item.Id);
                 }
 
-                await _unitOfWork.CompleteAsync();
+                await _repoAccessor.CompleteAsync();
             }
         }
     }

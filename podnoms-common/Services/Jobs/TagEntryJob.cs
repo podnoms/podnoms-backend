@@ -16,7 +16,7 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Jobs {
     public class TagEntryJob : AbstractHostedJob {
         private readonly IEntryRepository _entryRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IFileUploader _fileUploader;
         private readonly ImageFileStorageSettings _imageStorageOptions;
         private readonly AppSettings _appSettings;
@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
         public TagEntryJob(
             ILogger<TagEntryJob> logger,
             IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             IFileUploader fileUploader,
             IOptions<AppSettings> appSettings,
             IOptions<ImageFileStorageSettings> imageStorageOptions,
@@ -35,7 +35,7 @@ namespace PodNoms.Common.Services.Jobs {
             IOptions<StorageSettings> storageOptions,
             IMP3Tagger tagger) : base(logger) {
             _entryRepository = entryRepository;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _fileUploader = fileUploader;
             _imageStorageOptions = imageStorageOptions.Value;
             _audioStorageOptions = audioStorageOptions.Value;
@@ -87,7 +87,7 @@ namespace PodNoms.Common.Services.Jobs {
                     entry.MetadataStatus = -1;
                     LogError(ex.Message);
                 } finally {
-                    await _unitOfWork.CompleteAsync();
+                    await _repoAccessor.CompleteAsync();
                 }
             }
             Log("PREPARING SAVE!!");
@@ -131,7 +131,7 @@ namespace PodNoms.Common.Services.Jobs {
                 
                 if (updateEntry) {
                     entry.MetadataStatus = 1;
-                    await _unitOfWork.CompleteAsync();
+                    await _repoAccessor.CompleteAsync();
                 }
             } catch (Exception e) {
                 this.LogError($"Error tagging entry: {e.Message}");
