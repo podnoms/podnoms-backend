@@ -67,9 +67,9 @@ namespace PodNoms.Data.Extensions {
                         }
 
                         var slugSource = entity.GetType()
-                                             .GetProperty(sourceField)
-                                             ?.GetValue(entity, null)
-                                             ?.ToString() ?? string.Empty;
+                            .GetProperty(sourceField)
+                            ?.GetValue(entity, null)
+                            ?.ToString() ?? string.Empty;
 
                         var source = context.ExecSQL<ProxySluggedModel>($"SELECT Slug FROM {tableName}")
                             .Select(m => m.Slug);

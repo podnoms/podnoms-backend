@@ -24,7 +24,7 @@ namespace PodNoms.Api.Controllers {
             IRepoAccessor repo,
             IOptions<StorageSettings> storageSettings,
             IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
-            ILogger logger) : base(contextAccessor,
+            ILogger<WaveformController> logger) : base(contextAccessor,
             userManager, logger) {
             _repo = repo;
             _storageSettings = storageSettings.Value;

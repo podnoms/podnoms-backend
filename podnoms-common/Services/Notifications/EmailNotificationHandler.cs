@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models.Notifications;
 
@@ -9,9 +10,9 @@ namespace PodNoms.Common.Services.Notifications {
         private readonly IMailSender _emailSender;
         public override Notification.NotificationType Type => Notification.NotificationType.Email;
 
-        public EmailNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient,
+        public EmailNotificationHandler(IRepoAccessor repo, IHttpClientFactory httpClient,
             IMailSender emailSender)
-            : base(notificationRepository, httpClient) {
+            : base(repo, httpClient) {
             _emailSender = emailSender;
         }
 

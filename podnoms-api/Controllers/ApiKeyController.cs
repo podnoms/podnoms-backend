@@ -17,7 +17,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IRepoAccessor _repo;
 
         public ApiKeyController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger logger, IMapper mapper,
+            ILogger<ApiKeyController> logger, IMapper mapper,
             IRepoAccessor repo) :
             base(contextAccessor, userManager, logger) {
             _mapper = mapper;

@@ -40,7 +40,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<StorageSettings> storageSettings,
             IUrlProcessService processor,
             EntryPreProcessor preProcessor,
-            ILogger logger,
+            ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _storageSettings = storageSettings.Value;

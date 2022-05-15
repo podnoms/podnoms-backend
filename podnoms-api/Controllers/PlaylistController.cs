@@ -24,7 +24,7 @@ namespace PodNoms.Api.Controllers {
         public PlaylistController(
             IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
             IYouTubeParser youTubeParser, IRepoAccessor repo,
-            IMapper mapper, ILogger logger) : base(contextAccessor,
+            IMapper mapper, ILogger<PlaylistController> logger) : base(contextAccessor,
             userManager, logger) {
             _youTubeParser = youTubeParser;
             _repo = repo;

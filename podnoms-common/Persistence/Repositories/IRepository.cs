@@ -22,7 +22,7 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task DeleteAsync(Guid id);
     }
 
-    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
+    internal class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
         private readonly PodNomsDbContext _context;
         protected readonly ILogger _logger;
 

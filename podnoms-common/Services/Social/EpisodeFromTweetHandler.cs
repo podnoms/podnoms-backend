@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.Extensions;
@@ -25,6 +24,7 @@ using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Exceptions;
 using Tweetinvi.Models;
+using Tweetinvi.Parameters;
 using Tweetinvi.Streaming;
 
 namespace PodNoms.Common.Services.Social {
@@ -34,9 +34,12 @@ namespace PodNoms.Common.Services.Social {
         private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger<EpisodeFromTweetHandler> _logger;
         private readonly IServiceProvider _provider;
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         private IFilteredStream? _stream;
+        private IUrlProcessService _processor;
+        private IRepoAccessor _repo;
+        private readonly TwitterClient _twitterClient;
 
         public EpisodeFromTweetHandler(
             IOptions<TwitterStreamListenerSettings> twitterSettings,
@@ -44,14 +47,22 @@ namespace PodNoms.Common.Services.Social {
             IOptions<JwtIssuerOptions> jwtOptions,
             ILogger<EpisodeFromTweetHandler> logger,
             IServiceProvider provider,
-            IHttpClientFactory clientFactory
+            IHttpClientFactory httpClientFactory
         ) {
             _twitterSettings = twitterSettings.Value;
             _appSettings = appSettings.Value;
             _jwtOptions = jwtOptions.Value;
             _logger = logger;
             _provider = provider;
-            _clientFactory = clientFactory;
+            _httpClientFactory = httpClientFactory;
+            _twitterClient = new TwitterClient(
+                _twitterSettings.ApiKey,
+                _twitterSettings.ApiKeySecret,
+                _twitterSettings.AccessToken,
+                _twitterSettings.AccessTokenSecret
+            );
+
+            (_processor, _repo) = __getScopedServices(_provider.CreateScope());
         }
 
         public async Task<bool> StartAsync() {
@@ -80,44 +91,29 @@ namespace PodNoms.Common.Services.Social {
             _logger.LogError($"Error consuming tweet: {e.Message}");
         }
 
-        private async Task<bool> _sendReply(Tweetinvi.Models.ITweet tweet, string message) {
-            var result = await TweetAsync.PublishTweetInReplyTo(message, tweet.Id);
+        private async Task<bool> _sendReply(ITweet tweet, string message) {
+            var result = await _twitterClient.Tweets.PublishTweetAsync(new PublishTweetParameters {
+                Text = message,
+                InReplyToTweetId = tweet.Id
+            });
             return result != null;
         }
 
         private async void __tryCreateEpisode(object? sender, MatchedTweetReceivedEventArgs incomingTweet) {
-            _logger.LogDebug(incomingTweet.Json);
-
-            ExceptionHandler.SwallowWebExceptions = false;
-            ExceptionHandler.LogExceptions = true;
             try {
                 if (incomingTweet.Tweet.InReplyToStatusId == null) {
                     return;
                 }
 
                 var tweetId = (long)incomingTweet.Tweet.InReplyToStatusId;
-                var sourceTweet = await TweetAsync.GetTweet((long)incomingTweet.Tweet.InReplyToStatusId);
+                var sourceTweet = await _twitterClient.Tweets.GetTweetAsync(tweetId);
                 var tweetToReplyTo = incomingTweet.Tweet;
                 var targetUser = incomingTweet.Tweet.CreatedBy.ScreenName;
 
                 var user = await __getTargetUser(targetUser);
-                if (user == null) {
-                    await _createPublicErrorResponse(
-                        tweetToReplyTo,
-                        $"Hi @{targetUser}, sorry but I cannot find your account.\nPlease edit your profile and make sure your Twitter Handle is set correctly.\n{_appSettings.SiteUrl}/profile"
-                    );
-                    return;
-                }
-
-                using var scope = _provider.CreateScope();
-                var (
-                    processor,
-                    podcastRepository,
-                    entryRepository,
-                    unitOfWork) = _getScopedServices(scope);
 
                 // var podcast = (await podcastRepository.GetRandomForUser(user.Id));
-                var podcast = await __getTargetPodcast(tweetToReplyTo.FullText, user.Id, podcastRepository);
+                var podcast = await __getTargetPodcast(tweetToReplyTo.FullText, user.Id);
                 if (podcast == null) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
@@ -133,7 +129,7 @@ namespace PodNoms.Common.Services.Social {
                     SourceUrl = sourceTweet.Url
                 };
 
-                var status = await processor.GetInformation(entry, podcast.AppUserId);
+                var status = await _processor.GetInformation(entry, podcast.AppUserId);
                 if (status != RemoteUrlType.SingleItem) {
                     await _createPublicErrorResponse(
                         tweetToReplyTo,
@@ -145,8 +141,8 @@ namespace PodNoms.Common.Services.Social {
                 entry.Title = $"New entry from {sourceTweet.CreatedBy.ScreenName}'s tweet";
                 entry.Description = sourceTweet.Text;
 
-                entryRepository.AddOrUpdate(entry);
-                await unitOfWork.CompleteAsync();
+                _repo.Entries.AddOrUpdate(entry);
+                await _repo.CompleteAsync();
                 await _sendHubUpdate(user.Id.ToString(), entry.SerialiseForHub());
                 //get JWT token so we can call into the job realtime stuff
                 var token = await __getJwtTokenForUser(user);
@@ -163,7 +159,7 @@ namespace PodNoms.Common.Services.Social {
         }
 
         private async Task _sendHubUpdate(string userId, RealtimeEntityUpdateMessage message) {
-            using var client = _clientFactory.CreateClient("podnoms");
+            using var client = _httpClientFactory.CreateClient("podnoms");
             var payload = new StringContent(
                 System.Text.Json.JsonSerializer.Serialize(message),
                 Encoding.UTF8,
@@ -177,17 +173,13 @@ namespace PodNoms.Common.Services.Social {
             }
         }
 
-        private (IUrlProcessService, IPodcastRepository, IEntryRepository, IRepoAccessor unitOfWork) _getScopedServices(
+        private (IUrlProcessService, IRepoAccessor repo) __getScopedServices(
             IServiceScope scope) {
             var processService = scope.ServiceProvider.GetRequiredService<IUrlProcessService>();
-            var podcastRepository = scope.ServiceProvider.GetRequiredService<IPodcastRepository>();
-            var entryRepository = scope.ServiceProvider.GetRequiredService<IEntryRepository>();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IRepoAccessor>();
+            var repo = scope.ServiceProvider.GetRequiredService<IRepoAccessor>();
             return (
                 processService,
-                podcastRepository,
-                entryRepository,
-                unitOfWork
+                repo
             );
         }
 
@@ -199,8 +191,7 @@ namespace PodNoms.Common.Services.Social {
             return user;
         }
 
-        private async Task<Podcast?> __getTargetPodcast(string twitterText, string userId,
-            IPodcastRepository podcastRepository) {
+        private async Task<Podcast?> __getTargetPodcast(string twitterText, string userId) {
             _logger.LogDebug($"Finding podcast for tweet");
             var podcastSlug = twitterText
                 .FindStringFollowing(_twitterSettings.Track)
@@ -213,7 +204,7 @@ namespace PodNoms.Common.Services.Social {
                 podcastSlug = podcastSlug.Split('/').Last();
             }
 
-            var podcast = await podcastRepository.GetForUserAndSlugAsync(Guid.Parse(userId), podcastSlug);
+            var podcast = await _repo.Podcasts.GetForUserAndSlugAsync(Guid.Parse(userId), podcastSlug);
             return podcast;
         }
 
@@ -243,20 +234,13 @@ namespace PodNoms.Common.Services.Social {
 
         private async Task __startStreamInternal() {
             try {
-                Tweetinvi.Auth.SetUserCredentials(
-                    _twitterSettings.ApiKey,
-                    _twitterSettings.ApiKeySecret,
-                    _twitterSettings.AccessToken,
-                    _twitterSettings.AccessTokenSecret);
-                _stream = Stream.CreateFilteredStream();
-
+                _stream = _twitterClient.Streams.CreateFilteredStream();
                 _logger.LogInformation("Starting Twitter stream");
-
 
                 _stream.AddTrack(_twitterSettings.Track);
                 _stream.MatchingTweetReceived += __tryCreateEpisode;
 
-                await _stream.StartStreamMatchingAnyConditionAsync();
+                await _stream.StartMatchingAnyConditionAsync();
             } catch (TwitterNullCredentialsException) {
                 _logger.LogError("Twitter settings are incorrect or missing, stopping listener");
             } catch (Exception e) {
@@ -267,7 +251,7 @@ namespace PodNoms.Common.Services.Social {
         private Task __stopStreamInternal() {
             _logger.LogInformation("Stopping Twitter stream");
             return Task.Factory.StartNew(() => {
-                _stream?.StopStream();
+                _stream?.Stop();
             });
         }
     }

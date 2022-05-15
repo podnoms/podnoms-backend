@@ -25,7 +25,7 @@ namespace PodNoms.Api.Controllers {
         public SearchController(
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<SearchController> logger,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IRepoAccessor repo

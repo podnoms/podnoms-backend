@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IRepoAccessor _repo;
         private readonly PatreonSettings _patreonSettings;
 
-        public UpdatePatreonInfoJob(ILogger logger,
+        public UpdatePatreonInfoJob(ILogger<UpdatePatreonInfoJob> logger,
             IHttpClientFactory httpClientFactory,
             IOptions<PatreonSettings> patreonSettings,
             UserManager<ApplicationUser> userManager,

@@ -27,7 +27,7 @@ namespace PodNoms.Api.Controllers {
         public ImageUploadController(IRepoAccessor repo,
             IFileUploader fileUploader,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            ILogger logger, IMapper mapper, UserManager<ApplicationUser> userManager,
+            ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _fileUploader = fileUploader;
             _imageFileStorageSettings = imageFileStorageSettings.Value;

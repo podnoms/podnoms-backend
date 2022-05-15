@@ -22,34 +22,25 @@ namespace PodNoms.Api.Controllers.External {
     [Authorize(AuthenticationSchemes = "PodNomsApiKey")]
     [Route("pub/browserextension")]
     public class BrowserExtensionController : BaseAuthController {
-        private readonly IPodcastRepository _podcastRepository;
         private readonly IConfiguration _options;
-        private readonly IRepository<UserRequest> _userRequestRepository;
-        private readonly IRepoAccessor _repoAccessor;
-        private readonly IPageParser _parser;
+        private readonly IRepoAccessor _repo;
         private readonly ChatSettings _chatSettings;
 
         public BrowserExtensionController(
             ILogger<BrowserExtensionController> logger,
-            IPodcastRepository podcastRepository,
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
             IConfiguration options,
             IOptions<ChatSettings> chatSettings,
-            IRepository<UserRequest> userRequestRepository,
-            IRepoAccessor repoAccessor,
-            IPageParser parser) : base(contextAccessor, userManager, logger) {
-            _podcastRepository = podcastRepository;
+            IRepoAccessor repo) : base(contextAccessor, userManager, logger) {
             _options = options;
             _chatSettings = chatSettings.Value;
-            _userRequestRepository = userRequestRepository;
-            _repoAccessor = repoAccessor;
-            this._parser = parser;
+            _repo = repo;
         }
 
         [HttpGet("podcasts")]
         public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
-            var podcasts = await _podcastRepository
+            var podcasts = await _repo.Podcasts
                 .GetAllForUserAsync(_applicationUser.Id);
 
             var ret = podcasts
@@ -72,7 +63,8 @@ namespace PodNoms.Api.Controllers.External {
                     var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
                     var slackMessage = new SlackMessage {
                         Channel = "#userrequests",
-                        Text = $"{message}\n\nFrom: {_applicationUser.GetBestGuessName()}\nFromId: {_applicationUser.Id}\nFromEmail: {_applicationUser.Email}",
+                        Text =
+                            $"{message}\n\nFrom: {_applicationUser.GetBestGuessName()}\nFromId: {_applicationUser.Id}\nFromEmail: {_applicationUser.Email}",
                         IconEmoji = Emoji.HearNoEvil,
                         Username = _applicationUser.Slug
                     };
@@ -81,15 +73,17 @@ namespace PodNoms.Api.Controllers.External {
                     _logger.LogError("Error posting user flag url to slack");
                     _logger.LogError(e.Message);
                 }
-                var request = new UserRequest() {
+
+                var request = new UserRequest {
                     RequestText = message,
                     FromUser = _applicationUser
                 };
-                _userRequestRepository.AddOrUpdate(request);
-                await _repoAccessor.CompleteAsync();
+                _repo.CreateProxy<UserRequest>().AddOrUpdate(request);
+                await _repo.CompleteAsync();
 
                 return Ok();
             }
+
             return BadRequest();
         }
     }

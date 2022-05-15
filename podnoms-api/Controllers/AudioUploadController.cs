@@ -32,7 +32,7 @@ namespace PodNoms.Api.Controllers {
             IRepoAccessor repo,
             IOptions<AudioFileStorageSettings> settings,
             IOptions<StorageSettings> storageSettings,
-            ILogger logger,
+            ILogger<AudioUploadController> logger,
             IMapper mapper,
             IWebHostEnvironment hostingEnvironment,
             UserManager<ApplicationUser> userManager,

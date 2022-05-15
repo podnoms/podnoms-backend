@@ -30,7 +30,7 @@ namespace PodNoms.Api.Controllers {
 
         public PaymentsController(IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<PaymentsController> logger,
             IMailSender mailSender,
             IRepoAccessor repo,
             IPaymentProcessor paymentProcessor,

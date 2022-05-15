@@ -47,7 +47,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<DebugController> logger,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
             _storageSettings = settings.Value;

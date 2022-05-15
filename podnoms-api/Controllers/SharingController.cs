@@ -24,7 +24,7 @@ namespace PodNoms.Api.Controllers {
             IRepoAccessor repo,
             IMailSender mailSender,
             IOptions<SharingSettings> sharingSettings,
-            ILogger logger) : base(contextAccessor, userManager, logger) {
+            ILogger<SharingController> logger) : base(contextAccessor, userManager, logger) {
             this._repo = repo;
             this._mailSender = mailSender;
             this._sharingSettings = sharingSettings.Value;

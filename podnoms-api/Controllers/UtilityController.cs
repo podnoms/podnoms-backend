@@ -42,7 +42,7 @@ namespace PodNoms.Api.Controllers {
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
             IOptions<AppSettings> appSettings, PodNomsDbContext context, IRepoAccessor repo,
-            ILogger logger, IConfiguration config,
+            ILogger<UtilityController> logger, IConfiguration config,
             IWebHostEnvironment env,
             IHttpClientFactory httpClientFactory)
             : base(contextAccessor, userManager, logger) {

@@ -10,12 +10,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.Extensions;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;
@@ -32,8 +30,9 @@ namespace PodNoms.Api.Controllers {
         private readonly IFileUtilities _fileUtilities;
 
         public PodcastController(IMapper mapper, IRepoAccessor repo,
-            ILogger logger,
-            UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor,
+            ILogger<PodcastController> logger,
+            UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor contextAccessor,
             IOptions<AppSettings> appSettings,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> fileStorageSettings,

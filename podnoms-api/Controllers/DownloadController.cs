@@ -27,7 +27,7 @@ namespace PodNoms.Api.Controllers {
             IOptions<AudioFileStorageSettings> audioStorageSettings,
             IFileUtilities fileUtilities,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<DownloadController> logger,
             IRepoAccessor repo) :
             base(contextAccessor, userManager, logger) {
             _storageSettings = storageSettings.Value;

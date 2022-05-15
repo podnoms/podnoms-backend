@@ -23,7 +23,7 @@ namespace PodNoms.Api.Controllers {
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
             IRepoAccessor repo,
-            ILogger logger,
+            ILogger<AudioController> logger,
             IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioStorageSettings
         ) : base(contextAccessor, userManager, logger) {

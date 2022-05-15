@@ -24,8 +24,8 @@ namespace PodNoms.Common.Persistence {
         public ICategoryRepository Categories { get; private set; }
         public ITagRepository Tags { get; private set; }
         public IPlaylistRepository Playlists { get; private set; }
-        public IChatRepository Chat { get; private set; }
-        public INotificationRepository Notification { get; private set; }
+        public IChatRepository Chats { get; private set; }
+        public INotificationRepository Notifications { get; private set; }
         public IApiKeyRepository ApiKey { get; private set; }
         public IServiceApiKeyRepository ServiceApiKey { get; private set; }
         public IServiceApiKeyLoggerRepository ServiceApiKeyLogger { get; private set; }
@@ -51,8 +51,8 @@ namespace PodNoms.Common.Persistence {
             Categories = new CategoryRepository(_context, _logger);
             Tags = new TagRepository(_context, _logger);
             Playlists = new PlaylistRepository(_context, _logger);
-            Chat = new ChatRepository(_context, _logger);
-            Notification = new NotificationRepository(_context, _logger);
+            Chats = new ChatRepository(_context, _logger);
+            Notifications = new NotificationRepository(_context, _logger);
 
             ApiKey = new ApiKeyRepository(_context, _logger);
             ServiceApiKey = new ServiceApiKeyRepository(_context, _logger);

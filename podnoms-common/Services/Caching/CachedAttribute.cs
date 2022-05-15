@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using System.Net;
-using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +17,8 @@ namespace PodNoms.Common.Services.Caching {
         private readonly CacheType _cacheType;
         private readonly string _contentType;
 
-        public CachedAttribute(string itemType, CacheType cacheType, string contentType = "application/json", int ttl = 60) {
+        public CachedAttribute(string itemType, CacheType cacheType, string contentType = "application/json",
+            int ttl = 60) {
             _itemType = itemType;
             _cacheType = cacheType;
             _contentType = contentType;
@@ -62,7 +61,6 @@ namespace PodNoms.Common.Services.Caching {
             if (executedContext.Result is ContentResult result) {
                 await cache.CacheResponseAsync(key, result.Content, TimeSpan.FromSeconds(_ttl));
             }
-
         }
 
         private static string _getCacheKey(string itemType, string cacheType, HttpRequest request) {
@@ -74,6 +72,7 @@ namespace PodNoms.Common.Services.Caching {
             foreach (var value in values) {
                 keyBuilder.Append($"|{value}");
             }
+
             keyBuilder.Append($"|{cacheType}");
             return keyBuilder.ToString();
         }

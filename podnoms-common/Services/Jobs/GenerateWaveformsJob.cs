@@ -21,7 +21,7 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly IWaveformGenerator _waveFormGenerator;
         private readonly IRepoAccessor _repo;
 
-        public GenerateWaveformsJob(ILogger logger,
+        public GenerateWaveformsJob(ILogger<GenerateWaveformsJob> logger,
             IFileUploader fileUploader,
             IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,

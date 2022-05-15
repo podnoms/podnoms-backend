@@ -9,19 +9,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Middleware {
-
     public class CustomDomainRouteTransformer : DynamicRouteValueTransformer {
         private readonly ILogger<CustomDomainRouteTransformer> _logger;
         private readonly IServiceProvider _provider;
         private readonly AppSettings _appSettings;
 
-        public CustomDomainRouteTransformer(IPodcastRepository podcastRepository,
-                            ILogger<CustomDomainRouteTransformer> logger,
-                            IServiceProvider provider,
-                            IOptions<AppSettings> appSettings) {
+        public CustomDomainRouteTransformer(ILogger<CustomDomainRouteTransformer> logger,
+            IServiceProvider provider,
+            IOptions<AppSettings> appSettings) {
             _logger = logger;
             _provider = provider;
             _appSettings = appSettings.Value;
@@ -33,26 +32,30 @@ namespace PodNoms.Common.Services.Middleware {
             var siteHost = new UriBuilder(_appSettings.SiteUrl).Host;
             var cleaned = new Uri(_appSettings.RssUrl).GetComponents(
                     UriComponents.AbsoluteUri & ~UriComponents.Port & ~UriComponents.Scheme, UriFormat.UriEscaped)
-                    .TrimEnd('/');
+                .TrimEnd('/');
             if (requestHost.Equals(cleaned)) {
                 var redirectUrl = Flurl.Url.Combine(
                     _appSettings.CanonicalRssUrl,
                     httpContext.Request.Path);
                 httpContext.Response.Redirect(redirectUrl, false);
-                var parts = httpContext.Request.Path.Value.TrimEnd('/').TrimStart('/').Split('/');
-                if (parts.Length == 2) {
-                    values["controller"] = "Rss";
-                    values["action"] = "Get";
-                    values["userSlug"] = parts[0];
-                    values["podcastSlug"] = parts[1];
+                var parts = httpContext.Request.Path.Value?.TrimEnd('/').TrimStart('/').Split('/');
+                
+                if (parts?.Length != 2) {
+                    return values;
                 }
+
+                values["controller"] = "Rss";
+                values["action"] = "Get";
+                values["userSlug"] = parts[0];
+                values["podcastSlug"] = parts[1];
             } else if (!requestHost.Equals(siteHost)) {
                 try {
                     using var scope = _provider.CreateScope();
-                    var podcastRepository = scope.ServiceProvider.GetRequiredService<IPodcastRepository>();
+                    var podcastRepository = scope.ServiceProvider.GetRequiredService<IRepoAccessor>();
 
                     //we're on a custom domain, check for matches
-                    var candidate = await podcastRepository.GetAll()
+                    var candidate = await podcastRepository.Podcasts
+                        .GetAll()
                         .Where(r => r.CustomDomain == requestHost)
                         .Include(r => r.AppUser)
                         .FirstOrDefaultAsync();
@@ -67,6 +70,7 @@ namespace PodNoms.Common.Services.Middleware {
                     _logger.LogError(ex.Message);
                 }
             }
+
             return values;
         }
     }

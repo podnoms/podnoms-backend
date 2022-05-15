@@ -19,7 +19,8 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly AudioFileStorageSettings _audioStorageSettings;
 
         public DeleteOrphanAudioJob(IRepoAccessor repo, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger logger) : base(logger) {
+            IOptions<AudioFileStorageSettings> audioStorageSettings,
+            ILogger<DeleteOrphanAudioJob> logger) : base(logger) {
             _repo = repo;
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;

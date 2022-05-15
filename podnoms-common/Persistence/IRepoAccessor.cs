@@ -12,8 +12,8 @@ namespace PodNoms.Common.Persistence {
         ICategoryRepository Categories { get; }
         ITagRepository Tags { get; }
         IPlaylistRepository Playlists { get; }
-        IChatRepository Chat { get; }
-        INotificationRepository Notification { get; }
+        IChatRepository Chats { get; }
+        INotificationRepository Notifications { get; }
         IApiKeyRepository ApiKey { get; }
         IServiceApiKeyRepository ServiceApiKey { get; }
         IServiceApiKeyLoggerRepository ServiceApiKeyLogger { get; }

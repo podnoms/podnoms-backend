@@ -22,7 +22,7 @@ namespace PodNoms.Api.Controllers {
 
         public LogsController(IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<LogsController> logger,
             IRepoAccessor repo,
             IMapper mapper) : base(contextAccessor, userManager, logger) {
             _repo = repo;

@@ -13,8 +13,6 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
@@ -23,31 +21,24 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [Authorize]
     public class NotificationController : BaseAuthController {
-        private readonly ISupportChatService _supportChatService;
-        private readonly INotificationRepository _notificationRepository;
-        private readonly IRepoAccessor _repoAccessor;
-        private readonly AppSettings _appSettings;
+        private readonly IRepoAccessor _repo;
         private readonly INotifyJobCompleteService _notifyJobCompleteService;
         private readonly IMapper _mapper;
 
-        public NotificationController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                ILogger<NotificationController> logger,
-                INotifyJobCompleteService notifyJobCompleteService,
-                IOptions<AppSettings> appSettings,
-                IMapper mapper, IRepoAccessor repoAccessor, INotificationRepository notificationRepository,
-                ISupportChatService supportChatService) :
+        public NotificationController(IHttpContextAccessor contextAccessor,
+            UserManager<ApplicationUser> userManager,
+            ILogger<NotificationController> logger,
+            INotifyJobCompleteService notifyJobCompleteService,
+            IMapper mapper, IRepoAccessor repo) :
             base(contextAccessor, userManager, logger) {
-            _notificationRepository = notificationRepository;
-            _repoAccessor = repoAccessor;
-            _appSettings = appSettings.Value;
+            _repo = repo;
             _notifyJobCompleteService = notifyJobCompleteService;
             _mapper = mapper;
-            _supportChatService = supportChatService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<NotificationViewModel>>> Get(string podcastId) {
-            var notifications = await _notificationRepository
+            var notifications = await _repo.Notifications
                 .GetAll()
                 .Where(n => n.PodcastId.ToString() == podcastId)
                 .ToListAsync();
@@ -57,8 +48,8 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<NotificationViewModel>> Post([FromBody] NotificationViewModel notification) {
             var model = _mapper.Map<NotificationViewModel, Notification>(notification);
-            var ret = _notificationRepository.AddOrUpdate(model);
-            await _repoAccessor.CompleteAsync();
+            var ret = _repo.Notifications.AddOrUpdate(model);
+            await _repo.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }
 
@@ -66,14 +57,14 @@ namespace PodNoms.Api.Controllers {
         public async Task<IActionResult> Delete(string id) {
             if (!Guid.TryParse(id, out var parsedId)) return BadRequest("Invalid id");
 
-            await _notificationRepository.DeleteAsync(parsedId);
-            await _repoAccessor.CompleteAsync();
+            await _repo.Notifications.DeleteAsync(parsedId);
+            await _repo.CompleteAsync();
             return Ok();
         }
 
         [HttpGet("logs")]
         public async Task<ActionResult<IList<NotificationLog>>> GetLogs(string notificationId, int take = 10) {
-            var logs = await _notificationRepository.GetLogsAsync(notificationId);
+            var logs = await _repo.Notifications.GetLogsAsync(notificationId);
             return logs
                 .Take(take)
                 .ToList();
@@ -98,7 +89,8 @@ namespace PodNoms.Api.Controllers {
         }
 
         [HttpPost("notifyuser")]
-        public async Task<ActionResult> NotifyUser(string userId, string title, string body, string target, string image) {
+        public async Task<ActionResult> NotifyUser(string userId, string title, string body, string target,
+            string image) {
             var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]
                 .ToString()
                 .Replace("Bearer", string.Empty);
@@ -113,6 +105,7 @@ namespace PodNoms.Api.Controllers {
                 image, NotificationOptions.UploadCompleted);
             return Accepted();
         }
+
         [HttpPost("sendcustomnotifications")]
         public ActionResult SendCustomNotifications(string podcastId, string title, string body, string url) {
             var authToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]

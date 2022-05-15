@@ -16,7 +16,7 @@ namespace PodNoms.Api.Controllers {
         public RequestController(
             IHttpContextAccessor contextAccessor,
             UserManager<ApplicationUser> userManager,
-            ILogger logger,
+            ILogger<RequestController> logger,
             IRepoAccessor repo) : base(contextAccessor, userManager, logger) {
             _repo = repo;
         }

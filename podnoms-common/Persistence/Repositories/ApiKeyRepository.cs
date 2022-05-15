@@ -8,7 +8,7 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IApiKeyRepository : IRepository<ServiceApiKey> {
-        Task<ServiceApiKey> GetApiKey(string type, string userId);
+        Task<ServiceApiKey> GetKey(string type, string userId);
         Task TaintKey(ServiceApiKey key, int taintDays = 7, string reason = "");
     }
 
@@ -17,7 +17,7 @@ namespace PodNoms.Common.Persistence.Repositories {
             context, logger) {
         }
 
-        public async Task<ServiceApiKey> GetApiKey(string type, string userId) {
+        public async Task<ServiceApiKey> GetKey(string type, string userId) {
             var result = await GetAll()
                 .Where(u => u.ApplicationUserId.ToString().Equals(userId) ||
                             string.IsNullOrEmpty(u.ApplicationUserId.ToString()))

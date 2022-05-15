@@ -21,7 +21,7 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
 
         public TagsController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger logger, IRepoAccessor repo, IMapper mapper)
+            ILogger<TagsController> logger, IRepoAccessor repo, IMapper mapper)
             : base(contextAccessor, userManager, logger) {
             _repo = repo;
             _mapper = mapper;

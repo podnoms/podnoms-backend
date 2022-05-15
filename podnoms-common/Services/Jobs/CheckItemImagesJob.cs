@@ -5,32 +5,21 @@ using Hangfire;
 using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Common.Services.Jobs {
     public class CheckItemImagesJob : AbstractHostedJob, IHostedJob {
-        public readonly IEntryRepository _entryRepository;
-        private readonly IRepoAccessor _repoAccessor;
+        private readonly IRepoAccessor _repo;
         private readonly RemoteImageCacher _imageCacher;
         private readonly IYouTubeParser _youTubeParser;
-        public readonly StorageSettings _storageSettings;
-        public readonly AudioFileStorageSettings _audioStorageSettings;
-        private readonly IMailSender _mailSender;
 
-        public CheckItemImagesJob(IEntryRepository entryRepository, IOptions<StorageSettings> storageSettings,
-            IOptions<AudioFileStorageSettings> audioStorageSettings, ILogger<CheckItemImagesJob> logger, IRepoAccessor repoAccessor,
+        public CheckItemImagesJob(ILogger<CheckItemImagesJob> logger,
+            IRepoAccessor repo,
             RemoteImageCacher imageCacher, IYouTubeParser youTubeParser, IMailSender mailSender) : base(logger) {
-            _mailSender = mailSender;
-            _storageSettings = storageSettings.Value;
-            _audioStorageSettings = audioStorageSettings.Value;
-            _entryRepository = entryRepository;
-            _repoAccessor = repoAccessor;
+            _repo = repo;
             _imageCacher = imageCacher;
             _youTubeParser = youTubeParser;
         }
@@ -40,16 +29,14 @@ namespace PodNoms.Common.Services.Jobs {
             Log("Starting CheckItemImagesJob");
 
             //get all the unprocessed images
-            var entries = await _entryRepository.GetAll()
+            var entries = await _repo.Entries.GetAll()
                 .Where(x => x.ImageUrl.StartsWith("http"))
                 .ToListAsync();
-            var count = entries.Count();
+            var count = entries.Count;
             int i = 1;
             foreach (var entry in entries) {
-                Log($"Checking entry: {entry.ToString()}");
+                Log($"Checking entry: {entry}");
                 Log($"\t{i++} of {count}");
-
-                //https://cdn-l.podnoms.com/images/entry/d1260873-5d9f-4548-0524-08d6f73bf76c.png?width=725&height=748
 
                 if (entry.ImageUrl.StartsWith("https://cdn-l.podnoms.com/")) {
                     entry.ImageUrl = entry.ImageUrl.Replace("https://cdn-l.podnoms.com/", string.Empty);
@@ -72,13 +59,16 @@ namespace PodNoms.Common.Services.Jobs {
                             Log("This isn't a YouTube - we'll deal with it later");
                         }
                     }
+
                     if (!string.IsNullOrEmpty(file)) {
                         Log("Happy Days!!!");
                         entry.ImageUrl = file;
                     }
                 }
-                await _repoAccessor.CompleteAsync();
+
+                await _repo.CompleteAsync();
             }
+
             return true;
         }
     }

@@ -8,34 +8,34 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
-
     [Route("pub/domainresolver")]
     [EnableCors("DefaultCors")]
     public class DomainResolverController : Controller {
         private readonly ILogger<DomainResolverController> _logger;
-        private readonly IPodcastRepository _podcastRepository;
+        private readonly IRepoAccessor _repo;
 
         public DomainResolverController(
-                    ILogger<DomainResolverController> logger,
-                    IPodcastRepository podcastRepository) {
+            ILogger<DomainResolverController> logger,
+            IRepoAccessor repo) {
             _logger = logger;
-            _podcastRepository = podcastRepository;
+            _repo = repo;
         }
+
         [HttpGet]
         public async Task<ActionResult<PublicDomainViewModel>> ResolveDomain([FromQuery] string domain) {
             try {
                 var cleanedDomain = domain.Split(":")[0]; //remove port
-                var podcastUrl = string.Empty;
-                var podcast = await _podcastRepository
+                var podcast = await _repo.Podcasts
                     .GetAll()
                     .Include(p => p.AppUser)
                     .SingleOrDefaultAsync(r => r.CustomDomain == cleanedDomain);
                 if (podcast != null) {
-                    podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
+                    var podcastUrl = Flurl.Url.Combine(podcast.AppUser.Slug, podcast.Slug);
                     return Ok(new PublicDomainViewModel {
                         Domain = cleanedDomain,
                         PodcastId = podcast.Id.ToString(),
@@ -47,6 +47,7 @@ namespace PodNoms.Api.Controllers.Public {
             } catch (Exception e) {
                 _logger.LogError($"Error resolving custom domain: {domain}\n{e.Message}");
             }
+
             return Ok();
         }
     }

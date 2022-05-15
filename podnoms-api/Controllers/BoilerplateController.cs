@@ -16,7 +16,7 @@ namespace PodNoms.Api.Controllers {
 
         public BoilerplateController(
             IRepoAccessor repo,
-            ILogger logger) : base(logger) {
+            ILogger<BoilerplateController> logger) : base(logger) {
             _repo = repo;
         }
 

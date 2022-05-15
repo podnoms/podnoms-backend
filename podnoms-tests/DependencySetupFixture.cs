@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Google.Apis.Http;
@@ -46,6 +47,7 @@ namespace PodNoms.Tests {
                     .ToArray();
             }
         }
+
         public DependencySetupFixture() {
             var serviceCollection = new ServiceCollection();
             // serviceCollection.AddDbContext<PodNomsDbContext>(options =>
@@ -61,7 +63,7 @@ namespace PodNoms.Tests {
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
 
-        public IHttpClientFactory? HttpFactory { get; set; }
+        private IHttpClientFactory? HttpFactory { get; set; }
 
         public ServiceProvider ServiceProvider { get; private set; }
     }
