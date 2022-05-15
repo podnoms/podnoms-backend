@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Crypt;
 using PodNoms.Data.Models;
@@ -14,17 +15,18 @@ namespace PodNoms.Common.Auth {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RssFeedAuthorizeAttribute : TypeFilterAttribute {
         public RssFeedAuthorizeAttribute()
-            : base(typeof(RssFeedAuthorizeFilter)) { }
+            : base(typeof(RssFeedAuthorizeFilter)) {
+        }
     }
 
     public class RssFeedAuthorizeFilter : IAuthorizationFilter {
         private const string Realm = "podnoms.com";
 
-        private readonly IPodcastRepository _podcastRepository;
+        private readonly IRepoAccessor _repo;
         private readonly ILogger _logger;
 
-        public RssFeedAuthorizeFilter(IPodcastRepository podcastRepository, ILogger<RssFeedAuthorizeFilter> logger) {
-            _podcastRepository = podcastRepository;
+        public RssFeedAuthorizeFilter(IRepoAccessor repo, ILogger<RssFeedAuthorizeFilter> logger) {
+            _repo = repo;
             _logger = logger;
         }
 
@@ -42,7 +44,7 @@ namespace PodNoms.Common.Auth {
             var podcastSlug = pathsegments[pathsegments.Length - 1];
 
             //get the podcast
-            var podcast = _podcastRepository
+            var podcast = _repo.Podcasts
                 .GetAll().FirstOrDefault(
                     p => p.AppUser.Slug == userSlug &&
                          p.Slug == podcastSlug && (p.Private));
@@ -77,7 +79,7 @@ namespace PodNoms.Common.Auth {
 
         // Make your own implementation of this
         public bool IsAuthorized(Podcast podcast, string username, string password) {
-            var record = _podcastRepository
+            var record = _repo.Podcasts
                 .GetAll()
                 .SingleOrDefault(r => r.AuthUserName.Equals(username));
             if (record is null)

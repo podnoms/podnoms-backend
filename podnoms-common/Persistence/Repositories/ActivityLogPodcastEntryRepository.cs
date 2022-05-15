@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Services.Jobs.Geocoding;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
@@ -16,20 +14,19 @@ namespace PodNoms.Common.Persistence.Repositories {
             string userAgent,
             string clientAddress,
             string extraInfo = "");
+
         Task<List<ActivityLogPodcastEntry>> GetForEntry(string entryId);
     }
-    public class ActivityLogPodcastEntryRepository : GenericRepository<ActivityLogPodcastEntry>, IActivityLogPodcastEntryRepository {
-        private readonly IUnitOfWork _unitOfWork;
 
+    internal class ActivityLogPodcastEntryRepository : GenericRepository<ActivityLogPodcastEntry>,
+        IActivityLogPodcastEntryRepository {
         public ActivityLogPodcastEntryRepository(
             PodNomsDbContext context,
-            ILogger<GenericRepository<ActivityLogPodcastEntry>> logger,
-            IUnitOfWork unitOfWork) : base(context, logger) {
-            _unitOfWork = unitOfWork;
+            ILogger logger) : base(context, logger) {
         }
 
         public async Task<ActivityLogPodcastEntry> AddLogEntry(
-                PodcastEntry entry, string referrer, string userAgent, string clientAddress, string extraInfo = "") {
+            PodcastEntry entry, string referrer, string userAgent, string clientAddress, string extraInfo = "") {
             try {
                 var log = new ActivityLogPodcastEntry {
                     PodcastEntry = entry,
@@ -39,12 +36,12 @@ namespace PodNoms.Common.Persistence.Repositories {
                     ExtraInfo = extraInfo
                 };
                 this.Create(log);
-                await _unitOfWork.CompleteAsync();
-                // BackgroundJob.Enqueue<GeocodeActivityJob>(r => r.GeocodeActivityItem(log, null));
+                await GetContext().SaveChangesAsync();
                 return log;
             } catch (Exception e) {
-                _logger.LogError($"Error logging podcast entry activity.\n{e.Message}");
+                _logger.LogError(15642, e, "Error logging podcast entry activity");
             }
+
             return null;
         }
 

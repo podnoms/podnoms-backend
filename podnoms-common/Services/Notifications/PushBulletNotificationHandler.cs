@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models.Notifications;
@@ -12,9 +13,10 @@ namespace PodNoms.Common.Services.Notifications {
     public class PushBulletNotificationHandler : BaseNotificationHandler, INotificationHandler {
         public override Notification.NotificationType Type => Notification.NotificationType.PushBullet;
 
-        public PushBulletNotificationHandler(INotificationRepository notificationRepository,
+        public PushBulletNotificationHandler(IRepoAccessor repo,
             IHttpClientFactory httpClient)
-            : base(notificationRepository, httpClient) { }
+            : base(repo, httpClient) {
+        }
 
         public override async Task<string>
             SendNotification(Guid notificationId, string userName, string title, string message, string url) {

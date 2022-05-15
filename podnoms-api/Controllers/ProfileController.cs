@@ -16,7 +16,6 @@ using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 using PodNoms.Data.Utils;
 
@@ -25,33 +24,24 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [EnableCors("DefaultCors")]
     public class ProfileController : BaseAuthController {
-        public IUnitOfWork _unitOfWork { get; }
-        public IMapper _mapper { get; }
 
-        private readonly IEntryRepository _entryRepository;
-        private readonly IRepository<ApplicationUserSlugRedirects> _slugRedirectRepository;
-        private readonly IRepository<IssuedApiKey> _issuedApiKeyRepository;
         private readonly AppSettings _appSettings;
         private readonly ApiKeyAuthSettings _apiKeyAuthSettings;
         private readonly StorageSettings _storageSettings;
+        private readonly IMapper _mapper;
+        private readonly IRepoAccessor _repo;
 
-        public ProfileController(IMapper mapper, IUnitOfWork unitOfWork,
-            IEntryRepository entryRepository, ILogger<ProfileController> logger,
-            IRepository<ApplicationUserSlugRedirects> slugRedirectRepository,
-            IRepository<IssuedApiKey> issuedApiKeyRepository,
+        public ProfileController(IMapper mapper, IRepoAccessor repo, ILogger<ProfileController> logger,
             IOptions<AppSettings> appSettings,
             IOptions<ApiKeyAuthSettings> apiKeyAuthSettings,
             IOptions<StorageSettings> storageSettings,
             UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor) : base(contextAccessor,
             userManager, logger) {
-            _entryRepository = entryRepository;
-            _slugRedirectRepository = slugRedirectRepository;
-            _issuedApiKeyRepository = issuedApiKeyRepository;
             _appSettings = appSettings.Value;
             _apiKeyAuthSettings = apiKeyAuthSettings.Value;
             _mapper = mapper;
             _storageSettings = storageSettings.Value;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
         }
 
         //TODO: This shouldn't be a List?
@@ -67,16 +57,17 @@ namespace PodNoms.Api.Controllers {
             //TODO: Create a mapping for this.
             if (!string.IsNullOrEmpty(_applicationUser.Slug) && !_applicationUser.Slug.Equals(item.Slug)) {
                 //item has changed, store the old slug for redirect purposes
-                var existing = await _slugRedirectRepository
+                var slugRedirectsRepo = _repo.CreateProxy<ApplicationUserSlugRedirects>();
+                var existing = await slugRedirectsRepo
                     .GetAll()
                     .Where(r => r.ApplicationUser.Id == _applicationUser.Id && r.OldSlug == item.Slug)
                     .FirstOrDefaultAsync();
                 if (existing is null) {
-                    _slugRedirectRepository.AddOrUpdate(new ApplicationUserSlugRedirects {
+                    slugRedirectsRepo.AddOrUpdate(new ApplicationUserSlugRedirects {
                         ApplicationUser = _applicationUser,
                         OldSlug = _applicationUser.Slug
                     });
-                    await _unitOfWork.CompleteAsync();
+                    await _repo.CompleteAsync();
                 }
             }
 
@@ -117,7 +108,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("getkeys")]
         public async Task<ActionResult<ApiKeyViewModel[]>> GetApiKeys() {
-            var keys = await this._issuedApiKeyRepository.GetAll()
+            var issuedApiKeyRepository = _repo.CreateProxy<IssuedApiKey>();
+            var keys = await issuedApiKeyRepository.GetAll()
                 .Where(r => r.IssuedTo.Slug.Equals(_applicationUser.Slug))
                 .OrderByDescending(r => r.CreateDate)
                 .ToListAsync();
@@ -126,7 +118,8 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost("regeneratekey")]
         public async Task<ActionResult<ApiKeyViewModel>> RegenerateApiKey([FromBody] ApiKeyViewModel apiKeyRequest) {
-            var existingKey = await _issuedApiKeyRepository.GetAsync(apiKeyRequest.Id);
+            var issuedApiKeyRepository = _repo.CreateProxy<IssuedApiKey>();
+            var existingKey = await issuedApiKeyRepository.GetAsync(apiKeyRequest.Id);
             if (existingKey is null) {
                 return NotFound();
             }
@@ -138,8 +131,8 @@ namespace PodNoms.Api.Controllers {
 
             newKey.Name = existingKey.Name;
             newKey.DateIssued = DateTime.Today;
-            await _issuedApiKeyRepository.DeleteAsync(existingKey.Id);
-            await _unitOfWork.CompleteAsync();
+            await issuedApiKeyRepository.DeleteAsync(existingKey.Id);
+            await _repo.CompleteAsync();
 
             return newKey;
         }
@@ -151,6 +144,7 @@ namespace PodNoms.Api.Controllers {
         }
 
         private async Task<ApiKeyViewModel> _generateApiKey(ApiKeyViewModel apiKeyRequest) {
+            var issuedApiKeyRepository = _repo.CreateProxy<IssuedApiKey>();
             var prefix = ApiKeyGenerator.GetApiKey(7);
             var plainTextKey = $"{prefix}.{ApiKeyGenerator.GetApiKey(128)}";
 
@@ -164,8 +158,8 @@ namespace PodNoms.Api.Controllers {
                 prefix,
                 convertedKey);
 
-            _issuedApiKeyRepository.AddOrUpdate(issue);
-            await _unitOfWork.CompleteAsync();
+            issuedApiKeyRepository.AddOrUpdate(issue);
+            await _repo.CompleteAsync();
 
             var key = _mapper.Map<ApiKeyViewModel>(issue);
             key.PlainTextKey = plainTextKey;
@@ -187,7 +181,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("limits")]
         public async Task<ActionResult<ProfileLimitsViewModel>> GetProfileLimits() {
-            var entries = await _entryRepository.GetAllForUserAsync(_applicationUser.Id);
+            var entries = await _repo.Entries.GetAllForUserAsync(_applicationUser.Id);
             var quota = _applicationUser.DiskQuota ?? _storageSettings.DefaultUserQuota;
             var user = _mapper.Map<ApplicationUser, ProfileViewModel>(_applicationUser);
 

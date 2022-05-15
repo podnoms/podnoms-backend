@@ -38,11 +38,10 @@ namespace PodNoms.Api.Controllers {
         private readonly IWebHostEnvironment _env;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly PodNomsDbContext _context;
-        private readonly IPodcastRepository _podcastRepository;
+        private readonly IRepoAccessor _repo;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            IOptions<AppSettings> appSettings, PodNomsDbContext context,
-            IPodcastRepository podcastRepository,
+            IOptions<AppSettings> appSettings, PodNomsDbContext context, IRepoAccessor repo,
             ILogger<UtilityController> logger, IConfiguration config,
             IWebHostEnvironment env,
             IHttpClientFactory httpClientFactory)
@@ -52,7 +51,7 @@ namespace PodNoms.Api.Controllers {
             _env = env;
             _httpClientFactory = httpClientFactory;
             _context = context;
-            _podcastRepository = podcastRepository;
+            _repo = repo;
         }
 
         [HttpGet("checkdupes")]
@@ -60,8 +59,7 @@ namespace PodNoms.Api.Controllers {
             string narrative = "Title") {
             return await Task.Run(() => {
                 try {
-                    var p = new Dictionary<string, object>();
-                    p.Add("field", value);
+                    var p = new Dictionary<string, object> {{"field", value}};
                     var sql =
                         $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
                     var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
@@ -171,7 +169,7 @@ namespace PodNoms.Api.Controllers {
             }
 
             var result = await user.GetOpmlFeed(
-                _podcastRepository,
+                _repo,
                 _appSettings.RssUrl,
                 _appSettings.SiteUrl);
 

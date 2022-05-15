@@ -21,34 +21,28 @@ using Microsoft.AspNetCore.Identity;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistsJob : AbstractHostedJob {
-        private readonly IPlaylistRepository _playlistRepository;
-        private readonly IEntryRepository _entryRepository;
         private readonly StorageSettings _storageSettings;
         private readonly AppSettings _appSettings;
         private readonly IYouTubeParser _youTubeParser;
         private readonly MixcloudParser _mixcloudParser;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
 
         public ProcessPlaylistsJob(
             ILogger<ProcessPlaylistsJob> logger,
             UserManager<ApplicationUser> userManager,
-            IPlaylistRepository playlistRepository,
-            IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repo,
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             IYouTubeParser youTubeParser,
             MixcloudParser mixcloudParser) : base(logger) {
             _userManager = userManager;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
-            _playlistRepository = playlistRepository;
-            _entryRepository = entryRepository;
             _storageSettings = storageSettings.Value;
             _appSettings = appSettings.Value;
         }
@@ -57,7 +51,7 @@ namespace PodNoms.Common.Services.Jobs {
         public override async Task<bool> Execute(PerformContext context) {
             Log("Starting playlist processing");
             context.WriteLine("Starting playlist processing");
-            var playlists = await _playlistRepository.GetAll()
+            var playlists = await _repo.Playlists.GetAll()
                 // .Where(r => r.Id == Guid.Parse("49c8d76d-05a9-489f-991b-08d830faf155"))
                 .ToListAsync();
 
@@ -72,8 +66,8 @@ namespace PodNoms.Common.Services.Jobs {
             Log($"Starting playlist processing for {playlistId}");
             context.WriteLine($"Starting playlist processing for {playlistId}");
             try {
-                var playlist = await _playlistRepository.GetAsync(playlistId);
-                var cutoffDate = await _playlistRepository.GetCutoffDate(playlistId);
+                var playlist = await _repo.Playlists.GetAsync(playlistId);
+                var cutoffDate = await _repo.Playlists.GetCutoffDate(playlistId);
                 var user = playlist.Podcast.AppUser;
 
                 //first check user has a valid subscription
@@ -87,7 +81,7 @@ namespace PodNoms.Common.Services.Jobs {
                 //next check quotas
                 Log("Checking quotas");
                 var quota = user.DiskQuota ?? _storageSettings.DefaultUserQuota;
-                var totalUsed = (await _entryRepository.GetAllForUserAsync(user.Id))
+                var totalUsed = (await _repo.Entries.GetAllForUserAsync(user.Id))
                     .Select(x => x.AudioFileSize)
                     .Sum();
 
@@ -134,7 +128,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                 //order in reverse so the newest item is added first
                 foreach (var item in resultList.Where(item =>
-                    playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
+                             playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
                     await _trimPlaylist(playlist, count);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob
@@ -165,10 +159,10 @@ namespace PodNoms.Common.Services.Jobs {
                     .Take(currentCount - count + 1);
 
                 foreach (var item in toDelete) {
-                    await _entryRepository.DeleteAsync(item.Id);
+                    await _repo.Entries.DeleteAsync(item.Id);
                 }
 
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
             }
         }
     }

@@ -23,7 +23,6 @@ namespace PodNoms.Common.Services.Startup {
                 .SetRequestParser<QueryCollectionRequestParser>()
                 .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
                 .SetCache<PhysicalFileSystemCache>()
-                .SetCacheHash<CacheHash>()
                 .RemoveProvider<PhysicalFileSystemProvider>()
                 .RemoveProvider<AzureBlobStorageImageProvider>()
                 .AddProvider(AzureProviderFactory)
@@ -47,18 +46,6 @@ namespace PodNoms.Common.Services.Startup {
             var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
             return new AzureBlobStorageImageProvider(
                 provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
-                provider.GetRequiredService<FormatUtilities>()) {
-                Match = context => {
-                    var match = context.Request.Path.StartsWithSegments($"/{containerName}");
-                    return match;
-                }
-            };
-        }
-
-        private static PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider) {
-            var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
-            return new PhysicalFileSystemProvider(
-                provider.GetRequiredService<IWebHostEnvironment>(),
                 provider.GetRequiredService<FormatUtilities>()) {
                 Match = context => {
                     var match = context.Request.Path.StartsWithSegments($"/{containerName}");

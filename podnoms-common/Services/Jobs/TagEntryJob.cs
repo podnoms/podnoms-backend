@@ -15,31 +15,25 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs {
     public class TagEntryJob : AbstractHostedJob {
-        private readonly IEntryRepository _entryRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly IFileUploader _fileUploader;
         private readonly ImageFileStorageSettings _imageStorageOptions;
-        private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageOptions;
         private readonly AudioFileStorageSettings _audioStorageOptions;
         private readonly IMP3Tagger _tagger;
 
         public TagEntryJob(
             ILogger<TagEntryJob> logger,
-            IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repo,
             IFileUploader fileUploader,
-            IOptions<AppSettings> appSettings,
             IOptions<ImageFileStorageSettings> imageStorageOptions,
             IOptions<AudioFileStorageSettings> audioStorageOptions,
             IOptions<StorageSettings> storageOptions,
             IMP3Tagger tagger) : base(logger) {
-            _entryRepository = entryRepository;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _fileUploader = fileUploader;
             _imageStorageOptions = imageStorageOptions.Value;
             _audioStorageOptions = audioStorageOptions.Value;
-            _appSettings = appSettings.Value;
             _storageOptions = storageOptions.Value;
             _tagger = tagger;
         }
@@ -47,7 +41,7 @@ namespace PodNoms.Common.Services.Jobs {
         public override async Task<bool> Execute(PerformContext context) {
             this._setContext(context);
 
-            var entries = await this._entryRepository.GetAll()
+            var entries = await this._repo.Entries.GetAll()
                 .Include(e => e.Podcast)
                 .Include(e => e.Podcast.AppUser)
                 .Where(e => e.MetadataStatus == 0)
@@ -87,10 +81,10 @@ namespace PodNoms.Common.Services.Jobs {
                     entry.MetadataStatus = -1;
                     LogError(ex.Message);
                 } finally {
-                    await _unitOfWork.CompleteAsync();
+                    await _repo.CompleteAsync();
                 }
             }
-            Log("PREPARING SAVE!!");
+
             return false;
         }
 
@@ -99,7 +93,7 @@ namespace PodNoms.Common.Services.Jobs {
             this._setContext(context);
             Log($"Tagging entry: {entryId} using {localFile}");
 
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             return await ExecuteForEntry(entry, localFile, updateEntry, context);
         }
 
@@ -115,7 +109,8 @@ namespace PodNoms.Common.Services.Jobs {
                 if (!string.IsNullOrEmpty(imageUrl)) {
                     localImageFile = await HttpUtils.DownloadFile(imageUrl);
                     if (!System.IO.File.Exists(localImageFile)) {
-                        localImageFile = await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
+                        localImageFile =
+                            await HttpUtils.DownloadFile("https://cdn.podnoms.com/static/images/pn-back.jpg");
                     }
                 }
 
@@ -128,14 +123,15 @@ namespace PodNoms.Common.Services.Jobs {
                     $"Copyright © {System.DateTime.Now.Year} {entry.Podcast.AppUser.GetBestGuessName()}",
                     $"Robot Powered Podcasts from{Environment.NewLine}https://podnoms.com/");
                 entry.AudioLength = _tagger.GetDuration(localFile);
-                
+
                 if (updateEntry) {
                     entry.MetadataStatus = 1;
-                    await _unitOfWork.CompleteAsync();
+                    await _repo.CompleteAsync();
                 }
             } catch (Exception e) {
                 this.LogError($"Error tagging entry: {e.Message}");
             }
+
             return true;
         }
     }

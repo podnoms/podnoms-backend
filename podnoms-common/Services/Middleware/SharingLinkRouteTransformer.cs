@@ -9,20 +9,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Middleware {
     public class SharingLinkRouteTransformer : DynamicRouteValueTransformer {
-        private readonly AppSettings _appSettings;
         private readonly SharingSettings _sharingSettings;
         private readonly IServiceProvider _provider;
         private readonly ILogger _logger;
 
-        public SharingLinkRouteTransformer(IOptions<AppSettings> appSettings,
+        public SharingLinkRouteTransformer(
             IOptions<SharingSettings> sharingSettings,
             IServiceProvider provider,
             ILogger<SharingLinkRouteTransformer> logger) {
-            _appSettings = appSettings.Value;
             _sharingSettings = sharingSettings.Value;
             _provider = provider;
             _logger = logger;
@@ -42,9 +41,8 @@ namespace PodNoms.Common.Services.Middleware {
             }
 
             using var scope = _provider.CreateScope();
-            var entryRepository = scope.ServiceProvider.GetRequiredService<IEntryRepository>();
-
-            var entryId = await entryRepository.GetIdForShareLink(requestPath);
+            var repoAccessor = scope.ServiceProvider.GetRequiredService<IRepoAccessor>();
+            var entryId = await repoAccessor.Entries.GetIdForShareLink(requestPath);
             if (string.IsNullOrEmpty(entryId)) {
                 return values;
             }

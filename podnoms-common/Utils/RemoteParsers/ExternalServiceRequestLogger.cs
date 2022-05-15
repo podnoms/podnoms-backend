@@ -12,21 +12,18 @@ namespace PodNoms.Common.Utils.RemoteParsers {
     }
 
     public class ExternalServiceRequestLogger : IExternalServiceRequestLogger {
-        private readonly IServicesApiKeyLoggerRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly ILogger<ExternalServiceRequestLogger> _logger;
 
-        public ExternalServiceRequestLogger(IServicesApiKeyLoggerRepository repository, IUnitOfWork unitOfWork,
-            ILogger<ExternalServiceRequestLogger> logger) {
-            _repository = repository;
-            _unitOfWork = unitOfWork;
+        public ExternalServiceRequestLogger(IRepoAccessor repo, ILogger<ExternalServiceRequestLogger> logger) {
+            _repo = repo;
             _logger = logger;
         }
 
         public async Task<ServicesApiKeyLog> LogRequest(ServiceApiKey apiKey, string requesterId, string stackTrace) {
             try {
                 var log = apiKey.LogRequest(requesterId, stackTrace);
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
                 return log;
             } catch (Exception e) when (e is NullReferenceException or DbUpdateException) {
                 _logger.LogError("Error saving external service request");

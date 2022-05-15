@@ -12,11 +12,11 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<DateTime> GetCutoffDate(Guid playlistId);
     }
 
-    public class PlaylistRepository : GenericRepository<Playlist>, IPlaylistRepository {
-
+    internal class PlaylistRepository : GenericRepository<Playlist>, IPlaylistRepository {
         public PlaylistRepository(
             PodNomsDbContext context,
-            ILogger<PlaylistRepository> logger) : base(context, logger) { }
+            ILogger logger) : base(context, logger) {
+        }
 
 
         public new async Task<Playlist> GetAsync(Guid id) {

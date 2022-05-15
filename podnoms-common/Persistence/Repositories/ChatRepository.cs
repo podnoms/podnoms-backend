@@ -14,9 +14,8 @@ namespace PodNoms.Common.Persistence.Repositories {
     }
 
 
-    public class ChatRepository : GenericRepository<ChatMessage>, IChatRepository {
-        public ChatRepository(PodNomsDbContext context, ILogger<ChatRepository> logger) : base(context, logger) {
-
+    internal class ChatRepository : GenericRepository<ChatMessage>, IChatRepository {
+        public ChatRepository(PodNomsDbContext context, ILogger logger) : base(context, logger) {
         }
 
         public async Task<IEnumerable<ChatMessage>> GetAllChats(string userId) {
@@ -28,6 +27,7 @@ namespace PodNoms.Common.Persistence.Repositories {
 
             return chats;
         }
+
         public async Task<IEnumerable<ChatMessage>> GetChats(string fromUserId, string toUserId, int take = 10) {
             var chats = await GetAll()
                 .Where(c => (c.FromUser.Id == fromUserId && c.ToUser.Id == toUserId) ||

@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models.Notifications;
@@ -12,9 +13,9 @@ namespace PodNoms.Common.Services.Notifications {
         private readonly ILogger<IFTTTNotificationHandler> _logger;
         public override Notification.NotificationType Type => Notification.NotificationType.IFTTT;
 
-        public IFTTTNotificationHandler(INotificationRepository notificationRepository, IHttpClientFactory httpClient,
+        public IFTTTNotificationHandler(IRepoAccessor repo, IHttpClientFactory httpClient,
             ILogger<IFTTTNotificationHandler> logger)
-            : base(notificationRepository, httpClient) {
+            : base(repo, httpClient) {
             _logger = logger;
         }
 

@@ -22,22 +22,16 @@ namespace PodNoms.Api.Controllers {
     [Authorize]
     [Route("/podcast/{slug}/audioupload")]
     public class AudioUploadController : BaseAuthController {
-        private readonly IPodcastRepository _podcastRepository;
-        private readonly IEntryRepository _entryRepository;
-        private IUnitOfWork _unitOfWork;
-        private readonly AppSettings _appsettings;
+        private IRepoAccessor _repo;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly IMapper _mapper;
 
         public AudioUploadController(
-            IPodcastRepository podcastRepository,
-            IEntryRepository entryRepository,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repo,
             IOptions<AudioFileStorageSettings> settings,
             IOptions<StorageSettings> storageSettings,
-            IOptions<AppSettings> appsettings,
             ILogger<AudioUploadController> logger,
             IMapper mapper,
             IWebHostEnvironment hostingEnvironment,
@@ -45,23 +39,19 @@ namespace PodNoms.Api.Controllers {
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _mapper = mapper;
             _audioFileStorageSettings = settings.Value;
-            _appsettings = appsettings.Value;
             _storageSettings = storageSettings.Value;
-            _podcastRepository = podcastRepository;
-            _entryRepository = entryRepository;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpPost]
         public async Task<IActionResult> Upload(string slug, IFormFile file) {
-            _logger.LogDebug($"Uploading file for: {slug}");
             if (file is null || file.Length == 0) return BadRequest("No file found in stream");
             if (file.Length > _audioFileStorageSettings.MaxUploadFileSize)
                 return BadRequest("Maximum file size exceeded");
             if (!_audioFileStorageSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type");
 
-            var podcast = await _podcastRepository.GetForUserAndSlugAsync(_applicationUser.Slug, slug);
+            var podcast = await _repo.Podcasts.GetForUserAndSlugAsync(_applicationUser.Slug, slug);
             if (podcast is null) {
                 _logger.LogError($"Unable to find podcast");
                 return NotFound();
@@ -78,10 +68,10 @@ namespace PodNoms.Api.Controllers {
             var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);
             _logger.LogDebug($"Local file is: {localFile}");
 
-            _entryRepository.AddOrUpdate(entry);
+            _repo.Entries.AddOrUpdate(entry);
 
             _logger.LogDebug("Completing uow");
-            await _unitOfWork.CompleteAsync();
+            await _repo.CompleteAsync();
 
             var authToken = _httpContextAccessor?.HttpContext?.Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authToken)) {

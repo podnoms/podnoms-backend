@@ -14,26 +14,26 @@ using PodNoms.Common.Data.Settings;
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     public class WaveformController : BaseAuthController {
-        private readonly IEntryRepository _entryRepository;
+        private readonly IRepoAccessor _repo;
         private readonly StorageSettings _storageSettings;
         private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
 
         public WaveformController(
-                IEntryRepository entryRepository,
-                IHttpContextAccessor contextAccessor,
-                UserManager<ApplicationUser> userManager,
-                IUnitOfWork unitOfWork,
-                IOptions<StorageSettings> storageSettings,
-                IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
-                ILogger<WaveformController> logger) : base(contextAccessor,
+            IHttpContextAccessor contextAccessor,
+            UserManager<ApplicationUser> userManager,
+            IRepoAccessor repo,
+            IOptions<StorageSettings> storageSettings,
+            IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
+            ILogger<WaveformController> logger) : base(contextAccessor,
             userManager, logger) {
-            _entryRepository = entryRepository;
+            _repo = repo;
             _storageSettings = storageSettings.Value;
             _waveformStorageSettings = waveformStorageSettings.Value;
         }
+
         [HttpGet("{entryId}")]
         public async Task<ActionResult<WaveformViewModel>> Get(string entryId) {
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             if (entry != null) {
                 //offload the downloading of the data to the client for now, 
                 //no need for us to be doing this heavy lifting 
@@ -49,6 +49,7 @@ namespace PodNoms.Api.Controllers {
                         $"{entry.Id}.json"),
                 });
             }
+
             return NotFound();
         }
     }

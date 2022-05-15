@@ -16,6 +16,7 @@ using PodNoms.Common.Data.ViewModels.Remote.Google;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
 using Nito.AsyncEx.Synchronous;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
@@ -48,17 +49,19 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
         private readonly IHttpClientFactory _httpFactory;
         private readonly IExternalServiceRequestLogger _serviceRequestLogger;
+        private readonly IRepoAccessor _repo;
+        private readonly IOptions<AppSettings> _options;
         private readonly ILogger<YouTubeParser> _logger;
-        private readonly IApiKeyRepository _keyRepository;
 
         public YouTubeParser(
+            IRepoAccessor repo,
             IOptions<AppSettings> options,
             ILogger<YouTubeParser> logger,
-            IApiKeyRepository keyRepository,
             IHttpClientFactory httpFactory,
             IExternalServiceRequestLogger serviceRequestLogger) {
+            _repo = repo;
+            _options = options;
             _logger = logger;
-            _keyRepository = keyRepository;
             _httpFactory = httpFactory;
             _serviceRequestLogger = serviceRequestLogger;
         }
@@ -82,7 +85,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 _logger.LogError($"API Key Failure: {service.ApiKey.Url}");
                 _logger.LogError($"API Key Failure: {request.Service.ApiKey}");
                 _logger.LogError($"API Key Failure: {request.Service.ApplicationName}");
-                await _keyRepository.TaintKey(service.ApiKey, reason: gae.Message);
+                await _repo.ApiKey.TaintKey(service.ApiKey, reason: gae.Message);
 
                 throw new ExpiredKeyException(
                     $"Expired Key Exception\n" +
@@ -150,7 +153,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
         }
 
         private async Task<ServiceWrapper> _useClient(string requesterId) {
-            var key = await _keyRepository.GetApiKey("YouTube", requesterId);
+            var key = await _repo.ApiKey.GetKey("YouTube", requesterId);
             if (key is null) {
                 throw new NoKeyAvailableException();
             }
@@ -266,7 +269,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
                 if (!string.IsNullOrEmpty(channelName)) {
                     using var client = _httpFactory.CreateClient("youtube");
-                    var key = await _keyRepository.GetApiKey("YouTube", requesterId);
+                    var key = await _repo.ApiKey.GetKey("YouTube", requesterId);
                     var requestUrl =
                         $"channels?part=id&forUsername={channelName}&key={key.Key}";
 

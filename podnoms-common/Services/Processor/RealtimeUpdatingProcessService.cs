@@ -24,7 +24,8 @@ namespace PodNoms.Common.Services.Processor {
         private readonly IRealTimeUpdater _realtime;
         protected readonly IMapper _mapper;
 
-        protected RealtimeUpdatingProcessService(ILogger logger, IRealTimeUpdater realtimeUpdater, IMapper mapper) {
+        protected RealtimeUpdatingProcessService(ILogger<RealtimeUpdatingProcessService> logger,
+            IRealTimeUpdater realtimeUpdater, IMapper mapper) {
             _logger = logger;
             _realtime = realtimeUpdater;
             _mapper = mapper;
@@ -43,6 +44,7 @@ namespace PodNoms.Common.Services.Processor {
             } finally {
                 __lockObj.Release();
             }
+
             return result;
         }
     }

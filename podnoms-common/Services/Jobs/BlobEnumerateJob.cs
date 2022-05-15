@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PodNoms.Common.Services.Jobs {
     public abstract class BlobEnumerateJob : AbstractHostedJob {
-        protected BlobEnumerateJob(ILogger logger) : base(logger) {
+        protected BlobEnumerateJob(ILogger<BlobEnumerateJob> logger) : base(logger) {
         }
 
         protected async IAsyncEnumerable<T> GetBlobs<T>(

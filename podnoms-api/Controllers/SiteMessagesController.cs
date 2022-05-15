@@ -10,35 +10,31 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
     [Authorize]
+    [Route("[controller]")]
     public class SiteMessagesController : BaseAuthController {
-        private readonly IRepository<SiteMessages> _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly IMapper _mapper;
 
         public SiteMessagesController(
-                        IHttpContextAccessor contextAccessor,
-                        UserManager<ApplicationUser> userManager,
-                        ILogger<SiteMessagesController> logger,
-                        IRepository<SiteMessages> repository,
-                        IUnitOfWork unitOfWork,
-                        IMapper mapper) : base(contextAccessor, userManager, logger) {
-            _repository = repository;
-            _unitOfWork = unitOfWork;
+            ILogger<SiteMessagesController> logger,
+            UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor contextAccessor,
+            IRepoAccessor repo,
+            IMapper mapper) : base(contextAccessor, userManager, logger) {
+            _repo = repo;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<SiteMessageViewModel>> GetShowcaseForUser() {
-            var candidate = await _repository.GetAll()
+            var candidate = await _repo.CreateProxy<SiteMessages>().GetAll()
                 .Where(r => r.Type.Equals(SiteMessageType.Showcase))
-                .Where(r => r.StartDate <= System.DateTime.Today)
-                .Where(r => r.EndDate >= System.DateTime.Today)
+                .Where(r => r.StartDate <= DateTime.Today)
+                .Where(r => r.EndDate >= DateTime.Today)
                 .Where(r => r.IsActive)
                 .SingleOrDefaultAsync();
             return _mapper.Map<SiteMessageViewModel>(candidate);
@@ -46,15 +42,16 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("banners")]
         public async Task<ActionResult<SiteMessageViewModel>> GetCurrentBannerMessage() {
-            var candidate = await _repository.GetAll()
+            var candidate = await _repo.CreateProxy<SiteMessages>().GetAll()
                 .Where(r => r.Type.Equals(SiteMessageType.Banner))
-                .Where(r => r.StartDate <= System.DateTime.Today)
-                .Where(r => r.EndDate >= System.DateTime.Today)
+                .Where(r => r.StartDate <= DateTime.Today)
+                .Where(r => r.EndDate >= DateTime.Today)
                 .Where(r => r.IsActive)
                 .OrderByDescending(r => r.UpdateDate)
                 .SingleOrDefaultAsync();
             return _mapper.Map<SiteMessageViewModel>(candidate);
         }
+
         [HttpPost("banners")]
         public async Task<ActionResult<SiteMessageViewModel>> AddBannerMessage([FromBody] SiteMessageViewModel model) {
             if (!ModelState.IsValid) return BadRequest("Invalid site message model");
@@ -62,10 +59,9 @@ namespace PodNoms.Api.Controllers {
             message.StartDate = DateTime.Today;
             message.EndDate = DateTime.Today.AddMonths(1);
             message.IsActive = true;
-            var result = _repository.AddOrUpdate(message);
-            await _unitOfWork.CompleteAsync();
+            var result = _repo.CreateProxy<SiteMessages>().AddOrUpdate(message);
+            await _repo.CompleteAsync();
             return _mapper.Map<SiteMessageViewModel>(result);
         }
     }
 }
-

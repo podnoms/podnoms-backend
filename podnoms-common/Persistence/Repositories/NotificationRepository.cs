@@ -12,9 +12,10 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<IList<NotificationLog>> GetLogsAsync(string notificationId);
     }
 
-    public class NotificationRepository : GenericRepository<Notification>, INotificationRepository {
-        public NotificationRepository(PodNomsDbContext context, ILogger<GenericRepository<Notification>> logger) : base(
-            context, logger) { }
+    internal class NotificationRepository : GenericRepository<Notification>, INotificationRepository {
+        public NotificationRepository(PodNomsDbContext context, ILogger logger) : base(
+            context, logger) {
+        }
 
         public NotificationLog AddLog(Notification notification, string logText) {
             var log = new NotificationLog {

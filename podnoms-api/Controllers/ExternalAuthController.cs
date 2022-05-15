@@ -39,20 +39,20 @@ namespace PodNoms.Api.Controllers {
         private readonly FacebookAuthSettings _fbAuthSettings;
         private readonly IJwtFactory _jwtFactory;
         private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly JwtIssuerOptions _jwtOptions;
         private static readonly HttpClient Client = new HttpClient();
 
         public ExternalAuthController(IOptions<FacebookAuthSettings> fbAuthSettingsAccessor, UserManager<ApplicationUser> userManager,
             IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions,
             IHttpContextAccessor contextAccessor,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             ILogger<ExternalAuthController> logger) : base(logger) {
             _fbAuthSettings = fbAuthSettingsAccessor.Value;
             _userManager = userManager;
             _jwtFactory = jwtFactory;
             _contextAccessor = contextAccessor;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _jwtOptions = jwtOptions.Value;
         }
         // POST api/externalauth/google
@@ -174,7 +174,7 @@ namespace PodNoms.Api.Controllers {
                 refresh,
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return new JwtRefreshTokenModel(refresh, jwt);
         }
     }

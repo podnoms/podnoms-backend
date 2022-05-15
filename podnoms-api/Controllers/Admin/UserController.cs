@@ -30,7 +30,7 @@ namespace PodNoms.Api.Controllers {
                 ILogger<UserController> logger,
                 RoleManager<IdentityRole> roleManager,
                 IMapper mapper,
-                IUnitOfWork unitOfWork) :
+                IRepoAccessor repoAccessor) :
             base(contextAccessor, userManager, logger) {
             _roleManager = roleManager;
             _mapper = mapper;

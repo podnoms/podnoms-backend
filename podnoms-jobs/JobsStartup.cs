@@ -2,7 +2,7 @@
 using EasyNetQ;
 using EasyNetQ.Logging;
 using Hangfire;
-using Hangfire.Console;
+using HangfireBasicAuthenticationFilter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -20,8 +20,6 @@ using PodNoms.Common.Services.Waveforms;
 using PodNoms.Jobs.Services;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Social;
-using HangfireBasicAuthenticationFilter;
-using PodNoms.Common.Utils;
 
 namespace PodNoms.Jobs {
     public class JobsStartup {
@@ -36,7 +34,7 @@ namespace PodNoms.Jobs {
         public void ConfigureServices(IServiceCollection services) {
             Console.WriteLine($"Configuring services");
             Console.WriteLine($"RabbitMQ Connection:\n\t{Configuration["RabbitMq:ExternalConnectionString"]}");
-            
+
             services.AddHangfire(options => {
                 options.UseSqlServerStorage(
                     Configuration.GetConnectionString("JobSchedulerConnection"),
@@ -45,13 +43,13 @@ namespace PodNoms.Jobs {
                     });
                 options.UseSimpleAssemblyNameTypeSerializer();
                 options.UseRecommendedSerializerSettings();
-                options.UseConsole();
                 //TODO: unsure if this is needed - re-enable if we get DI issues
                 // options.UseActivator (new HangfireActivator (serviceProvider));
             });
 
             services
                 .AddLogging()
+                .AddHangfireServer()
                 .AddPodNomsOptions(Configuration)
                 .AddPodNomsMapping(Configuration)
                 .AddSqlitePushSubscriptionStore(Configuration)
@@ -82,10 +80,6 @@ namespace PodNoms.Jobs {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHangfireServer(new BackgroundJobServerOptions {
-                WorkerCount = 5 //HardwareUtils.CPUAndCoreCount
-            });
 
             app.UseHangfireDashboard("/dashboard", new DashboardOptions {
                 Authorization = new[] {
