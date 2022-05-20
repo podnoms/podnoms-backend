@@ -9,7 +9,6 @@ using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IRepository<TEntity> where TEntity : class {
-
         IQueryable<TEntity> GetAll();
         Task<TEntity> GetAsync(string id);
         Task<TEntity> GetAsync(Guid id);
@@ -21,14 +20,13 @@ namespace PodNoms.Common.Persistence.Repositories {
         TEntity AddOrUpdate(TEntity entity);
         Task DeleteAsync(string id);
         Task DeleteAsync(Guid id);
-        PodNomsDbContext GetContext();
     }
 
-    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
+    internal class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
         private readonly PodNomsDbContext _context;
-        protected readonly ILogger<IRepository<TEntity>> _logger;
+        protected readonly ILogger _logger;
 
-        public GenericRepository(PodNomsDbContext context, ILogger<IRepository<TEntity>> logger) {
+        public GenericRepository(PodNomsDbContext context, ILogger logger) {
             _context = context;
             _logger = logger;
         }
@@ -44,13 +42,16 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<TEntity> GetAsync(string id) {
             return await GetAsync(Guid.Parse(id));
         }
+
         public async Task<TEntity> GetAsync(Guid id) {
             return await _context.Set<TEntity>()
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
+
         public async Task<TEntity> GetReadOnlyAsync(string id) {
             return await GetReadOnlyAsync(Guid.Parse(id));
         }
+
         public async Task<TEntity> GetReadOnlyAsync(Guid id) {
             return await _context.Set<TEntity>()
                 .AsNoTracking()

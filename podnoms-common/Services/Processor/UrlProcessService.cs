@@ -26,21 +26,19 @@ namespace PodNoms.Common.Services.Processor {
     }
 
     public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessService {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly AudioDownloader _downloader;
         private readonly IPageParser _parser;
         private readonly IYouTubeParser _youTubeParser;
-        private readonly IEntryRepository _repository;
 
         public UrlProcessService(
-            IEntryRepository repository, IUnitOfWork unitOfWork,
+            IRepoAccessor repo, IRepoAccessor repoAccessor,
             AudioDownloader downloader,
             IPageParser parser,
             IYouTubeParser youTubeParser,
             ILogger<UrlProcessService> logger, IRealTimeUpdater realtimeUpdater,
             IMapper mapper) : base(logger, realtimeUpdater, mapper) {
-            _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _downloader = downloader;
             _parser = parser;
             _youTubeParser = youTubeParser;
@@ -84,6 +82,7 @@ namespace PodNoms.Common.Services.Processor {
                         };
                     }
                 }
+
                 var downloader = await new UrlTypeParser().GetDownloader(url);
                 var info = await downloader.GetVideoInformation(url);
                 return new RemoteUrlStatus {
@@ -267,7 +266,7 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<RemoteUrlType> GetInformation(string entryId, string requesterId) {
-            var entry = await _repository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             if (entry is null || string.IsNullOrEmpty(entry.SourceUrl)) {
                 _logger.LogError("Unable to process item");
                 return RemoteUrlType.Invalid;
@@ -303,14 +302,14 @@ namespace PodNoms.Common.Services.Processor {
         }
 
         public async Task<bool> DownloadAudio(Guid entryId, string outputFile) {
-            var entry = await _repository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
 
             if (entry is null)
                 return false;
 
             try {
                 await __downloader_progress(
-                    entry.Podcast.AppUser.Id.ToString(),
+                    entry.Podcast.AppUser.Id,
                     entry.Id.ToString(),
                     new ProcessingProgress(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry)) {
                         ProcessingStatus = ProcessingStatus.Processing.ToString()
@@ -320,7 +319,7 @@ namespace PodNoms.Common.Services.Processor {
                 _downloader.DownloadProgress += async (s, e) => {
                     try {
                         await __downloader_progress(
-                            entry.Podcast.AppUser.Id.ToString(),
+                            entry.Podcast.AppUser.Id,
                             entry.Id.ToString(),
                             e
                         );
@@ -338,14 +337,14 @@ namespace PodNoms.Common.Services.Processor {
                 if (string.IsNullOrEmpty(sourceFile)) return false;
 
                 entry.ProcessingStatus = ProcessingStatus.Parsing;
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
 
                 return true;
             } catch (Exception ex) {
                 _logger.LogError($"Entry: {entryId}\n{ex.Message}\n\n\n{ex.StackTrace}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
                 entry.ProcessingPayload = ex.Message;
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
                 await _sendProgressUpdate(
                     entry.Podcast.AppUser.Id,
                     entry.Id.ToString(),

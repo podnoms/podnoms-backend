@@ -21,28 +21,23 @@ namespace PodNoms.Common.Services.Jobs {
     public class UpdatePatreonInfoJob : AbstractHostedJob {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IRepository<PatreonToken> _tokenRepository;
-        private readonly IRepository<AccountSubscription> _subscriptionRepository;
+        private readonly IRepoAccessor _repo;
         private readonly PatreonSettings _patreonSettings;
 
         public UpdatePatreonInfoJob(ILogger<UpdatePatreonInfoJob> logger,
             IHttpClientFactory httpClientFactory,
             IOptions<PatreonSettings> patreonSettings,
             UserManager<ApplicationUser> userManager,
-            IRepository<PatreonToken> tokenRepository,
-            IRepository<AccountSubscription> subscriptionRepository,
-            IUnitOfWork unitOfWork) : base(logger) {
+            IRepoAccessor repo) : base(logger) {
             _httpClientFactory = httpClientFactory;
             _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _tokenRepository = tokenRepository;
-            _subscriptionRepository = subscriptionRepository;
+            _repo = repo;
             _patreonSettings = patreonSettings.Value;
         }
 
         public override async Task<bool> Execute(PerformContext context) {
-            var tokens = await _tokenRepository
+            var subscriptionRepository = _repo.CreateProxy<AccountSubscription>();
+            var tokens = await _repo.CreateProxy<PatreonToken>()
                 .GetAll()
                 .ToListAsync();
             foreach (var token in tokens) {
@@ -68,11 +63,11 @@ namespace PodNoms.Common.Services.Jobs {
 
                     if (ds.Subscriptions is null)
                         continue;
-                    
+
                     // check if the user has subscribed to any of our active campaigns
                     foreach (var userTiers in ds.Subscriptions
-                        .Where(t => t.Id.Equals(_patreonSettings.CampaignId))
-                        .Select(t => t.RelationShips?.CurrentlyEntitledTiers)) {
+                                 .Where(t => t.Id.Equals(_patreonSettings.CampaignId))
+                                 .Select(t => t.RelationShips?.CurrentlyEntitledTiers)) {
                         foreach (var t in userTiers?.Tiers) {
                             Log($"Found active tier: {t.Id} - {t.Type}");
                             var subType = _patreonSettings.Tiers?
@@ -85,14 +80,14 @@ namespace PodNoms.Common.Services.Jobs {
                                 EndDate = DateTime.Today.AddDays(1),
                                 WasSuccessful = true
                             };
-                            var existingSubs = _subscriptionRepository
+                            var existingSubs = subscriptionRepository
                                 .GetAll()
                                 .Where(r => r.Type.Equals(AccountSubscriptionType.Patreon));
-                            _subscriptionRepository.GetContext().RemoveRange(
+                            _repo.Context.RemoveRange(
                                 existingSubs
                             );
                             user.AccountSubscriptions.Add(sub);
-                            await _unitOfWork.CompleteAsync();
+                            await _repo.CompleteAsync();
                         }
                     }
                 } catch (Exception e) {

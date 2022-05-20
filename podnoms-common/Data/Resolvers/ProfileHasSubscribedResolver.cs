@@ -5,27 +5,27 @@ using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Services;
 
 namespace PodNoms.Common.Data.Resolvers {
     internal class ProfileHasSubscribedResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, bool> {
-
-        private readonly IPaymentRepository _repository;
+        private readonly IRepoAccessor _repo;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProfileHasSubscribedResolver(IPaymentRepository repository, UserManager<ApplicationUser> userManager) {
-            _repository = repository;
+        public ProfileHasSubscribedResolver(IRepoAccessor repo, UserManager<ApplicationUser> userManager) {
+            _repo = repo;
             _userManager = userManager;
         }
 
-        public bool Resolve(ApplicationUser source, SubscriptionViewModel destination, bool destMember, ResolutionContext context) {
-
+        public bool Resolve(ApplicationUser source, SubscriptionViewModel destination, bool destMember,
+            ResolutionContext context) {
             var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
             if (isAdmin) return true;
 
-            var subs = _repository
+            var subs = _repo.Payments
                 .GetAll()
-                .Count(r => r.AppUser == source) != 0;
+                .Any(r => r.AppUser == source);
             return subs;
         }
     }

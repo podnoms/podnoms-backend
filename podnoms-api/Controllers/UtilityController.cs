@@ -38,30 +38,30 @@ namespace PodNoms.Api.Controllers {
         private readonly IWebHostEnvironment _env;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly PodNomsDbContext _context;
-        private readonly IPodcastRepository _podcastRepository;
+        private readonly IRepoAccessor _repo;
 
         public UtilityController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-                        IOptions<AppSettings> appSettings, PodNomsDbContext context,
-                        IPodcastRepository podcastRepository,
-                        ILogger<UtilityController> logger, IConfiguration config,
-                        IWebHostEnvironment env,
-                        IHttpClientFactory httpClientFactory)
-                                    : base(contextAccessor, userManager, logger) {
+            IOptions<AppSettings> appSettings, PodNomsDbContext context, IRepoAccessor repo,
+            ILogger<UtilityController> logger, IConfiguration config,
+            IWebHostEnvironment env,
+            IHttpClientFactory httpClientFactory)
+            : base(contextAccessor, userManager, logger) {
             _appSettings = appSettings.Value;
             _config = config;
             _env = env;
             _httpClientFactory = httpClientFactory;
             _context = context;
-            _podcastRepository = podcastRepository;
+            _repo = repo;
         }
 
         [HttpGet("checkdupes")]
-        public async Task<ActionResult<CheckValueResult>> CheckForDupes(string table, string field, string value, string narrative = "Title") {
+        public async Task<ActionResult<CheckValueResult>> CheckForDupes(string table, string field, string value,
+            string narrative = "Title") {
             return await Task.Run(() => {
                 try {
-                    var p = new Dictionary<string, object>();
-                    p.Add("field", value);
-                    var sql = $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
+                    var p = new Dictionary<string, object> {{"field", value}};
+                    var sql =
+                        $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
                     var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
                     if (result != null) {
                         return Ok(new CheckValueResult {
@@ -71,8 +71,10 @@ namespace PodNoms.Api.Controllers {
                         });
                     }
                 } catch (Exception ex) {
-                    _logger.LogError($"Error checking for dupes\n{ex.Message}\n\tTable: {table}\n\tField: {field}\n\tValue: {value}\n\tNarrative: {narrative}");
+                    _logger.LogError(
+                        $"Error checking for dupes\n{ex.Message}\n\tTable: {table}\n\tField: {field}\n\tValue: {value}\n\tNarrative: {narrative}");
                 }
+
                 return Ok(new CheckValueResult {
                     Value = value,
                     IsValid = true,
@@ -80,11 +82,13 @@ namespace PodNoms.Api.Controllers {
                 });
             });
         }
+
         [HttpPost("checkdomain")]
         public async Task<ActionResult<bool>> CheckHostName([FromBody] CheckHostNameViewModel request) {
-            if (_env.IsDevelopment()) {
+            if (_env.IsDevelopment() && false) {
                 return Ok(true);
             }
+
             try {
                 _logger.LogInformation($"Checking domain: {request.HostName}");
 
@@ -95,17 +99,19 @@ namespace PodNoms.Api.Controllers {
                 var response = await dnsRequest.Resolve();
 
                 var result = response.AnswerRecords
-                   .Where(r => r.Type == RecordType.CNAME)
-                   .Cast<CanonicalNameResourceRecord>()
-                   .Select(r => r.CanonicalDomainName)
-                   .FirstOrDefault();
+                    .Where(r => r.Type == RecordType.CNAME)
+                    .Cast<CanonicalNameResourceRecord>()
+                    .Select(r => r.CanonicalDomainName)
+                    .FirstOrDefault();
                 return Ok(result?.Equals(new Domain(request.RequiredDomain)) ?? false);
             } catch (Exception ex) {
                 _logger.LogError($"Error checking domain {request}");
                 _logger.LogError(ex.Message);
             }
+
             return Ok(false);
         }
+
         [AllowAnonymous]
         [HttpPost("checkpassword")]
         public async Task<ActionResult<int>> CheckPasswordStrength([FromBody] string pwd) {
@@ -128,6 +134,7 @@ namespace PodNoms.Api.Controllers {
                 return await client.GetContentSizeAsync(url);
             }
         }
+
         [HttpGet("clearhangfire")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "catastrophic-api-calls-allowed")]
         public async Task<ActionResult> ClearHangfireTables() {
@@ -138,6 +145,7 @@ namespace PodNoms.Api.Controllers {
                 await cmd.ExecuteNonQueryAsync();
                 connection.Close();
             }
+
             return Ok();
         }
 
@@ -147,6 +155,7 @@ namespace PodNoms.Api.Controllers {
             if (!string.IsNullOrEmpty(image)) {
                 return Content(image, "text/plain", Encoding.UTF8);
             }
+
             return new NotFoundResult();
         }
 
@@ -158,8 +167,9 @@ namespace PodNoms.Api.Controllers {
             if (user == null) {
                 return NotFound();
             }
+
             var result = await user.GetOpmlFeed(
-                _podcastRepository,
+                _repo,
                 _appSettings.RssUrl,
                 _appSettings.SiteUrl);
 

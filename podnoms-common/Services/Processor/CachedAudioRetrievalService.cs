@@ -16,26 +16,24 @@ using PodNoms.Common.Utils.Extensions;
 
 namespace PodNoms.Common.Services.Processor {
     public class CachedAudioRetrievalService : RealtimeUpdatingProcessService {
-        private readonly IEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly AppSettings _appSettings;
         private readonly HttpClient _httpClient;
 
-        public CachedAudioRetrievalService(IEntryRepository repository, IUnitOfWork unitOfWork,
-            ILogger<AudioUploadProcessService> logger,
+        public CachedAudioRetrievalService(IRepoAccessor repo,
+            ILogger<CachedAudioRetrievalService> logger,
             IOptions<AppSettings> appSettings,
             IHttpClientFactory httpClientFactory,
             IRealTimeUpdater realtimeUpdater, IMapper mapper)
             : base(logger, realtimeUpdater, mapper) {
-            _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _appSettings = appSettings.Value;
             this._httpClient = httpClientFactory.CreateClient("CachedAudio");
         }
 
 
         public async Task<string> RetrieveAudio(string authToken, Guid entryId, string remoteUrl, string extension) {
-            var entry = await _repository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             if (entry == null) {
                 return string.Empty;
             }

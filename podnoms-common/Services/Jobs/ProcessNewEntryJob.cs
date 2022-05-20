@@ -18,26 +18,20 @@ using PodNoms.Data.Models;
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessNewEntryJob : AbstractHostedJob {
         private readonly IConfiguration _options;
-        private readonly IEntryRepository _entryRepository;
-        private readonly IResponseCacheService _cache;
         private readonly CachedAudioRetrievalService _audioRetriever;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly ILogger<ProcessNewEntryJob> _logger;
         private readonly AppSettings _appSettings;
 
         public ProcessNewEntryJob(
             ILogger<ProcessNewEntryJob> logger,
             IConfiguration options,
-            IEntryRepository entryRepository,
             IOptions<AppSettings> appSettings,
-            IResponseCacheService cache,
             CachedAudioRetrievalService audioRetriever,
-            IUnitOfWork unitOfWork) : base(logger) {
+            IRepoAccessor repo) : base(logger) {
             _options = options;
-            _entryRepository = entryRepository;
-            _cache = cache;
             _audioRetriever = audioRetriever;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _logger = logger;
             _appSettings = appSettings.Value;
         }
@@ -46,7 +40,7 @@ namespace PodNoms.Common.Services.Jobs {
                                 Guid entryId, string audioUrl,
                                 string authToken, PerformContext context) {
             _setContext(context);
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await  _repo.Entries.GetAsync(entryId);
             var remoteUrl = Flurl.Url.Combine(_appSettings.ApiUrl, audioUrl);
 
             Log($"Caching: {remoteUrl}");
@@ -72,7 +66,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(Attempts = 0)]
         public async Task<bool> ProcessEntry(Guid entryId, PerformContext context) {
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await  _repo.Entries.GetAsync(entryId);
             try {
                 var localFile = Path.Combine(Path.GetTempPath(), $"{entryId}.mp3");
                 
@@ -123,7 +117,7 @@ namespace PodNoms.Common.Services.Jobs {
                 _logger.LogError($"Failed submitting job to processor\n{ex.Message}");
                 context.WriteLine($"Failed submitting job to processor\n{ex.Message}");
                 entry.ProcessingStatus = ProcessingStatus.Failed;
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
                 return false;
             }
         }

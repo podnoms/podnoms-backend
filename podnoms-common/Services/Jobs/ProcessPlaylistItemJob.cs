@@ -19,41 +19,23 @@ using static PodNoms.Common.Services.Processor.EntryPreProcessor;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistItemJob : AbstractHostedJob {
-        private readonly IPlaylistRepository _playlistRepository;
-        private readonly IAudioUploadProcessService _uploadService;
-        private readonly AppSettings _appSettings;
-        private readonly IPodcastRepository _podcastRepository;
-        private readonly StorageSettings _storageSettings;
-        private readonly ImageFileStorageSettings _imageStorageSettings;
-        private readonly HelpersSettings _helpersSettings;
         private readonly AudioDownloader _audioDownloader;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
+        private readonly IRepoAccessor _repoAccessor;
         private readonly IUrlProcessService _processor;
         private readonly EntryPreProcessor _preProcessor;
 
         public ProcessPlaylistItemJob(
-            IPlaylistRepository playlistRepository,
-            IAudioUploadProcessService uploadService,
-            IOptions<AppSettings> appSettings,
-            IPodcastRepository podcastRepository,
-            IOptions<ImageFileStorageSettings> imageStorageSettings,
-            IOptions<StorageSettings> storageSettings,
-            IOptions<HelpersSettings> helpersSettings,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repo,
+            IRepoAccessor repoAccessor,
             IUrlProcessService processor,
             EntryPreProcessor preProcessor,
             AudioDownloader audioDownloader,
             ILogger<ProcessPlaylistItemJob> logger) : base(logger) {
-            _unitOfWork = unitOfWork;
+            _repo = repo;
+            _repoAccessor = repoAccessor;
             _processor = processor;
             _preProcessor = preProcessor;
-            _playlistRepository = playlistRepository;
-            _uploadService = uploadService;
-            _appSettings = appSettings.Value;
-            _podcastRepository = podcastRepository;
-            _storageSettings = storageSettings.Value;
-            _imageStorageSettings = imageStorageSettings.Value;
-            _helpersSettings = helpersSettings.Value;
             _audioDownloader = audioDownloader;
         }
 
@@ -73,7 +55,7 @@ namespace PodNoms.Common.Services.Jobs {
 
             Log($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
 
-            var playlist = await _playlistRepository.GetAsync(playlistId);
+            var playlist = await _repo.Playlists.GetAsync(playlistId);
             var url = item.VideoType.ToLower().Equals("youtube") ? $"https://www.youtube.com/watch?v={item.Id}" :
                 item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.Id}" :
                 string.Empty;
@@ -85,7 +67,7 @@ namespace PodNoms.Common.Services.Jobs {
                 if (info != RemoteUrlType.Invalid) {
                     Log($"URL is valid");
 
-                    var podcast = await _podcastRepository.GetAsync(playlist.PodcastId);
+                    var podcast = await _repo.Podcasts.GetAsync(playlist.PodcastId);
                     var uid = Guid.NewGuid();
                     Log($"Downloading audio");
                     var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
@@ -98,7 +80,7 @@ namespace PodNoms.Common.Services.Jobs {
                         };
                         await _processor.GetInformation(entry, podcast.AppUserId);
                         podcast.PodcastEntries.Add(entry);
-                        await _unitOfWork.CompleteAsync();
+                        await _repoAccessor.CompleteAsync();
                         var result = await _preProcessor.PreProcessEntry(podcast.AppUser, entry);
                         return result == EntryProcessResult.Succeeded;
                     } catch (AudioDownloadException e) {

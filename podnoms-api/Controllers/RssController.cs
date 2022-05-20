@@ -13,6 +13,7 @@ using PodNoms.Common.Auth;
 using PodNoms.Common.Data;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.RssViewModels;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils;
@@ -24,32 +25,23 @@ using PodNoms.Data.Models;
 namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     public class RssController : Controller {
-        private readonly IPodcastRepository _podcastRepository;
+        private readonly IRepoAccessor _repo;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IRepository<ApplicationUserSlugRedirects> _redirectsRepository;
-        private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger _logger;
         private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageOptions;
         private readonly ImageFileStorageSettings _imageStorageOptions;
-        private readonly AudioFileStorageSettings _audioStorageOptions;
 
-        public RssController(IPodcastRepository podcastRespository,
+        public RssController(IRepoAccessor repo,
             IOptions<AppSettings> appOptions,
             IOptions<ImageFileStorageSettings> imageStorageOptions,
-            IOptions<AudioFileStorageSettings> audioStorageOptions,
             IOptions<StorageSettings> storageOptions,
             UserManager<ApplicationUser> userManager,
-            IRepository<ApplicationUserSlugRedirects> redirectsRepository,
-            IHttpContextAccessor contextAccessor,
             ILoggerFactory loggerFactory) {
-            _podcastRepository = podcastRespository;
+            _repo = repo;
             _userManager = userManager;
-            _redirectsRepository = redirectsRepository;
-            _contextAccessor = contextAccessor;
             _appSettings = appOptions.Value;
             _imageStorageOptions = imageStorageOptions.Value;
-            _audioStorageOptions = audioStorageOptions.Value;
             _storageOptions = storageOptions.Value;
             _logger = loggerFactory.CreateLogger<RssController>();
         }
@@ -63,7 +55,7 @@ namespace PodNoms.Api.Controllers {
             var user = await _userManager.FindBySlugAsync(userSlug);
             if (user is null) {
                 //check if we have a redirect in place
-                var redirect = await _redirectsRepository
+                var redirect = await _repo.CreateProxy<ApplicationUserSlugRedirects>()
                     .GetAll()
                     .Where(r => r.OldSlug == userSlug)
                     .FirstOrDefaultAsync();
@@ -72,16 +64,16 @@ namespace PodNoms.Api.Controllers {
                     return NotFound();
                 }
 
-                user = await _userManager.FindByIdAsync(redirect.ApplicationUserId.ToString());
+                user = await _userManager.FindByIdAsync(redirect.ApplicationUserId);
                 if (user is null) {
                     return NotFound();
                 }
 
                 var url = Flurl.Url.Combine(_appSettings.RssUrl, user.Slug, podcastSlug);
-                return RedirectPermanent(url);
+                return Redirect(url);
             }
 
-            var podcast = await _podcastRepository.GetForUserAndSlugAsync(userSlug, podcastSlug);
+            var podcast = await _repo.Podcasts.GetForUserAndSlugAsync(userSlug, podcastSlug);
             if (podcast is null) return NotFound();
             try {
                 var xml = await ResourceReader.ReadResource("podcast.xml");

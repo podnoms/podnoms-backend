@@ -33,7 +33,7 @@ namespace PodNoms.Api.Controllers {
         private readonly StorageSettings _storageSettings;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly IMailSender _emailSender;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repoAccessor;
         public RoleManager<IdentityRole> _roleManager;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly AppSettings _appSettings;
@@ -50,13 +50,13 @@ namespace PodNoms.Api.Controllers {
             IOptions<StorageSettings> storageSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IMailSender mailSender,
-            IUnitOfWork unitOfWork,
+            IRepoAccessor repoAccessor,
             ILogger<AuthController> logger) : base(logger) {
             _userManager = userManager;
             _jwtFactory = jwtFactory;
             _recaptcha = recaptcha;
             _emailSender = mailSender;
-            _unitOfWork = unitOfWork;
+            _repoAccessor = repoAccessor;
             _roleManager = roleManager;
             _contextAccessor = contextAccessor;
             _appSettings = appSettings.Value;
@@ -128,7 +128,7 @@ namespace PodNoms.Api.Controllers {
                 refresh,
                 _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
 
-            await _unitOfWork.CompleteAsync();
+            await _repoAccessor.CompleteAsync();
             return (jwt.Token, new JwtRefreshTokenModel(refresh, jwt));
         }
 

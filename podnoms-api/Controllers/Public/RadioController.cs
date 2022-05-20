@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
@@ -18,30 +19,25 @@ using PodNoms.Data.Extensions;
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/radio")]
     public class RadioController : Controller {
-        private readonly IEntryRepository _entryRepository;
+        private readonly IRepoAccessor _repo;
         private readonly ILogger<RadioController> _logger;
-        private readonly AppSettings _appSettings;
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioFileStorageSettings;
-        private readonly IMapper _mapper;
 
-        public RadioController(IEntryRepository entryRepository,
-            IOptions<AppSettings> appSettings,
+        public RadioController(
+            IRepoAccessor repo,
             IOptions<StorageSettings> storageSettings,
             IOptions<AudioFileStorageSettings> audioFileStorageSettings,
-            ILogger<RadioController> logger,
-            IMapper mapper) {
-            _entryRepository = entryRepository;
+            ILogger<RadioController> logger) {
+            _repo = repo;
             _logger = logger;
-            _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
             _audioFileStorageSettings = audioFileStorageSettings.Value;
-            _mapper = mapper;
         }
 
         [HttpGet("playlist")]
         public async Task<string> GetPlaylist() {
-            var items = await _entryRepository.GetRandomPlaylistItems();
+            var items = await _repo.Entries.GetRandomPlaylistItems();
             var result = string.Join(Environment.NewLine, items.Select(i =>
                 i.GetRawAudioUrl(_storageSettings.CdnUrl, _audioFileStorageSettings.ContainerName, "mp3")));
             return result;
@@ -58,6 +54,7 @@ namespace PodNoms.Api.Controllers.Public {
             } catch (Exception) {
                 _logger.LogWarning("Unable to get now playing url");
             }
+
             return NoContent();
         }
     }

@@ -30,52 +30,29 @@ namespace PodNoms.Api.Controllers {
     [Route("[controller]")]
     [Authorize]
     public class EntryController : BaseAuthController {
-        private readonly IPodcastRepository _podcastRepository;
-        private readonly IEntryRepository _repository;
-
-        private IConfiguration _options;
-
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IResponseCacheService _cache;
+        private readonly IRepoAccessor _repo;
         private readonly IMapper _mapper;
-        private readonly IYouTubeParser _youTubeParser;
-        private readonly AppSettings _appSettings;
         private readonly IUrlProcessService _processor;
         private readonly EntryPreProcessor _preProcessor;
-        private readonly AudioFileStorageSettings _audioFileStorageSettings;
         private readonly StorageSettings _storageSettings;
 
-        public EntryController(IEntryRepository repository,
-            IPodcastRepository podcastRepository,
-            IUnitOfWork unitOfWork, IMapper mapper,
+        public EntryController(IRepoAccessor repo, IMapper mapper,
             IOptions<StorageSettings> storageSettings,
-            IOptions<AppSettings> appSettings,
-            IOptions<AudioFileStorageSettings> audioFileStorageSettings,
-            IYouTubeParser youTubeParser,
-            IConfiguration options,
-            IResponseCacheService cache,
             IUrlProcessService processor,
             EntryPreProcessor preProcessor,
             ILogger<EntryController> logger,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
-            _podcastRepository = podcastRepository;
-            _repository = repository;
-            _options = options;
-            _appSettings = appSettings.Value;
             _storageSettings = storageSettings.Value;
-            _unitOfWork = unitOfWork;
-            _audioFileStorageSettings = audioFileStorageSettings.Value;
+            _repo = repo;
             _mapper = mapper;
-            _cache = cache;
-            _youTubeParser = youTubeParser;
             _processor = processor;
             _preProcessor = preProcessor;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
-            var entries = await _repository.GetAllForUserAsync(_applicationUser.Id);
+            var entries = await _repo.Entries.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
                 entries.OrderByDescending(e => e.CreateDate).ToList()
             );
@@ -84,7 +61,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("all/{podcastSlug}")]
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
-            var entries = await _repository.GetAllForSlugAsync(podcastSlug);
+            var entries = await _repo.Entries.GetAllForSlugAsync(podcastSlug);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
                 entries.OrderByDescending(r => r.CreateDate).ToList()
             );
@@ -94,7 +71,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("{entryId}")]
         public async Task<ActionResult<PodcastEntryViewModel>> Get(string entryId) {
-            var entry = await _repository.GetAll()
+            var entry = await _repo.Entries.GetAll()
                 .Include(e => e.Podcast)
                 .SingleOrDefaultAsync(e => e.Id == Guid.Parse(entryId));
             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
@@ -109,7 +86,7 @@ namespace PodNoms.Api.Controllers {
             PodcastEntry entry;
 
             if (item.Id != null) {
-                entry = await _repository.GetAsync(item.Id);
+                entry = await _repo.Entries.GetAsync(item.Id);
                 _mapper.Map(item, entry);
             } else {
                 entry = _mapper.Map<PodcastEntryViewModel, PodcastEntry>(item);
@@ -118,11 +95,10 @@ namespace PodNoms.Api.Controllers {
             if (entry is null)
                 return BadRequest();
 
-            if (entry.ProcessingStatus == ProcessingStatus.Uploading ||
-                entry.ProcessingStatus == ProcessingStatus.Processed) {
+            if (entry.ProcessingStatus is ProcessingStatus.Uploading or ProcessingStatus.Processed) {
                 // we're editing an existing entry
-                await _repository.AddOrUpdateWithTags(entry);
-                await _unitOfWork.CompleteAsync();
+                _repo.Entries.AddOrUpdate(entry);
+                await _repo.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
             }
@@ -140,39 +116,45 @@ namespace PodNoms.Api.Controllers {
                 var result = await _preProcessor.PreProcessEntry(
                     _applicationUser,
                     entry);
-                
+
                 switch (result) {
                     case EntryProcessResult.QuotaExceeded:
                         return StatusCode(402);
                     case EntryProcessResult.GeneralFailure:
                         return BadRequest();
+                    case EntryProcessResult.Succeeded:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
-                _repository.GetContext()
+                _repo.Context
                     .Entry(entry)
                     .State = EntityState.Detached;
 
-                entry = await _repository.GetAsync(entry.Id);
+                entry = await _repo.Entries.GetAsync(entry.Id);
                 return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             }
 
-            if (urlType.Equals(UrlType.Playlist)) {
+            if (!urlType.Equals(UrlType.Playlist)) {
+                return BadRequest("Failed to create podcast entry");
+            }
+
+            {
                 entry.ProcessingStatus = ProcessingStatus.Deferred;
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Accepted(result);
             }
-
-            return BadRequest("Failed to create podcast entry");
         }
 
         // TODO: This needs to be wrapped in an authorize - group=test-harness ASAP
         [HttpDelete]
         public async Task<IActionResult> DeleteAllEntries() {
             try {
-                _repository.GetContext().PodcastEntries.RemoveRange(
-                    _repository.GetContext().PodcastEntries.ToList()
+                _repo.Context.PodcastEntries.RemoveRange(
+                    _repo.Context.PodcastEntries.ToList()
                 );
-                await _unitOfWork.CompleteAsync();
+                await _repo.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
                 _logger.LogError("Error deleting entries");
@@ -185,9 +167,8 @@ namespace PodNoms.Api.Controllers {
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id) {
             try {
-                var entry = await _repository.GetAsync(id);
-                await _repository.DeleteAsync(id);
-                await _unitOfWork.CompleteAsync();
+                await _repo.Entries.DeleteAsync(id);
+                await _repo.CompleteAsync();
                 return Ok();
             } catch (Exception ex) {
                 _logger.LogError("Error deleting entry");
@@ -199,11 +180,11 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost("/preprocess")]
         public async Task<ActionResult<PodcastEntryViewModel>> PreProcess(PodcastEntryViewModel item) {
-            var entry = await _repository.GetAsync(item.Id);
+            var entry = await _repo.Entries.GetAsync(item.Id);
             entry.ProcessingStatus = ProcessingStatus.Accepted;
             var response = _processor.GetInformation(item.Id, this.UserId);
             entry.ProcessingStatus = ProcessingStatus.Processing;
-            await _unitOfWork.CompleteAsync();
+            await _repo.CompleteAsync();
 
             var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
             return result;
@@ -211,9 +192,9 @@ namespace PodNoms.Api.Controllers {
 
         [HttpPost("resubmit")]
         public async Task<IActionResult> ReSubmit([FromBody] PodcastEntryViewModel item) {
-            var entry = await _repository.GetAsync(item.Id);
+            var entry = await _repo.Entries.GetAsync(item.Id);
             entry.ProcessingStatus = ProcessingStatus.Processing;
-            await _unitOfWork.CompleteAsync();
+            await _repo.CompleteAsync();
             if (entry.ProcessingStatus != ProcessingStatus.Processed) {
                 BackgroundJob.Enqueue<ProcessNewEntryJob>(e =>
                     e.ProcessEntry(entry.Id, null));
@@ -224,7 +205,7 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet("downloadurl/{entryId}")]
         public async Task<ActionResult<AudioDownloadInfoViewModel>> GetDownloadUrl(string entryId) {
-            var entry = await _repository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
 
             if (entry is null) {
                 return NotFound();

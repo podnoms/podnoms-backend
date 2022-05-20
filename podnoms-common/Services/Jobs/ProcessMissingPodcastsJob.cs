@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Storage;
@@ -17,31 +18,23 @@ namespace PodNoms.Common.Services.Jobs {
     public class ProcessMissingPodcastsJob : AbstractHostedJob {
         private readonly IUrlProcessService _processor;
         private readonly IWaveformGenerator _waveFormGenerator;
-        private readonly IEntryRepository _entryRepository;
-        private readonly IPlaylistRepository _playlistRepository;
         private readonly IFileUtilities _fileUtils;
         private readonly IFileUploader _fileUploader;
         private readonly WaveformDataFileStorageSettings _waveformStorageSettings;
+        private readonly IRepoAccessor _repo;
         private readonly IAudioUploadProcessService _uploadService;
-        private readonly AudioFileStorageSettings _audioStorageSettings;
-        private readonly ILogger<ProcessMissingPodcastsJob> _logger;
 
         public ProcessMissingPodcastsJob(
-            IOptions<AudioFileStorageSettings> audioStorageSettings,
             ILogger<ProcessMissingPodcastsJob> logger,
+            IRepoAccessor repo,
             IUrlProcessService processor,
             IWaveformGenerator waveFormGenerator,
-            IEntryRepository entryRepository,
-            IPlaylistRepository playlistRepository,
             IFileUtilities fileUtils,
             IFileUploader fileUploader,
             IOptions<WaveformDataFileStorageSettings> waveformStorageSettings,
             IAudioUploadProcessService uploadService) : base(logger) {
-            _audioStorageSettings = audioStorageSettings.Value;
-            _logger = logger;
+            _repo = repo;
             _uploadService = uploadService;
-            _entryRepository = entryRepository;
-            _playlistRepository = playlistRepository;
             _fileUtils = fileUtils;
             _fileUploader = fileUploader;
             _waveformStorageSettings = waveformStorageSettings.Value;
@@ -57,7 +50,7 @@ namespace PodNoms.Common.Services.Jobs {
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> ExecuteForEntry(string entryId, PerformContext context) {
             Log($"ExecuteForEntry: starting for entry {entryId}");
-            var entry = await _entryRepository.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             if (entry != null) {
                 Log($"ExecuteForEntry: located entry {entryId}");
                 await _process(entry.Id, entry.AudioUrl, true);
@@ -73,7 +66,7 @@ namespace PodNoms.Common.Services.Jobs {
             _setContext(context);
             Log("Starting processing missing podcasts");
             try {
-                var entries = await _entryRepository.GetAll()
+                var entries = await _repo.Entries.GetAll()
                     // .Where(e => e.SourceUrl != string.Empty && e.SourceUrl != null)
                     // .Where(e => e.Processed == false)
                     .Where(e => e.Id == Guid.Parse("fde16ed1-2b56-4b38-7369-08d76d58dfa1"))

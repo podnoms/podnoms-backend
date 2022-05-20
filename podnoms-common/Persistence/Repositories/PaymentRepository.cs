@@ -10,13 +10,17 @@ using PodNoms.Data.Extensions;
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IPaymentRepository : IRepository<AccountSubscription> {
         bool Overlaps(string appUserId, DateTime startDate, DateTime endDate);
-        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount, AccountSubscriptionTier paymentType, bool paid, string receipt);
+
+        void AddPayment(ApplicationUser appUser, string orderId, long paymentAmount,
+            AccountSubscriptionTier paymentType, bool paid, string receipt);
+
         IEnumerable<AccountSubscription> GetAllValidSubscriptions(string id);
     }
 
-    public class PaymentRepository : GenericRepository<AccountSubscription>, IPaymentRepository {
-        public PaymentRepository(PodNomsDbContext context, ILogger<GenericRepository<AccountSubscription>> logger) :
-            base(context, logger) { }
+    internal class PaymentRepository : GenericRepository<AccountSubscription>, IPaymentRepository {
+        public PaymentRepository(PodNomsDbContext context, ILogger logger) :
+            base(context, logger) {
+        }
 
         public bool Overlaps(string appUserId, DateTime startDate, DateTime endDate) {
             var items = GetAll().Any(

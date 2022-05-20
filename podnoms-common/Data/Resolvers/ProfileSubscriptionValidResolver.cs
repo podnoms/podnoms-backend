@@ -4,31 +4,27 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 using System.Linq;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Services;
 
 namespace PodNoms.Common.Data.Resolvers {
     internal class ProfileSubscriptionValidResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, bool> {
-        private readonly IPaymentRepository _repository;
+        private readonly IRepoAccessor _repo;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProfileSubscriptionValidResolver(IPaymentRepository repository, UserManager<ApplicationUser> userManager) {
-            _repository = repository;
+        public ProfileSubscriptionValidResolver(IRepoAccessor repo, UserManager<ApplicationUser> userManager) {
+            _repo = repo;
             _userManager = userManager;
         }
 
-        public bool Resolve(ApplicationUser source, SubscriptionViewModel destination, bool destMember, ResolutionContext context) {
-            var isAdmin = AsyncHelper.RunSync(() => {
-                return _userManager.IsInRoleAsync(source, "god-mode");
-            });
+        public bool Resolve(ApplicationUser source, SubscriptionViewModel destination, bool destMember,
+            ResolutionContext context) {
+            var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
             if (isAdmin) {
                 return true;
             }
-            var test = _repository.GetAll()
-              .Where(r => r.AppUser == source)
-              .FirstOrDefault();
-
-            var subs = _repository.GetAllValidSubscriptions(source.Id);
-            return subs.Count() > 0;
+            var subs = _repo.Payments.GetAllValidSubscriptions(source.Id);
+            return subs.Any();
         }
     }
 }

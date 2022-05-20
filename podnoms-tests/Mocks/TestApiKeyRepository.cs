@@ -51,7 +51,7 @@ namespace PodNoms.Tests.Mocks {
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceApiKey> GetApiKey(string type, string userId) {
+        public async Task<ServiceApiKey> GetKey(string type, string userId) {
             var result = new ServiceApiKey {
                 Id = System.Guid.NewGuid(),
                 Description = "Test API Key",

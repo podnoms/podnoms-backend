@@ -8,6 +8,7 @@ using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
+using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Models;
@@ -19,7 +20,7 @@ namespace PodNoms.Api.Controllers {
         private readonly StorageSettings _storageSettings;
         private readonly AudioFileStorageSettings _audioStorageSettings;
         private readonly IFileUtilities _fileUtilities;
-        private readonly IEntryRepository _repository;
+        private readonly IRepoAccessor _repo;
 
         public DownloadController(IHttpContextAccessor contextAccessor,
             IOptions<StorageSettings> storageSettings,
@@ -27,19 +28,19 @@ namespace PodNoms.Api.Controllers {
             IFileUtilities fileUtilities,
             UserManager<ApplicationUser> userManager,
             ILogger<DownloadController> logger,
-            IEntryRepository repository) :
+            IRepoAccessor repo) :
             base(contextAccessor, userManager, logger) {
             _storageSettings = storageSettings.Value;
             _audioStorageSettings = audioStorageSettings.Value;
             _fileUtilities = fileUtilities;
-            _repository = repository;
+            _repo = repo;
         }
 
         [AllowAnonymous]
         [HttpGet("{entryId}")]
         public async Task<IActionResult> DownloadFile(string entryId) {
             try {
-                var entry = await _repository.GetAsync(entryId);
+                var entry = await _repo.Entries.GetAsync(entryId);
                 var storageUrl = entry.GetInternalStorageUrl(_storageSettings.CdnUrl);
                 var stream =
                     await _fileUtilities.GetRemoteFileStream(_audioStorageSettings.ContainerName, $"{entry.Id}.mp3");
@@ -47,7 +48,7 @@ namespace PodNoms.Api.Controllers {
                 Response.Headers.Add("Content-Type", $"application/octet-stream");
                 return File(stream, "application/octet-stream", false);
             } catch (InvalidOperationException e) {
-                _logger.LogError(e.Message);
+                _logger.LogError(123123, e, "DownloadController");
                 return NotFound();
             }
         }

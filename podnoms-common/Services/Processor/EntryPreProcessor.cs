@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 
@@ -18,23 +17,20 @@ namespace PodNoms.Common.Services.Processor {
             GeneralFailure
         }
         private readonly StorageSettings _storageSettings;
-        private readonly IEntryRepository _repository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepoAccessor _repo;
         private readonly ILogger<EntryPreProcessor> _logger;
 
         public EntryPreProcessor(
-                    IOptions<StorageSettings> storageSettings,
-                    IEntryRepository repository, IUnitOfWork unitOfWork,
+                    IOptions<StorageSettings> storageSettings, IRepoAccessor repo,
                     ILogger<EntryPreProcessor> logger) {
             _storageSettings = storageSettings.Value;
-            _repository = repository;
-            _unitOfWork = unitOfWork;
+            _repo = repo;
             _logger = logger;
         }
 
         public async Task<EntryProcessResult> PreProcessEntry(ApplicationUser user, PodcastEntry entry) {
             var quota = user.DiskQuota ?? _storageSettings.DefaultUserQuota;
-            var totalUsed = (await _repository.GetAllForUserAsync(user.Id))
+            var totalUsed = (await _repo.Entries.GetAllForUserAsync(user.Id))
                 .Select(x => x.AudioFileSize)
                 .Sum();
 
@@ -47,9 +43,9 @@ namespace PodNoms.Common.Services.Processor {
             }
 
             entry.Processed = false;
-            _repository.AddOrUpdate(entry);
+            _repo.Entries.AddOrUpdate(entry);
             try {
-                var succeeded = await _unitOfWork.CompleteAsync();
+                var succeeded = await _repo.CompleteAsync();
                 if (succeeded) {
                     BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));
                     return EntryProcessResult.Succeeded;

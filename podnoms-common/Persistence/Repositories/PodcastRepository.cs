@@ -21,8 +21,8 @@ namespace PodNoms.Common.Persistence.Repositories {
         Task<string> GetActivePodcast(string userId);
     }
 
-    public class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
-        public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) :
+    internal class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
+        public PodcastRepository(PodNomsDbContext context, ILogger logger) :
             base(context, logger) {
         }
 
