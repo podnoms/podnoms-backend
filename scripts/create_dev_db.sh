@@ -13,9 +13,9 @@ docker run \
     -d mcr.microsoft.com/mssql/server
 
 echo Waiting for docker
-until [ "`/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql`"=="healthy" ]; do
-    sleep 0.1;
-done;
+until [ "$(/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql)"=="healthy" ]; do
+    sleep 0.1
+done
 
 echo Creating databases
 mssql-cli -S localhost -d master -U sa -P $PASSWORD \ 

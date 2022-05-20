@@ -32,6 +32,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Threading.Tasks;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Rss;
@@ -139,7 +140,7 @@ namespace PodNoms.Api {
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider, IHostApplicationLifetime lifetime,
             UserManager<ApplicationUser> userManager) {
-            UpdateDatabase(app, userManager, Configuration);
+            UpdateDatabase(app, userManager, Configuration, Env.IsDevelopment());
 
             app.UseMiddleware<AuthExceptionMiddleware>();
 
@@ -200,13 +201,20 @@ namespace PodNoms.Api {
         }
 
         private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager,
-            IConfiguration config) {
+            IConfiguration config, bool isDebug) {
             using var serviceScope = app.ApplicationServices
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext>();
+            if (context is null) {
+                return;
+            }
+
             context.Database.Migrate();
             PodNomsDbInitialiser.SeedUsers(userManager, context, config);
+            if (isDebug) {
+                PodNomsDbInitialiser.SeedPodcasts(userManager, context, config);
+            }
         }
     }
 
