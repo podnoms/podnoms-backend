@@ -20,7 +20,7 @@ namespace PodNoms.Tests {
 
         public Dictionary<string, string> YTDL_URLS = new() {
             {"15 Minute Sine", "https://www.mixcloud.com/podnoms/15-minute-sine/"},
-            {"1 Minute Sine", "https://soundcloud.com/fergalmoran/1-minute-sine"}
+            {"1 Minute Sine", "https://soundcloud.com/fergalmoran/1-minute-sine/s-X7DvUKAezh8"}
         };
 
         public Dictionary<string, string> AUDIO_URLS = new() {
