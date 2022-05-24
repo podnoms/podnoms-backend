@@ -13,7 +13,7 @@ namespace PodNoms.AudioParsing.UrlParsers {
                 var stdOutBuffer = new StringBuilder();
                 var stdErrBuffer = new StringBuilder();
                 //TODO Don't call YTDL here, refactor to class/module
-                var result = await Cli.Wrap("/usr/bin/youtube-dl")
+                var result = await Cli.Wrap("youtube-dl")
                     .WithArguments($"{url} -j")
                     .WithValidation(CommandResultValidation.None)
                     .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer))
