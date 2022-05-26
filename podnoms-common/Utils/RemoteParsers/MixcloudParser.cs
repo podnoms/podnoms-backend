@@ -8,10 +8,6 @@ using Newtonsoft.Json;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     public class MixcloudParser {
-        static string[] VALID_PATHS = new string[] {
-            "stream", "uploads", "favorites", "listens", "playlists"
-        };
-
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<MixcloudParser> _logger;
 
@@ -19,18 +15,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
         }
-        public static bool ValidateUrl(string url) {
-            try {
-                var uri = new Uri(url);
-                if (uri.Host.EndsWith("mixcloud.com")) {
-                    var path = uri.Segments[uri.Segments.Length - 1].ToString().TrimEnd(new[] { '/' });
-                    return (VALID_PATHS.Any(path.Equals)) ||
-                            uri.Segments.Where(s => s != "/").Count() == 1;
-                }
-            } catch (Exception) {
-            }
-            return false;
-        }
+
         public async Task<List<ParsedItemResult>> GetEntries(string url, int count = 10) {
             try {
                 var path = new Uri(url).Segments.First(s => s != "/");
@@ -54,6 +39,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 _logger.LogError($"Error parsing url: {url}");
                 _logger.LogError(ex.Message);
             }
+
             return null;
         }
     }

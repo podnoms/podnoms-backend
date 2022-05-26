@@ -20,8 +20,6 @@ namespace PodNoms.AudioParsing.UrlParsers {
                     .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer))
                     .ExecuteAsync();
 
-                Console.WriteLine(stdOutBuffer.ToString());
-                Console.WriteLine(stdErrBuffer.ToString());
                 //according to this, youtube-dl HResult = {int} -2146233088 returns 0 with the above command if we can parse
                 // https://github.com/ytdl-org/youtube-dl/issues/4503#issuecomment-67775061
                 return stdOutBuffer.ToString().IsJson();

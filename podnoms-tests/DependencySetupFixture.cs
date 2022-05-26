@@ -30,6 +30,12 @@ namespace PodNoms.Tests {
             }
         };
 
+        public Dictionary<string, string> PLAYLIST_URLS = new() {
+            {
+                "podnoms", "https://www.mixcloud.com/podnoms/"
+            }
+        };
+
         public string PARSEABLE_URL = "https://www.google.com";
 
         public Dictionary<string, string> TestList {

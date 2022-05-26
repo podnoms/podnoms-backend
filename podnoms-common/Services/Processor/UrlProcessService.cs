@@ -55,8 +55,10 @@ namespace PodNoms.Common.Services.Processor {
 
         public async Task<RemoteUrlStatus> ValidateUrl(string url, string requesterId, bool deepParse) {
             var urlType = await new UrlTypeParser().GetUrlType(url.Trim());
-            if (urlType != UrlType.Invalid) {
-                if (urlType.Equals(UrlType.PageParser)) {
+            switch (urlType) {
+                case UrlType.Invalid:
+                    throw new UrlParseException("Unable to find any audio here");
+                case UrlType.PageParser: {
                     //urlType will be YtDl even if it's not a YtDl parseable link
                     //as the parser is greedy - so if we didn't get any info above we can pass
                     //the request off to the remote page parser
@@ -81,32 +83,32 @@ namespace PodNoms.Common.Services.Processor {
                                 }).ToList()
                         };
                     }
-                }
 
-                var downloader = await new UrlTypeParser().GetDownloader(url);
-                var info = await downloader.GetVideoInformation(url);
-                return new RemoteUrlStatus {
-                    Type = urlType switch {
-                        UrlType.Direct => RemoteUrlType.SingleItem.ToString(),
-                        UrlType.YouTube => RemoteUrlType.SingleItem.ToString(),
-                        UrlType.YtDl => RemoteUrlType.SingleItem.ToString(),
-                        UrlType.Invalid => RemoteUrlType.Invalid.ToString(),
-                        _ => RemoteUrlType.Invalid.ToString()
-                    },
-                    Title = info?.Title,
-                    Image = info?.Thumbnail,
-                    Description = info?.Description,
-                    Links = new[] {
-                        new RemoteLinkInfo {
-                            Title = "New Audio link",
-                            Key = url,
-                            Value = url
-                        }
-                    }.ToList()
-                };
+                    break;
+                }
             }
 
-            throw new UrlParseException("Unable to find any audio here");
+            var downloader = await new UrlTypeParser().GetDownloader(url);
+            var info = await downloader.GetVideoInformation(url);
+            return new RemoteUrlStatus {
+                Type = urlType switch {
+                    UrlType.Direct => RemoteUrlType.SingleItem.ToString(),
+                    UrlType.YouTube => RemoteUrlType.SingleItem.ToString(),
+                    UrlType.YtDl => RemoteUrlType.SingleItem.ToString(),
+                    UrlType.Invalid => RemoteUrlType.Invalid.ToString(),
+                    _ => RemoteUrlType.Invalid.ToString()
+                },
+                Title = info?.Title,
+                Image = info?.Thumbnail,
+                Description = info?.Description,
+                Links = new[] {
+                    new RemoteLinkInfo {
+                        Title = "New Audio link",
+                        Key = url,
+                        Value = url
+                    }
+                }.ToList()
+            };
         }
 
         public async Task<RemoteUrlStatus> __ValidateUrl(string url, string requesterId, bool deepParse) {

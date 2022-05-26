@@ -32,6 +32,13 @@ namespace PodNoms.Tests {
                 var urlType = await new UrlTypeParser().GetUrlType(url);
                 Assert.Equal(UrlType.YtDl, urlType);
             }
+        }        
+        [Fact]
+        public async Task Playlist_Link_Parses() {
+            foreach (var (title, url) in _fixture.PLAYLIST_URLS) {
+                var urlType = await new UrlTypeParser().GetUrlType(url);
+                Assert.Equal(UrlType.Playlist, urlType);
+            }
         }
 
         [Fact]

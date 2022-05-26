@@ -29,6 +29,10 @@ namespace PodNoms.AudioParsing.UrlParsers {
             if (await new YTDLParser().IsMatch(url))
                 return UrlType.YtDl;
 
+            //check if Mixcloud link (we can assume if YTDLParser didn't match and this does it's a channel page
+            if (await new MixcloudPlaylistParser().IsMatch(url))
+                return UrlType.Playlist;
+
             return UrlType.PageParser;
         }
 

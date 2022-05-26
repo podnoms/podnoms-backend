@@ -7,17 +7,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Downloader;
-using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using PodNoms.AudioParsing.UrlParsers;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistsJob : AbstractHostedJob {
@@ -114,7 +111,7 @@ namespace PodNoms.Common.Services.Jobs {
                             user.Id,
                             cutoffDate,
                             count);
-                } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
+                } else if (await new MixcloudPlaylistParser().IsMatch(playlist.SourceUrl)) {
                     Log("Parsing MixCloud");
                     var entries = await _mixcloudParser
                         .GetEntries(playlist.SourceUrl, count);
