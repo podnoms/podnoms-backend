@@ -3,7 +3,6 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,13 +14,10 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Remote.Google;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
-using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
 using Polly;
-using Polly.Retry;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     internal class ServiceWrapper {
@@ -208,7 +204,7 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 .Select(r => new ParsedItemResult {
                     Id = r.Snippet.ResourceId.VideoId,
                     Title = r.Snippet.Title,
-                    VideoType = "YouTube",
+                    ItemType = "YouTube",
                     UploadDate = r.Snippet.PublishedAt
                 })
                 .OrderByDescending(r => r.UploadDate)
@@ -337,20 +333,6 @@ namespace PodNoms.Common.Utils.RemoteParsers {
 
             _logger.LogError($"Unable to get info for video {url}");
             return null;
-        }
-
-        public async Task<RemoteUrlType> GetUrlType(string url) {
-            return await Task.Run(() => {
-                if (!ValidateUrl(url)) {
-                    return RemoteUrlType.Invalid;
-                }
-
-                if (url.Contains("/channel/") || url.Contains("/c/") || url.Contains("/user/")) {
-                    return RemoteUrlType.Channel;
-                }
-
-                return url.Contains("/playlist?") ? RemoteUrlType.Playlist : RemoteUrlType.SingleItem;
-            });
         }
     }
 }
