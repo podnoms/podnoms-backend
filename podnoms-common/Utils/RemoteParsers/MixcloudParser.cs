@@ -26,14 +26,13 @@ namespace PodNoms.Common.Utils.RemoteParsers {
                 if (result.IsSuccessStatusCode) {
                     var body = await result.Content.ReadAsStringAsync();
                     var typed = JsonConvert.DeserializeObject<Welcome>(body, MixcloudJsonConverter.Settings);
-                    var data = typed?.Data.OrderByDescending(p => p.UpdatedTime)
+                    var data = typed.Data.OrderByDescending(p => p.UpdatedTime)
                         .Select(c => new ParsedItemResult {
                             Id = c.Key,
                             Title = c.Name,
-                            ItemType = "mixcloud",
-                            Url = HttpUtils.UrlCombine("https://mixcloud.com/", c.Key),
+                            VideoType = "mixcloud",
                             UploadDate = c.UpdatedTime.DateTime
-                        }).Take(count).ToList();
+                        }).Take(10).ToList();
                     return data;
                 }
             } catch (Exception ex) {

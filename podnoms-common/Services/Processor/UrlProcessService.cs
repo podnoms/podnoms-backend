@@ -95,7 +95,6 @@ namespace PodNoms.Common.Services.Processor {
                     UrlType.Direct => RemoteUrlType.SingleItem.ToString(),
                     UrlType.YouTube => RemoteUrlType.SingleItem.ToString(),
                     UrlType.YtDl => RemoteUrlType.SingleItem.ToString(),
-                    UrlType.Playlist => RemoteUrlType.Playlist.ToString(),
                     UrlType.Invalid => RemoteUrlType.Invalid.ToString(),
                     _ => RemoteUrlType.Invalid.ToString()
                 },

@@ -28,7 +28,5 @@ namespace PodNoms.AudioParsing.UrlParsers {
 
             return false;
         }
-
-        public async Task<UrlType> GetType(string url) => await IsMatch(url) ? UrlType.YtDl : UrlType.Invalid;
     }
 }

@@ -49,19 +49,21 @@ namespace PodNoms.Common.Services.Jobs {
         // [DisableConcurrentExecution(timeoutInSeconds: 60 * 60 * 2)]
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             _setContext(context);
-            if (item is null || string.IsNullOrEmpty(item.ItemType)) {
+            if (item is null || string.IsNullOrEmpty(item.VideoType)) {
                 return false;
             }
 
             Log($"Starting process item:\n\t{item.Id}\n\t{item.Title}\n\thttps://www.youtube.com/watch?v={item.Id}");
 
             var playlist = await _repo.Playlists.GetAsync(playlistId);
-
-            if (string.IsNullOrEmpty(item.Url)) {
+            var url = item.VideoType.ToLower().Equals("youtube") ? $"https://www.youtube.com/watch?v={item.Id}" :
+                item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.Id}" :
+                string.Empty;
+            if (string.IsNullOrEmpty(url)) {
                 LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
             } else {
                 Log($"Getting info");
-                var info = await _audioDownloader.GetInfo(item.Url, playlist.Podcast.AppUserId);
+                var info = await _audioDownloader.GetInfo(url, playlist.Podcast.AppUserId);
                 if (info != RemoteUrlType.Invalid) {
                     Log($"URL is valid");
 
@@ -71,7 +73,7 @@ namespace PodNoms.Common.Services.Jobs {
                     var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
                     try {
                         var entry = new PodcastEntry {
-                            SourceUrl = item.Url,
+                            SourceUrl = url,
                             ProcessingStatus = ProcessingStatus.Uploading,
                             Playlist = playlist,
                             Podcast = podcast

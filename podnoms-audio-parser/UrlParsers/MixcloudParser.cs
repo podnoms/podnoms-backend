@@ -24,6 +24,4 @@ public class MixcloudPlaylistParser : IUrlParser {
             return false;
         });
     }
-
-    public async Task<UrlType> GetType(string url) => await IsMatch(url) ? UrlType.YtDl : UrlType.Invalid;
 }

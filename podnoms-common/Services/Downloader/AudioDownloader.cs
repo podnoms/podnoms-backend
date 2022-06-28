@@ -86,7 +86,7 @@ namespace PodNoms.Common.Services.Downloader {
         private async Task<VideoData> __getInfo(string url) {
             try {
                 var result = await _downloader.GetVideoInformation(url);
-                return result;
+                throw new AudioDownloadException("No audio found in that URL");
             } catch (TaskCanceledException) {
                 _logger.LogError("Unable to parse url");
             } catch (Exception e) {

@@ -15,10 +15,10 @@ namespace PodNoms.Tests {
 
         [Fact]
         public async Task Test_Links_HaveInfo() {
-            foreach (var item in _fixture.TestList) {
-                var downloader = await new UrlTypeParser().GetDownloader(item.Url);
-                var info = await downloader.GetVideoInformation(item.Url);
-                Assert.Equal(item.Title, info.Title);
+            foreach (var (title, url) in _fixture.TestList) {
+                var downloader = await new UrlTypeParser().GetDownloader(url);
+                var info = await downloader.GetVideoInformation(url);
+                Assert.Equal(title, info.Title);    
             }
         }
 
@@ -26,9 +26,9 @@ namespace PodNoms.Tests {
         public async Task YtDl_Link_Info() {
             var ytdlInfo = new YtDlDownloader();
 
-            foreach (var item in _fixture.YTDL_URLS) {
-                var info = await ytdlInfo.GetVideoInformation(item.Url);
-                Assert.Equal(item.Title, info.Title);
+            foreach (var (title, url) in _fixture.YTDL_URLS) {
+                var info = await ytdlInfo.GetVideoInformation(url);
+                Assert.Equal(title, info.Title);
             }
         }
     }
