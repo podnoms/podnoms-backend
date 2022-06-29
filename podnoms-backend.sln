@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "podnoms-audio-parser", "pod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "podnoms-identity", "podnoms-identity\podnoms-identity.csproj", "{D4827001-B8EF-4215-A984-D4351642EA83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "podnoms-test-client", "podnoms-test-client\podnoms-test-client.csproj", "{8C4E2E7C-C45E-4C1A-A4E7-9655FB478E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{D4827001-B8EF-4215-A984-D4351642EA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4827001-B8EF-4215-A984-D4351642EA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4827001-B8EF-4215-A984-D4351642EA83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C4E2E7C-C45E-4C1A-A4E7-9655FB478E39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C4E2E7C-C45E-4C1A-A4E7-9655FB478E39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C4E2E7C-C45E-4C1A-A4E7-9655FB478E39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C4E2E7C-C45E-4C1A-A4E7-9655FB478E39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

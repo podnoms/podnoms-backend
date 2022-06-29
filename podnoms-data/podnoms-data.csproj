@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <RootNamespace>PodNoms.Data</RootNamespace>
         <Configurations>Debug;Release;Debug_Live</Configurations>
     </PropertyGroup>
@@ -10,14 +10,14 @@
     <ItemGroup>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.1" />
         <PackageReference Include="Flurl" Version="3.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0-preview.5.22303.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-preview.5.22302.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0-preview.5.22302.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0-preview.5.22302.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0-preview.5.22301.12" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.17.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="EntitySignal.Server" Version="1.0.4" />

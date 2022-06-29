@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text;
 using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
-using EasyNetQ.Logging;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -32,14 +31,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Threading.Tasks;
+using Hangfire.Logging;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Rss;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Models;
-using Microsoft.EntityFrameworkCore.Migrations;
-using PodNoms.Data.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using PodNoms.Common.Auth;
 
@@ -76,7 +73,6 @@ namespace PodNoms.Api {
             services.AddScoped<SharingLinkRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
-            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
 
             services.AddPodnomsSecurity(Configuration);
             services.AddPodNomsSignalR(Env.IsDevelopment());

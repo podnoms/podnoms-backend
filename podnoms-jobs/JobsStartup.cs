@@ -43,7 +43,7 @@ namespace PodNoms.Jobs {
                     });
                 options.UseSimpleAssemblyNameTypeSerializer();
                 options.UseRecommendedSerializerSettings();
-                //TODO: unsure if this is needed - re-enable if we get DI issues
+                // TODO: unsure if this is needed - re-enable if we get DI issues
                 // options.UseActivator (new HangfireActivator (serviceProvider));
             });
 
@@ -72,8 +72,6 @@ namespace PodNoms.Jobs {
                 .AddScoped<IRealTimeUpdater, RabbitMQClientUpdater>();
 
             services.AddHostedService<TweetListenerService>();
-
-            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env) {

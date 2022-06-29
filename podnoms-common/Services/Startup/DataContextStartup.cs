@@ -13,6 +13,7 @@ namespace PodNoms.Common.Services.Startup {
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("podnoms-common")
                         .EnableRetryOnFailure());
+                options.UseOpenIddict();
             });
             return services;
         }
