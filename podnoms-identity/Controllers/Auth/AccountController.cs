@@ -4,28 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using PodNoms.Identity.Data;
 using PodNoms.Identity.Models;
 
-namespace PodNoms.Identity.Controllers;
+namespace PodNoms.Identity.Controllers.Auth;
 
 [Authorize]
 [Route("[controller]")]
 public class AccountController : Controller {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly PodnomsAuthDbContext _applicationDbContext;
-    private static bool _databaseChecked;
 
     public AccountController(
-        UserManager<ApplicationUser> userManager,
-        PodnomsAuthDbContext applicationDbContext) {
+        UserManager<ApplicationUser> userManager) {
         _userManager = userManager;
-        _applicationDbContext = applicationDbContext;
     }
 
-    //
-    // POST: /Account/Register
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterViewModel model) {
-        EnsureDatabaseCreated(_applicationDbContext);
         if (ModelState.IsValid) {
             var user = await _userManager.FindByNameAsync(model.Email);
             if (user != null) {
@@ -46,18 +39,6 @@ public class AccountController : Controller {
     }
 
     #region Helpers
-
-    // The following code creates the database and schema if they don't exist.
-    // This is a temporary workaround since deploying database through EF migrations is
-    // not yet supported in this release.
-    // Please see this http://go.microsoft.com/fwlink/?LinkID=615859 for more information on how to do deploy the database
-    // when publishing your application.
-    private static void EnsureDatabaseCreated(PodnomsAuthDbContext context) {
-        if (!_databaseChecked) {
-            _databaseChecked = true;
-            context.Database.EnsureCreated();
-        }
-    }
 
     private void AddErrors(IdentityResult result) {
         foreach (var error in result.Errors) {

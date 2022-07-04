@@ -1,13 +1,9 @@
-using System.Configuration;
-using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
-using OpenIddict.Client.WebIntegration;
 using Quartz;
 using PodNoms.Identity.Data;
 using PodNoms.Identity.Services;
@@ -23,8 +19,8 @@ builder.WebHost.ConfigureKestrel(options => {
 
 builder.Services.AddDbContext<PodnomsAuthDbContext>(options => {
     options
-        .UseNpgsql(
-            "Host=cluster-master.fergl.ie;Database=podnoms_auth;Username=podnoms_auth;Password=rJ5pqZGKWpNISxI3z8FcWhhbz8UKTfstbr4QOLVquSY=")
+        .UseNpgsql(builder.Configuration.GetConnectionString("Default") ??
+                   throw new InvalidOperationException("Invalid connection string"))
         .UseOpenIddict();
 });
 
@@ -37,6 +33,36 @@ builder.Services.AddQuartz(options => {
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 builder.Services.AddHostedService<AuthWorker>();
 
+builder.Services.AddAntiforgery(options => {
+    options.HeaderName = "X-XSRF-TOKEN";
+    options.Cookie.Name = "__Host-X-XSRF-TOKEN";
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<PodnomsAuthDbContext>()
+    .AddDefaultTokenProviders()
+    .AddDefaultUI();
+
+builder.Services.Configure<IdentityOptions>(options => {
+    // Configure Identity to use the same JWT claims as OpenIddict instead
+    // of the legacy WS-Federation claims it uses by default (ClaimTypes),
+    // which saves you from doing the mapping in your authorization controller.
+    options.ClaimsIdentity.UserNameClaimType = OpenIddictConstants.Claims.Name;
+    options.ClaimsIdentity.UserIdClaimType = OpenIddictConstants.Claims.Subject;
+    options.ClaimsIdentity.RoleClaimType = OpenIddictConstants.Claims.Role;
+    options.ClaimsIdentity.EmailClaimType = OpenIddictConstants.Claims.Email;
+
+    options.SignIn.RequireConfirmedAccount = false;
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options => {
+        options.Cookie.Name = "pdnm.auth";
+    });
+
 builder.Services.AddOpenIddict()
     .AddCore(options => {
         options.UseEntityFrameworkCore()
@@ -45,65 +71,42 @@ builder.Services.AddOpenIddict()
     })
     .AddServer(options => {
         options.SetAuthorizationEndpointUris("/connect/authorize")
+            .SetDeviceEndpointUris("/connect/device")
             .SetLogoutEndpointUris("/connect/logout")
             .SetIntrospectionEndpointUris("/connect/introspect")
             .SetTokenEndpointUris("/connect/token")
             .SetUserinfoEndpointUris("/connect/userinfo")
             .SetVerificationEndpointUris("/connect/verify");
 
-        options.SetTokenEndpointUris("/connect/token");
-
         options.AllowAuthorizationCodeFlow()
+            .AllowDeviceCodeFlow()
             .AllowHybridFlow()
             .AllowRefreshTokenFlow();
 
-        options.RegisterScopes(OpenIddictConstants.Scopes.Roles,
-            OpenIddictConstants.Scopes.Roles, OpenIddictConstants.Scopes.Roles, "podnoms-api-access");
+        options.SetAccessTokenLifetime(TimeSpan.FromMinutes(30));
+        options.SetRefreshTokenLifetime(TimeSpan.FromDays(28));
 
-        options.AcceptAnonymousClients();
+        options.RegisterScopes(
+            OpenIddictConstants.Scopes.Profile,
+            OpenIddictConstants.Scopes.Email,
+            OpenIddictConstants.Scopes.Roles);
 
         options.AddDevelopmentEncryptionCertificate()
             .AddDevelopmentSigningCertificate();
 
         options.UseAspNetCore()
+            .EnableStatusCodePagesIntegration()
             .EnableAuthorizationEndpointPassthrough()
             .EnableLogoutEndpointPassthrough()
             .EnableTokenEndpointPassthrough()
             .EnableUserinfoEndpointPassthrough()
-            .EnableStatusCodePagesIntegration();
+            .EnableVerificationEndpointPassthrough();
     })
     .AddValidation(options => {
+        options.AddAudiences("rs_podnoms-api-access");
         options.UseLocalServer();
         options.UseAspNetCore();
     });
-// .AddClient(options => {
-//     options.SetRedirectionEndpointUris(
-//         "/signin-local",
-//         "/signin-github",
-//         "/signin-google",
-//         "/signin-reddit",
-//         "/signin-twitter");
-//
-//     options.AddDevelopmentEncryptionCertificate()
-//         .AddDevelopmentSigningCertificate();
-//
-//     options.UseAspNetCore()
-//         .EnableStatusCodePagesIntegration()
-//         .EnableRedirectionEndpointPassthrough();
-//
-//     options.UseWebProviders()
-//         .AddGitHub(new OpenIddictClientWebIntegrationSettings.GitHub {
-//             ClientId = "[client identifier]",
-//             ClientSecret = "[client secret]",
-//             RedirectUri = new Uri("https://dev-auth.pdnm.be:5003/signin-github", UriKind.Absolute)
-//         })
-//         .AddGoogle(new OpenIddictClientWebIntegrationSettings.Google {
-//             ClientId = "[client identifier]",
-//             ClientSecret = "[client secret]",
-//             RedirectUri = new Uri("https://dev-auth.pdnm.be:5003/signin-google", UriKind.Absolute),
-//             Scopes = {OpenIddictConstants.Permissions.Scopes.Profile}
-//         });
-// });
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAllOrigins",
@@ -118,10 +121,6 @@ builder.Services.AddCors(options => {
                 .AllowAnyMethod();
         });
 });
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<PodnomsAuthDbContext>()
-    .AddDefaultTokenProviders()
-    .AddDefaultUI();
 
 // end setup identity
 

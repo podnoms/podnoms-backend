@@ -12,7 +12,8 @@ var handler = new HttpClientHandler {
 };
 using var client = new HttpClient(handler);
 
-const string email = "fergal.moran+testopeniddict@gmail.com", password = "anTr86P6IF8ckXvTLDLE7f6MJfL1K+paGpyOm/5dziE=";
+const string email = "fergal.moran+testopeniddict@gmail.com";
+const string password = "anTr86P6IF8ckXvTLDLE7f6MJfL1K+paGpyOm/5dziE=";
 
 await CreateAccountAsync(client, email, password);
 
@@ -33,7 +34,7 @@ Console.WriteLine();
 Console.ReadLine();
 
 static async Task CreateAccountAsync(HttpClient client, string email, string password) {
-    var response = await client.PostAsJsonAsync("https://localhost:5003/account", new {email, password});
+    var response = await client.PostAsJsonAsync("https://dev-auth.pdnm.be:5003/account", new {email, password});
 
     // Ignore 409 responses, as they indicate that the account already exists.
     if (response.StatusCode == HttpStatusCode.Conflict) {
@@ -46,7 +47,7 @@ static async Task CreateAccountAsync(HttpClient client, string email, string pas
 static async Task<(string AccessToken, string RefreshToken)> GetTokensAsync(HttpClient client, string email,
     string password) {
     // Retrieve the OpenIddict server configuration document containing the endpoint URLs.
-    var configuration = await client.GetDiscoveryDocumentAsync("https://localhost:5003/");
+    var configuration = await client.GetDiscoveryDocumentAsync("https://dev-auth.pdnm.be:5003/");
     if (configuration.IsError) {
         throw new Exception($"An error occurred while retrieving the configuration document: {configuration.Error}");
     }
@@ -55,6 +56,7 @@ static async Task<(string AccessToken, string RefreshToken)> GetTokensAsync(Http
         Address = configuration.TokenEndpoint,
         UserName = email,
         Password = password,
+        GrantType = OidcConstants.GrantTypes.Implicit,
         Scope = OidcConstants.StandardScopes.OfflineAccess
     });
 
@@ -67,7 +69,7 @@ static async Task<(string AccessToken, string RefreshToken)> GetTokensAsync(Http
 
 static async Task<(string AccessToken, string RefreshToken)> RefreshTokensAsync(HttpClient client, string token) {
     // Retrieve the OpenIddict server configuration document containing the endpoint URLs.
-    var configuration = await client.GetDiscoveryDocumentAsync("https://localhost:5003/");
+    var configuration = await client.GetDiscoveryDocumentAsync("https://dev-auth.pdnm.be:5003/");
     if (configuration.IsError) {
         throw new Exception($"An error occurred while retrieving the configuration document: {configuration.Error}");
     }

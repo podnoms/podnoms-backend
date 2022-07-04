@@ -26,7 +26,7 @@ public class AuthWorker : IHostedService {
             if (await manager.FindByClientIdAsync("webadmin", cancellationToken: ctx) is null) {
                 await manager.CreateAsync(new OpenIddictApplicationDescriptor {
                     ClientId = "webadmin",
-                    ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+                    ConsentType = OpenIddictConstants.ConsentTypes.Implicit,
                     DisplayName = "PodNoms Web Auth",
                     PostLogoutRedirectUris = {
                         new Uri("https://dev-auth.pdnm.be:4200")
@@ -42,9 +42,9 @@ public class AuthWorker : IHostedService {
                         OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
                         OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
                         OpenIddictConstants.Permissions.ResponseTypes.Code,
-                        OpenIddictConstants.Scopes.Email,
-                        OpenIddictConstants.Scopes.Profile,
-                        OpenIddictConstants.Scopes.Roles,
+                        OpenIddictConstants.Permissions.Scopes.Email,
+                        OpenIddictConstants.Permissions.Scopes.Profile,
+                        OpenIddictConstants.Permissions.Scopes.Roles,
                         OpenIddictConstants.Permissions.Prefixes.Scope + "podnoms-api-access",
                         OpenIddictConstants.ResponseTypes.Code,
                         OpenIddictConstants.ResponseTypes.Token,
@@ -64,7 +64,7 @@ public class AuthWorker : IHostedService {
 
             if (await manager.FindByNameAsync("podnoms-api-access") is null) {
                 await manager.CreateAsync(new OpenIddictScopeDescriptor {
-                    DisplayName = "podnoms-api-access API access",
+                    DisplayName = "PodNoms API access",
                     Name = "podnoms-api-access",
                     Resources = {
                         "rs_podnoms-api-access"
