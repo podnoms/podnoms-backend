@@ -16,7 +16,6 @@ namespace PodNoms.Common.Services.Middleware {
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
             if (context.HttpContext.User.Identity.IsAuthenticated) {
-
                 string userId = null;
 
                 var claimsIdentity = (ClaimsIdentity)context.HttpContext.User.Identity;
@@ -33,8 +32,8 @@ namespace PodNoms.Common.Services.Middleware {
                     await _userManager.UpdateAsync(user);
                 }
             }
+
             await next();
         }
     }
-
 }

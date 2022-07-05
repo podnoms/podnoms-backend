@@ -134,9 +134,8 @@ namespace PodNoms.Api {
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime,
-            UserManager<ApplicationUser> userManager) {
-            UpdateDatabase(app, userManager, Configuration, Env.IsDevelopment());
+            IServiceProvider serviceProvider, IHostApplicationLifetime lifetime) {
+            // UpdateDatabase(app, userManager, Configuration, Env.IsDevelopment());
 
             app.UseMiddleware<AuthExceptionMiddleware>();
 
@@ -196,22 +195,22 @@ namespace PodNoms.Api {
             });
         }
 
-        private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager,
-            IConfiguration config, bool isDebug) {
-            using var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope();
-            using var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext>();
-            if (context is null) {
-                return;
-            }
-
-            context.Database.Migrate();
-            PodNomsDbInitialiser.SeedUsers(userManager, context, config);
-            if (isDebug) {
-                PodNomsDbInitialiser.SeedPodcasts(userManager, context, config);
-            }
-        }
+        // private static void UpdateDatabase(IApplicationBuilder app, UserManager<ApplicationUser> userManager,
+        //     IConfiguration config, bool isDebug) {
+        //     using var serviceScope = app.ApplicationServices
+        //         .GetRequiredService<IServiceScopeFactory>()
+        //         .CreateScope();
+        //     using var context = serviceScope.ServiceProvider.GetService<PodNomsDbContext>();
+        //     if (context is null) {
+        //         return;
+        //     }
+        //
+        //     context.Database.Migrate();
+        //     PodNomsDbInitialiser.SeedUsers(userManager, context, config);
+        //     if (isDebug) {
+        //         PodNomsDbInitialiser.SeedPodcasts(userManager, context, config);
+        //     }
+        // }
     }
 
     public static class MessagingExtensions {

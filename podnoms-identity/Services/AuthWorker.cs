@@ -57,6 +57,17 @@ public class AuthWorker : IHostedService {
                     },
                 }, ctx);
             }
+
+            if (await manager.FindByClientIdAsync("rs_podnoms-api-access", ctx) is null) {
+                var descriptor = new OpenIddictApplicationDescriptor {
+                    ClientId = "rs_podnoms-api-access",
+                    ClientSecret = "arglebarglefooferra",
+                    Permissions = {
+                        OpenIddictConstants.Permissions.Endpoints.Introspection
+                    }
+                };
+                await manager.CreateAsync(descriptor, ctx);
+            }
         }
 
         static async Task RegisterScopesAsync(IServiceProvider provider) {

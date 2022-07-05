@@ -1,87 +1,55 @@
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Validation.AspNetCore;
 using PodNoms.Common.Auth;
-using PodNoms.Common.Auth.ApiKeys;
-using PodNoms.Common.Persistence;
-using PodNoms.Data.Models;
+using PodNoms.Identity.Data;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SecurityStartup {
         //TODO: Remove this from the binary
 
         public static IServiceCollection AddPodnomsSecurity(this IServiceCollection services, IConfiguration config) {
-            var jwtAppSettingOptions = config.GetSection(nameof(JwtIssuerOptions));
-            SymmetricSecurityKey signingKey =
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtAppSettingOptions["SigningKey"]));
-            // Configure JwtIssuerOptions
-            services.Configure<JwtIssuerOptions>(options => {
-                //TODO: Remove this in production, only for testing
-                // options.ValidFor = TimeSpan.FromDays(28);
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-            });
-            var tokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer = true,
-                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+            var guestPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .RequireClaim("scope", "podnoms-api-access")
+                .Build();
 
-                ValidateAudience = true,
-                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<PodnomsAuthDbContext>()
+                .AddDefaultTokenProviders();
 
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = signingKey,
-
-                RequireExpirationTime = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
             services.AddAuthentication(options => {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddApiKeySupport(options => { })
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => {
-                    options.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                    options.TokenValidationParameters = tokenValidationParameters;
-                    options.SaveToken = true;
-                    options.Events = new JwtBearerEvents {
-                        OnMessageReceived = context => {
-                            //keep cookie auth off for now
-                            var accessToken = context.Request.Query["access_token"];
-                            var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/hubs"))) {
-                                context.Token = accessToken[0];
-                            }
+                options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            });
 
-                            return Task.CompletedTask;
-                        }
-                    };
+            // Register the OpenIddict validation components.
+            services.AddOpenIddict()
+                .AddValidation(options => {
+                    // Note: the validation handler uses OpenID Connect discovery
+                    // to retrieve the address of the introspection endpoint.
+                    options.SetIssuer("https://dev-auth.pdnm.be:5003/");
+                    options.AddAudiences("rs_podnoms-api-access");
+
+                    // Configure the validation handler to use introspection and register the client
+                    // credentials used when communicating with the remote introspection endpoint.
+                    options.UseIntrospection()
+                        .SetClientId("rs_podnoms-api-access")
+                        .SetClientSecret("arglebarglefooferra");
+                    options.UseSystemNetHttp();
+
+                    // Register the ASP.NET Core host.
+                    options.UseAspNetCore();
                 });
 
-            services.AddAuthorization(j => {
-                j.AddPolicy("ApiUser", policy => policy.RequireClaim(
-                    Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
+            services.AddScoped<IAuthorizationHandler, RequireScopeHandler>();
+            services.AddAuthorization(options => {
+                options.AddPolicy("dataEventRecordsPolicy", policyUser => {
+                    policyUser.Requirements.Add(new RequireScope());
+                });
             });
-            // add identity
-            services.AddIdentityCore<ApplicationUser>(o => {
-                    // configure identity options
-                    o.Password.RequireDigit = false;
-                    o.Password.RequireLowercase = false;
-                    o.Password.RequireUppercase = false;
-                    o.Password.RequireNonAlphanumeric = false;
-                })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<PodNomsDbContext>().AddDefaultTokenProviders()
-                .AddUserManager<PodNomsUserManager>();
-
             return services;
         }
 
