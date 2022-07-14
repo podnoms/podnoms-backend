@@ -33,7 +33,10 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.AppUser.GetBestGuessName()))
                 .ForMember(
                     v => v.StrippedDescription,
-                    e => e.MapFrom(m => m.Description.StripHtmlTags()))
+                    e => e.MapFrom(m => m.Description.StripHtmlTags()))               
+                .ForMember(
+                    v => v.Aggregators,
+                    e => e.MapFrom(m => m.Aggregators))
                 .ForMember(
                     v => v.CoverImageUrl,
                     e => e.MapFrom(m => m.GetCoverImageUrl(

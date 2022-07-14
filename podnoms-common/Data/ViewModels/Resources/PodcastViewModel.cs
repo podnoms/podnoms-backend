@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class PodcastViewModel {
@@ -29,11 +30,11 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string AuthPassword { get; set; }
 
         public List<PodcastEntryViewModel> PodcastEntries { get; set; }
+        public List<PodcastAggregator> Aggregators { get; set; }
         public CategoryViewModel Category { get; set; }
-        public List<SubcategoryViewModel> Subcategories { get; set; }
+        public List<SubcategoryViewModel> Subcategsories { get; set; }
         public List<NotificationViewModel> Notifications { get; set; }
         public DateTime? LastEntryDate { get; set; }
         public int EntryCount { get; set; }
-
     }
 }
