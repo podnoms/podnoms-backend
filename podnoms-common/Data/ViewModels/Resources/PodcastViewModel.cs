@@ -29,10 +29,11 @@ namespace PodNoms.Common.Data.ViewModels.Resources {
         public string AuthUserName { get; set; }
         public string AuthPassword { get; set; }
 
-        public List<PodcastEntryViewModel> PodcastEntries { get; set; }
+        public List<PodcastEntryShortViewModel> PodcastEntries { get; set; }
+
         public List<PodcastAggregator> Aggregators { get; set; }
         public CategoryViewModel Category { get; set; }
-        public List<SubcategoryViewModel> Subcategsories { get; set; }
+        public List<SubcategoryViewModel> Subcategories { get; set; }
         public List<NotificationViewModel> Notifications { get; set; }
         public DateTime? LastEntryDate { get; set; }
         public int EntryCount { get; set; }

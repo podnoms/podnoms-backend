@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using PodNoms.Data.Annotations;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models.Notifications;
@@ -12,7 +13,7 @@ namespace PodNoms.Data.Models {
         public string Name { get; set; }
         [MaxLength(2000)] public string Url { get; set; }
         [MaxLength(2000)] public string ImageUrl { get; set; }
-        public virtual Podcast Podcast { get; set; }
+        [JsonIgnore] public virtual Podcast Podcast { get; set; }
     }
 
     public class Podcast : BaseEntity, ISluggedEntity, ICachedEntity {

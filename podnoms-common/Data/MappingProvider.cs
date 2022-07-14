@@ -33,10 +33,10 @@ namespace PodNoms.Common.Data {
                     e => e.MapFrom(m => m.AppUser.GetBestGuessName()))
                 .ForMember(
                     v => v.StrippedDescription,
-                    e => e.MapFrom(m => m.Description.StripHtmlTags()))               
-                .ForMember(
-                    v => v.Aggregators,
-                    e => e.MapFrom(m => m.Aggregators))
+                    e => e.MapFrom(m => m.Description.StripHtmlTags()))
+                // .ForMember(
+                //     v => v.Aggregators,
+                //     e => e.MapFrom(m => m.Aggregators))
                 .ForMember(
                     v => v.CoverImageUrl,
                     e => e.MapFrom(m => m.GetCoverImageUrl(
@@ -72,6 +72,50 @@ namespace PodNoms.Common.Data {
                 .ForMember(
                     src => src.PublicTitle,
                     e => e.MapFrom(m => string.IsNullOrEmpty(m.PublicTitle) ? m.Title : m.PublicTitle));
+
+            CreateMap<PodcastEntry, PodcastEntryShortViewModel>()
+                .ForMember(
+                    v => v.StrippedDescription,
+                    e => e.MapFrom(m => m.Description.StripHtmlTags()))
+                .ForMember(
+                    src => src.PcmUrl,
+                    e => e.MapFrom(m => m.GetPcmUrl(
+                        _options.GetSection("StorageSettings")["CdnUrl"],
+                        _options.GetSection("WaveformDataFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.ImageUrl,
+                    e => e.MapFrom(m => m.GetImageUrl(
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.ThumbnailUrl,
+                    e => e.MapFrom(m => m.GetThumbnailUrl(
+                        _options.GetSection("StorageSettings")["ImageUrl"],
+                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])))
+                .ForMember(
+                    src => src.AudioUrl,
+                    e => e.MapFrom(m => m.GetAudioUrl(_options.GetSection("AppSettings")["AudioUrl"])))
+                .ForMember(
+                    src => src.ProcessingStatus,
+                    e => e.MapFrom(m => m.Processed ? ProcessingStatus.Processed : m.ProcessingStatus))
+                .ForMember(
+                    src => src.PodcastId,
+                    e => e.MapFrom(m => m.Podcast.Id))
+                .ForMember(
+                    src => src.PodcastSlug,
+                    e => e.MapFrom(m => m.Podcast.Slug))
+                .ForMember(
+                    src => src.PodcastTitle,
+                    e => e.MapFrom(m => m.Podcast.Title))
+                .ForMember(
+                    src => src.UserSlug,
+                    e => e.MapFrom(m => m.Podcast.AppUser.Slug))
+                .ForMember(
+                    src => src.UserName,
+                    e => e.MapFrom(m => m.Podcast.AppUser.GetBestGuessName()))
+                .ForMember(
+                    src => src.PagesUrl,
+                    e => e.MapFrom(m => m.GetPagesUrl(_options.GetSection("AppSettings")["PagesUrl"])));
 
             CreateMap<PodcastEntry, PodcastEntryViewModel>()
                 .ForMember(
