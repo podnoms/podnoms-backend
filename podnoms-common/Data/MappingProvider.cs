@@ -373,11 +373,15 @@ namespace PodNoms.Common.Data {
                     dest => dest.Slug,
                     map => map.MapFrom(vm => vm.Slug));
 
+            CreateMap<PodcastEntryShortViewModel, PodcastEntry>()
+                .ForMember(
+                    e => e.AudioUrl,
+                    map => map.Ignore());
+
             CreateMap<PodcastEntryViewModel, PodcastEntry>()
                 .ForMember(
                     e => e.AudioUrl,
-                    map => map.Ignore())
-                .AfterMap((src, dest) => dest.AudioUrl = dest.AudioUrl);
+                    map => map.Ignore());
 
             CreateMap<RegistrationViewModel, ApplicationUser>()
                 .ForMember(
