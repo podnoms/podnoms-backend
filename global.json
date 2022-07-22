@@ -3,5 +3,11 @@
     "version": "6.0.0",
     "rollForward": "latestMajor",
     "allowPrerelease": true
+  },
+  "scripts": {
+    "server": "dotnet watch --project ./podnoms-api/podnoms-api.csproj run",
+    "jobs": "dotnet watch --project ./podnoms-jobs/podnoms-jobs.csproj run",
+    "addmigration": "dotnet ef migrations add {0} --project ./podnoms-common/podnoms-common.csproj --context PodNomsDbContext",
+    "debug": "echo"
   }
 }
