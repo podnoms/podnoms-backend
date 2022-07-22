@@ -1,11 +1,11 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace PodNoms.Common.Services.Push {
     public class FirebasePushNotificationService : IPushNotificationService {
@@ -31,7 +31,7 @@ namespace PodNoms.Common.Services.Push {
                 },
                 to = subscription.Endpoint
             };
-            var data = JsonConvert.SerializeObject(fb_message);
+            var data = JsonSerializer.Serialize(fb_message);
             var content = new StringContent(data, Encoding.UTF8, "application/json");
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(

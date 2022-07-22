@@ -1,8 +1,8 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models.Notifications;
@@ -22,7 +22,7 @@ namespace PodNoms.Common.Services.Notifications {
             if (config is null || !config.ContainsKey("AccessToken"))
                 return "Access token missing in config";
 
-            var payload = JsonConvert.SerializeObject(new {
+            var payload = JsonSerializer.Serialize(new {
                 device_iden = config["Device"] ?? string.Empty,
                 title = title,
                 body = message,

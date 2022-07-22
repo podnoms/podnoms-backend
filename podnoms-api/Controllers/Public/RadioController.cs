@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Utils;
@@ -43,7 +43,7 @@ namespace PodNoms.Api.Controllers.Public {
             try {
                 var content = await HttpUtils.DownloadText(url, "application/xml");
                 if (!string.IsNullOrEmpty(content)) {
-                    var result = JsonConvert.DeserializeObject<IcecastResult>(content);
+                    var result = JsonSerializer.Deserialize<IcecastResult>(content);
                     return Ok(result.icestats.source.title.Truncate(45, true));
                 }
             } catch (Exception) {

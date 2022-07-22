@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models.Notifications;
 
@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Notifications {
             var notification = await _repo.Notifications.GetAsync(notificationId);
             if (notification is null) return null;
 
-            var list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(notification.Config);
+            var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<string, string>>>(notification.Config);
             var dictionary = list.ToDictionary(x => x.Key, x => x.Value);
             return dictionary;
         }

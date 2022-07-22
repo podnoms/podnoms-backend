@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Persistence;
@@ -35,15 +35,17 @@ namespace PodNoms.Api.Controllers {
             PlusService.Scope.UserinfoEmail,
             PlusService.Scope.UserinfoProfile
         };
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly FacebookAuthSettings _fbAuthSettings;
         private readonly IJwtFactory _jwtFactory;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRepoAccessor _repoAccessor;
         private readonly JwtIssuerOptions _jwtOptions;
-        private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient _client = new();
 
-        public ExternalAuthController(IOptions<FacebookAuthSettings> fbAuthSettingsAccessor, UserManager<ApplicationUser> userManager,
+        public ExternalAuthController(IOptions<FacebookAuthSettings> fbAuthSettingsAccessor,
+            UserManager<ApplicationUser> userManager,
             IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions,
             IHttpContextAccessor contextAccessor,
             IRepoAccessor repoAccessor,
@@ -55,6 +57,7 @@ namespace PodNoms.Api.Controllers {
             _repoAccessor = repoAccessor;
             _jwtOptions = jwtOptions.Value;
         }
+
         // POST api/externalauth/google
         [HttpPost]
         public async Task<ActionResult<JwtRefreshTokenModel>> Google([FromBody] SocialAuthViewModel model) {
@@ -97,19 +100,24 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<JwtRefreshTokenModel>> Facebook([FromBody] SocialAuthViewModel model) {
             // 1.generate an app access token
-            var appAccessTokenResponse = await Client.GetStringAsync($"https://graph.facebook.com/oauth/access_token?client_id={_fbAuthSettings.AppId}&client_secret={_fbAuthSettings.AppSecret}&grant_type=client_credentials");
-            var appAccessToken = JsonConvert.DeserializeObject<FacebookAppAccessToken>(appAccessTokenResponse);
+            var appAccessTokenResponse = await _client.GetStringAsync(
+                $"https://graph.facebook.com/oauth/access_token?client_id={_fbAuthSettings.AppId}&client_secret={_fbAuthSettings.AppSecret}&grant_type=client_credentials");
+            var appAccessToken = JsonSerializer.Deserialize<FacebookAppAccessToken>(appAccessTokenResponse); 
+
             // 2. validate the user access token
-            var userAccessTokenValidationResponse = await Client.GetStringAsync($"https://graph.facebook.com/debug_token?input_token={model.AccessToken}&access_token={appAccessToken.AccessToken}");
-            var userAccessTokenValidation = JsonConvert.DeserializeObject<FacebookUserAccessTokenValidation>(userAccessTokenValidationResponse);
+            var userAccessTokenValidationResponse = await _client.GetStringAsync(
+                $"https://graph.facebook.com/debug_token?input_token={model.AccessToken}&access_token={appAccessToken.AccessToken}");
+            var userAccessTokenValidation =
+                JsonSerializer.Deserialize<FacebookUserAccessTokenValidation>(userAccessTokenValidationResponse);
 
             if (!userAccessTokenValidation.Data.IsValid) {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid facebook token.", ModelState));
             }
 
             // 3. we've got a valid token so we can request user data from fb
-            var userInfoResponse = await Client.GetStringAsync($"https://graph.facebook.com/v2.8/me?fields=id,email,first_name,last_name,name,gender,locale,birthday,picture&access_token={model.AccessToken}");
-            var userInfo = JsonConvert.DeserializeObject<FacebookUserData>(userInfoResponse);
+            var userInfoResponse = await _client.GetStringAsync(
+                $"https://graph.facebook.com/v2.8/me?fields=id,email,first_name,last_name,name,gender,locale,birthday,picture&access_token={model.AccessToken}");
+            var userInfo = JsonSerializer.Deserialize<FacebookUserData>(userInfoResponse);
 
             var tokenAndRefresh = await _processUserDetails(userInfo);
 
@@ -125,6 +133,7 @@ namespace PodNoms.Api.Controllers {
 
             return Ok(tokenAndRefresh);
         }
+
         private async Task<JwtRefreshTokenModel> _processUserDetails(FacebookUserData userInfo) {
             // 4. ready to create the local user account (if necessary) and jwt
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
@@ -137,7 +146,8 @@ namespace PodNoms.Api.Controllers {
                     UserName = userInfo.Email,
                     PictureUrl = userInfo.Picture.Data.Url
                 };
-                var result = await _userManager.CreateAsync(appUser, Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8));
+                var result = await _userManager.CreateAsync(appUser,
+                    Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8));
                 if (!result.Succeeded) {
                     throw new InvalidOperationException(
                         ModelState.ToString()
@@ -160,14 +170,14 @@ namespace PodNoms.Api.Controllers {
                     ModelState.ToString()
                 );
             }
+
             var roles = await _userManager.GetRolesAsync(localUser);
             var jwt = await TokenIssuer.GenerateJwt(
                 _jwtFactory.GenerateClaimsIdentity(localUser.UserName, localUser.Id),
                 _jwtFactory,
                 localUser.UserName,
-                roles.ToArray<string>(),
-                _jwtOptions,
-                new JsonSerializerSettings { Formatting = Formatting.Indented });
+                roles.ToArray(),
+                _jwtOptions);
 
             var refresh = TokenIssuer.GenerateRefreshToken(128);
             user.AddRefreshToken(

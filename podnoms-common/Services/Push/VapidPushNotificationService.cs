@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Lib.Net.Http.WebPush;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using WP = Lib.Net.Http.WebPush;
 using WebPush;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace PodNoms.Common.Services.Push {
     public class VapidPushNotificationService : IPushNotificationService {
@@ -32,7 +32,7 @@ namespace PodNoms.Common.Services.Push {
             );
 
             var vapid = new VapidDetails(_options.Subject, _options.PublicKey, _options.PrivateKey);
-            var payload = JsonConvert.SerializeObject(new {
+            var payload = JsonSerializer.Serialize(new {
                 notification = new {
                     title = message.Topic,
                     body = message.Content,
