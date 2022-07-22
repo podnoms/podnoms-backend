@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EntitySignal.Server.EFDbContext.Data;
 using EntitySignal.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,7 +16,6 @@ using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PodNoms.Common.Persistence {
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {

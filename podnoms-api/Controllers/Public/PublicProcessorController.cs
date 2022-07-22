@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Hangfire;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;

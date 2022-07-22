@@ -1,22 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Console;
 using Hangfire.Server;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Jobs.Geocoding {
-
     public class GeocodeActivityJob : IHostedJob {
         private readonly HttpClient _httpClient;
         private readonly IRepoAccessor _repo;
@@ -24,14 +20,15 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
         private readonly AppSettings _appSettings;
 
         public GeocodeActivityJob(IActivityLogPodcastEntryRepository repository,
-                    IRepoAccessor repo,
-                    IHttpClientFactory httpClientFactory,
-                    ILogger<GeocodeActivityJob> logger, IOptions<AppSettings> appSettings) {
+            IRepoAccessor repo,
+            IHttpClientFactory httpClientFactory,
+            ILogger<GeocodeActivityJob> logger, IOptions<AppSettings> appSettings) {
             _repo = repo;
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("ipstack_geocoder");
             _appSettings = appSettings.Value;
         }
+
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> Execute() { return await Execute(null); }
 
@@ -52,11 +49,13 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
             // }
             // return true;
         }
+
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> GeocodeActivityItem(Guid activityId, PerformContext context) {
             var record = await _repo.ActivityLogPodcastEntry.GetAsync(activityId);
             return await GeocodeActivityItem(record, context);
         }
+
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public async Task<bool> GeocodeActivityItem(ActivityLogPodcastEntry record, PerformContext context) {
             context.WriteLine($"Geoding: {record.Id}");
@@ -66,7 +65,7 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
             if (!string.IsNullOrEmpty(response)) {
                 context.WriteLine("Got a response");
                 try {
-                    var result = JsonConvert.DeserializeObject<RootObject>(response);
+                    var result = JsonSerializer.Deserialize<RootObject>(response);
                     if (result.country_code != null &&
                         result.country_name != null) {
                         context.WriteLine("Response is valid");
@@ -86,6 +85,7 @@ namespace PodNoms.Common.Services.Jobs.Geocoding {
                     context.WriteLine(ex.Message);
                 }
             }
+
             return false;
         }
     }

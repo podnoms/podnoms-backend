@@ -1,10 +1,7 @@
 ﻿using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
@@ -12,7 +9,6 @@ using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using PodNoms.AudioParsing.ErrorHandling;
 using static PodNoms.Common.Services.Processor.EntryPreProcessor;

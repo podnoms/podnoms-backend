@@ -3,7 +3,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Data.Models;
 

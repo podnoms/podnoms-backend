@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers {

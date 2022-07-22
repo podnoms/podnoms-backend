@@ -28,18 +28,13 @@ using PodNoms.Common.Utils;
 using reCAPTCHA.AspNetCore;
 using PodNoms.Common.Services;
 using PodNoms.Common.Services.Realtime;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Threading.Tasks;
 using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Common.Services.Rss;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Data.Models;
-using Microsoft.EntityFrameworkCore.Migrations;
-using PodNoms.Data.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using PodNoms.Common.Auth;
 
@@ -162,9 +157,7 @@ namespace PodNoms.Api {
             app.UsePodNomsHealthChecks(Env.IsDevelopment());
 
             //TODO: Remove this and move to native JSON support
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
+
 
             app.UseRobotsTxt(Env);
             app.UseResponseCaching();

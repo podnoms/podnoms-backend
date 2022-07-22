@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Hubs;
 using PodNoms.Data.ViewModels;
 

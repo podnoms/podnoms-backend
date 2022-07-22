@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using PodNoms.Data.Extensions;
 
 namespace PodNoms.Common.Persistence.Repositories {
     public interface IPaymentRepository : IRepository<AccountSubscription> {

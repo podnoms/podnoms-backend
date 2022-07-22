@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.Apis.Http;
 using Microsoft.Extensions.DependencyInjection;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Utils.Extensions;
-using Xunit;
 
 namespace PodNoms.Tests {
     public class DependencySetupFixture {

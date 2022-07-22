@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;

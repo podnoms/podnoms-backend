@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EasyNetQ;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.Messages;
-using PodNoms.Common.Services.Hubs;
 
 namespace PodNoms.Common.Services.Realtime {
     public class RabbitMQClientUpdater : IRealTimeUpdater {

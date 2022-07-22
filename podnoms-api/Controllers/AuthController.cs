@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -11,8 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using PodNoms.Common;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
@@ -120,8 +117,7 @@ namespace PodNoms.Api.Controllers {
                 _jwtFactory,
                 userName,
                 roles,
-                _jwtOptions,
-                new JsonSerializerSettings {Formatting = Formatting.Indented}
+                _jwtOptions
             );
             var refresh = TokenIssuer.GenerateRefreshToken(128);
             user.AddRefreshToken(

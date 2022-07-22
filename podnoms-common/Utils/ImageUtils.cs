@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ImageMagick;
-using Newtonsoft.Json;
+using System.Text.Json;
 using PodNoms.Common.Data.ViewModels.Remote;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -97,7 +96,7 @@ namespace PodNoms.Common.Utils {
             if (response.IsSuccessStatusCode) {
                 var body = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(body)) {
-                    var imageData = JsonConvert.DeserializeObject<UnsplashViewModel>(body);
+                    var imageData = JsonSerializer.Deserialize<UnsplashViewModel>(body);
                     var base64 = await ImageUtils.GetRemoteImageAsBase64(imageData.urls.regular);
                     return base64;
                 }

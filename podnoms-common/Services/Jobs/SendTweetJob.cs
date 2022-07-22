@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using Tweetinvi;
-using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 
 namespace PodNoms.Common.Services.Jobs {

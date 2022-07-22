@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {

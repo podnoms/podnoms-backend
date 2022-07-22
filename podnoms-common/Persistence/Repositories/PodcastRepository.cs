@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Auth;
 using PodNoms.Common.Utils.Crypt;
 using PodNoms.Data.Models;
 

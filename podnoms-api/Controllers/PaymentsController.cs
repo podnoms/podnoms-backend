@@ -1,5 +1,4 @@
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,10 +9,8 @@ using PodNoms.Common.Services.Payments;
 using PodNoms.Data.Models;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using System.Linq;
 using System.Net.Http;
-using System.Net;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PodNoms.Common.Services;

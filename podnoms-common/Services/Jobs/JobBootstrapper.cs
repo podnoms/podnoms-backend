@@ -1,5 +1,4 @@
-﻿using System;
-using Hangfire;
+﻿using Hangfire;
 
 namespace PodNoms.Common.Services.Jobs {
     public static class JobBootstrapper {

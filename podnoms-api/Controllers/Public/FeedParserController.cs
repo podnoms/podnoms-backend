@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using PodNoms.Common.Data.ViewModels.RssViewModels;
 using PodNoms.Common.Services.Rss;

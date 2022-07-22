@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PodNoms.Data.Annotations;

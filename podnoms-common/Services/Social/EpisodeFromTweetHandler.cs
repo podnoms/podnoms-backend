@@ -31,7 +31,6 @@ namespace PodNoms.Common.Services.Social {
     public class EpisodeFromTweetHandler : ITweetListener {
         private readonly TwitterStreamListenerSettings _twitterSettings;
         private readonly AppSettings _appSettings;
-        private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger<EpisodeFromTweetHandler> _logger;
         private readonly IServiceProvider _provider;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -51,7 +50,6 @@ namespace PodNoms.Common.Services.Social {
         ) {
             _twitterSettings = twitterSettings.Value;
             _appSettings = appSettings.Value;
-            _jwtOptions = jwtOptions.Value;
             _logger = logger;
             _provider = provider;
             _httpClientFactory = httpClientFactory;
@@ -218,9 +216,7 @@ namespace PodNoms.Common.Services.Social {
                 jwtFactory.GenerateClaimsIdentity(user.UserName, user.Id),
                 jwtFactory,
                 user.UserName,
-                roles.ToArray<string>(),
-                _jwtOptions,
-                new JsonSerializerSettings {Formatting = Formatting.Indented});
+                roles.ToArray<string>());
             return jwt;
         }
 

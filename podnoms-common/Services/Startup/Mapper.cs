@@ -1,10 +1,8 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Data;
 using System;
 using System.Threading;
-using Microsoft.EntityFrameworkCore;
 
 namespace PodNoms.Common.Services.Startup {
     public static class MapperStartup {

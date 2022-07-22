@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,8 +12,6 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.External;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.PageParser;
 using PodNoms.Data.Models;
 using Slack.Webhooks;
 
