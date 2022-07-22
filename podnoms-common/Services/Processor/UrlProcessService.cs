@@ -2,15 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using k8s.Models;
 using Microsoft.Extensions.Logging;
-using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.Models;
 using PodNoms.AudioParsing.UrlParsers;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Realtime;

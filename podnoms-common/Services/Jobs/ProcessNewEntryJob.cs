@@ -9,8 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;

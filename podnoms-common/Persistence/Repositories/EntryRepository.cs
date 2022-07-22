@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Common.Persistence.Extensions;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;

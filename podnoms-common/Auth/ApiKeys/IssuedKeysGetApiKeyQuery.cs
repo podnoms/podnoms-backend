@@ -1,12 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Utils.Crypt;
 using PodNoms.Data.Models;
 using PodNoms.Data.Utils;
 

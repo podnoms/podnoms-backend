@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.UrlParsers;
-using PodNoms.Common.Utils.RemoteParsers;
 using Xunit;
 
 namespace PodNoms.Tests {

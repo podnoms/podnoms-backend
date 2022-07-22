@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-
 namespace PodNoms.Common.Data.Settings {
     public class AppSettings {
         public string DebugUserId { get; set; }

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.Audio;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Hubs;

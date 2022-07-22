@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using EasyNetQ;
-using EasyNetQ.AutoSubscribe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,9 +1,7 @@
 using System;
 using System.Net.Http;
-using Flurl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PodNoms.Common.Services.Network;
 using Polly;
 using Polly.Extensions.Http;
 

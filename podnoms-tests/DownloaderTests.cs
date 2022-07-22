@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.Helpers;

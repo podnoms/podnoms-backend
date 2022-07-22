@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using PodNoms.Data.Interfaces;
-using PodNoms.Data.Utils;
 
 namespace PodNoms.Data.Models {
     public class IssuedApiKey : BaseEntity, IEntity {

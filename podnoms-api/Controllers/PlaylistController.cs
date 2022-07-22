@@ -9,9 +9,7 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Jobs;
-using PodNoms.Common.Utils.Extensions;
 using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Api.Controllers {

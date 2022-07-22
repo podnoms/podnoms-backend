@@ -12,12 +12,10 @@ using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.ErrorHandling;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using YoutubeDLSharp.Metadata;
-using ProcessingStatus = PodNoms.Data.Enums.ProcessingStatus;
 
 
 namespace PodNoms.Common.Services.Downloader {

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 using System.Linq;
 using PodNoms.Common.Persistence;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EasyNetQ;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;

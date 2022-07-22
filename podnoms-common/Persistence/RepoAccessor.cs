@@ -1,12 +1,8 @@
-using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Data;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Hubs;
 using PodNoms.Data.Interfaces;

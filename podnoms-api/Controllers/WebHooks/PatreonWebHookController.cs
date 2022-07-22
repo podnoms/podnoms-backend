@@ -1,9 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PodNoms.Common.Auth;
-using PodNoms.Common.Data.ViewModels;
 
 namespace PodNoms.Api.Controllers.WebHooks {
     [AllowAnonymous]

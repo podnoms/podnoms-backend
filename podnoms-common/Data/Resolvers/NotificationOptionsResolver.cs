@@ -3,7 +3,6 @@ using System.Linq;
 using AutoMapper;
 using Newtonsoft.Json;
 using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
 
 namespace PodNoms.Common.Data.Resolvers {

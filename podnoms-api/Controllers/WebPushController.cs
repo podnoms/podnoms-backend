@@ -1,9 +1,6 @@
 ﻿using System.Threading.Tasks;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using PodNoms.Common.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Push;

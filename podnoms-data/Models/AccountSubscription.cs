@@ -1,6 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using PodNoms.Data.Interfaces;
 
 namespace PodNoms.Data.Models {
     public enum AccountSubscriptionType {

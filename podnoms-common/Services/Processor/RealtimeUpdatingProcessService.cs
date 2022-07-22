@@ -3,13 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using PodNoms.AudioParsing.Models;
-using PodNoms.Common.Data.ViewModels;
-using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Services.Realtime;
-using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Services.Processor {
     /// <summary>
