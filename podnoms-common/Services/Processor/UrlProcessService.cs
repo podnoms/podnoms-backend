@@ -88,6 +88,7 @@ namespace PodNoms.Common.Services.Processor {
             var info = await downloader.GetVideoInformation(url);
             return new RemoteUrlStatus {
                 Type = urlType switch {
+                    UrlType.Playlist => RemoteUrlType.Playlist.ToString(),
                     UrlType.Direct => RemoteUrlType.SingleItem.ToString(),
                     UrlType.YouTube => RemoteUrlType.SingleItem.ToString(),
                     UrlType.YtDl => RemoteUrlType.SingleItem.ToString(),
