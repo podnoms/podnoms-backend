@@ -10,6 +10,7 @@ namespace PodNoms.Tests {
             services.AddTransient<IYouTubeParser, YouTubeParser>();
             services.AddTransient<IApiKeyRepository, TestApiKeyRepository>();
             services.AddTransient<IExternalServiceRequestLogger, TestExternalServiceRequestLogger>();
+            services.AddTransient<MixcloudParser>();
             // services.AddTransient<IDownloader, YtDlDownloader>();
             services.AddHttpClient("youtube", c => {
                 c.BaseAddress = new Uri("https://www.googleapis.com/youtube/v3/");
