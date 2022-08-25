@@ -82,7 +82,7 @@ namespace PodNoms.Common.Services.Jobs {
                     .Select(x => x.AudioFileSize)
                     .Sum();
 
-                if (totalUsed >= quota) {
+                if (totalUsed >= quota && !isGod) {
                     LogError($"Storage quota exceeded for {user.GetBestGuessName()}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
                         service => service.NotifyUser(
@@ -100,7 +100,9 @@ namespace PodNoms.Common.Services.Jobs {
                 Log("Quotas passed");
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-                var count = user.PlaylistAllowedEntryCount ?? _storageSettings.DefaultEntryCount;
+                var count = isGod
+                    ? Int32.MaxValue
+                    : user.PlaylistAllowedEntryCount ?? _storageSettings.DefaultEntryCount;
 
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing YouTube");
@@ -114,18 +116,17 @@ namespace PodNoms.Common.Services.Jobs {
                 } else if (await new MixcloudPlaylistParser().IsMatch(playlist.SourceUrl)) {
                     Log("Parsing MixCloud");
                     var entries = await _mixcloudParser
-                        .GetEntries(playlist.SourceUrl, count);
+                        .GetAllEntries(playlist.SourceUrl);
                     resultList = entries
                         .OrderBy(r => r.UploadDate)
-                        .Take(_storageSettings.DefaultEntryCount)
+                        .Take(isGod ? short.MaxValue : _storageSettings.DefaultEntryCount)
                         .ToList();
                 }
 
                 Log($"Found {resultList.Count} candidates");
-
-                //order in reverse so the newest item is added first
-                foreach (var item in resultList.Where(item =>
-                             playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
+                var toProcess = resultList.Where(item =>
+                    playlist.PodcastEntries.All(e => e.SourceItemId != item.Id));
+                foreach (var item in toProcess) {
                     await _trimPlaylist(playlist, count);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob

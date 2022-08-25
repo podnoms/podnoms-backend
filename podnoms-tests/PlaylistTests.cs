@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.Helpers;
 using PodNoms.AudioParsing.UrlParsers;
@@ -16,11 +17,11 @@ namespace PodNoms.Tests {
 
         [Fact]
         public async Task Test_Mixcloud_Playlist() {
-            var parser = new MixcloudParser();
-            var entries = await parser
-                .GetEntries(playlist.SourceUrl, count);
+            var parser = _fixture.ServiceProvider.GetRequiredService<MixcloudParser>();
+
             foreach (var url in _fixture.PLAYLIST_URLS) {
-                
+                var entries = await parser.GetEntries(url.Key);
+                Assert.Equal(entries.Count, url.Value);
             }
         }
     }

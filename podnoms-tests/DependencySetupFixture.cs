@@ -6,6 +6,7 @@ using Google.Apis.Http;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Utils.Extensions;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Tests {
     public class DependencySetupFixture {
@@ -28,9 +29,9 @@ namespace PodNoms.Tests {
             }
         };
 
-        public Dictionary<string, string> PLAYLIST_URLS = new() {
+        public Dictionary<string, int> PLAYLIST_URLS = new() {
             {
-                "podnoms", "https://www.mixcloud.com/podnoms/"
+                "https://www.mixcloud.com/podnoms/", 3
             }
         };
 
@@ -57,9 +58,15 @@ namespace PodNoms.Tests {
             // serviceCollection.AddDbContext<PodNomsDbContext>(options =>
             //     options.UseInMemoryDatabase(databaseName: "TestDatabase"));
             serviceCollection.AddTransient<IPageParser, ExternalPageParser>();
+            serviceCollection.AddTransient<IYouTubeParser, YouTubeParser>();
+            serviceCollection.AddTransient<MixcloudParser>();
 
             serviceCollection.AddHttpClient("RemotePageParser", c => {
                 c.BaseAddress = new Uri("http://localhost:3000");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+            serviceCollection.AddHttpClient("mixcloud", c => {
+                c.BaseAddress = new Uri("https://api.mixcloud.com/");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
             });
             HttpFactory = serviceCollection.BuildServiceProvider().GetService<IHttpClientFactory>();

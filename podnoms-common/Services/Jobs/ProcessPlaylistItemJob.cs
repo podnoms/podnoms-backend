@@ -41,8 +41,8 @@ namespace PodNoms.Common.Services.Jobs {
             return await Task.Factory.StartNew(() => true);
         }
 
-        // [MaximumConcurrentExecutions(1)]
         // [DisableConcurrentExecution(timeoutInSeconds: 60 * 60 * 2)]
+        [MaximumConcurrentExecutions(3)]
         public async Task<bool> Execute(ParsedItemResult item, Guid playlistId, PerformContext context) {
             _setContext(context);
             if (item is null || string.IsNullOrEmpty(item.VideoType)) {
@@ -53,7 +53,7 @@ namespace PodNoms.Common.Services.Jobs {
 
             var playlist = await _repo.Playlists.GetAsync(playlistId);
             var url = item.VideoType.ToLower().Equals("youtube") ? $"https://www.youtube.com/watch?v={item.Id}" :
-                item.VideoType.Equals("mixcloud") ? $"https://mixcloud.com/{item.Id}" :
+                item.VideoType.Equals("mixcloud") ? Flurl.Url.Combine($"https://mixcloud.com/", item.Id) :
                 string.Empty;
             if (string.IsNullOrEmpty(url)) {
                 LogError($"Unknown video type for ParsedItem: {item.Id} - {playlist.Id}");
@@ -64,15 +64,15 @@ namespace PodNoms.Common.Services.Jobs {
                     Log($"URL is valid");
 
                     var podcast = await _repo.Podcasts.GetAsync(playlist.PodcastId);
-                    var uid = Guid.NewGuid();
-                    Log($"Downloading audio");
-                    var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+                    Log("Downloading audio");
                     try {
                         var entry = new PodcastEntry {
                             SourceUrl = url,
+                            SourceItemId = item.Id,
+                            SourceCreateDate = item.UploadDate,
                             ProcessingStatus = ProcessingStatus.Uploading,
                             Playlist = playlist,
-                            Podcast = podcast
+                            Podcast = podcast,
                         };
                         await _processor.GetInformation(entry, podcast.AppUserId);
                         podcast.PodcastEntries.Add(entry);

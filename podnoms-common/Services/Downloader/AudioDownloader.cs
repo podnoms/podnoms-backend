@@ -45,7 +45,7 @@ namespace PodNoms.Common.Services.Downloader {
             _logger = logger;
         }
 
-        private static async Task<bool> _remoteIsAudio(string url) =>
+        private static async Task<bool> _remoteIsAudioFileUrl(string url) =>
             url.Contains("drive.google.com") ||
             url.Contains("dl.dropboxusercontent.com") ||
             url.EndsWith(".mp3") ||
@@ -84,20 +84,21 @@ namespace PodNoms.Common.Services.Downloader {
         private async Task<VideoData> __getInfo(string url) {
             try {
                 var result = await _downloader.GetVideoInformation(url);
-                throw new AudioDownloadException("No audio found in that URL");
+                if (result is not null) {
+                    return result;
+                }
             } catch (TaskCanceledException) {
                 _logger.LogError("Unable to parse url");
             } catch (Exception e) {
-                _logger.LogError($"Error geting info for {url}");
-                _logger.LogError(e.Message);
+                _logger.LogError("Error getting info for {Url}\n\t{Message}", url, e.Message);
             }
 
-            return null;
+            throw new AudioDownloadException("No audio found in that URL");
         }
 
         public async Task<RemoteUrlType> GetInfo(string url, string userId) {
             var ret = RemoteUrlType.Invalid;
-            if (await _remoteIsAudio(url)) {
+            if (await _remoteIsAudioFileUrl(url)) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -149,7 +150,7 @@ namespace PodNoms.Common.Services.Downloader {
                 outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
             }
 
-            if (await _remoteIsAudio(url)) {
+            if (await _remoteIsAudioFileUrl(url)) {
                 return _downloadFileDirect(url, outputFile);
             }
 

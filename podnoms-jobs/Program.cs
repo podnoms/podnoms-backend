@@ -51,10 +51,9 @@ namespace PodNoms.Jobs {
                             .AddEnvironmentVariables("ASPNETCORE_")
                             .Build();
 
-                        var certificate = new X509Certificate2(
-                            c[
-                                $"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
-                            c["DevSettings:CertificateSecret"]);
+                        var certificate = X509Certificate2.CreateFromPemFile(
+                            c["DevSettings:CertificateFile"],
+                            c["DevSettings:CertificateFileKey"]);
 
                         options.Listen(IPAddress.Any, 5003, listenOptions => {
                             listenOptions.UseHttps(certificate);
