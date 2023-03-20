@@ -2,16 +2,12 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
-using Hangfire.Console;
-using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Utils;

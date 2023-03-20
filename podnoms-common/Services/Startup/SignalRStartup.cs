@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Serialization;
 using PodNoms.Common.Services.Hubs;
 using EntitySignal.Extensions;
-using EntitySignal.Hubs;
 
 namespace PodNoms.Common.Services.Startup {
     public static class SignalRStartup {

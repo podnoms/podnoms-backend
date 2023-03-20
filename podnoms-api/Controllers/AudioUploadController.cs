@@ -12,7 +12,6 @@ using PodNoms.Data.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Data.Enums;
 using PodNoms.Common.Services.Jobs;
@@ -62,7 +61,7 @@ namespace PodNoms.Api.Controllers {
                 ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png",
                 Processed = false,
                 ProcessingStatus = ProcessingStatus.Processing,
-                Podcast = podcast
+                Podcast = podcast 
             };
 
             var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Data.ViewModels;
-using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Data.Models;
 
 namespace PodNoms.Api.Controllers.Public {
     [Route("pub/domainresolver")]
@@ -45,7 +40,7 @@ namespace PodNoms.Api.Controllers.Public {
                     });
                 }
             } catch (Exception e) {
-                _logger.LogError($"Error resolving custom domain: {domain}\n{e.Message}");
+                _logger.LogError("Error resolving custom domain: {Domain}\\n{Message}", domain, e.Message);
             }
 
             return Ok();

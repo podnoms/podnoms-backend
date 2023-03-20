@@ -1,16 +1,12 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using PodNoms.AudioParsing.Downloaders;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Tests.Mocks;
 
 namespace PodNoms.Tests {
     public class Startup {
         public void ConfigureServices(IServiceCollection services) {
-            services.AddTransient<IYouTubeParser, YouTubeParser>();
             services.AddTransient<IApiKeyRepository, TestApiKeyRepository>();
             services.AddTransient<IExternalServiceRequestLogger, TestExternalServiceRequestLogger>();
             // services.AddTransient<IDownloader, YtDlDownloader>();

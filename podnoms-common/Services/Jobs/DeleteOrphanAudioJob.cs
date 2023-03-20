@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 
 namespace PodNoms.Common.Services.Jobs {
@@ -28,7 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             try {
                 var container = CloudStorageAccount
                     .Parse(_storageSettings.ConnectionString)

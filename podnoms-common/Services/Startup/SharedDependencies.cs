@@ -6,6 +6,7 @@ using PodNoms.AudioParsing.Downloaders;
 using PodNoms.Common.Auth;
 using PodNoms.Common.Auth.ApiKeys;
 using PodNoms.Common.Persistence;
+using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Audio;
 using PodNoms.Common.Services.Downloader;
 using PodNoms.Common.Services.Gravatar;
@@ -29,7 +30,10 @@ namespace PodNoms.Common.Services.Startup {
                 .AddSingleton<IGetApiKeyQuery, IssuedKeysGetApiKeyQuery>()
                 .AddScoped<IExternalServiceRequestLogger, ExternalServiceRequestLogger>()
                 // .AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))
-                .AddScoped<IRepoAccessor, RepoAccessor>()
+                // .AddScoped<IPodcastRepository, PodcastRepository>()
+                .AddTransient<IPodcastRepository, PodcastRepository>()
+                .AddTransient<IEntryRepository, EntryRepository>()
+                .AddTransient<IRepoAccessor, RepoAccessor>()
                 .AddScoped<IUrlProcessService, UrlProcessService>()
                 .AddScoped<IAudioUploadProcessService, AudioUploadProcessService>()
                 .AddScoped<EntryPreProcessor>()

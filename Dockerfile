@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
 
 WORKDIR /app
 EXPOSE 80
@@ -42,6 +42,6 @@ ENV PATH="/opt/dotnetcore-tools:${PATH}"
 #RUN /opt/dotnetcore-tools/dotnet-sos install
 
 RUN mkdir ./data
-RUN youtube-dl -U
+RUN yt-dlp -U
 
 ENTRYPOINT ["dotnet", "podnoms-api.dll"]

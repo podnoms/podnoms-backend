@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,13 @@ using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.ErrorHandling;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Services.Realtime;
 using PodNoms.Common.Utils;
 using PodNoms.Common.Utils.RemoteParsers;
 using YoutubeDLSharp.Metadata;
-using ProcessingStatus = PodNoms.Data.Enums.ProcessingStatus;
 
 
 namespace PodNoms.Common.Services.Downloader {
@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly IDownloader _downloader;
         private readonly ILogger<AudioDownloader> _logger;
 
-        private static readonly List<string> _audioFileTypes = new List<string>() {
+        private static readonly List<string> _audioFileTypes = new() {
             "audio/mpeg"
         };
 
@@ -47,7 +47,7 @@ namespace PodNoms.Common.Services.Downloader {
             _logger = logger;
         }
 
-        private static async Task<bool> _remoteIsAudio(string url) =>
+        private static async Task<bool> _remoteIsAudioFileUrl(string url) =>
             url.Contains("drive.google.com") ||
             url.Contains("dl.dropboxusercontent.com") ||
             url.EndsWith(".mp3") ||
@@ -72,34 +72,28 @@ namespace PodNoms.Common.Services.Downloader {
 
                 return br.ToString();
             } catch (Exception ex) {
-                return $"{{\"Error\": \"{ex?.Message}\"}}";
-            }
-        }
-
-        void _handleError(string error) {
-            if (error.Contains("ERROR: Unsupported URL") ||
-                error.Contains("ERROR: There's no video in this")) {
-                throw new AudioDownloadException(error);
+                return $"{{\"Error\": \"{ex.Message}\"}}";
             }
         }
 
         private async Task<VideoData> __getInfo(string url) {
             try {
                 var result = await _downloader.GetVideoInformation(url);
-                throw new AudioDownloadException("No audio found in that URL");
+                if (result is not null) {
+                    return result;
+                }
             } catch (TaskCanceledException) {
                 _logger.LogError("Unable to parse url");
             } catch (Exception e) {
-                _logger.LogError($"Error geting info for {url}");
-                _logger.LogError(e.Message);
+                _logger.LogError("Error getting info for {Url}\n\t{Message}", url, e.Message);
             }
 
-            return null;
+            throw new AudioDownloadException("No audio found in that URL");
         }
 
         public async Task<RemoteUrlType> GetInfo(string url, string userId) {
             var ret = RemoteUrlType.Invalid;
-            if (await _remoteIsAudio(url)) {
+            if (await _remoteIsAudioFileUrl(url)) {
                 return RemoteUrlType.SingleItem;
             }
 
@@ -126,7 +120,7 @@ namespace PodNoms.Common.Services.Downloader {
                     Description = info.Description,
                     Thumbnail = info.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
                     Uploader = info.Uploader,
-                    UploadDate = (info?.UploadDate ?? System.DateTime.Now).ToString().ParseBest(),
+                    UploadDate = (info.UploadDate ?? DateTime.Now).ToString(CultureInfo.InvariantCulture).ParseBest(),
                     VideoId = info.ID
                 };
 
@@ -148,16 +142,16 @@ namespace PodNoms.Common.Services.Downloader {
 
         public async Task<string> DownloadAudio(string id, string url, string userId, string outputFile = "") {
             if (string.IsNullOrEmpty(outputFile)) {
-                outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
+                outputFile = Path.Combine(PathUtils.GetScopedTempPath(), $"{id}.mp3");
             }
 
-            if (await _remoteIsAudio(url)) {
-                return _downloadFileDirect(url, outputFile);
+            if (await _remoteIsAudioFileUrl(url)) {
+                return await HttpUtils.DownloadFile(url, outputFile);
             }
-
 
             _logger.LogInformation(
-                $"Initiating download of ${url}\n\tTo: {outputFile}\n\tUsing: {_helpersSettings.Downloader}");
+                "Initiating download of ${Url}\\n\\tTo: {OutputFile}\\n\\tUsing: {HelpersSettingsDownloader}", url,
+                outputFile, _helpersSettings.Downloader);
 
             async Task<bool> ProgressCallback(ProcessingProgress progress) {
                 var result = await _clientUpdater.SendProcessUpdate(userId, id, progress);
@@ -169,11 +163,6 @@ namespace PodNoms.Common.Services.Downloader {
                 {"FFMPeg", _helpersSettings.FFMPeg}
             }, string.IsNullOrEmpty(userId) ? null : ProgressCallback);
             return File.Exists(outputFile) ? outputFile : string.Empty;
-        }
-
-        private string _downloadFileDirect(string url, string fileName) {
-            var file = HttpUtils.DownloadFile(url, fileName).WaitAndUnwrapException();
-            return file;
         }
     }
 }

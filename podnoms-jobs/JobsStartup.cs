@@ -62,7 +62,7 @@ namespace PodNoms.Jobs {
                 .AddPodNomsCacheService(Configuration, false)
                 .AddPodNomsSignalR(Env.IsDevelopment())
                 .AddSharedDependencies()
-                .AddSingleton<IBus>(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
+                .AddSingleton(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
                 .AddSingleton<RemoteImageCacher>()
                 .AddSingleton<ITweetListener, EpisodeFromTweetHandler>()
                 .AddScoped<IYouTubeParser, YouTubeParser>()
@@ -72,8 +72,6 @@ namespace PodNoms.Jobs {
                 .AddScoped<IRealTimeUpdater, RabbitMQClientUpdater>();
 
             services.AddHostedService<TweetListenerService>();
-
-            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env) {

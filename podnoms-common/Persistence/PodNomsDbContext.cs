@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EntitySignal.Server.EFDbContext.Data;
 using EntitySignal.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,7 +16,6 @@ using PodNoms.Data.Extensions;
 using PodNoms.Data.Interfaces;
 using PodNoms.Data.Models;
 using PodNoms.Data.Models.Notifications;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PodNoms.Common.Persistence {
     public class PodNomsDbContextFactory : IDesignTimeDbContextFactory<PodNomsDbContext> {
@@ -25,9 +23,10 @@ namespace PodNoms.Common.Persistence {
             var TEMP_CONN =
                 "Server=tcp:127.0.0.1,1433;Initial Catalog=PodNoms;Persist Security Info=False;User ID=podnomsweb;Password=podnomsweb;MultipleActiveResultSets=False;TrustServerCertificate=False;Connection Timeout=30;";
             var builder = new DbContextOptionsBuilder<PodNomsDbContext>();
+            builder.EnableSensitiveDataLogging();
+            builder.EnableDetailedErrors();
 
-            var connectionString = TEMP_CONN;
-            builder.UseSqlServer(connectionString);
+            builder.UseSqlServer(TEMP_CONN);
 
             return new PodNomsDbContext(builder.Options, null, null);
         }
@@ -44,7 +43,7 @@ namespace PodNoms.Common.Persistence {
             _cache = cache;
         }
 
-        private IEnumerable<PropertyBuilder> __getColumn(ModelBuilder modelBuilder, string columnName) {
+        private IEnumerable<PropertyBuilder> __getColumns(ModelBuilder modelBuilder, string columnName) {
             return modelBuilder.Model
                 .GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
@@ -52,7 +51,7 @@ namespace PodNoms.Common.Persistence {
                 .Select(p => modelBuilder.Entity(p.DeclaringEntityType.ClrType).Property(p.Name));
         }
 
-        public void ConfigureUser(EntityTypeBuilder<ApplicationUser> builder) {
+        private void ConfigureUser(EntityTypeBuilder<ApplicationUser> builder) {
             var navigation = builder.Metadata.FindNavigation(nameof(ApplicationUser.RefreshTokens));
             //EF access the RefreshTokens collection property through its backing field
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
@@ -129,12 +128,12 @@ namespace PodNoms.Common.Persistence {
                 .Property(e => e.EmailNotificationOptions)
                 .HasConversion(converter);
 
-            foreach (var pb in __getColumn(modelBuilder, "CreateDate")) {
+            foreach (var pb in __getColumns(modelBuilder, "CreateDate")) {
                 pb.ValueGeneratedOnAdd()
                     .HasDefaultValueSql("getdate()");
             }
 
-            foreach (var pb in __getColumn(modelBuilder, "UpdateDate")) {
+            foreach (var pb in __getColumns(modelBuilder, "UpdateDate")) {
                 pb.ValueGeneratedOnAddOrUpdate()
                     .HasDefaultValueSql("getdate()");
             }
@@ -143,18 +142,18 @@ namespace PodNoms.Common.Persistence {
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default) {
             foreach (var entity in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Where(e => e.Entity is ISluggedEntity)
-                .Select(e => e.Entity as ISluggedEntity)
-                .Where(e => string.IsNullOrEmpty(e.Slug))) {
+                         .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                         .Where(e => e.Entity is ISluggedEntity)
+                         .Select(e => e.Entity as ISluggedEntity)
+                         .Where(e => string.IsNullOrEmpty(e.Slug))) {
                 entity.Slug = entity.GenerateSlug(this);
             }
 
             //remove all caches referencing this item
             foreach (ICachedEntity entity in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Where(e => e.Entity is ICachedEntity)
-                .Select(e => e as ICachedEntity)) {
+                         .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                         .Where(e => e.Entity is ICachedEntity)
+                         .Select(e => e as ICachedEntity)) {
                 foreach (CacheType type in Enum.GetValues(typeof(CacheType))) {
                     try {
                         if (entity != null) {

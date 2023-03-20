@@ -1,13 +1,8 @@
 using System;
-using System.Linq;
 using Flurl;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Persistence.Repositories;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace PodNoms.Api.Providers {
     public class RedirectCustomRssUrl : IRule {

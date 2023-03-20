@@ -1,5 +1,3 @@
-using Stripe;
-
 namespace PodNoms.Common.Services.Payments {
     public class StripePaymentResult {
 

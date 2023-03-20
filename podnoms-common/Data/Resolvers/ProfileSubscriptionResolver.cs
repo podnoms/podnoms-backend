@@ -1,13 +1,8 @@
-﻿using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Services;
-using PodNoms.Data.Enums;
 
 namespace PodNoms.Common.Data.Resolvers {
     internal class ProfileSubscriptionResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, string> {

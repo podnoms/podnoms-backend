@@ -38,7 +38,7 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<TagViewModel>> AddTag([FromQuery] string tagName) {
             var tag = new EntryTag(tagName);
-            tag = _repo.Tags.AddOrUpdate(tag);
+            tag = await _repo.Tags.AddOrUpdate(tag);
             await _repo.CompleteAsync();
             return _mapper.Map<EntryTag, TagViewModel>(tag);
         }

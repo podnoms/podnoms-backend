@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
-using PodNoms.Common.Utils.Extensions;
 
 namespace PodNoms.Common.Services.PageParser {
     public class ExternalPageParser : IPageParser {

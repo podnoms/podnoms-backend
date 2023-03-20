@@ -2,13 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
-using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Storage;
 using PodNoms.Common.Services.Waveforms;
 
@@ -37,7 +35,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log("Starting processing missing waveforms");
             var missingWaveforms = await _repo.Entries.GetMissingWaveforms();
 
@@ -52,7 +50,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log($"Creating waveform for: {entryId} using {localFile}");
 
             if (!string.IsNullOrEmpty(localFile) && !File.Exists(localFile)) {

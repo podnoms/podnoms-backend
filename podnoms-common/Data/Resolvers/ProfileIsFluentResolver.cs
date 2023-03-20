@@ -4,7 +4,6 @@ using AutoMapper;
 using Nito.AsyncEx;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Data.Resolvers {

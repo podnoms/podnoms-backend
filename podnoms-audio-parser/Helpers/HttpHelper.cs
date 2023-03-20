@@ -13,9 +13,9 @@ namespace PodNoms.AudioParsing.Helpers {
 
             using var content = response.Content;
             if (string.IsNullOrEmpty(file))
-                file = System.IO.Path.GetTempFileName();
+                file = PathUtils.GetScopedTempFile("tmp");
             var result = await content.ReadAsByteArrayAsync();
-            System.IO.File.WriteAllBytes(file, result);
+            await System.IO.File.WriteAllBytesAsync(file, result);
             return file;
         }
     }

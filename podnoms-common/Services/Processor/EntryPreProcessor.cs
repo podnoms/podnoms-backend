@@ -16,13 +16,14 @@ namespace PodNoms.Common.Services.Processor {
             QuotaExceeded,
             GeneralFailure
         }
+
         private readonly StorageSettings _storageSettings;
         private readonly IRepoAccessor _repo;
         private readonly ILogger<EntryPreProcessor> _logger;
 
         public EntryPreProcessor(
-                    IOptions<StorageSettings> storageSettings, IRepoAccessor repo,
-                    ILogger<EntryPreProcessor> logger) {
+            IOptions<StorageSettings> storageSettings, IRepoAccessor repo,
+            ILogger<EntryPreProcessor> logger) {
             _storageSettings = storageSettings.Value;
             _repo = repo;
             _logger = logger;
@@ -43,7 +44,6 @@ namespace PodNoms.Common.Services.Processor {
             }
 
             entry.Processed = false;
-            _repo.Entries.AddOrUpdate(entry);
             try {
                 var succeeded = await _repo.CompleteAsync();
                 if (succeeded) {
@@ -51,8 +51,9 @@ namespace PodNoms.Common.Services.Processor {
                     return EntryProcessResult.Succeeded;
                 }
             } catch (DbUpdateException e) {
-                _logger.LogError(e.Message);
+                _logger.LogError("{Message}", e.Message);
             }
+
             return EntryProcessResult.GeneralFailure;
         }
     }

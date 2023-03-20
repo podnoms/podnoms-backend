@@ -1,5 +1,4 @@
-﻿using Autofac.Core;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
 namespace PodNoms.Common.Persistence.Repositories {

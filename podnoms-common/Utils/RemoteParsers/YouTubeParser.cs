@@ -3,7 +3,6 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,13 +14,10 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Remote.Google;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
-using Nito.AsyncEx.Synchronous;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Utils.Extensions;
 using PodNoms.Data.Models;
 using Polly;
-using Polly.Retry;
 
 namespace PodNoms.Common.Utils.RemoteParsers {
     internal class ServiceWrapper {

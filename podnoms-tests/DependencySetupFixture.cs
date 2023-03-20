@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.Apis.Http;
 using Microsoft.Extensions.DependencyInjection;
-using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Utils.Extensions;
-using Xunit;
+using PodNoms.Common.Utils.RemoteParsers;
 
 namespace PodNoms.Tests {
     public class DependencySetupFixture {
@@ -20,13 +19,19 @@ namespace PodNoms.Tests {
 
         public Dictionary<string, string> YTDL_URLS = new() {
             {"15 Minute Sine", "https://www.mixcloud.com/podnoms/15-minute-sine/"},
-            {"1 Minute Sine", "https://soundcloud.com/fergalmoran/1-minute-sine"}
+            {"1 Minute Sine", "https://soundcloud.com/fergalmoran/1-minute-sine/s-X7DvUKAezh8"}
         };
 
         public Dictionary<string, string> AUDIO_URLS = new() {
             {
                 "7f06901a-d80e-430d-34c4-08d888d6cd8e.mp3",
                 "https://podnoms.blob.core.windows.net/audio/7f06901a-d80e-430d-34c4-08d888d6cd8e.mp3"
+            }
+        };
+
+        public Dictionary<string, int> PLAYLIST_URLS = new() {
+            {
+                "https://www.mixcloud.com/podnoms/", 3
             }
         };
 
@@ -53,9 +58,15 @@ namespace PodNoms.Tests {
             // serviceCollection.AddDbContext<PodNomsDbContext>(options =>
             //     options.UseInMemoryDatabase(databaseName: "TestDatabase"));
             serviceCollection.AddTransient<IPageParser, ExternalPageParser>();
+            serviceCollection.AddTransient<IYouTubeParser, YouTubeParser>();
+            serviceCollection.AddTransient<MixcloudParser>();
 
             serviceCollection.AddHttpClient("RemotePageParser", c => {
                 c.BaseAddress = new Uri("http://localhost:3000");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+            serviceCollection.AddHttpClient("mixcloud", c => {
+                c.BaseAddress = new Uri("https://api.mixcloud.com/");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
             });
             HttpFactory = serviceCollection.BuildServiceProvider().GetService<IHttpClientFactory>();

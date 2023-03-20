@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
-using System.Collections;
 using PodNoms.Common.Utils.Crypt;
 
 namespace PodNoms.Api {
@@ -22,23 +20,23 @@ namespace PodNoms.Api {
 
         private static IWebHost BuildWebHost(string[] args) {
             var builder = WebHost.CreateDefaultBuilder(args)
-                      .ConfigureAppConfiguration((context, config) => {
-                          if (_isDevelopment) {
-                              return;
-                          }
+                .ConfigureAppConfiguration((context, config) => {
+                    if (_isDevelopment) {
+                        return;
+                    }
 
-                          config.SetBasePath(Directory.GetCurrentDirectory())
-                              .AddJsonFile("appsettings.json", optional: false)
-                              .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                              .AddEnvironmentVariables("ASPNET  CORE_");
-                          var builtConfig = config.Build();
-                          Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
+                    config.SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: false)
+                        .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
+                        .AddEnvironmentVariables("ASPNETCORE_");
+                    var builtConfig = config.Build();
+                    Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
 
-                          config.AddAzureKeyVault(
-                              $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
-                              builtConfig["KeyVaultSettings:ClientId"],
-                              builtConfig["KeyVaultSettings:ClientSecret"]);
-                      });
+                    config.AddAzureKeyVault(
+                        $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+                        builtConfig["KeyVaultSettings:ClientId"],
+                        builtConfig["KeyVaultSettings:ClientSecret"]);
+                });
 
             var t = builder.UseStartup<Startup>()
                 .UseKestrel(options => {
@@ -53,14 +51,13 @@ namespace PodNoms.Api {
                         .AddEnvironmentVariables("ASPNETCORE_")
                         .Build();
 
-                    var certificate = new X509Certificate2(
-                        c[$"DevSettings:CertificateFile{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "")}"],
-                        c["DevSettings:CertificateSecret"]);
+                    var certificate = X509Certificate2.CreateFromPemFile(
+                        c["DevSettings:CertificateFile"],
+                        c["DevSettings:CertificateFileKey"]);
 
                     options.Listen(IPAddress.Any, 5001, listenOptions => {
                         listenOptions.UseHttps(certificate);
                     });
-                    options.Listen(IPAddress.Any, 5000);
                 });
 
             return t.Build();

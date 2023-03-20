@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.AudioParsing.UrlParsers;
@@ -17,11 +16,8 @@ using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;
-using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
 using static PodNoms.Common.Services.Processor.EntryPreProcessor;
@@ -54,7 +50,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
             var entries = await _repo.Entries.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(e => e.CreateDate).ToList()
+                entries.ToList()
             );
             return Ok(results);
         }
@@ -63,7 +59,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
             var entries = await _repo.Entries.GetAllForSlugAsync(podcastSlug);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(r => r.CreateDate).ToList()
+                entries.ToList()
             );
 
             return Ok(results);

@@ -4,9 +4,6 @@ using System.Threading.Tasks;
 using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Common.Data.Settings;
-using PodNoms.Common.Persistence.Repositories;
 using PodNoms.Common.Services.Processor;
 
 namespace PodNoms.Common.Services.Jobs {
@@ -27,7 +24,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> Execute(Guid entryId, string cacheFile, PerformContext context) {
 
-            _setContext(context);
+            _setPerformContext(context);
             Log($"Starting Upload Job for {entryId} - {cacheFile}");
 
             if (File.Exists(cacheFile)) {

@@ -36,8 +36,8 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<RealtimeUpdateMessage>(
                     "podnoms_message_realtimeupdate",
                     message => {
-                        _logger.LogInformation(
-                            $"(RabbitMQService) Consuming: {message.Message}\n\tUser: {message.UserId}");
+                        _logger.LogDebug("Consuming: {MessageMessage}\n\tUser:{MessageUserIdId}", message.Message,
+                            message.UserId);
                         _userUpdateHub.SendUserAsync(
                             message.UserId,
                             message.ChannelName,
@@ -46,8 +46,8 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<ProcessingUpdateMessage>(
                     "podnoms_message_audioprocessing",
                     message => {
-                        _logger.LogInformation(
-                            $"(RabbitMQService) Consuming: {message.Data}\n\tUser: {message.UserId}");
+                        _logger.LogDebug("Consuming: {MessageData}\\n\\tUser:{MessageUserIdId}", message.Data,
+                            message.UserId);
                         _audioProcessingHub.SendUserAsync(
                             message.UserId,
                             message.ChannelName,
@@ -56,7 +56,7 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<NotifyUserMessage>(
                     "podnoms_message_notifyuser",
                     message => {
-                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
+                        _logger.LogDebug("Consuming: {MessageBody}", message.Body);
                         using var scope = serviceScopeFactory.CreateScope();
                         var service =
                             scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
@@ -71,7 +71,7 @@ namespace PodNoms.Common.Services.Hosted {
                 _bus.PubSub.Subscribe<CustomNotificationMessage>(
                     "podnoms_message_customnotification",
                     message => {
-                        _logger.LogDebug($"(RabbitMQService) Consuming: {message.Body}");
+                        _logger.LogDebug("Consuming: {MessageBody}", message.Body);
                         using var scope = serviceScopeFactory.CreateScope();
                         var service =
                             scope.ServiceProvider.GetRequiredService<INotifyJobCompleteService>();
@@ -85,7 +85,7 @@ namespace PodNoms.Common.Services.Hosted {
                 );
             } catch (Exception e) {
                 _logger.LogError("Unable to start realtime queue listeners");
-                _logger.LogError(e.Message);
+                _logger.LogError("{ErrorMessage}", e.Message);
             }
         }
 

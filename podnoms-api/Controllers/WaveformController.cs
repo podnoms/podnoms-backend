@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 using System.Threading.Tasks;
 using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Common.Utils;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 

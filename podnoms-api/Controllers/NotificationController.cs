@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Jobs;
@@ -48,7 +46,7 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<NotificationViewModel>> Post([FromBody] NotificationViewModel notification) {
             var model = _mapper.Map<NotificationViewModel, Notification>(notification);
-            var ret = _repo.Notifications.AddOrUpdate(model);
+            var ret = await _repo.Notifications.AddOrUpdate(model);
             await _repo.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }

@@ -1,12 +1,9 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Downloader;
-using PodNoms.Common.Services.PageParser;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;

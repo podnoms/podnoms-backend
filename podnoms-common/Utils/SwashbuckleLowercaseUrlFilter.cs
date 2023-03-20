@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace PodNoms.Common.Utils {

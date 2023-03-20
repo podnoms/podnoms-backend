@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TagLib;
 
 namespace PodNoms.Common.Data.ViewModels.Resources {
     public class ProfileViewModel {

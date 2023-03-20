@@ -1,6 +1,3 @@
-using System;
-using PodNoms.Data.Interfaces;
-
 namespace PodNoms.Data.Models {
     public class Donation : BaseEntity {
         public virtual ApplicationUser AppUser { get; set; }

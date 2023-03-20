@@ -7,17 +7,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Downloader;
-using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Utils.RemoteParsers;
 using PodNoms.Data.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using PodNoms.AudioParsing.UrlParsers;
 
 namespace PodNoms.Common.Services.Jobs {
     public class ProcessPlaylistsJob : AbstractHostedJob {
@@ -28,12 +25,14 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRepoAccessor _repo;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
+        private readonly JobSettings _jobSettings;
 
         public ProcessPlaylistsJob(
             ILogger<ProcessPlaylistsJob> logger,
             UserManager<ApplicationUser> userManager,
             IRepoAccessor repo,
             IOptions<StorageSettings> storageSettings,
+            IOptions<JobSettings> jobSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             IYouTubeParser youTubeParser,
@@ -44,6 +43,7 @@ namespace PodNoms.Common.Services.Jobs {
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
             _storageSettings = storageSettings.Value;
+            _jobSettings = jobSettings.Value;
             _appSettings = appSettings.Value;
         }
 
@@ -85,7 +85,7 @@ namespace PodNoms.Common.Services.Jobs {
                     .Select(x => x.AudioFileSize)
                     .Sum();
 
-                if (totalUsed >= quota) {
+                if (totalUsed >= quota && !isGod) {
                     LogError($"Storage quota exceeded for {user.GetBestGuessName()}");
                     BackgroundJob.Enqueue<INotifyJobCompleteService>(
                         service => service.NotifyUser(
@@ -103,7 +103,9 @@ namespace PodNoms.Common.Services.Jobs {
                 Log("Quotas passed");
                 //check for active subscription
                 var resultList = new List<ParsedItemResult>();
-                var count = user.PlaylistAllowedEntryCount ?? _storageSettings.DefaultEntryCount;
+                var count = isGod
+                    ? Int32.MaxValue
+                    : user.PlaylistAllowedEntryCount ?? _storageSettings.DefaultEntryCount;
 
                 if (_youTubeParser.ValidateUrl(playlist.SourceUrl)) {
                     Log("Parsing YouTube");
@@ -114,21 +116,24 @@ namespace PodNoms.Common.Services.Jobs {
                             user.Id,
                             cutoffDate,
                             count);
-                } else if (MixcloudParser.ValidateUrl(playlist.SourceUrl)) {
+                } else if (await new MixcloudPlaylistParser().IsMatch(playlist.SourceUrl)) {
                     Log("Parsing MixCloud");
                     var entries = await _mixcloudParser
-                        .GetEntries(playlist.SourceUrl, count);
+                        .GetAllEntries(playlist.SourceUrl);
                     resultList = entries
                         .OrderBy(r => r.UploadDate)
-                        .Take(_storageSettings.DefaultEntryCount)
+                        .Take(isGod ? short.MaxValue : _storageSettings.DefaultEntryCount)
                         .ToList();
                 }
 
                 Log($"Found {resultList.Count} candidates");
-
-                //order in reverse so the newest item is added first
-                foreach (var item in resultList.Where(item =>
-                             playlist.PodcastEntries.All(e => e.SourceItemId != item.Id))) {
+                var toProcess = resultList.Where(item =>
+                        playlist.PodcastEntries.All(e => e.SourceItemId != item.Id || e.Processed.Equals(false)))
+                    //only take a certain number, otherwise we have hundreds of jobs
+                    .Take(_jobSettings.MaxConcurrentPlaylistJobs)
+                    .ToList();
+                LogDebug($"{toProcess}");
+                foreach (var item in toProcess.Take(1)) {
                     await _trimPlaylist(playlist, count);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob

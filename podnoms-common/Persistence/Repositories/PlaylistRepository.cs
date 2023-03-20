@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
@@ -25,6 +23,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Podcast)
                 .Include(u => u.Podcast.AppUser)
                 .Include(u => u.Podcast.AppUser.AccountSubscriptions)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(i => i.Id == id);
         }
 

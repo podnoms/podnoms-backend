@@ -7,10 +7,9 @@ using Hangfire.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
-using PodNoms.Common.Services.Caching;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Data.Enums;
 using PodNoms.Data.Models;
@@ -37,10 +36,10 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> ProcessEntryFromUploadFile(
-                                Guid entryId, string audioUrl,
-                                string authToken, PerformContext context) {
-            _setContext(context);
-            var entry = await  _repo.Entries.GetAsync(entryId);
+            Guid entryId, string audioUrl,
+            string authToken, PerformContext context) {
+            _setPerformContext(context);
+            var entry = await _repo.Entries.GetAsync(entryId);
             var remoteUrl = Flurl.Url.Combine(_appSettings.ApiUrl, audioUrl);
 
             Log($"Caching: {remoteUrl}");
@@ -66,10 +65,10 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(Attempts = 0)]
         public async Task<bool> ProcessEntry(Guid entryId, PerformContext context) {
-            var entry = await  _repo.Entries.GetAsync(entryId);
+            var entry = await _repo.Entries.GetAsync(entryId);
             try {
-                var localFile = Path.Combine(Path.GetTempPath(), $"{entryId}.mp3");
-                
+                var localFile = PathUtils.GetScopedTempFile();
+
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                     r => r.CacheImage(entry.Id));
 

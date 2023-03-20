@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using PodNoms.AudioParsing.ErrorHandling;
 using PodNoms.AudioParsing.Helpers;
@@ -77,7 +76,7 @@ namespace PodNoms.AudioParsing.Downloaders {
             var ytdl = new YoutubeDL() {
                 YoutubeDLPath = args != null && args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
                 FFmpegPath = args != null && args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
-                OutputFolder = Path.GetTempPath(),
+                OutputFolder = PathUtils.GetScopedTempPath(),
             };
 
             RunResult<VideoData> result = await ytdl.RunVideoDataFetch(url);

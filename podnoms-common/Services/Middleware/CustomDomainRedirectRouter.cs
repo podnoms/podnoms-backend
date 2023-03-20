@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
-using PodNoms.Common.Persistence.Repositories;
 
 namespace PodNoms.Common.Services.Middleware {
     public class CustomDomainRouteTransformer : DynamicRouteValueTransformer {

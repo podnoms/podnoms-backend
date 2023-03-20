@@ -47,9 +47,10 @@ namespace PodNoms.Api.Controllers {
 
         [HttpGet]
         public async Task<ActionResult<List<PodcastViewModel>>> Get() {
-            var podcasts = await _repo.Podcasts
-                .GetAllForUserAsync(_applicationUser.Id);
-            var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts.ToList());
+            var podcasts = (await _repo.Podcasts
+                .GetAllForUserAsync(_applicationUser.Id)).ToList();
+
+            var ret = _mapper.Map<List<Podcast>, List<PodcastViewModel>>(podcasts);
             return Ok(ret);
         }
 
@@ -77,7 +78,7 @@ namespace PodNoms.Api.Controllers {
 
             var isNew = string.IsNullOrEmpty(vm.Id);
             item.AppUser = _applicationUser;
-            var ret = _repo.Podcasts
+            var ret = await _repo.Podcasts
                 .AddOrUpdate(item);
             try {
                 await _repo.CompleteAsync();
