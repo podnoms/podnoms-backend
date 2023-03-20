@@ -21,7 +21,7 @@ namespace PodNoms.Common.Persistence.Repositories {
     }
 
     internal class PodcastRepository : GenericRepository<Podcast>, IPodcastRepository {
-        public PodcastRepository(PodNomsDbContext context, ILogger logger) :
+        public PodcastRepository(PodNomsDbContext context, ILogger<PodcastRepository> logger) :
             base(context, logger) {
         }
 
@@ -31,33 +31,25 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<Podcast> GetAsync(string userId, Guid id) {
             var ret = await GetAll()
+                .AsNoTracking()
                 .Where(p => p.Id == id && p.AppUser.Id == userId)
-                // .Include(p => p.PodcastEntries)
-                // .Include(p => p.AppUser)
-                // .Include(p => p.Category)
-                // .Include(p => p.Subcategories)
-                // .Include(p => p.Notifications)
+                .Include(p => p.AppUser)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
-            ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
             return ret;
         }
 
         public new async Task<Podcast> GetAsync(Guid podcastId) {
             var ret = await GetAll()
                 .Where(p => p.Id == podcastId)
-                // .Include(p => p.PodcastEntries)
-                // .Include(p => p.AppUser)
-                // .Include(p => p.Category)
-                // .Include(p => p.Subcategories)
-                // .Include(p => p.Notifications)
+                .Include(p => p.AppUser)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
-            ret.PodcastEntries = ret.PodcastEntries.OrderByDescending(r => r.CreateDate).ToList();
             return ret;
         }
 
         public async Task<Podcast> GetRandomForUser(string userId) {
             return await GetAll()
-                // .Include(r => r.AppUser)
                 .Where(r => r.AppUser.Id == userId)
                 .OrderBy(r => System.Guid.NewGuid().ToString())
                 .Take(1)
@@ -67,11 +59,6 @@ namespace PodNoms.Common.Persistence.Repositories {
         public async Task<Podcast> GetForUserAndSlugAsync(Guid userId, string podcastSlug) {
             var ret = await GetAll()
                 .Where(r => r.AppUser.Id == userId.ToString() && r.Slug == podcastSlug)
-                // .Include(p => p.AppUser)
-                // .Include(p => p.PodcastEntries)
-                // .Include(p => p.Category)
-                // .Include(p => p.Subcategories)
-                // .Include(p => p.Notifications)
                 .OrderByDescending(r =>
                     r.PodcastEntries
                         .OrderByDescending(e => e.UpdateDate)

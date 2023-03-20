@@ -19,7 +19,7 @@ namespace PodNoms.Tests {
                 var downloader = await new UrlTypeParser().GetDownloader(url);
                 var file = await downloader.DownloadFromUrl(
                     url,
-                    PathHelper.GetTempFileNameWithExtension(".mp3"));
+                    PathUtils.GetScopedTempFile("mp3"));
                 Assert.True(!string.IsNullOrEmpty(file) && File.Exists(file));
             }
         }
@@ -29,7 +29,7 @@ namespace PodNoms.Tests {
             var file = await new YtDlDownloader()
                 .DownloadFromUrl(
                     _fixture.PARSEABLE_URL,
-                    PathHelper.GetTempFileNameWithExtension(".mp3"));
+                    PathUtils.GetScopedTempFile("mp3"));
 
             Assert.False(!string.IsNullOrEmpty(file) && File.Exists(file));
         }

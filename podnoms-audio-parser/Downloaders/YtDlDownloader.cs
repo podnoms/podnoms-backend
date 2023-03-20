@@ -76,7 +76,7 @@ namespace PodNoms.AudioParsing.Downloaders {
             var ytdl = new YoutubeDL() {
                 YoutubeDLPath = args != null && args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
                 FFmpegPath = args != null && args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
-                OutputFolder = Path.GetTempPath(),
+                OutputFolder = PathUtils.GetScopedTempPath(),
             };
 
             RunResult<VideoData> result = await ytdl.RunVideoDataFetch(url);

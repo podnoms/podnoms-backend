@@ -61,7 +61,7 @@ namespace PodNoms.Api.Controllers {
                 ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png",
                 Processed = false,
                 ProcessingStatus = ProcessingStatus.Processing,
-                Podcast = podcast
+                Podcast = podcast 
             };
 
             var localFile = await CachedFormFileStorage.CacheItem(_hostingEnvironment.WebRootPath, file);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,12 +16,13 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         TEntity Create(TEntity entity);
         TEntity Update(TEntity entity);
-        TEntity AddOrUpdate(TEntity entity);
+        Task<TEntity> AddOrUpdate(TEntity entity);
+        Task<TEntity> AddOrUpdate(TEntity entity, Expression<Func<TEntity, bool>> predicate);
         Task DeleteAsync(string id);
         Task DeleteAsync(Guid id);
     }
 
-    internal class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity {
         private readonly PodNomsDbContext _context;
         protected readonly ILogger _logger;
 
@@ -29,11 +31,11 @@ namespace PodNoms.Common.Persistence.Repositories {
             _logger = logger;
         }
 
-        public PodNomsDbContext GetContext() {
+        protected PodNomsDbContext GetContext() {
             return _context;
         }
 
-        public IQueryable<TEntity> GetAll() {
+        public virtual IQueryable<TEntity> GetAll() {
             return _context.Set<TEntity>();
         }
 
@@ -62,15 +64,33 @@ namespace PodNoms.Common.Persistence.Repositories {
         }
 
         public TEntity Update(TEntity entity) {
-            var ret = _context.Set<TEntity>().Update(entity);
+            _context.Set<TEntity>().Update(entity);
             return entity;
         }
 
-        public virtual TEntity AddOrUpdate(TEntity entity) {
-            var ret = entity;
-            // TODO: Fix this logic, we can no longer guarantee blanks IDs for new records
-            ret = entity.Id != Guid.Empty ? Update(entity) : Create(entity);
-            return ret;
+        public virtual async Task<TEntity> AddOrUpdate(TEntity entity) {
+            return await AddOrUpdate(entity, t => t.Id.Equals(entity.Id));
+        }
+
+        public virtual async Task<TEntity> AddOrUpdate(TEntity entity, Expression<Func<TEntity, bool>> predicate) {
+            try {
+                var result = await _context.Set<TEntity>()
+                    .AsNoTracking()
+                    .Where(predicate)
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+                if (result.Equals(Guid.Empty)) {
+                    Create(entity);
+                } else {
+                    entity.Id = result;
+                    Update(entity);
+                }
+
+                return entity;
+            } catch (Exception e) {
+                _logger.LogError("Error adding entity {Message}", e.Message);
+                throw;
+            }
         }
 
         public async Task DeleteAsync(Guid id) {

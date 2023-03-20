@@ -24,7 +24,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> Execute(Guid entryId, string cacheFile, PerformContext context) {
 
-            _setContext(context);
+            _setPerformContext(context);
             Log($"Starting Upload Job for {entryId} - {cacheFile}");
 
             if (File.Exists(cacheFile)) {

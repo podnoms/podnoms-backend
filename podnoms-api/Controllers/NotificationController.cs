@@ -46,7 +46,7 @@ namespace PodNoms.Api.Controllers {
         [HttpPost]
         public async Task<ActionResult<NotificationViewModel>> Post([FromBody] NotificationViewModel notification) {
             var model = _mapper.Map<NotificationViewModel, Notification>(notification);
-            var ret = _repo.Notifications.AddOrUpdate(model);
+            var ret = await _repo.Notifications.AddOrUpdate(model);
             await _repo.CompleteAsync();
             return Ok(_mapper.Map<Notification, NotificationViewModel>(ret));
         }

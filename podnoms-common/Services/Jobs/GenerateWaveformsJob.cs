@@ -35,7 +35,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log("Starting processing missing waveforms");
             var missingWaveforms = await _repo.Entries.GetMissingWaveforms();
 
@@ -50,7 +50,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile, PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log($"Creating waveform for: {entryId} using {localFile}");
 
             if (!string.IsNullOrEmpty(localFile) && !File.Exists(localFile)) {

@@ -50,7 +50,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForUser() {
             var entries = await _repo.Entries.GetAllForUserAsync(_applicationUser.Id);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(e => e.CreateDate).ToList()
+                entries.ToList()
             );
             return Ok(results);
         }
@@ -59,7 +59,7 @@ namespace PodNoms.Api.Controllers {
         public async Task<ActionResult<List<PodcastEntryViewModel>>> GetAllForSlug(string podcastSlug) {
             var entries = await _repo.Entries.GetAllForSlugAsync(podcastSlug);
             var results = _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(
-                entries.OrderByDescending(r => r.CreateDate).ToList()
+                entries.ToList()
             );
 
             return Ok(results);

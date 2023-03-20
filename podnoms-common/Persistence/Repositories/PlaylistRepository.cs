@@ -23,6 +23,7 @@ namespace PodNoms.Common.Persistence.Repositories {
                 .Include(p => p.Podcast)
                 .Include(u => u.Podcast.AppUser)
                 .Include(u => u.Podcast.AppUser.AccountSubscriptions)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(i => i.Id == id);
         }
 

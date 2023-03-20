@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
@@ -96,7 +97,7 @@ namespace PodNoms.Api.Controllers {
                 throw new InvalidOperationException("Invalid file type");
             }
 
-            var cacheFile = await CachedFormFileStorage.CacheItem(System.IO.Path.GetTempPath(), image);
+            var cacheFile = await CachedFormFileStorage.CacheItem(PathUtils.GetScopedTempPath(), image);
             var (finishedFile, extension) = await ImageUtils.ConvertFile(cacheFile, id);
             var destinationFile = $"{subDirectory}/{id}.{extension}";
 
@@ -105,7 +106,7 @@ namespace PodNoms.Api.Controllers {
                 _imageFileStorageSettings.ContainerName,
                 destinationFile,
                 "image/png",
-                (p, t) => _logger.LogDebug($"Uploading image: {p} - {t}")
+                (p, t) => _logger.LogDebug("Uploading image: {Progress} - {Timing}", p, t)
             );
             return destinationFile;
         }

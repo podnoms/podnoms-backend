@@ -25,12 +25,14 @@ namespace PodNoms.Common.Services.Jobs {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRepoAccessor _repo;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
+        private readonly JobSettings _jobSettings;
 
         public ProcessPlaylistsJob(
             ILogger<ProcessPlaylistsJob> logger,
             UserManager<ApplicationUser> userManager,
             IRepoAccessor repo,
             IOptions<StorageSettings> storageSettings,
+            IOptions<JobSettings> jobSettings,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
             IOptions<AppSettings> appSettings,
             IYouTubeParser youTubeParser,
@@ -41,6 +43,7 @@ namespace PodNoms.Common.Services.Jobs {
             _youTubeParser = youTubeParser;
             _mixcloudParser = mixcloudParser;
             _storageSettings = storageSettings.Value;
+            _jobSettings = jobSettings.Value;
             _appSettings = appSettings.Value;
         }
 
@@ -125,8 +128,12 @@ namespace PodNoms.Common.Services.Jobs {
 
                 Log($"Found {resultList.Count} candidates");
                 var toProcess = resultList.Where(item =>
-                    playlist.PodcastEntries.All(e => e.SourceItemId != item.Id));
-                foreach (var item in toProcess) {
+                        playlist.PodcastEntries.All(e => e.SourceItemId != item.Id || e.Processed.Equals(false)))
+                    //only take a certain number, otherwise we have hundreds of jobs
+                    .Take(_jobSettings.MaxConcurrentPlaylistJobs)
+                    .ToList();
+                LogDebug($"{toProcess}");
+                foreach (var item in toProcess.Take(1)) {
                     await _trimPlaylist(playlist, count);
                     Log($"Found candidate\n\tParsedId:{item.Id}\n\tPodcastId:{playlist.Podcast.Id}\n\t{playlist.Id}");
                     BackgroundJob

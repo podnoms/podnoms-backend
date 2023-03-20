@@ -78,7 +78,7 @@ namespace PodNoms.Api.Controllers {
 
             var isNew = string.IsNullOrEmpty(vm.Id);
             item.AppUser = _applicationUser;
-            var ret = _repo.Podcasts
+            var ret = await _repo.Podcasts
                 .AddOrUpdate(item);
             try {
                 await _repo.CompleteAsync();

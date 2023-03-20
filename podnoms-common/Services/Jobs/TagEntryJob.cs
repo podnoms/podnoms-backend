@@ -5,6 +5,7 @@ using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Audio;
@@ -38,7 +39,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public override async Task<bool> Execute(PerformContext context) {
-            this._setContext(context);
+            this._setPerformContext(context);
 
             var entries = await this._repo.Entries.GetAll()
                 .Include(e => e.Podcast)
@@ -58,8 +59,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                     var file = await HttpUtils.DownloadFile(
                         audioUrl,
-                        System.IO.Path.Combine(
-                            System.IO.Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3"));
+                        PathUtils.GetScopedTempFile());
                     if (!System.IO.File.Exists(file)) {
                         continue;
                     }
@@ -89,7 +89,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         public async Task<bool> ExecuteForEntry(Guid entryId, string localFile,
             bool updateEntry, PerformContext context) {
-            this._setContext(context);
+            this._setPerformContext(context);
             Log($"Tagging entry: {entryId} using {localFile}");
 
             var entry = await _repo.Entries.GetAsync(entryId);

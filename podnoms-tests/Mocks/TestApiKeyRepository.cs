@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Persistence.Repositories;
@@ -35,7 +36,11 @@ namespace PodNoms.Tests.Mocks {
             throw new NotImplementedException();
         }
 
-        public ServiceApiKey AddOrUpdate(ServiceApiKey entity) {
+        public Task<ServiceApiKey> AddOrUpdate(ServiceApiKey entity) {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceApiKey> AddOrUpdate(ServiceApiKey entity, Expression<Func<ServiceApiKey, bool>> predicate) {
             throw new NotImplementedException();
         }
 

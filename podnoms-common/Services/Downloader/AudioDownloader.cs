@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Nito.AsyncEx.Synchronous;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.ErrorHandling;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Services.Realtime;
@@ -25,7 +27,7 @@ namespace PodNoms.Common.Services.Downloader {
         private readonly IDownloader _downloader;
         private readonly ILogger<AudioDownloader> _logger;
 
-        private static readonly List<string> _audioFileTypes = new List<string>() {
+        private static readonly List<string> _audioFileTypes = new() {
             "audio/mpeg"
         };
 
@@ -70,14 +72,7 @@ namespace PodNoms.Common.Services.Downloader {
 
                 return br.ToString();
             } catch (Exception ex) {
-                return $"{{\"Error\": \"{ex?.Message}\"}}";
-            }
-        }
-
-        void _handleError(string error) {
-            if (error.Contains("ERROR: Unsupported URL") ||
-                error.Contains("ERROR: There's no video in this")) {
-                throw new AudioDownloadException(error);
+                return $"{{\"Error\": \"{ex.Message}\"}}";
             }
         }
 
@@ -125,7 +120,7 @@ namespace PodNoms.Common.Services.Downloader {
                     Description = info.Description,
                     Thumbnail = info.Thumbnails.FirstOrDefault(r => !string.IsNullOrEmpty(r?.Url))?.Url,
                     Uploader = info.Uploader,
-                    UploadDate = (info?.UploadDate ?? System.DateTime.Now).ToString().ParseBest(),
+                    UploadDate = (info.UploadDate ?? DateTime.Now).ToString(CultureInfo.InvariantCulture).ParseBest(),
                     VideoId = info.ID
                 };
 
@@ -147,16 +142,16 @@ namespace PodNoms.Common.Services.Downloader {
 
         public async Task<string> DownloadAudio(string id, string url, string userId, string outputFile = "") {
             if (string.IsNullOrEmpty(outputFile)) {
-                outputFile = Path.Combine(Path.GetTempPath(), $"{id}.mp3");
+                outputFile = Path.Combine(PathUtils.GetScopedTempPath(), $"{id}.mp3");
             }
 
             if (await _remoteIsAudioFileUrl(url)) {
-                return _downloadFileDirect(url, outputFile);
+                return await HttpUtils.DownloadFile(url, outputFile);
             }
 
-
             _logger.LogInformation(
-                $"Initiating download of ${url}\n\tTo: {outputFile}\n\tUsing: {_helpersSettings.Downloader}");
+                "Initiating download of ${Url}\\n\\tTo: {OutputFile}\\n\\tUsing: {HelpersSettingsDownloader}", url,
+                outputFile, _helpersSettings.Downloader);
 
             async Task<bool> ProgressCallback(ProcessingProgress progress) {
                 var result = await _clientUpdater.SendProcessUpdate(userId, id, progress);
@@ -168,11 +163,6 @@ namespace PodNoms.Common.Services.Downloader {
                 {"FFMPeg", _helpersSettings.FFMPeg}
             }, string.IsNullOrEmpty(userId) ? null : ProgressCallback);
             return File.Exists(outputFile) ? outputFile : string.Empty;
-        }
-
-        private string _downloadFileDirect(string url, string fileName) {
-            var file = HttpUtils.DownloadFile(url, fileName).WaitAndUnwrapException();
-            return file;
         }
     }
 }

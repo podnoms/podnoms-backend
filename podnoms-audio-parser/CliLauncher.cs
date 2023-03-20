@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using PodNoms.AudioParsing.Downloaders;
 using PodNoms.AudioParsing.ErrorHandling;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.AudioParsing.Options;
 using PodNoms.AudioParsing.UrlParsers;
 
@@ -34,7 +35,7 @@ namespace PodNoms.AudioParsing {
             //get the type of the URL
             var urlParser = new UrlTypeParser();
             var urlType = await urlParser.GetUrlType(url);
-            string outputFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+            string outputFile = System.IO.Path.Combine(PathUtils.GetScopedTempPath(), $"{System.Guid.NewGuid()}.mp3");
             //perform the appropriate processing
             switch (urlType) {
                 case UrlType.Direct:

@@ -27,7 +27,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             try {
                 var container = CloudStorageAccount
                     .Parse(_storageSettings.ConnectionString)

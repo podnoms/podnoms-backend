@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ImageMagick;
 using System.Text.Json;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.Common.Data.ViewModels.Remote;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -30,7 +31,7 @@ namespace PodNoms.Common.Utils {
 
         public static async Task<(string, string)> ConvertFileFromWebp(string file, string prefix,
             string outputType = "jpg") {
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}.{outputType}");
+            var outputFile = Path.Combine(PathUtils.GetScopedTempPath(), $"{prefix}.{outputType}");
 
             if (File.Exists(outputFile))
                 File.Delete(outputFile);
@@ -47,7 +48,7 @@ namespace PodNoms.Common.Utils {
 
         public static async Task<(string, string)> ConvertFile(string file, string prefix, string outputType = "jpg") {
             // return (cacheFile, "jpg");
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}.{outputType}");
+            var outputFile = Path.Combine(PathUtils.GetScopedTempPath(), $"{prefix}.{outputType}");
             if (File.Exists(outputFile))
                 File.Delete(outputFile);
 
@@ -74,7 +75,7 @@ namespace PodNoms.Common.Utils {
 
         public static string CreateThumbnail(string cacheFile, string prefix, int width, int height,
             string extension = "png") {
-            var outputFile = Path.Combine(Path.GetTempPath(), $"{prefix}-{width}x{height}.png");
+            var outputFile = Path.Combine(PathUtils.GetScopedTempPath(), $"{prefix}-{width}x{height}.png");
             if (File.Exists(outputFile))
                 File.Delete(outputFile);
 

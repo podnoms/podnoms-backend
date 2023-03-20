@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Services.Audio;
@@ -59,7 +60,7 @@ namespace PodNoms.Common.Services.Jobs {
             await connection.StartAsync();
 
             var fileName = $"{processId}.mp3";
-            var outputFile = Path.Combine(Path.GetTempPath(), fileName);
+            var outputFile = Path.Combine(PathUtils.GetScopedTempPath(), fileName);
 
             var processResult = await _urlProcessService.DownloadAudioV2(processId, url, outputFile, (e) => {
                 connection.InvokeAsync("SendMessage", processId, "processing", e);

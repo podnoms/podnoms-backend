@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using PodNoms.AudioParsing.Helpers;
 
 namespace PodNoms.Common.Utils {
     public static class HttpUtils {
@@ -12,10 +13,11 @@ namespace PodNoms.Common.Utils {
             Uri uriResult;
 
             bool result = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
-                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                          && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
             return result;
         }
+
         public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
             using var client = new HttpClient();
             client.DefaultRequestHeaders
@@ -26,16 +28,17 @@ namespace PodNoms.Common.Utils {
         }
 
         public static async Task<string> DownloadFile(string url, string file = "") {
-
             using var client = new HttpClient();
             using var response = await client.GetAsync(url);
-            if (response.StatusCode == HttpStatusCode.OK) {
-                using var content = response.Content;
-                if (string.IsNullOrEmpty(file))
-                    file = System.IO.Path.GetTempFileName();
-                var result = await content.ReadAsByteArrayAsync();
-                System.IO.File.WriteAllBytes(file, result);
+            if (response.StatusCode != HttpStatusCode.OK) {
+                return file;
             }
+
+            using var content = response.Content;
+            if (string.IsNullOrEmpty(file))
+                file = PathUtils.GetScopedTempFile("tmp");
+            var result = await content.ReadAsByteArrayAsync();
+            await System.IO.File.WriteAllBytesAsync(file, result);
             return file;
         }
 
@@ -46,11 +49,12 @@ namespace PodNoms.Common.Utils {
             };
             return handler;
         }
-        public static async Task<string> GetRemoteMimeType(string url){
+
+        public static async Task<string> GetRemoteMimeType(string url) {
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Head, url);
             var response = await client.SendAsync(request);
-            
+
             if (response.StatusCode == HttpStatusCode.OK &&
                 response.Content.Headers.ContentType != null) {
                 return response.Content.Headers.ContentType.MediaType;
@@ -58,12 +62,13 @@ namespace PodNoms.Common.Utils {
 
             return string.Empty;
         }
+
         public static async Task<string> GetUrlExtension(string url) {
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Head, url);
             var response = await client.SendAsync(request);
 
-            if (response.StatusCode != HttpStatusCode.OK || 
+            if (response.StatusCode != HttpStatusCode.OK ||
                 response?.Content?.Headers?.ContentType == null) {
                 return string.Empty;
             }
@@ -72,10 +77,8 @@ namespace PodNoms.Common.Utils {
                 response.Content.Headers.ContentType.MediaType
                     .Replace("image/jpg", "image/jpeg")
             );
-            
-            return !string.IsNullOrEmpty(extension) ? 
-                extension.TrimStart('.') : 
-                string.Empty;
+
+            return !string.IsNullOrEmpty(extension) ? extension.TrimStart('.') : string.Empty;
         }
     }
 }

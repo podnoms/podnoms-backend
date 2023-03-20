@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text;
 using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
-using EasyNetQ.Logging;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -71,7 +70,7 @@ namespace PodNoms.Api {
             services.AddScoped<SharingLinkRouteTransformer>();
             services.AddHostedService<RabbitMQService>();
             services.AddPodNomsHttpClients(Configuration, Env.IsProduction());
-            LogProvider.SetCurrentLogProvider(ConsoleLogProvider.Instance);
+            // EasyNetQ.Logging.LogProvider.SetCurrentLogProvider(EasyNetQ.Logging.ConsoleLogProvider.Instance);
 
             services.AddPodnomsSecurity(Configuration);
             services.AddPodNomsSignalR(Env.IsDevelopment());

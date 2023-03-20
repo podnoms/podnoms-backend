@@ -7,6 +7,7 @@ using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PodNoms.AudioParsing.Helpers;
 using PodNoms.Common.Data.Settings;
 using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Processor;
@@ -62,7 +63,7 @@ namespace PodNoms.Common.Services.Jobs {
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log("Starting processing missing podcasts");
             try {
                 var entries = await _repo.Entries.GetAll()
@@ -96,7 +97,7 @@ namespace PodNoms.Common.Services.Jobs {
             if (!audioExists || forceReprocess) {
                 //TODO: This is all largely a duplicate of ProcessEntryJob, should call into that...
                 Log($"_process: Missing audio for: {entryId}");
-                var localFile = Path.Combine(Path.GetTempPath(), $"{System.Guid.NewGuid()}.mp3");
+                var localFile = PathUtils.GetScopedTempFile();
                 var processed = await _processor.DownloadAudio(entryId, localFile);
                 if (processed) {
                     Log($"_process: Processed: {entryId}");

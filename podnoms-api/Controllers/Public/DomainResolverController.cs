@@ -40,7 +40,7 @@ namespace PodNoms.Api.Controllers.Public {
                     });
                 }
             } catch (Exception e) {
-                _logger.LogError($"Error resolving custom domain: {domain}\n{e.Message}");
+                _logger.LogError("Error resolving custom domain: {Domain}\\n{Message}", domain, e.Message);
             }
 
             return Ok();

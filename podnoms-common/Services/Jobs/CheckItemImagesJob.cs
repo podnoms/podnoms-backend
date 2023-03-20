@@ -22,7 +22,7 @@ namespace PodNoms.Common.Services.Jobs {
         }
 
         public override async Task<bool> Execute(PerformContext context) {
-            _setContext(context);
+            _setPerformContext(context);
             Log("Starting CheckItemImagesJob");
 
             //get all the unprocessed images

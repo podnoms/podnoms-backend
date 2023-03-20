@@ -26,8 +26,16 @@ namespace PodNoms.Common.Persistence.Repositories {
     }
 
     internal class EntryRepository : GenericRepository<PodcastEntry>, IEntryRepository {
-        public EntryRepository(PodNomsDbContext context, ILogger logger)
+        public EntryRepository(PodNomsDbContext context, ILogger<EntryRepository> logger)
             : base(context, logger) {
+        }
+
+        public override IQueryable<PodcastEntry> GetAll() {
+            // return base.GetAll()
+            //     .OrderBy(e => e.SourceCreateDate)
+            //     .ThenBy(e => e.CreateDate);   
+            return base.GetAll()
+                .OrderBy(e => e.SourceCreateDate);
         }
 
         public new async Task<PodcastEntry> GetAsync(string id) {
@@ -62,9 +70,11 @@ namespace PodNoms.Common.Persistence.Repositories {
 
         public async Task<IEnumerable<PodcastEntry>> GetAllForUserAsync(string userId) {
             var entries = await GetAll()
+                .AsNoTracking()
                 .Where(e => e.Podcast.AppUser.Id == userId)
                 .Include(e => e.Podcast)
-                .ToListAsync();
+                .AsNoTracking()
+                .ToListAsync(); 
             return entries;
         }
 

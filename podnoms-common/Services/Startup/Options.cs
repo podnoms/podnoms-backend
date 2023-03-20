@@ -9,6 +9,7 @@ namespace PodNoms.Common.Services.Startup {
         public static IServiceCollection AddPodNomsOptions(this IServiceCollection services, IConfiguration config) {
             services.AddOptions();
             services.Configure<AppSettings>(config.GetSection("AppSettings"));
+            services.Configure<JobSettings>(config.GetSection("JobSettings"));
             services.Configure<StorageSettings>(config.GetSection("StorageSettings"));
             services.Configure<PaymentSettings>(config.GetSection("PaymentSettings"));
             services.Configure<StripeSettings>(config.GetSection("PaymentSettings:StripeSettings"));

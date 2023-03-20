@@ -15,7 +15,7 @@ namespace PodNoms.Common.Persistence {
         #region Repositories
 
         public IPodcastRepository Podcasts { get; }
-        public IEntryRepository Entries { get; private set; }
+        public IEntryRepository Entries { get; }
         public IActivityLogPodcastEntryRepository ActivityLogPodcastEntry { get; private set; }
         public ICategoryRepository Categories { get; private set; }
         public ITagRepository Tags { get; private set; }
@@ -36,14 +36,17 @@ namespace PodNoms.Common.Persistence {
 
 
         public RepoAccessor(PodNomsDbContext context, ILogger<RepoAccessor> logger,
+            IPodcastRepository podcastRepository,
+            IEntryRepository entryRepository,
             HubLifetimeManager<EntityUpdatesHub> hub) {
             _logger = logger;
             _hub = hub;
             _context = context;
 
 
-            Podcasts = new PodcastRepository(_context, _logger);
-            Entries = new EntryRepository(_context, _logger);
+            Podcasts = podcastRepository;
+            Entries = entryRepository;
+
             Categories = new CategoryRepository(_context, _logger);
             Tags = new TagRepository(_context, _logger);
             Playlists = new PlaylistRepository(_context, _logger);
