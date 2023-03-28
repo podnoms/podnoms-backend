@@ -87,12 +87,12 @@ namespace PodNoms.Common.Services.Startup {
 
         public static IServiceCollection AddPodNomsCors(this IServiceCollection services, IConfiguration config) {
             services.AddCors(options => {
-                options.AddPolicy("DefaultCors", config => config
+                options.AddPolicy("DefaultCors", defaultConfig => defaultConfig
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowAnyOrigin());
 
-                options.AddPolicy("PodNomsClientPolicy", config => config
+                options.AddPolicy("PodNomsClientPolicy", podnomsClientPolicyConfig => podnomsClientPolicyConfig
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .WithOrigins(
@@ -108,13 +108,14 @@ namespace PodNoms.Common.Services.Startup {
                         "moz-extension://19c29fcf-033c-43aa-8b36-b49a702a1708",
                         "moz-extension://002c342a-efa6-4c69-949b-b61650926f42",
                         "https://www.podnoms.com")
-                    .AllowCredentials());
+                    .AllowCredentials()
+                );
             });
             return services;
         }
 
         public static IApplicationBuilder UsePodNomsCors(this IApplicationBuilder app) {
-            app.UseCors();
+            app.UseCors("PodNomsClientPolicy");
             return app;
         }
 

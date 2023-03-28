@@ -165,9 +165,9 @@ namespace PodNoms.Api {
 
             app.UseStaticFiles();
 
+            app.UsePodNomsCors();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UsePodNomsCors();
             app.UseSecureHeaders(Env.IsDevelopment());
 
 
