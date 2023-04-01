@@ -28,6 +28,6 @@ WORKDIR /app
 EXPOSE 80
 
 COPY --from=build /app/podnoms-jobs/out ./
-RUN youtube-dl -U
+RUN yt-dlp -U
 
 ENTRYPOINT ["dotnet", "podnoms-jobs.dll"]
