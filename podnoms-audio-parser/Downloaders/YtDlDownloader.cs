@@ -49,9 +49,9 @@ namespace PodNoms.AudioParsing.Downloaders {
 
         public async Task<string> DownloadFromUrl(string url, string outputFile, Dictionary<string, string> args = null,
             Func<ProcessingProgress, Task<bool>> progressCallback = null) {
-            var ytdl = new YoutubeDLProcess(args != null && args.ContainsKey("Downloader")
-                ? args["Downloader"]
-                : "youtube-dl");
+            var ytdl = new YoutubeDLProcess(args != null && args.TryGetValue("Downloader", out var arg)
+                ? arg
+                : "yt-dlp");
 
             var options = new OptionSet() {
                 Output = outputFile.ReplaceEnd("mp3", "%(ext)s"),
@@ -67,15 +67,17 @@ namespace PodNoms.AudioParsing.Downloaders {
                 };
             }
 
-            var result = await ytdl.RunAsync(new string[] {url}, options);
+            var result = await ytdl.RunAsync(new[] {url}, options);
 
             return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;
         }
 
         public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args = null) {
-            var ytdl = new YoutubeDL() {
-                YoutubeDLPath = args != null && args.ContainsKey("Downloader") ? args["Downloader"] : "youtube-dl",
-                FFmpegPath = args != null && args.ContainsKey("FFMPeg") ? args["FFMPeg"] : "/usr/bin/ffmpeg",
+            var ytdl = new YoutubeDL {
+                YoutubeDLPath = args != null && args.TryGetValue("Downloader", out var ytdlPath) ? ytdlPath : "yt-dlp",
+                FFmpegPath = args != null && args.TryGetValue("FFMPeg", out var fFmpegPath)
+                    ? fFmpegPath
+                    : "/usr/bin/ffmpeg",
                 OutputFolder = PathUtils.GetScopedTempPath(),
             };
 

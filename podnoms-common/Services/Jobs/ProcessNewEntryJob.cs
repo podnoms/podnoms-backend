@@ -67,7 +67,7 @@ namespace PodNoms.Common.Services.Jobs {
         public async Task<bool> ProcessEntry(Guid entryId, PerformContext context) {
             var entry = await _repo.Entries.GetAsync(entryId);
             try {
-                var localFile = PathUtils.GetScopedTempFile();
+                var localFile = PathUtils.GetScopedTempFile("mp3");
 
                 var imageJobId = BackgroundJob.Enqueue<CacheRemoteImageJob>(
                     r => r.CacheImage(entry.Id));

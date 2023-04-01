@@ -20,7 +20,8 @@ namespace PodNoms.Tests {
                 var file = await downloader.DownloadFromUrl(
                     url,
                     PathUtils.GetScopedTempFile("mp3"));
-                Assert.True(!string.IsNullOrEmpty(file) && File.Exists(file));
+                var condition = !string.IsNullOrEmpty(file) && File.Exists(file);
+                Assert.True(condition);
             }
         }
 

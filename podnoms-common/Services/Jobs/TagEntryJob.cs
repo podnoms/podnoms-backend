@@ -59,7 +59,7 @@ namespace PodNoms.Common.Services.Jobs {
 
                     var file = await HttpUtils.DownloadFile(
                         audioUrl,
-                        PathUtils.GetScopedTempFile());
+                        PathUtils.GetScopedTempFile("mp3"));
                     if (!System.IO.File.Exists(file)) {
                         continue;
                     }

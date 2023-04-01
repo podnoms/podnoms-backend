@@ -4,6 +4,7 @@
         <RootNamespace>PodNoms.Jobs</RootNamespace>
         <LangVersion>latest</LangVersion>
         <Configurations>Debug;Release;Debug_Live</Configurations>
+        <InvariantGlobalization>false</InvariantGlobalization>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="EasyNetQ" Version="7.4.3" />
