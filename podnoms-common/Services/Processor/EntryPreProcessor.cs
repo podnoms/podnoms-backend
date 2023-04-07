@@ -45,6 +45,7 @@ namespace PodNoms.Common.Services.Processor {
 
             entry.Processed = false;
             try {
+                await _repo.Entries.AddOrUpdate(entry);
                 var succeeded = await _repo.CompleteAsync();
                 if (succeeded) {
                     BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));

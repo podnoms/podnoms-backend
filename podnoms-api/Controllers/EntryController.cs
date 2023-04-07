@@ -93,7 +93,7 @@ namespace PodNoms.Api.Controllers {
 
             if (entry.ProcessingStatus is ProcessingStatus.Uploading or ProcessingStatus.Processed) {
                 // we're editing an existing entry
-                _repo.Entries.AddOrUpdate(entry);
+                await _repo.Entries.AddOrUpdate(entry);
                 await _repo.CompleteAsync();
                 var result = _mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry);
                 return Ok(result);
