@@ -17,11 +17,6 @@ namespace PodNoms.Data.Models {
     }
 
     public class Podcast : BaseEntity, ISluggedEntity, ICachedEntity {
-        public Podcast() {
-            PodcastEntries = new List<PodcastEntry>();
-            Aggregators = new List<PodcastAggregator>();
-        }
-
         public string AppUserId { get; set; }
         public virtual ApplicationUser AppUser { get; set; }
         public string Title { get; set; }
@@ -31,7 +26,7 @@ namespace PodNoms.Data.Models {
 
         public string CustomDomain { get; set; }
         public string CustomRssDomain { get; set; }
-        public virtual List<PodcastEntry> PodcastEntries { get; set; }
+        public virtual List<PodcastEntry> PodcastEntries { get; set; } = new();
         public virtual Category Category { get; set; }
         public virtual List<Subcategory> Subcategories { get; set; }
         public virtual List<Notification> Notifications { get; set; }
@@ -42,7 +37,7 @@ namespace PodNoms.Data.Models {
 
         public string GoogleAnalyticsTrackingId { get; set; }
 
-        public virtual List<PodcastAggregator> Aggregators { get; set; }
+        public virtual List<PodcastAggregator> Aggregators { get; set; } = new();
 
         #region AuthStuff
 

@@ -23,14 +23,17 @@ namespace PodNoms.Api.Controllers {
         private readonly IMapper _mapper;
         private readonly ImageFileStorageSettings _imageFileStorageSettings;
         private readonly IFileUploader _fileUploader;
+        private readonly StorageSettings _storageSettings;
 
         public ImageUploadController(IRepoAccessor repo,
             IFileUploader fileUploader,
             IOptions<ImageFileStorageSettings> imageFileStorageSettings,
+            IOptions<StorageSettings> storageSettings,
             ILogger<ImageUploadController> logger, IMapper mapper, UserManager<ApplicationUser> userManager,
             IHttpContextAccessor contextAccessor) : base(contextAccessor, userManager, logger) {
             _fileUploader = fileUploader;
             _imageFileStorageSettings = imageFileStorageSettings.Value;
+            _storageSettings = storageSettings.Value;
             this._repo = repo;
             _mapper = mapper;
         }
@@ -44,11 +47,15 @@ namespace PodNoms.Api.Controllers {
                 return NotFound();
             try {
                 var imageFile = await _commitImage(id, image, "podcast");
-                _repo.Podcasts.AddOrUpdate(podcast);
+                // await _repo.Podcasts.AddOrUpdate(podcast);
                 await _repo.CompleteAsync();
-
-                return Ok($"\"{_mapper.Map<Podcast, PodcastViewModel>(podcast).ImageUrl}\"");
+                var imageUrl = podcast.GetImageUrl(
+                    _storageSettings.ImageUrl,
+                    _imageFileStorageSettings.ContainerName
+                );
+                return Ok(imageUrl);
             } catch (InvalidOperationException ex) {
+                _logger.LogError("Error updating image for {PodcastId}\n\t{Error}", id, ex.Message);
                 return BadRequest(ex.Message);
             }
         }
@@ -63,7 +70,7 @@ namespace PodNoms.Api.Controllers {
             try {
                 var imageFile = await _commitImage(id, image, "entry");
                 entry.ImageUrl = $"{_imageFileStorageSettings.ContainerName}/{imageFile}";
-                _repo.Entries.AddOrUpdate(entry);
+                await _repo.Entries.AddOrUpdate(entry);
                 await _repo.CompleteAsync();
 
                 return Ok(_mapper.Map<PodcastEntry, PodcastEntryViewModel>(entry));

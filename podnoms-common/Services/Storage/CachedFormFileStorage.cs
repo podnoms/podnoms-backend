@@ -9,10 +9,10 @@ namespace PodNoms.Common.Services.Storage {
             if (!Directory.Exists(path)) {
                 Directory.CreateDirectory(path);
             }
+
             var fileName = Path.Combine(path, System.Guid.NewGuid().ToString() + Path.GetExtension(file.FileName));
-            using (var stream = new FileStream(fileName, FileMode.Create)) {
-                await file.CopyToAsync(stream);
-            }
+            await using var stream = new FileStream(fileName, FileMode.Create);
+            await file.CopyToAsync(stream);
             return fileName;
         }
     }
