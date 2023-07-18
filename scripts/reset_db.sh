@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+source $HOME/.prv/env
+
 HOST=localhost
 USER=sa
-PASSWORD=H8ckMyB88lz
+PASSWORD=$MSSQLPASSWORD
 
 echo "Closing db connections"
 /opt/mssql-tools/bin/sqlcmd \

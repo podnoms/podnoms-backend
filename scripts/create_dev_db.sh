@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-PASSWORD=H8ckMyB88lz
+source $HOME/.prv/env
+
+PASSWORD=$MSSQLPASSWORD
 
 echo Creating SQL Server
 
@@ -11,6 +13,7 @@ docker run \
     -v /opt/mssql:/var/opt/mssql \
     -p 1433:1433 \
     -d mcr.microsoft.com/mssql/server
+exit
 
 echo Waiting for docker
 until [ "$(/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql)"=="healthy" ]; do
