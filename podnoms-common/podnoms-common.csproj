@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <RootNamespace>PodNoms.Common</RootNamespace>
@@ -38,7 +38,7 @@
         <PackageReference Include="Humanizer.Core" Version="2.14.1" />
         <PackageReference Include="Lib.Net.Http.WebPush" Version="3.2.1" />
         <PackageReference Include="LtGt" Version="2.1.0" />
-        <PackageReference Include="Magick.NET-Q8-x64" Version="13.0.0" />
+        <PackageReference Include="Magick.NET-Q8-x64" Version="13.3.0" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.4" />
