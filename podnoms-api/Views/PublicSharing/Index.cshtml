@@ -13,7 +13,10 @@
 
 @section css{
     <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"
+          integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o="
+          crossorigin="anonymous"/>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/sharing/style.css"/>
@@ -30,7 +33,10 @@
 <div class="wrapper">
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="https://podnoms.com/" target="_blank">with <i class="text-danger fas fa-heart"></i> from podnoms</a>
+            <a class="navbar-brand" href="https://podnoms.com/"
+               target="_blank">
+                with <i class="text-danger fas fa-heart"></i> from podnoms
+            </a>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav ml-auto my-2 my-lg-0">
                     <li class="nav-item">
@@ -49,12 +55,11 @@
             <h3 class="mb-5 text-faded">
                 <em>@Model.Title</em>
             </h3>
-            <a class="btn btn-hero btn-noborder btn-rounded btn-outline-warning btn-lg"
-               onclick="downloadShareLink('@Model.DownloadUrl')"
-               href="#">
+            <button class="btn btn-hero btn-noborder btn-rounded btn-outline-warning btn-lg"
+                    onclick="downloadShareLink('@Model.DownloadUrl')">
                 <i class="fas fa-download mr-2"></i>
                 Download
-            </a>
+            </button>
         </div>
         <div class="overlay"></div>
     </div>
