@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -19,263 +20,266 @@ using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 using reCAPTCHA.AspNetCore;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    [EnableCors("PodNomsClientPolicy")]
-    public class AuthController : BaseController {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IJwtFactory _jwtFactory;
-        private readonly IRecaptchaService _recaptcha;
-        private readonly StorageSettings _storageSettings;
-        private readonly ImageFileStorageSettings _imageFileStorageSettings;
-        private readonly IMailSender _emailSender;
-        private readonly IRepoAccessor _repoAccessor;
-        public RoleManager<IdentityRole> _roleManager;
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly AppSettings _appSettings;
-        private readonly JwtIssuerOptions _jwtOptions;
+namespace PodNoms.Api.Controllers;
 
-        public AuthController(
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IHttpContextAccessor contextAccessor,
-            IJwtFactory jwtFactory,
-            IRecaptchaService recaptcha,
-            IOptions<JwtIssuerOptions> jwtOptions,
-            IOptions<AppSettings> appSettings,
-            IOptions<StorageSettings> storageSettings,
-            IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            IMailSender mailSender,
-            IRepoAccessor repoAccessor,
-            ILogger<AuthController> logger) : base(logger) {
-            _userManager = userManager;
-            _jwtFactory = jwtFactory;
-            _recaptcha = recaptcha;
-            _emailSender = mailSender;
-            _repoAccessor = repoAccessor;
-            _roleManager = roleManager;
-            _contextAccessor = contextAccessor;
-            _appSettings = appSettings.Value;
-            _jwtOptions = jwtOptions.Value;
-            _storageSettings = storageSettings.Value;
-            _imageFileStorageSettings = imageFileStorageSettings.Value;
-        }
+[Route("[controller]")]
+[ApiExplorerSettings(IgnoreApi = true)]
+[EnableCors("PodNomsClientPolicy")]
+public class AuthController : BaseController {
+  private readonly AppSettings _appSettings;
+  private readonly IHttpContextAccessor _contextAccessor;
+  private readonly IMailSender _emailSender;
+  private readonly ImageFileStorageSettings _imageFileStorageSettings;
+  private readonly IJwtFactory _jwtFactory;
+  private readonly JwtIssuerOptions _jwtOptions;
+  private readonly IRecaptchaService _recaptcha;
+  private readonly IRepoAccessor _repoAccessor;
+  private readonly StorageSettings _storageSettings;
+  private readonly UserManager<ApplicationUser> _userManager;
+  public RoleManager<IdentityRole> _roleManager;
 
-        // POST api/auth/login
-        [HttpPost("login")]
-        public async Task<ActionResult<AuthTokenResult>> Post([FromBody] CredentialsViewModel credentials) {
-            if (!ModelState.IsValid) {
-                return BadRequest(ModelState);
-            }
+  public AuthController(
+    UserManager<ApplicationUser> userManager,
+    RoleManager<IdentityRole> roleManager,
+    IHttpContextAccessor contextAccessor,
+    IJwtFactory jwtFactory,
+    IRecaptchaService recaptcha,
+    IOptions<JwtIssuerOptions> jwtOptions,
+    IOptions<AppSettings> appSettings,
+    IOptions<StorageSettings> storageSettings,
+    IOptions<ImageFileStorageSettings> imageFileStorageSettings,
+    IMailSender mailSender,
+    IRepoAccessor repoAccessor,
+    ILogger<AuthController> logger) : base(logger) {
+    _userManager = userManager;
+    _jwtFactory = jwtFactory;
+    _recaptcha = recaptcha;
+    _emailSender = mailSender;
+    _repoAccessor = repoAccessor;
+    _roleManager = roleManager;
+    _contextAccessor = contextAccessor;
+    _appSettings = appSettings.Value;
+    _jwtOptions = jwtOptions.Value;
+    _storageSettings = storageSettings.Value;
+    _imageFileStorageSettings = imageFileStorageSettings.Value;
+  }
 
-            var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
-            var user = await _userManager.FindByEmailAsync(credentials.UserName);
-            if (user is null) {
-                user = await _userManager.FindByNameAsync(credentials.UserName);
-            }
-
-            if (user is null) {
-                return Unauthorized();
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            if (identity is null) {
-                return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.",
-                    ModelState));
-            }
-
-            try {
-                var (token, refresh) =
-                    await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray<string>(), user);
-                Response.Cookies.Append(
-                    "SESSIONID",
-                    token,
-                    new CookieOptions() {
-                        Path = "/",
-                        HttpOnly = false,
-                        Secure = false
-                    }
-                );
-                return Ok(new AuthTokenResult {
-                    Id = user.Id,
-                    Slug = user.Slug,
-                    Name = user.GetBestGuessName(),
-                    Auth = refresh
-                });
-            } catch (DbUpdateConcurrencyException e) {
-                _logger.LogError($"Error updating user's token.\n{e.Message}");
-                return StatusCode(503);
-            }
-        }
-
-        private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName,
-            string[] roles, ApplicationUser user) {
-            var jwt = await TokenIssuer.GenerateJwt(
-                identity,
-                _jwtFactory,
-                userName,
-                roles,
-                _jwtOptions
-            );
-            var refresh = TokenIssuer.GenerateRefreshToken(128);
-            user.AddRefreshToken(
-                refresh,
-                _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
-
-            await _repoAccessor.CompleteAsync();
-            return (jwt.Token, new JwtRefreshTokenModel(refresh, jwt));
-        }
-
-        [HttpPost("refreshtoken")]
-        public async Task<ActionResult<AuthTokenResult>> RefreshToken(
-            [FromBody] ExchangeRefreshTokenRequest request) {
-            var userName = _jwtFactory.DecodeToken(request.AccessToken);
-            if (userName == null) {
-                return BadRequest("No user with that auth token");
-            }
-
-            var user = await _userManager
-                .Users
-                .Include(u => u.RefreshTokens)
-                .SingleOrDefaultAsync(
-                    r => r.UserName == userName &&
-                         r.RefreshTokens.Any(p =>
-                             p.Token.Equals(request.RefreshToken) &&
-                             p.CreateDate >= System.DateTime.Now.AddDays(-28)));
-
-            if (user == null) {
-                return BadRequest("Cannot find your refresh token");
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var identity = _jwtFactory.GenerateClaimsIdentity(userName, user.Id);
-            try {
-                var (token, refresh) = await _getTokenAndRefresh(identity, userName, roles.ToArray<string>(), user);
-                return Ok(new AuthTokenResult {
-                    Id = user.Id,
-                    Slug = user.Slug,
-                    Name = user.GetBestGuessName(),
-                    Auth = refresh
-                });
-            } catch (DbUpdateConcurrencyException e) {
-                _logger.LogError($"Error updating user's token.\n{e.Message}");
-                return StatusCode(503);
-            }
-        }
-
-        private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
-                return await Task.FromResult<ClaimsIdentity>(null);
-
-            // get the user to verifty
-            var userToVerify = await _userManager.FindByNameAsync(userName);
-
-            if (userToVerify is null) return await Task.FromResult<ClaimsIdentity>(null);
-
-            // check the credentials
-            if (await _userManager.CheckPasswordAsync(userToVerify, password)) {
-                await _userManager.UpdateAsync(userToVerify);
-                var identity = _jwtFactory.GenerateClaimsIdentity(userName, userToVerify.Id);
-                return await Task.FromResult(identity);
-            }
-
-            // Credentials are invalid, or account doesn't exist
-            return await Task.FromResult<ClaimsIdentity>(null);
-        }
-
-        [HttpPost("forgot")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model) {
-            if (ModelState.IsValid) {
-                var user = await _userManager.FindByNameAsync(model.Email);
-                if (user is null) {
-                    _logger.LogWarning($"Password reset requested for {model.Email}");
-                    return Ok(model);
-                }
-
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl =
-                    $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
-                await _emailSender.SendEmailAsync(
-                    model.Email,
-                    "PodNoms Reset Password Request",
-                    new MailDropin {
-                        username = user.GetBestGuessName(),
-                        title = "Password Rest Request",
-                        message = @"Someone told us you forgot your password?<br />
-                                    <span style='color: #a8bf6f; font-size: 14px; line-height: 21px;'>Don't worry, it happens.</span>",
-                        buttonaction = callbackUrl,
-                        buttonmessage = "Reset Password"
-                    });
-                return Ok(model);
-            }
-
-            return BadRequest(model);
-        }
-
-        [HttpPost("reset")]
-        [AllowAnonymous]
-        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordViewModel model) {
-            if (!ModelState.IsValid) {
-                return BadRequest("Unable to reset your password at this time");
-            }
-
-            var user = await _userManager.FindByNameAsync(model.Email);
-            if (user is null) {
-                return BadRequest("Unable to reset your password at this time");
-            }
-
-            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
-            if (result.Succeeded) {
-                return Ok(model);
-            }
-
-            return BadRequest();
-        }
-
-        [HttpGet("addrole/{role}")]
-        public async Task<IActionResult> AddRole(string role) {
-            if (!await _roleManager.RoleExistsAsync(role)) {
-                await _roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            return Json(_roleManager.Roles);
-        }
-
-        [HttpGet("addusertorole/{role}/{slug}")]
-        public async Task<IActionResult> AddUserToRole(string role, string slug) {
-            _logger.LogDebug($"Adding {slug} to {role}");
-            if (!await _roleManager.RoleExistsAsync(role)) {
-                _logger.LogDebug("Creating role");
-                await _roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            ApplicationUser user = await _userManager.FindBySlugAsync(slug);
-            if (user == null) {
-                _logger.LogError("Unable to find user");
-                return NotFound();
-            }
-
-            if (!User.IsInRole(role)) {
-                await _userManager.AddToRoleAsync(user, role);
-            }
-
-            return Json(await _userManager.GetRolesAsync(user));
-        }
-
-        [HttpPost("validaterecaptha")]
-        public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha(
-            [FromBody] TokenValidationViewModel model) {
-            var recaptcha = await _recaptcha.Validate(model.Token);
-            if (!recaptcha.success) {
-                model.IsValid = false;
-                BadRequest(model);
-            }
-
-            model.IsValid = true;
-            return Ok(model);
-        }
+  // POST api/auth/login
+  [HttpPost("login")]
+  public async Task<ActionResult<AuthTokenResult>> Post([FromBody] CredentialsViewModel credentials) {
+    if (!ModelState.IsValid) {
+      return BadRequest(ModelState);
     }
+
+    var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
+    var user = await _userManager.FindByEmailAsync(credentials.UserName);
+    if (user is null) {
+      user = await _userManager.FindByNameAsync(credentials.UserName);
+    }
+
+    if (user is null) {
+      return Unauthorized();
+    }
+
+    var roles = await _userManager.GetRolesAsync(user);
+
+    if (identity is null) {
+      return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.",
+        ModelState));
+    }
+
+    try {
+      var (token, refresh) =
+        await _getTokenAndRefresh(identity, credentials.UserName, roles.ToArray(), user);
+      Response.Cookies.Append(
+        "SESSIONID",
+        token,
+        new CookieOptions {
+          Path = "/",
+          HttpOnly = false,
+          Secure = false
+        }
+      );
+      return Ok(new AuthTokenResult {
+        Id = user.Id,
+        Slug = user.Slug,
+        Name = user.GetBestGuessName(),
+        Auth = refresh
+      });
+    } catch (DbUpdateConcurrencyException e) {
+      _logger.LogError($"Error updating user's token.\n{e.Message}");
+      return StatusCode(503);
+    }
+  }
+
+  private async Task<(string, JwtRefreshTokenModel)> _getTokenAndRefresh(ClaimsIdentity identity, string userName,
+    string[] roles, ApplicationUser user) {
+    var jwt = await TokenIssuer.GenerateJwt(
+      identity,
+      _jwtFactory,
+      userName,
+      roles,
+      _jwtOptions
+    );
+    var refresh = TokenIssuer.GenerateRefreshToken(128);
+    user.AddRefreshToken(
+      refresh,
+      _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString());
+
+    await _repoAccessor.CompleteAsync();
+    return (jwt.Token, new JwtRefreshTokenModel(refresh, jwt));
+  }
+
+  [HttpPost("refreshtoken")]
+  public async Task<ActionResult<AuthTokenResult>> RefreshToken(
+    [FromBody] ExchangeRefreshTokenRequest request) {
+    var userName = _jwtFactory.DecodeToken(request.AccessToken);
+    if (userName == null) {
+      return BadRequest("No user with that auth token");
+    }
+
+    var user = await _userManager
+      .Users
+      .Include(u => u.RefreshTokens)
+      .SingleOrDefaultAsync(
+        r => r.UserName == userName &&
+             r.RefreshTokens.Any(p =>
+               p.Token.Equals(request.RefreshToken) &&
+               p.CreateDate >= DateTime.Now.AddDays(-28)));
+
+    if (user == null) {
+      return BadRequest("Cannot find your refresh token");
+    }
+
+    var roles = await _userManager.GetRolesAsync(user);
+    var identity = _jwtFactory.GenerateClaimsIdentity(userName, user.Id);
+    try {
+      var (token, refresh) = await _getTokenAndRefresh(identity, userName, roles.ToArray(), user);
+      return Ok(new AuthTokenResult {
+        Id = user.Id,
+        Slug = user.Slug,
+        Name = user.GetBestGuessName(),
+        Auth = refresh
+      });
+    } catch (DbUpdateConcurrencyException e) {
+      _logger.LogError($"Error updating user's token.\n{e.Message}");
+      return StatusCode(503);
+    }
+  }
+
+  private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password) {
+    if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password)) {
+      return await Task.FromResult<ClaimsIdentity>(null);
+    }
+
+    // get the user to verifty
+    var userToVerify = await _userManager.FindByNameAsync(userName);
+
+    if (userToVerify is null) {
+      return await Task.FromResult<ClaimsIdentity>(null);
+    }
+
+    // check the credentials
+    if (await _userManager.CheckPasswordAsync(userToVerify, password)) {
+      await _userManager.UpdateAsync(userToVerify);
+      var identity = _jwtFactory.GenerateClaimsIdentity(userName, userToVerify.Id);
+      return await Task.FromResult(identity);
+    }
+
+    // Credentials are invalid, or account doesn't exist
+    return await Task.FromResult<ClaimsIdentity>(null);
+  }
+
+  [HttpPost("forgot")]
+  [AllowAnonymous]
+  public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model) {
+    if (ModelState.IsValid) {
+      var user = await _userManager.FindByNameAsync(model.Email);
+      if (user is null) {
+        _logger.LogWarning($"Password reset requested for {model.Email}");
+        return Ok(model);
+      }
+
+      var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+      var callbackUrl =
+        $"{_appSettings.SiteUrl}/auth/reset?token={WebUtility.UrlEncode(code)}&email={WebUtility.UrlEncode(user.Email)}";
+      await _emailSender.SendEmailAsync(
+        model.Email,
+        "PodNoms Reset Password Request",
+        new MailDropin {
+          username = user.GetBestGuessName(),
+          title = "Password Rest Request",
+          message = @"Someone told us you forgot your password?<br />
+                                    <span style='color: #a8bf6f; font-size: 14px; line-height: 21px;'>Don't worry, it happens.</span>",
+          buttonaction = callbackUrl,
+          buttonmessage = "Reset Password"
+        });
+      return Ok(model);
+    }
+
+    return BadRequest(model);
+  }
+
+  [HttpPost("reset")]
+  [AllowAnonymous]
+  public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordViewModel model) {
+    if (!ModelState.IsValid) {
+      return BadRequest("Unable to reset your password at this time");
+    }
+
+    var user = await _userManager.FindByNameAsync(model.Email);
+    if (user is null) {
+      return BadRequest("Unable to reset your password at this time");
+    }
+
+    var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+    if (result.Succeeded) {
+      return Ok(model);
+    }
+
+    return BadRequest();
+  }
+
+  [HttpGet("addrole/{role}")]
+  public async Task<IActionResult> AddRole(string role) {
+    if (!await _roleManager.RoleExistsAsync(role)) {
+      await _roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    return Json(_roleManager.Roles);
+  }
+
+  [HttpGet("addusertorole/{role}/{slug}")]
+  public async Task<IActionResult> AddUserToRole(string role, string slug) {
+    _logger.LogDebug($"Adding {slug} to {role}");
+    if (!await _roleManager.RoleExistsAsync(role)) {
+      _logger.LogDebug("Creating role");
+      await _roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    var user = await _userManager.FindBySlugAsync(slug);
+    if (user == null) {
+      _logger.LogError("Unable to find user");
+      return NotFound();
+    }
+
+    if (!User.IsInRole(role)) {
+      await _userManager.AddToRoleAsync(user, role);
+    }
+
+    return Json(await _userManager.GetRolesAsync(user));
+  }
+
+  [HttpPost("validaterecaptha")]
+  public async Task<ActionResult<TokenValidationViewModel>> ValidateCaptcha(
+    [FromBody] TokenValidationViewModel model) {
+    var recaptcha = await _recaptcha.Validate(model.Token);
+    if (!recaptcha.success) {
+      model.IsValid = false;
+      BadRequest(model);
+    }
+
+    model.IsValid = true;
+    return Ok(model);
+  }
 }

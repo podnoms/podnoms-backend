@@ -1,24 +1,26 @@
+using System;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 
-namespace PodNoms.Common.Services.Jobs {
-    public class ClientHeartbeatJob : IHostedJob {
-        private readonly ILogger<ClientHeartbeatJob> _logger;
+namespace PodNoms.Common.Services.Jobs;
 
-        public ClientHeartbeatJob(ILogger<ClientHeartbeatJob> logger) {
-            this._logger = logger;
-        }
-        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute() { return await Execute(null); }
+public class ClientHeartbeatJob : IHostedJob {
+  private readonly ILogger<ClientHeartbeatJob> _logger;
 
-        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-        public async Task<bool> Execute(PerformContext context) {
-            return await Task.Factory.StartNew(() => {
-                _logger.LogDebug($"Heartbeat: {System.DateTime.Now.ToLocalTime()}");
-                return true;
-            });
-        }
-    }
+  public ClientHeartbeatJob(ILogger<ClientHeartbeatJob> logger) {
+    _logger = logger;
+  }
+
+  [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+  public async Task<bool> Execute() { return await Execute(null); }
+
+  [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+  public async Task<bool> Execute(PerformContext context) {
+    return await Task.Factory.StartNew(() => {
+      _logger.LogDebug($"Heartbeat: {DateTime.Now.ToLocalTime()}");
+      return true;
+    });
+  }
 }

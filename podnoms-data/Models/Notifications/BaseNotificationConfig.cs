@@ -1,53 +1,53 @@
 using System.Collections.Generic;
 
-namespace PodNoms.Data.Models.Notifications {
-    public class NotificationOption {
-        public string Value { get; set; }
-        public string Key { get; set; }
-        public string Label { get; set; }
-        public string Description { get; set; }
-        public bool Required { get; set; }
-        public string ControlType { get; set; }
+namespace PodNoms.Data.Models.Notifications;
 
-        public NotificationOption(string key, string label, string description, bool required,
-            string value = "", string controlType = "textbox") {
-            Value = value;
-            Key = key;
-            Label = label;
-            Description = description;
-            Required = required;
-            ControlType = controlType;
-        }
+public class NotificationOption {
+  public NotificationOption(string key, string label, string description, bool required,
+    string value = "", string controlType = "textbox") {
+    Value = value;
+    Key = key;
+    Label = label;
+    Description = description;
+    Required = required;
+    ControlType = controlType;
+  }
+
+  public string Value { get; set; }
+  public string Key { get; set; }
+  public string Label { get; set; }
+  public string Description { get; set; }
+  public bool Required { get; set; }
+  public string ControlType { get; set; }
+}
+
+public class BaseNotificationConfig : INotificationConfig {
+  public Dictionary<string, NotificationOption> Options;
+  public Notification.NotificationType Type { get; set; }
+
+
+  public static BaseNotificationConfig GetConfig(string type) {
+    switch (type) {
+      case "Slack":
+        return new SlackNotificationConfig();
+      case "IFTTT":
+        return new IFTTTNotificationConfig();
+      case "Email":
+        return new EmailNotificationConfig();
+      case "Facebook":
+        return new FacebookNotificationConfig();
+      case "Twitter":
+        return new TwitterNotificationConfig();
+      case "PushBullet":
+        return new PushBulletNotificationConfig();
+      case "WebHook":
+        return new WebhookNotificationConfig();
+      default:
+        return null;
     }
+  }
 
-    public class BaseNotificationConfig : INotificationConfig {
-        public Notification.NotificationType Type { get; set; }
-        public Dictionary<string, NotificationOption> Options;
-
-
-        public static BaseNotificationConfig GetConfig(string type) {
-            switch (type) {
-                case "Slack":
-                    return new SlackNotificationConfig();
-                case "IFTTT":
-                    return new IFTTTNotificationConfig();
-                case "Email":
-                    return new EmailNotificationConfig();
-                case "Facebook":
-                    return new FacebookNotificationConfig();
-                case "Twitter":
-                    return new TwitterNotificationConfig();
-                case "PushBullet":
-                    return new PushBulletNotificationConfig();
-                case "WebHook":
-                    return new WebhookNotificationConfig();
-                default:
-                    return null;
-            }
-        }
-
-        public static BaseNotificationConfig GetConfig(Notification.NotificationType type) {
-            return GetConfig(type.ToString());
-        }
-    }
+  public static BaseNotificationConfig GetConfig(Notification.NotificationType type) {
+    return GetConfig(type.ToString());
+  }
 }

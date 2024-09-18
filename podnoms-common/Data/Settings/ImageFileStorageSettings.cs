@@ -1,4 +1,4 @@
-namespace PodNoms.Common.Data.Settings {
-    public class ImageFileStorageSettings : FileStorageSettings {
-    }
+namespace PodNoms.Common.Data.Settings;
+
+public class ImageFileStorageSettings : FileStorageSettings {
 }

@@ -12,35 +12,35 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    [Authorize]
-    [ApiController]
-    public class TagsController : BaseAuthController {
-        private readonly IRepoAccessor _repo;
-        private readonly IMapper _mapper;
+namespace PodNoms.Api.Controllers;
 
-        public TagsController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
-            ILogger<TagsController> logger, IRepoAccessor repo, IMapper mapper)
-            : base(contextAccessor, userManager, logger) {
-            _repo = repo;
-            _mapper = mapper;
-        }
+[Route("[controller]")]
+[Authorize]
+[ApiController]
+public class TagsController : BaseAuthController {
+  private readonly IMapper _mapper;
+  private readonly IRepoAccessor _repo;
 
-        [HttpGet]
-        public async Task<ActionResult<List<TagViewModel>>> GetTags() {
-            var tags = await _repo.Tags.GetAll()
-                .Take(10)
-                .ToListAsync();
-            return _mapper.Map<List<EntryTag>, List<TagViewModel>>(tags);
-        }
+  public TagsController(IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager,
+    ILogger<TagsController> logger, IRepoAccessor repo, IMapper mapper)
+    : base(contextAccessor, userManager, logger) {
+    _repo = repo;
+    _mapper = mapper;
+  }
 
-        [HttpPost]
-        public async Task<ActionResult<TagViewModel>> AddTag([FromQuery] string tagName) {
-            var tag = new EntryTag(tagName);
-            tag = await _repo.Tags.AddOrUpdate(tag);
-            await _repo.CompleteAsync();
-            return _mapper.Map<EntryTag, TagViewModel>(tag);
-        }
-    }
+  [HttpGet]
+  public async Task<ActionResult<List<TagViewModel>>> GetTags() {
+    var tags = await _repo.Tags.GetAll()
+      .Take(10)
+      .ToListAsync();
+    return _mapper.Map<List<EntryTag>, List<TagViewModel>>(tags);
+  }
+
+  [HttpPost]
+  public async Task<ActionResult<TagViewModel>> AddTag([FromQuery] string tagName) {
+    var tag = new EntryTag(tagName);
+    tag = await _repo.Tags.AddOrUpdate(tag);
+    await _repo.CompleteAsync();
+    return _mapper.Map<EntryTag, TagViewModel>(tag);
+  }
 }

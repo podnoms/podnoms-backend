@@ -1,7 +1,7 @@
-namespace PodNoms.Data.Enums {
-    public enum CacheType {
-        Entry,
-        Podcast,
-        Rss
-    }
+namespace PodNoms.Data.Enums;
+
+public enum CacheType {
+  Entry,
+  Podcast,
+  Rss
 }

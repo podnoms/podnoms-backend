@@ -10,26 +10,26 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers {
-    [Authorize]
-    [Route("[controller]")]
-    public class LogsController : BaseAuthController {
-        private readonly IRepoAccessor _repo;
-        private readonly IMapper _mapper;
+namespace PodNoms.Api.Controllers;
 
-        public LogsController(IHttpContextAccessor contextAccessor,
-            UserManager<ApplicationUser> userManager,
-            ILogger<LogsController> logger,
-            IRepoAccessor repo,
-            IMapper mapper) : base(contextAccessor, userManager, logger) {
-            _repo = repo;
-            _mapper = mapper;
-        }
+[Authorize]
+[Route("[controller]")]
+public class LogsController : BaseAuthController {
+  private readonly IMapper _mapper;
+  private readonly IRepoAccessor _repo;
 
-        [HttpGet]
-        public async Task<ActionResult<List<ActivityLogPodcastEntryViewModel>>> GetEntryLogs(string entryId) {
-            var logs = await _repo.ActivityLogPodcastEntry.GetForEntry(entryId);
-            return _mapper.Map<List<ActivityLogPodcastEntry>, List<ActivityLogPodcastEntryViewModel>>(logs);
-        }
-    }
+  public LogsController(IHttpContextAccessor contextAccessor,
+    UserManager<ApplicationUser> userManager,
+    ILogger<LogsController> logger,
+    IRepoAccessor repo,
+    IMapper mapper) : base(contextAccessor, userManager, logger) {
+    _repo = repo;
+    _mapper = mapper;
+  }
+
+  [HttpGet]
+  public async Task<ActionResult<List<ActivityLogPodcastEntryViewModel>>> GetEntryLogs(string entryId) {
+    var logs = await _repo.ActivityLogPodcastEntry.GetForEntry(entryId);
+    return _mapper.Map<List<ActivityLogPodcastEntry>, List<ActivityLogPodcastEntryViewModel>>(logs);
+  }
 }

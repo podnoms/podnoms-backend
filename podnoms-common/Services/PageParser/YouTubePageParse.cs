@@ -1,5 +1,4 @@
-namespace PodNoms.Common.Services.PageParser {
-    public interface YouTubePageParse : IPageParser {
+namespace PodNoms.Common.Services.PageParser;
 
-    }
+public interface YouTubePageParse : IPageParser {
 }

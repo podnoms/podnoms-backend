@@ -5,22 +5,22 @@ using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Hubs;
 using PodNoms.Data.ViewModels;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    public class RealtimeController : BaseController {
-        private readonly HubLifetimeManager<EntityUpdatesHub> _hub;
+namespace PodNoms.Api.Controllers;
 
-        public RealtimeController(
-                    ILogger<RealtimeController> logger,
-                    HubLifetimeManager<EntityUpdatesHub> hub) : base(logger) {
-            _hub = hub;
-        }
+[Route("[controller]")]
+public class RealtimeController : BaseController {
+  private readonly HubLifetimeManager<EntityUpdatesHub> _hub;
 
-        [HttpPost("update/{userId}")]
-        public async Task<IActionResult> NotifyEntityUpdate(string userId, [FromBody] RealtimeEntityUpdateMessage message) {
-            _logger.LogDebug($"UserId: {userId}\nMessage: {message.Channel}");
-            await _hub.SendUserAsync(userId, message.Channel, new object[] { message });
-            return Ok(message);
-        }
-    }
+  public RealtimeController(
+    ILogger<RealtimeController> logger,
+    HubLifetimeManager<EntityUpdatesHub> hub) : base(logger) {
+    _hub = hub;
+  }
+
+  [HttpPost("update/{userId}")]
+  public async Task<IActionResult> NotifyEntityUpdate(string userId, [FromBody] RealtimeEntityUpdateMessage message) {
+    _logger.LogDebug($"UserId: {userId}\nMessage: {message.Channel}");
+    await _hub.SendUserAsync(userId, message.Channel, new object[] { message });
+    return Ok(message);
+  }
 }

@@ -14,57 +14,57 @@ using PodNoms.Common.Utils;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    public class SearchController : BaseAuthController {
-        private readonly IRepoAccessor _repo;
-        private readonly StorageSettings _storageSettings;
-        private readonly ImageFileStorageSettings _imageFileStorageSettings;
+namespace PodNoms.Api.Controllers;
 
-        public SearchController(
-            IHttpContextAccessor contextAccessor,
-            UserManager<ApplicationUser> userManager,
-            ILogger<SearchController> logger,
-            IOptions<StorageSettings> storageSettings,
-            IOptions<ImageFileStorageSettings> imageFileStorageSettings,
-            IRepoAccessor repo
-        ) : base(contextAccessor, userManager, logger) {
-            _repo = repo;
-            _storageSettings = storageSettings.Value;
-            _imageFileStorageSettings = imageFileStorageSettings.Value;
-        }
+[Route("[controller]")]
+public class SearchController : BaseAuthController {
+  private readonly ImageFileStorageSettings _imageFileStorageSettings;
+  private readonly IRepoAccessor _repo;
+  private readonly StorageSettings _storageSettings;
 
-        [HttpGet("{query}")]
-        public async Task<ActionResult<List<SearchResultsViewModel>>> DoSearch(string query) {
-            var podcastResults = await _repo.Podcasts
-                .GetAll()
-                .Where(p => p.AppUser.Id == _applicationUser.Id)
-                .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
-                .Select(p => new SearchResultsViewModel {
-                    Title = p.Title,
-                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
-                    ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
-                    Url = p.Slug,
-                    Type = "Podcast",
-                    DateCreated = p.CreateDate
-                }).ToListAsync();
+  public SearchController(
+    IHttpContextAccessor contextAccessor,
+    UserManager<ApplicationUser> userManager,
+    ILogger<SearchController> logger,
+    IOptions<StorageSettings> storageSettings,
+    IOptions<ImageFileStorageSettings> imageFileStorageSettings,
+    IRepoAccessor repo
+  ) : base(contextAccessor, userManager, logger) {
+    _repo = repo;
+    _storageSettings = storageSettings.Value;
+    _imageFileStorageSettings = imageFileStorageSettings.Value;
+  }
 
-            var entryResults = await _repo.Entries
-                .GetAll()
-                .Include(x => x.Podcast)
-                .Where(p => p.Podcast.AppUser.Id == _applicationUser.Id)
-                .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
-                .Select(p => new SearchResultsViewModel {
-                    Title = p.Title,
-                    Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
-                    ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
-                    Url = p.Podcast.Slug,
-                    Type = "Entry",
-                    DateCreated = p.CreateDate
-                }).ToListAsync();
+  [HttpGet("{query}")]
+  public async Task<ActionResult<List<SearchResultsViewModel>>> DoSearch(string query) {
+    var podcastResults = await _repo.Podcasts
+      .GetAll()
+      .Where(p => p.AppUser.Id == _applicationUser.Id)
+      .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
+      .Select(p => new SearchResultsViewModel {
+        Title = p.Title,
+        Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
+        ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
+        Url = p.Slug,
+        Type = "Podcast",
+        DateCreated = p.CreateDate
+      }).ToListAsync();
 
-            var mergedResults = podcastResults.Union(entryResults);
-            return Ok(mergedResults);
-        }
-    }
+    var entryResults = await _repo.Entries
+      .GetAll()
+      .Include(x => x.Podcast)
+      .Where(p => p.Podcast.AppUser.Id == _applicationUser.Id)
+      .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
+      .Select(p => new SearchResultsViewModel {
+        Title = p.Title,
+        Description = HtmlUtils.FormatLineBreaks(p.Description).Truncate(100, true),
+        ImageUrl = p.GetImageUrl(_storageSettings.CdnUrl, _imageFileStorageSettings.ContainerName),
+        Url = p.Podcast.Slug,
+        Type = "Entry",
+        DateCreated = p.CreateDate
+      }).ToListAsync();
+
+    var mergedResults = podcastResults.Union(entryResults);
+    return Ok(mergedResults);
+  }
 }

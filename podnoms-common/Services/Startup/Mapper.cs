@@ -1,21 +1,21 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PodNoms.Common.Data;
-using System;
-using System.Threading;
 
-namespace PodNoms.Common.Services.Startup {
-    public static class MapperStartup {
-        private static Mutex mutex = new Mutex();
+namespace PodNoms.Common.Services.Startup;
 
-        public static IServiceCollection AddPodNomsMapping(this IServiceCollection services, IConfiguration config) {
-            mutex.WaitOne();
-            // Mapper.Reset();
-            services.AddAutoMapper(
-                e => { e.AddProfile(new MappingProvider(config)); },
-                AppDomain.CurrentDomain.GetAssemblies());
-            mutex.ReleaseMutex();
-            return services;
-        }
-    }
+public static class MapperStartup {
+  private static readonly Mutex mutex = new();
+
+  public static IServiceCollection AddPodNomsMapping(this IServiceCollection services, IConfiguration config) {
+    mutex.WaitOne();
+    // Mapper.Reset();
+    services.AddAutoMapper(
+      e => { e.AddProfile(new MappingProvider(config)); },
+      AppDomain.CurrentDomain.GetAssemblies());
+    mutex.ReleaseMutex();
+    return services;
+  }
 }

@@ -3,63 +3,64 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
-namespace PodNoms.Jobs {
-    public class Program {
-        private static readonly bool _isDevelopment =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development;
+namespace PodNoms.Jobs;
 
-        public static void Main(string[] args) {
-            CreateWebHostBuilder(args).Build().Run();
+public class Program {
+  private static readonly bool _isDevelopment =
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development;
+
+  public static void Main(string[] args) {
+    CreateWebHostBuilder(args).Build().Run();
+  }
+
+  public static IHostBuilder CreateWebHostBuilder(string[] args) {
+    return Host.CreateDefaultBuilder(args)
+      .ConfigureAppConfiguration((context, config) => {
+        var platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "Linux";
+        if (!context.HostingEnvironment.IsProduction()) {
+          return;
         }
 
-        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) => {
-                    var platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : "Linux";
-                    if (!context.HostingEnvironment.IsProduction()) {
-                        return;
-                    }
+        Console.WriteLine("Production instance bootstrapping");
+        config.SetBasePath(Directory.GetCurrentDirectory())
+          .AddJsonFile("appsettings.json", false)
+          .AddJsonFile($"appsettings.{platform}.json", true)
+          .AddJsonFile("appsettings.Production.json", true)
+          .AddJsonFile("azurekeyvault.json", true, true)
+          .AddEnvironmentVariables("ASPNETCORE_");
+        var builtConfig = config.Build();
 
-                    Console.WriteLine("Production instance bootstrapping");
-                    config.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false)
-                        .AddJsonFile($"appsettings.{platform}.json", optional: true)
-                        .AddJsonFile($"appsettings.Production.json", optional: true)
-                        .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                        .AddEnvironmentVariables("ASPNETCORE_");
-                    var builtConfig = config.Build();
+        config.AddAzureKeyVault(
+          $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+          builtConfig["KeyVaultSettings:ClientId"],
+          builtConfig["KeyVaultSettings:ClientSecret"]);
+      })
+      .ConfigureWebHostDefaults(webBuilder => {
+        webBuilder.UseStartup<JobsStartup>().UseKestrel(options => {
+          options.Limits.MaxRequestBodySize = 1073741824;
+          if (!_isDevelopment) {
+            return;
+          }
 
-                    config.AddAzureKeyVault(
-                        $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
-                        builtConfig["KeyVaultSettings:ClientId"],
-                        builtConfig["KeyVaultSettings:ClientSecret"]);
-                })
-                .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseStartup<JobsStartup>().UseKestrel(options => {
-                        options.Limits.MaxRequestBodySize = 1073741824;
-                        if (!_isDevelopment) {
-                            return;
-                        }
+          var c = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.Development.json", false)
+            .AddEnvironmentVariables("ASPNETCORE_")
+            .Build();
 
-                        var c = new ConfigurationBuilder()
-                            .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile("appsettings.Development.json", optional: false)
-                            .AddEnvironmentVariables("ASPNETCORE_")
-                            .Build();
+          var certificate = X509Certificate2.CreateFromPemFile(
+            c["DevSettings:CertificateFile"],
+            c["DevSettings:CertificateFileKey"]);
 
-                        var certificate = X509Certificate2.CreateFromPemFile(
-                            c["DevSettings:CertificateFile"],
-                            c["DevSettings:CertificateFileKey"]);
-
-                        options.Listen(IPAddress.Any, 5003, listenOptions => {
-                            listenOptions.UseHttps(certificate);
-                        });
-                        options.Listen(IPAddress.Any, 5002);
-                    });
-                });
-    }
+          options.Listen(IPAddress.Any, 5003, listenOptions => {
+            listenOptions.UseHttps(certificate);
+          });
+          options.Listen(IPAddress.Any, 5002);
+        });
+      });
+  }
 }

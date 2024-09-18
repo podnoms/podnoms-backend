@@ -1,84 +1,90 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Flurl;
 using PodNoms.AudioParsing.Helpers;
 
-namespace PodNoms.Common.Utils {
-    public static class HttpUtils {
-        public static string UrlCombine(params string[] parts) => Flurl.Url.Combine(parts);
+namespace PodNoms.Common.Utils;
 
-        public static bool ValidateAsUrl(this string url) {
-            Uri uriResult;
+public static class HttpUtils {
+  public static string UrlCombine(params string[] parts) {
+    return Url.Combine(parts);
+  }
 
-            bool result = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
-                          && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+  public static bool ValidateAsUrl(this string url) {
+    Uri uriResult;
 
-            return result;
-        }
+    var result = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
+                 && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
-        public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders
-                .Accept
-                .Add(new MediaTypeWithQualityHeaderValue(contentType));
-            var data = await client.GetStringAsync(url);
-            return data;
-        }
+    return result;
+  }
 
-        public static async Task<string> DownloadFile(string url, string file = "") {
-            using var client = new HttpClient();
-            using var response = await client.GetAsync(url);
-            if (response.StatusCode != HttpStatusCode.OK) {
-                return file;
-            }
+  public static async Task<string> DownloadText(string url, string contentType = "text/plain") {
+    using var client = new HttpClient();
+    client.DefaultRequestHeaders
+      .Accept
+      .Add(new MediaTypeWithQualityHeaderValue(contentType));
+    var data = await client.GetStringAsync(url);
+    return data;
+  }
 
-            using var content = response.Content;
-            if (string.IsNullOrEmpty(file))
-                file = PathUtils.GetScopedTempFile("tmp");
-            var result = await content.ReadAsByteArrayAsync();
-            await System.IO.File.WriteAllBytesAsync(file, result);
-            return file;
-        }
-
-        internal static HttpClientHandler GetFiddlerProxy() {
-            var handler = new HttpClientHandler {
-                Proxy = new WebProxy("localhost", 8888),
-                UseProxy = true
-            };
-            return handler;
-        }
-
-        public static async Task<string> GetRemoteMimeType(string url) {
-            using var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Head, url);
-            var response = await client.SendAsync(request);
-
-            if (response.StatusCode == HttpStatusCode.OK &&
-                response.Content.Headers.ContentType != null) {
-                return response.Content.Headers.ContentType.MediaType;
-            }
-
-            return string.Empty;
-        }
-
-        public static async Task<string> GetUrlExtension(string url) {
-            using var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Head, url);
-            var response = await client.SendAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK ||
-                response?.Content?.Headers?.ContentType == null) {
-                return string.Empty;
-            }
-
-            var extension = MimeTypeMap.GetExtension(
-                response.Content.Headers.ContentType.MediaType
-                    .Replace("image/jpg", "image/jpeg")
-            );
-
-            return !string.IsNullOrEmpty(extension) ? extension.TrimStart('.') : string.Empty;
-        }
+  public static async Task<string> DownloadFile(string url, string file = "") {
+    using var client = new HttpClient();
+    using var response = await client.GetAsync(url);
+    if (response.StatusCode != HttpStatusCode.OK) {
+      return file;
     }
+
+    using var content = response.Content;
+    if (string.IsNullOrEmpty(file)) {
+      file = PathUtils.GetScopedTempFile("tmp");
+    }
+
+    var result = await content.ReadAsByteArrayAsync();
+    await File.WriteAllBytesAsync(file, result);
+    return file;
+  }
+
+  internal static HttpClientHandler GetFiddlerProxy() {
+    var handler = new HttpClientHandler {
+      Proxy = new WebProxy("localhost", 8888),
+      UseProxy = true
+    };
+    return handler;
+  }
+
+  public static async Task<string> GetRemoteMimeType(string url) {
+    using var client = new HttpClient();
+    var request = new HttpRequestMessage(HttpMethod.Head, url);
+    var response = await client.SendAsync(request);
+
+    if (response.StatusCode == HttpStatusCode.OK &&
+        response.Content.Headers.ContentType != null) {
+      return response.Content.Headers.ContentType.MediaType;
+    }
+
+    return string.Empty;
+  }
+
+  public static async Task<string> GetUrlExtension(string url) {
+    using var client = new HttpClient();
+    var request = new HttpRequestMessage(HttpMethod.Head, url);
+    var response = await client.SendAsync(request);
+
+    if (response.StatusCode != HttpStatusCode.OK ||
+        response?.Content?.Headers?.ContentType == null) {
+      return string.Empty;
+    }
+
+    var extension = MimeTypeMap.GetExtension(
+      response.Content.Headers.ContentType.MediaType
+        .Replace("image/jpg", "image/jpeg")
+    );
+
+    return !string.IsNullOrEmpty(extension) ? extension.TrimStart('.') : string.Empty;
+  }
 }

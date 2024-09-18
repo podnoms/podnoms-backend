@@ -1,19 +1,19 @@
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 
-namespace PodNoms.Api.Controllers {
-    public class HomeController : Controller {
-        [HttpGet]
-        [Route("robots.txt", Name = "GetRobotsText")]
-        [Route("rss/robots.txt", Name = "GetRobotsTextRss")]
-        public ContentResult RobotsText() {
-            var stringBuilder = new StringBuilder();
+namespace PodNoms.Api.Controllers;
 
-            stringBuilder.AppendLine("user-agent: *");
-            stringBuilder.AppendLine("disallow: /error/");
-            stringBuilder.AppendLine("allow: /error/foo");
+public class HomeController : Controller {
+  [HttpGet]
+  [Route("robots.txt", Name = "GetRobotsText")]
+  [Route("rss/robots.txt", Name = "GetRobotsTextRss")]
+  public ContentResult RobotsText() {
+    var stringBuilder = new StringBuilder();
 
-            return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
-        }
-    }
+    stringBuilder.AppendLine("user-agent: *");
+    stringBuilder.AppendLine("disallow: /error/");
+    stringBuilder.AppendLine("allow: /error/foo");
+
+    return Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
+  }
 }

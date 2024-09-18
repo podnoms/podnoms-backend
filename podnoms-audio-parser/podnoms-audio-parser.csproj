@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <AssemblyName>PodNoms.AudioParsing</AssemblyName>
-        <RootNamespace>PodNoms.AudioParsing</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>PodNoms.AudioParsing</AssemblyName>
+    <RootNamespace>PodNoms.AudioParsing</RootNamespace>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.0" />
-        <PackageReference Include="CommandLineParser" Version="2.9.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="YoutubeDLSharp" Version="1.1.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.6.6" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="YoutubeDLSharp" Version="1.1.1" />
+  </ItemGroup>
 
 
 </Project>

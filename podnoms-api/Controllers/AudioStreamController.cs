@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers {
-    [Authorize]
-    [Route("/podcast/{slug}/audioupload")]
-    public class AudioStreamController : BaseAuthController {
-        public AudioStreamController(
-            IHttpContextAccessor contextAccessor,
-            UserManager<ApplicationUser> userManager,
-            ILogger<AudioStreamController> logger) : base(contextAccessor, userManager, logger) {
-        }
-    }
+namespace PodNoms.Api.Controllers;
+
+[Authorize]
+[Route("/podcast/{slug}/audioupload")]
+public class AudioStreamController : BaseAuthController {
+  public AudioStreamController(
+    IHttpContextAccessor contextAccessor,
+    UserManager<ApplicationUser> userManager,
+    ILogger<AudioStreamController> logger) : base(contextAccessor, userManager, logger) {
+  }
 }

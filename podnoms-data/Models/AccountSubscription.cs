@@ -1,32 +1,32 @@
 using System;
 
-namespace PodNoms.Data.Models {
-    public enum AccountSubscriptionType {
-        Stripe,
-        Patreon
-    }
+namespace PodNoms.Data.Models;
 
-    public enum AccountSubscriptionTier {
-        Freeloader,
-        Patron,
-        AllAccess,
-        VIP
-    }
-    public class AccountSubscription : BaseEntity {
+public enum AccountSubscriptionType {
+  Stripe,
+  Patreon
+}
 
-        public virtual ApplicationUser AppUser { get; set; }
+public enum AccountSubscriptionTier {
+  Freeloader,
+  Patron,
+  AllAccess,
+  VIP
+}
 
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+public class AccountSubscription : BaseEntity {
+  public virtual ApplicationUser AppUser { get; set; }
 
-        public bool WasSuccessful { get; set; }
+  public DateTime StartDate { get; set; }
+  public DateTime EndDate { get; set; }
 
-        public long Amount { get; set; }
-        public string TransactionId { get; set; }
+  public bool WasSuccessful { get; set; }
 
-        public AccountSubscriptionTier Tier { get; set; }
-        public AccountSubscriptionType Type { get; set; }
+  public long Amount { get; set; }
+  public string TransactionId { get; set; }
 
-        public string ReceiptURL { get; set; }
-    }
+  public AccountSubscriptionTier Tier { get; set; }
+  public AccountSubscriptionType Type { get; set; }
+
+  public string ReceiptURL { get; set; }
 }

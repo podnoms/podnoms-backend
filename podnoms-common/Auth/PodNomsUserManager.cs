@@ -14,83 +14,89 @@ using PodNoms.Common.Utils;
 using PodNoms.Data.Extensions;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Auth {
-    public class PodNomsUserManager : UserManager<ApplicationUser> {
-        private readonly GravatarHttpClient _gravatarClient;
-        private readonly IFileUtilities _fileUtilities;
-        private ImageFileStorageSettings _fileStorageSettings;
-        private readonly IMailSender _mailSender;
-        private readonly StorageSettings _storageSettings;
+namespace PodNoms.Common.Auth;
 
-        public PodNomsUserManager(IUserStore<ApplicationUser> store, IOptions<IdentityOptions> optionsAccessor,
-            IPasswordHasher<ApplicationUser> passwordHasher, IEnumerable<IUserValidator<ApplicationUser>> userValidators,
-            IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators, ILookupNormalizer keyNormalizer,
-            IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger, [FromServices] GravatarHttpClient gravatarClient,
-            IOptions<StorageSettings> storageSettings,
-            IOptions<ImageFileStorageSettings> fileStorageSettings,
-            IFileUtilities fileUtilities,
-            IMailSender mailSender) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
-            _gravatarClient = gravatarClient;
-            _fileUtilities = fileUtilities;
-            _fileStorageSettings = fileStorageSettings.Value;
-            _mailSender = mailSender;
-            _storageSettings = storageSettings.Value;
-        }
-        public override async Task<IdentityResult> CreateAsync(ApplicationUser user) {
-            await _imageify(user);
-            _slugify(user);
-            var result = await base.CreateAsync(user);
-            if (result.Succeeded) {
-                try {
-                    await _mailSender.SendEmailAsync(
-                        "fergal.moran@gmail.com",
-                        "New user signup",
-                        new MailDropin {
-                            username = "Handsome Fucker",
-                            title = "New User Signup",
-                            message = $"{user.Email}\n{user.FirstName} {user.LastName}"
-                        });
-                } catch (Exception) { }
-            } else {
-                Logger.LogError($"Error signing up user: {user.Email}");
-                foreach (var error in result.Errors) {
-                    Logger.LogError(error.Description);
-                }
-            }
-            return result;
-        }
+public class PodNomsUserManager : UserManager<ApplicationUser> {
+  private readonly IFileUtilities _fileUtilities;
+  private readonly GravatarHttpClient _gravatarClient;
+  private readonly IMailSender _mailSender;
+  private readonly StorageSettings _storageSettings;
+  private readonly ImageFileStorageSettings _fileStorageSettings;
 
-        public override async Task<IdentityResult> UpdateAsync(ApplicationUser user) {
-            await _imageify(user);
-            return await base.UpdateAsync(user);
-        }
+  public PodNomsUserManager(IUserStore<ApplicationUser> store, IOptions<IdentityOptions> optionsAccessor,
+    IPasswordHasher<ApplicationUser> passwordHasher, IEnumerable<IUserValidator<ApplicationUser>> userValidators,
+    IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators, ILookupNormalizer keyNormalizer,
+    IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger,
+    [FromServices] GravatarHttpClient gravatarClient,
+    IOptions<StorageSettings> storageSettings,
+    IOptions<ImageFileStorageSettings> fileStorageSettings,
+    IFileUtilities fileUtilities,
+    IMailSender mailSender) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators,
+    keyNormalizer, errors, services, logger) {
+    _gravatarClient = gravatarClient;
+    _fileUtilities = fileUtilities;
+    _fileStorageSettings = fileStorageSettings.Value;
+    _mailSender = mailSender;
+    _storageSettings = storageSettings.Value;
+  }
 
-        private async Task _imageify(ApplicationUser user) {
-            if (string.IsNullOrEmpty(user.PictureUrl)) {
-                var gravatar = await _gravatarClient.GetGravatarImage(user.Email);
-                if (!string.IsNullOrEmpty(gravatar)) {
-                    user.PictureUrl = gravatar;
-                } else {
-                    var image = ImageUtils.GetTemporaryImage("profile", 6, "svg");
-                    var destImage = $"profile/{user.Id.ToString()}.svg";
-                    var result = await _fileUtilities.CopyRemoteFile(
-                        "static", $"images/{image}",
-                        _fileStorageSettings.ContainerName, destImage);
-                    user.PictureUrl = $"{_storageSettings.CdnUrl}{_fileStorageSettings.ContainerName}/{destImage}";
-                }
-            }
-        }
-
-        private void _slugify(ApplicationUser user) {
-            if (!string.IsNullOrEmpty(user.Slug)) return;
-
-            var name = $"{user.FirstName} {user.LastName}";
-            var c = name ?? user.Email?.Split('@')[0] ?? string.Empty;
-            if (!string.IsNullOrEmpty(c)) {
-                user.Slug = c.Slugify(
-                    from u in Users select u.Slug
-                );
-            }
-        }
+  public override async Task<IdentityResult> CreateAsync(ApplicationUser user) {
+    await _imageify(user);
+    _slugify(user);
+    var result = await base.CreateAsync(user);
+    if (result.Succeeded) {
+      try {
+        await _mailSender.SendEmailAsync(
+          "fergal.moran@gmail.com",
+          "New user signup",
+          new MailDropin {
+            username = "Handsome Fucker",
+            title = "New User Signup",
+            message = $"{user.Email}\n{user.FirstName} {user.LastName}"
+          });
+      } catch (Exception) { }
+    } else {
+      Logger.LogError($"Error signing up user: {user.Email}");
+      foreach (var error in result.Errors) {
+        Logger.LogError(error.Description);
+      }
     }
+
+    return result;
+  }
+
+  public override async Task<IdentityResult> UpdateAsync(ApplicationUser user) {
+    await _imageify(user);
+    return await base.UpdateAsync(user);
+  }
+
+  private async Task _imageify(ApplicationUser user) {
+    if (string.IsNullOrEmpty(user.PictureUrl)) {
+      var gravatar = await _gravatarClient.GetGravatarImage(user.Email);
+      if (!string.IsNullOrEmpty(gravatar)) {
+        user.PictureUrl = gravatar;
+      } else {
+        var image = ImageUtils.GetTemporaryImage("profile", 6, "svg");
+        var destImage = $"profile/{user.Id}.svg";
+        var result = await _fileUtilities.CopyRemoteFile(
+          "static", $"images/{image}",
+          _fileStorageSettings.ContainerName, destImage);
+        user.PictureUrl = $"{_storageSettings.CdnUrl}{_fileStorageSettings.ContainerName}/{destImage}";
+      }
+    }
+  }
+
+  private void _slugify(ApplicationUser user) {
+    if (!string.IsNullOrEmpty(user.Slug)) {
+      return;
+    }
+
+    var name = $"{user.FirstName} {user.LastName}";
+    var c = name ?? user.Email?.Split('@')[0] ?? string.Empty;
+    if (!string.IsNullOrEmpty(c)) {
+      user.Slug = c.Slugify(
+        from u in Users select u.Slug
+      );
+    }
+  }
 }

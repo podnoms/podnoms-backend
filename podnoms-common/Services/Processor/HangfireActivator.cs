@@ -1,16 +1,16 @@
 ﻿using System;
 using Hangfire;
 
-namespace PodNoms.Common.Services.Processor {
-    public class HangfireActivator : JobActivator {
-        private readonly IServiceProvider _serviceProvider;
+namespace PodNoms.Common.Services.Processor;
 
-        public HangfireActivator(IServiceProvider serviceProvider) {
-            _serviceProvider = serviceProvider;
-        }
+public class HangfireActivator : JobActivator {
+  private readonly IServiceProvider _serviceProvider;
 
-        public override object ActivateJob(Type type) {
-            return _serviceProvider.GetService(type);
-        }
-    }
+  public HangfireActivator(IServiceProvider serviceProvider) {
+    _serviceProvider = serviceProvider;
+  }
+
+  public override object ActivateJob(Type type) {
+    return _serviceProvider.GetService(type);
+  }
 }

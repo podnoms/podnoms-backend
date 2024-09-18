@@ -5,18 +5,18 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Services;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data.Resolvers {
-    internal class PodcastCountResolver : IValueResolver<ApplicationUser, ProfileViewModel, int> {
-        private readonly IRepoAccessor _repo;
+namespace PodNoms.Common.Data.Resolvers;
 
-        public PodcastCountResolver(IRepoAccessor repo) {
-            _repo = repo;
-        }
+internal class PodcastCountResolver : IValueResolver<ApplicationUser, ProfileViewModel, int> {
+  private readonly IRepoAccessor _repo;
 
-        public int Resolve(ApplicationUser source, ProfileViewModel destination, int destMember,
-            ResolutionContext context) {
-            var results = AsyncHelper.RunSync(() => _repo.Podcasts.GetAllForUserAsync(source.Id));
-            return results.Count();
-        }
-    }
+  public PodcastCountResolver(IRepoAccessor repo) {
+    _repo = repo;
+  }
+
+  public int Resolve(ApplicationUser source, ProfileViewModel destination, int destMember,
+    ResolutionContext context) {
+    var results = AsyncHelper.RunSync(() => _repo.Podcasts.GetAllForUserAsync(source.Id));
+    return results.Count();
+  }
 }
