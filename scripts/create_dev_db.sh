@@ -13,7 +13,6 @@ docker run \
     -v /opt/mssql:/var/opt/mssql \
     -p 1433:1433 \
     -d mcr.microsoft.com/mssql/server
-exit
 
 echo Waiting for docker
 until [ "$(/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql)"=="healthy" ]; do
@@ -21,7 +20,7 @@ until [ "$(/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql)"==
 done
 
 echo Creating databases
-mssql-cli -S localhost -d master -U sa -P $PASSWORD \ 
+mssqlcli -S localhost -d master -U sa -P $PASSWORD \ 
     --input_file ./scripts/create_dev_db.sql
 
 echo Migrating

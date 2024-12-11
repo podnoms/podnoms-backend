@@ -36,12 +36,13 @@ public class YtDlDownloader : IDownloader {
       };
     }
 
-    var result = await ytdl.RunAsync(new[] { url }, options);
+    var result = await ytdl.RunAsync(new[] {url}, options);
 
     return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;
   }
 
   public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args = null) {
+      
     var ytdl = new YoutubeDL {
       YoutubeDLPath = args != null && args.TryGetValue("Downloader", out var ytdlPath) ? ytdlPath : "yt-dlp",
       FFmpegPath = args != null && args.TryGetValue("FFMPeg", out var fFmpegPath)

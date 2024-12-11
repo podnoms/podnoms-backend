@@ -102,6 +102,10 @@ public sealed class PodNomsDbContext : EntitySignalIdentityDbContext<Application
       .Property(e => e.LastSeen)
       .HasDefaultValueSql("getdate()");
 
+    modelBuilder.Entity<RefreshToken>()
+      .Property(e => e.Expires)
+      .HasDefaultValueSql("getdate() + 7");
+
     modelBuilder.Entity<ApplicationUser>()
       .HasOne(r => r.PatreonToken)
       .WithOne(a => a.AppUser)
@@ -145,11 +149,11 @@ public sealed class PodNomsDbContext : EntitySignalIdentityDbContext<Application
       .IsUnique();
 
     modelBuilder.Entity<Playlist>()
-      .HasIndex(p => new { p.SourceUrl })
+      .HasIndex(p => new {p.SourceUrl})
       .IsUnique();
 
     modelBuilder.Entity<BoilerPlate>()
-      .HasIndex(p => new { p.Key })
+      .HasIndex(p => new {p.Key})
       .IsUnique();
 
     var converter = new EnumToNumberConverter<NotificationOptions, int>();
