@@ -37,7 +37,7 @@ public class EntryPreProcessor {
       .Select(x => x.AudioFileSize)
       .Sum();
 
-    if (totalUsed >= quota) {
+    if (quota != -1 && totalUsed >= quota) {
       return EntryProcessResult.QuotaExceeded;
     }
 

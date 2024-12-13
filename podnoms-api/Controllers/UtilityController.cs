@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -59,7 +59,7 @@ public class UtilityController : BaseAuthController {
     string narrative = "Title") {
     return await Task.Run(() => {
       try {
-        var p = new Dictionary<string, object> { { "field", value } };
+        var p = new Dictionary<string, object> {{"field", value}};
         var sql =
           $"SELECT {field} AS Value, {narrative} AS ResponseMessage FROM {table} WHERE {field} = @field";
         var result = _context.CollectionFromSql(sql, p).FirstOrDefault();
