@@ -43,7 +43,7 @@ public static class PodNomsDbInitialiser {
       config["AdminUserSettings:TestUser:Name"],
       config["AdminUserSettings:TestUser:Email"],
       config["AdminUserSettings:TestUser:Password"],
-      new[] { "catastrophic-api-calls-allowed", "website-admin", "god-mode" },
+      new[] {"catastrophic-api-calls-allowed", "website-admin", "god-mode"},
       userManager);
 
     var adminUser = _createUserIfNeeded(
@@ -51,7 +51,7 @@ public static class PodNomsDbInitialiser {
       config["AdminUserSettings:AdminUser:Name"],
       config["AdminUserSettings:AdminUser:Email"],
       config["AdminUserSettings:AdminUser:Password"],
-      new[] { "website-admin" },
+      new[] {"website-admin"},
       userManager
     );
     if (adminUser == null) {

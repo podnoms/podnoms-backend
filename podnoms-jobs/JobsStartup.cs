@@ -15,7 +15,6 @@ using PodNoms.Common.Services.Jobs;
 using PodNoms.Common.Services.Processor;
 using PodNoms.Common.Services.Push.Extensions;
 using PodNoms.Common.Services.Realtime;
-using PodNoms.Common.Services.Social;
 using PodNoms.Common.Services.Startup;
 using PodNoms.Common.Services.Waveforms;
 using PodNoms.Common.Utils.RemoteParsers;
@@ -65,14 +64,11 @@ public class JobsStartup {
       .AddSharedDependencies()
       .AddSingleton(RabbitHutch.CreateBus(Configuration["RabbitMq:ExternalConnectionString"]))
       .AddSingleton<RemoteImageCacher>()
-      .AddSingleton<ITweetListener, EpisodeFromTweetHandler>()
       .AddScoped<IYouTubeParser, YouTubeParser>()
       .AddScoped<IWaveformGenerator, AWFWaveformGenerator>()
       .AddScoped<INotifyJobCompleteService, RabbitMqNotificationService>()
       .AddScoped<CachedAudioRetrievalService, CachedAudioRetrievalService>()
       .AddScoped<IRealTimeUpdater, RabbitMQClientUpdater>();
-
-    services.AddHostedService<TweetListenerService>();
   }
 
   public void Configure(IApplicationBuilder app, IHostEnvironment env) {
