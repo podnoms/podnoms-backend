@@ -16,13 +16,21 @@ public class YtDlDownloader : IDownloader {
   private const string DOWNLOADSIZESTRING = "iB";
   protected const string OFSTRING = "of";
 
+
   public async Task<string> DownloadFromUrl(string url, string outputFile, Dictionary<string, string> args = null,
     Func<ProcessingProgress, Task<bool>> progressCallback = null) {
-    var ytdl = new YoutubeDLProcess(args != null && args.TryGetValue("Downloader", out var arg)
-      ? arg
-      : "yt-dlp");
+    args.TryGetValue("Downloader", out var executablePath);
+    args.TryGetValue("DownloaderCookiesFile", out var cookies);
+
+    Console.WriteLine($"Exe: {executablePath}");
+    Console.WriteLine($"Cookies: {cookies}");
+
+    var ytdl = new YoutubeDLProcess(string.IsNullOrEmpty(executablePath)
+      ? "yt-dlp"
+      : executablePath);
 
     var options = new OptionSet {
+      Cookies = cookies,
       Output = outputFile.ReplaceEnd("mp3", "%(ext)s"),
       ExtractAudio = true,
       AudioFormat = AudioConversionFormat.Mp3,
@@ -30,19 +38,18 @@ public class YtDlDownloader : IDownloader {
     };
 
     if (progressCallback != null) {
-      ytdl.OutputReceived += (sender, eventArgs) => {
+      ytdl.OutputReceived += (_, eventArgs) => {
         var progress = _parseProgress(eventArgs.Data);
         progressCallback(progress);
       };
+      ytdl.ErrorReceived += (_, eventArgs) => throw new AudioDownloadException(eventArgs.Data);
     }
 
-    var result = await ytdl.RunAsync(new[] {url}, options);
-
+    var result = await ytdl.RunAsync([url], options);
     return result == 0 && File.Exists(outputFile) ? outputFile : string.Empty;
   }
 
   public async Task<VideoData> GetVideoInformation(string url, Dictionary<string, string> args = null) {
-      
     var ytdl = new YoutubeDL {
       YoutubeDLPath = args != null && args.TryGetValue("Downloader", out var ytdlPath) ? ytdlPath : "yt-dlp",
       FFmpegPath = args != null && args.TryGetValue("FFMPeg", out var fFmpegPath)

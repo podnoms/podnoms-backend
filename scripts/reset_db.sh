@@ -7,6 +7,7 @@ PASSWORD=$MSSQLPASSWORD
 
 echo "Closing db connections"
 /opt/mssql-tools/bin/sqlcmd \
+    -C \
     -S $HOST \
     -U $USER \
     -P $PASSWORD \
@@ -15,6 +16,7 @@ echo "Closing db connections"
 
 echo "Creating dev db"
 /opt/mssql-tools/bin/sqlcmd \
+    -C \
     -S $HOST \
     -d master \
     -U $USER \

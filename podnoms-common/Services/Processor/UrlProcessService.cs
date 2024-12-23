@@ -176,7 +176,6 @@ public class UrlProcessService : RealtimeUpdatingProcessService, IUrlProcessServ
 
       entry.ProcessingStatus = ProcessingStatus.Parsing;
       await _repo.CompleteAsync();
-
       return true;
     } catch (Exception ex) {
       _logger.LogError($"Entry: {entryId}\n{ex.Message}\n\n\n{ex.StackTrace}");

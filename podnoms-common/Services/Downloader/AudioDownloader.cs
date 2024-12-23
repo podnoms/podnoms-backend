@@ -150,7 +150,7 @@ public class AudioDownloader {
     }
 
     _logger.LogInformation(
-      "Initiating download of ${Url}\\n\\tTo: {OutputFile}\\n\\tUsing: {HelpersSettingsDownloader}", url,
+      "Initiating download of ${Url} To: {OutputFile} Using: {HelpersSettingsDownloader}", url,
       outputFile, _helpersSettings.Downloader);
 
     async Task<bool> ProgressCallback(ProcessingProgress progress) {
@@ -159,8 +159,9 @@ public class AudioDownloader {
     }
 
     outputFile = await _downloader.DownloadFromUrl(url, outputFile, new Dictionary<string, string> {
-      { "Downloader", _helpersSettings.Downloader },
-      { "FFMPeg", _helpersSettings.FFMPeg }
+      {"Downloader", _helpersSettings.Downloader},
+      {"DownloaderCookiesFile", _helpersSettings.DownloaderCookiesFile},
+      {"FFMPeg", _helpersSettings.FFMPeg}
     }, string.IsNullOrEmpty(userId) ? null : ProgressCallback);
     return File.Exists(outputFile) ? outputFile : string.Empty;
   }
