@@ -12,45 +12,45 @@ using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Providers;
 using SixLabors.ImageSharp.Web.Providers.Azure;
 
-namespace PodNoms.Common.Services.Startup {
-    public static class ImagingStartup {
-        public static IServiceCollection AddPodNomsImaging(this IServiceCollection services, IConfiguration config) {
-            var connectionString = config.GetSection("StorageSettings")["ConnectionString"];
-            var containerName = config.GetSection("ImageFileStorageSettings")["ContainerName"];
+namespace PodNoms.Common.Services.Startup;
 
-            services.AddImageSharp()
-                .SetRequestParser<QueryCollectionRequestParser>()
-                .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
-                .SetCache<PhysicalFileSystemCache>()
-                .RemoveProvider<PhysicalFileSystemProvider>()
-                .RemoveProvider<AzureBlobStorageImageProvider>()
-                .AddProvider(AzureProviderFactory)
-                .Configure<AzureBlobStorageImageProviderOptions>(options => {
-                    options.BlobContainers.Add(new AzureBlobContainerClientOptions {
-                        ConnectionString = connectionString,
-                        ContainerName = containerName
-                    });
-                })
-                .AddProcessor<ResizeWebProcessor>();
-            return services;
-        }
+public static class ImagingStartup {
+  public static IServiceCollection AddPodNomsImaging(this IServiceCollection services, IConfiguration config) {
+    var connectionString = config.GetSection("StorageSettings")["ConnectionString"];
+    var containerName = config.GetSection("ImageFileStorageSettings")["ContainerName"];
 
-        public static IApplicationBuilder UsePodNomsImaging(
-            this IApplicationBuilder builder) {
-            builder.UseImageSharp();
-            return builder;
-        }
+    services.AddImageSharp()
+      .SetRequestParser<QueryCollectionRequestParser>()
+      .Configure<PhysicalFileSystemCacheOptions>(_ => { _.CacheFolder = ".pn-cache"; })
+      .SetCache<PhysicalFileSystemCache>()
+      .RemoveProvider<PhysicalFileSystemProvider>()
+      .RemoveProvider<AzureBlobStorageImageProvider>()
+      .AddProvider(AzureProviderFactory)
+      .Configure<AzureBlobStorageImageProviderOptions>(options => {
+        options.BlobContainers.Add(new AzureBlobContainerClientOptions {
+          ConnectionString = connectionString,
+          ContainerName = containerName
+        });
+      })
+      .AddProcessor<ResizeWebProcessor>();
+    return services;
+  }
 
-        private static AzureBlobStorageImageProvider AzureProviderFactory(IServiceProvider provider) {
-            var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
-            return new AzureBlobStorageImageProvider(
-                provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
-                provider.GetRequiredService<FormatUtilities>()) {
-                Match = context => {
-                    var match = context.Request.Path.StartsWithSegments($"/{containerName}");
-                    return match;
-                }
-            };
-        }
-    }
+  public static IApplicationBuilder UsePodNomsImaging(
+    this IApplicationBuilder builder) {
+    builder.UseImageSharp();
+    return builder;
+  }
+
+  private static AzureBlobStorageImageProvider AzureProviderFactory(IServiceProvider provider) {
+    var containerName = provider.GetRequiredService<IOptions<ImageFileStorageSettings>>().Value.ContainerName;
+    return new AzureBlobStorageImageProvider(
+      provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
+      provider.GetRequiredService<FormatUtilities>()) {
+      Match = context => {
+        var match = context.Request.Path.StartsWithSegments($"/{containerName}");
+        return match;
+      }
+    };
+  }
 }

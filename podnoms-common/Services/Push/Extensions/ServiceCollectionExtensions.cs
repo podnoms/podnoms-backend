@@ -1,26 +1,27 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PodNoms.Common.Services.Push.Extensions {
-    public static class ServiceCollectionExtensions {
-        private const string PUSH_NOTIFICATION_SERVICE_CONFIGURATION_SECTION = "PushNotificationService";
+namespace PodNoms.Common.Services.Push.Extensions;
 
-        public static IServiceCollection AddPushSubscriptionStore(this IServiceCollection services,
-            IConfiguration configuration) {
-            services.AddSqlitePushSubscriptionStore(configuration);
+public static class ServiceCollectionExtensions {
+  private const string PUSH_NOTIFICATION_SERVICE_CONFIGURATION_SECTION = "PushNotificationService";
 
-            return services;
-        }
+  public static IServiceCollection AddPushSubscriptionStore(this IServiceCollection services,
+    IConfiguration configuration) {
+    services.AddSqlitePushSubscriptionStore(configuration);
 
-        public static IServiceCollection AddPushNotificationService(this IServiceCollection services,
-            IConfiguration configuration) {
-            services.AddOptions();
-            services.Configure<PushNotificationServiceOptions>(
-                configuration.GetSection(PUSH_NOTIFICATION_SERVICE_CONFIGURATION_SECTION));
+    return services;
+  }
 
-            services.AddPushServicePushNotificationService();
+  public static IServiceCollection AddPushNotificationService(this IServiceCollection services,
+    IConfiguration configuration) {
+    services.AddOptions();
+    services.Configure<PushNotificationServiceOptions>(
+      configuration.GetSection(PUSH_NOTIFICATION_SERVICE_CONFIGURATION_SECTION));
 
-            return services;
-        }
-    }
+    services.AddPushServicePushNotificationService();
+
+    return services;
+  }
 }

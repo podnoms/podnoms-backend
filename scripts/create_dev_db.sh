@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-PASSWORD=H8ckMyB88lz
+source $HOME/.prv/env
+
+PASSWORD=$MSSQLPASSWORD
 
 echo Creating SQL Server
 
@@ -18,7 +20,7 @@ until [ "$(/usr/bin/docker inspect -f {{.State.Health.Status}} podnoms-mssql)"==
 done
 
 echo Creating databases
-mssql-cli -S localhost -d master -U sa -P $PASSWORD \ 
+mssqlcli -S localhost -d master -U sa -P $PASSWORD \ 
     --input_file ./scripts/create_dev_db.sql
 
 echo Migrating

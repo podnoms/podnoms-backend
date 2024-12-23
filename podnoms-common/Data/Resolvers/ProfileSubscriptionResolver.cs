@@ -1,22 +1,22 @@
 ﻿using AutoMapper;
-using PodNoms.Common.Data.ViewModels.Resources;
-using PodNoms.Data.Models;
 using Microsoft.AspNetCore.Identity;
+using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Services;
+using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data.Resolvers {
-    internal class ProfileSubscriptionResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, string> {
-        private readonly UserManager<ApplicationUser> _userManager;
+namespace PodNoms.Common.Data.Resolvers;
 
-        public ProfileSubscriptionResolver(UserManager<ApplicationUser> userManager) {
-            _userManager = userManager;
-        }
+internal class ProfileSubscriptionResolver : IValueResolver<ApplicationUser, SubscriptionViewModel, string> {
+  private readonly UserManager<ApplicationUser> _userManager;
 
-        public string Resolve(ApplicationUser source, SubscriptionViewModel destination,
-            string destMember, ResolutionContext context) {
-            var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
+  public ProfileSubscriptionResolver(UserManager<ApplicationUser> userManager) {
+    _userManager = userManager;
+  }
 
-            return isAdmin ? AccountSubscriptionTier.VIP.ToString() : AccountSubscriptionTier.Freeloader.ToString();
-        }
-    }
+  public string Resolve(ApplicationUser source, SubscriptionViewModel destination,
+    string destMember, ResolutionContext context) {
+    var isAdmin = AsyncHelper.RunSync(() => _userManager.IsInRoleAsync(source, "god-mode"));
+
+    return isAdmin ? AccountSubscriptionTier.VIP.ToString() : AccountSubscriptionTier.Freeloader.ToString();
+  }
 }

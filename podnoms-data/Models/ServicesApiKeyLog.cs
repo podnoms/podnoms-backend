@@ -1,16 +1,16 @@
-﻿namespace PodNoms.Data.Models {
-    public class ServicesApiKeyLog : BaseEntity {
-        public ServicesApiKeyLog() {
-        }
+﻿namespace PodNoms.Data.Models;
 
-        public ServicesApiKeyLog(ServiceApiKey apiKey, string requesterId, string stackTrace) {
-            this.ApiKey = apiKey;
-            this.RequesterId = requesterId;
-            this.Stack = stackTrace;
-        }
+public class ServicesApiKeyLog : BaseEntity {
+  public ServicesApiKeyLog() {
+  }
 
-        public virtual ServiceApiKey ApiKey { get; set; }
-        public string RequesterId { get; set; }
-        public string Stack { get; set; }
-    }
+  public ServicesApiKeyLog(ServiceApiKey apiKey, string requesterId, string stackTrace) {
+    ApiKey = apiKey;
+    RequesterId = requesterId;
+    Stack = stackTrace;
+  }
+
+  public virtual ServiceApiKey ApiKey { get; set; }
+  public string RequesterId { get; set; }
+  public string Stack { get; set; }
 }

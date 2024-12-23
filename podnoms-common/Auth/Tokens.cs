@@ -3,34 +3,33 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Auth {
-    public class TokenIssuer {
-        public static async Task<JwtTokenModel> GenerateJwt(ClaimsIdentity identity, IJwtFactory jwtFactory,
-            string userName,
-            string[] roles, JwtIssuerOptions jwtOptions) {
-            var response = new JwtTokenModel(
-                identity.Claims.Single(c => c.Type == "id").Value,
-                await jwtFactory.GenerateEncodedToken(userName, identity, roles),
-                (int)jwtOptions.ValidFor.TotalSeconds
-            );
-            return response;
-        }
+namespace PodNoms.Common.Auth;
 
-        public static async Task<string> GenerateRawJwt(ClaimsIdentity identity, IJwtFactory jwtFactory,
-            string userName,
-            string[] roles) {
-            return await jwtFactory.GenerateEncodedToken(userName, identity, roles);
-        }
+public class TokenIssuer {
+  public static async Task<JwtTokenModel> GenerateJwt(ClaimsIdentity identity, IJwtFactory jwtFactory,
+    string userName,
+    string[] roles, JwtIssuerOptions jwtOptions) {
+    var response = new JwtTokenModel(
+      identity.Claims.Single(c => c.Type == "id").Value,
+      await jwtFactory.GenerateEncodedToken(userName, identity, roles),
+      (int)jwtOptions.ValidFor.TotalSeconds
+    );
+    return response;
+  }
 
-        public static string GenerateRefreshToken(int size = 32) {
-            var randomNumber = new byte[size];
-            using (var rng = RandomNumberGenerator.Create()) {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
+  public static async Task<string> GenerateRawJwt(ClaimsIdentity identity, IJwtFactory jwtFactory,
+    string userName,
+    string[] roles) {
+    return await jwtFactory.GenerateEncodedToken(userName, identity, roles);
+  }
+
+  public static string GenerateRefreshToken(int size = 32) {
+    var randomNumber = new byte[size];
+    using (var rng = RandomNumberGenerator.Create()) {
+      rng.GetBytes(randomNumber);
+      return Convert.ToBase64String(randomNumber);
     }
+  }
 }

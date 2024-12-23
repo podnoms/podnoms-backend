@@ -9,52 +9,54 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Services.Jobs;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Services.Processor {
-    public class EntryPreProcessor {
-        public enum EntryProcessResult {
-            Succeeded,
-            QuotaExceeded,
-            GeneralFailure
-        }
+namespace PodNoms.Common.Services.Processor;
 
-        private readonly StorageSettings _storageSettings;
-        private readonly IRepoAccessor _repo;
-        private readonly ILogger<EntryPreProcessor> _logger;
+public class EntryPreProcessor {
+  public enum EntryProcessResult {
+    Succeeded,
+    QuotaExceeded,
+    GeneralFailure
+  }
 
-        public EntryPreProcessor(
-            IOptions<StorageSettings> storageSettings, IRepoAccessor repo,
-            ILogger<EntryPreProcessor> logger) {
-            _storageSettings = storageSettings.Value;
-            _repo = repo;
-            _logger = logger;
-        }
+  private readonly ILogger<EntryPreProcessor> _logger;
+  private readonly IRepoAccessor _repo;
 
-        public async Task<EntryProcessResult> PreProcessEntry(ApplicationUser user, PodcastEntry entry) {
-            var quota = user.DiskQuota ?? _storageSettings.DefaultUserQuota;
-            var totalUsed = (await _repo.Entries.GetAllForUserAsync(user.Id))
-                .Select(x => x.AudioFileSize)
-                .Sum();
+  private readonly StorageSettings _storageSettings;
 
-            if (totalUsed >= quota) {
-                return EntryProcessResult.QuotaExceeded;
-            }
+  public EntryPreProcessor(
+    IOptions<StorageSettings> storageSettings, IRepoAccessor repo,
+    ILogger<EntryPreProcessor> logger) {
+    _storageSettings = storageSettings.Value;
+    _repo = repo;
+    _logger = logger;
+  }
 
-            if (string.IsNullOrEmpty(entry.ImageUrl)) {
-                entry.ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png";
-            }
+  public async Task<EntryProcessResult> PreProcessEntry(ApplicationUser user, PodcastEntry entry) {
+    var quota = user.DiskQuota ?? _storageSettings.DefaultUserQuota;
+    var totalUsed = (await _repo.Entries.GetAllForUserAsync(user.Id))
+      .Select(x => x.AudioFileSize)
+      .Sum();
 
-            entry.Processed = false;
-            try {
-                var succeeded = await _repo.CompleteAsync();
-                if (succeeded) {
-                    BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));
-                    return EntryProcessResult.Succeeded;
-                }
-            } catch (DbUpdateException e) {
-                _logger.LogError("{Message}", e.Message);
-            }
-
-            return EntryProcessResult.GeneralFailure;
-        }
+    if (quota != -1 && totalUsed >= quota) {
+      return EntryProcessResult.QuotaExceeded;
     }
+
+    if (string.IsNullOrEmpty(entry.ImageUrl)) {
+      entry.ImageUrl = $"{_storageSettings.CdnUrl}/static/images/default-entry.png";
+    }
+
+    entry.Processed = false;
+    try {
+      await _repo.Entries.AddOrUpdate(entry);
+      var succeeded = await _repo.CompleteAsync();
+      if (succeeded) {
+        BackgroundJob.Enqueue<ProcessNewEntryJob>(e => e.ProcessEntry(entry.Id, null));
+        return EntryProcessResult.Succeeded;
+      }
+    } catch (DbUpdateException e) {
+      _logger.LogError("{Message}", e.Message);
+    }
+
+    return EntryProcessResult.GeneralFailure;
+  }
 }

@@ -3,64 +3,64 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using PodNoms.Common.Utils.Crypt;
 
-namespace PodNoms.Api {
-    public class Program {
-        private static readonly bool _isDevelopment =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development;
+namespace PodNoms.Api;
 
-        public static void Main(string[] args) {
-            var salt = PBKDFGenerators.GenerateSalt();
-            BuildWebHost(args).Run();
+public class Program {
+  private static readonly bool _isDevelopment =
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development;
+
+  public static void Main(string[] args) {
+    var salt = PBKDFGenerators.GenerateSalt();
+    BuildWebHost(args).Run();
+  }
+
+  private static IWebHost BuildWebHost(string[] args) {
+    var builder = WebHost.CreateDefaultBuilder(args)
+      .ConfigureAppConfiguration((context, config) => {
+        if (_isDevelopment) {
+          return;
         }
 
-        private static IWebHost BuildWebHost(string[] args) {
-            var builder = WebHost.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) => {
-                    if (_isDevelopment) {
-                        return;
-                    }
+        config.SetBasePath(Directory.GetCurrentDirectory())
+          .AddJsonFile("appsettings.json", false)
+          .AddJsonFile("azurekeyvault.json", true, true)
+          .AddEnvironmentVariables("ASPNETCORE_");
+        var builtConfig = config.Build();
+        Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
 
-                    config.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false)
-                        .AddJsonFile("azurekeyvault.json", optional: true, reloadOnChange: true)
-                        .AddEnvironmentVariables("ASPNETCORE_");
-                    var builtConfig = config.Build();
-                    Console.WriteLine($"Bootstrapping prod: {builtConfig["KeyVaultSettings:ClientId"]}");
+        config.AddAzureKeyVault(
+          $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
+          builtConfig["KeyVaultSettings:ClientId"],
+          builtConfig["KeyVaultSettings:ClientSecret"]);
+      });
 
-                    config.AddAzureKeyVault(
-                        $"https://{builtConfig["KeyVaultSettings:Vault"]}.vault.azure.net/",
-                        builtConfig["KeyVaultSettings:ClientId"],
-                        builtConfig["KeyVaultSettings:ClientSecret"]);
-                });
-
-            var t = builder.UseStartup<Startup>()
-                .UseKestrel(options => {
-                    options.Limits.MaxRequestBodySize = 2147483648; //2GB
-                    if (!_isDevelopment) {
-                        return;
-                    }
-
-                    var c = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.Development.json", optional: false)
-                        .AddEnvironmentVariables("ASPNETCORE_")
-                        .Build();
-
-                    var certificate = X509Certificate2.CreateFromPemFile(
-                        c["DevSettings:CertificateFile"],
-                        c["DevSettings:CertificateFileKey"]);
-
-                    options.Listen(IPAddress.Any, 5001, listenOptions => {
-                        listenOptions.UseHttps(certificate);
-                    });
-                });
-
-            return t.Build();
+    var t = builder.UseStartup<Startup>()
+      .UseKestrel(options => {
+        options.Limits.MaxRequestBodySize = 2147483648; //2GB
+        if (!_isDevelopment && !Environment.MachineName.ToUpper().Equals("NILES")) {
+          return;
         }
-    }
+
+        var c = new ConfigurationBuilder()
+          .SetBasePath(Directory.GetCurrentDirectory())
+          .AddJsonFile("appsettings.Development.json", false)
+          .AddEnvironmentVariables("ASPNETCORE_")
+          .Build();
+
+        var certificate = X509Certificate2.CreateFromPemFile(
+          c["DevSettings:CertificateFile"],
+          c["DevSettings:CertificateFileKey"]);
+
+        options.Listen(IPAddress.Any, 5001, listenOptions => {
+          listenOptions.UseHttps(certificate);
+        });
+      });
+
+    return t.Build();
+  }
 }

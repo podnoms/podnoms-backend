@@ -5,35 +5,35 @@ using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace PodNoms.Common.Services.Push {
-    public class PushServicePushNotificationService : IPushNotificationService {
-        private readonly PushNotificationServiceOptions _options;
-        private readonly PushServiceClient _pushClient;
+namespace PodNoms.Common.Services.Push;
 
-        private readonly ILogger _logger;
+public class PushServicePushNotificationService : IPushNotificationService {
+  private readonly ILogger _logger;
+  private readonly PushNotificationServiceOptions _options;
+  private readonly PushServiceClient _pushClient;
 
-        public string PublicKey { get { return _options.PublicKey; } }
+  public PushServicePushNotificationService(IOptions<PushNotificationServiceOptions> optionsAccessor,
+    IVapidTokenCache vapidTokenCache, ILogger<PushServicePushNotificationService> logger) {
+    _options = optionsAccessor.Value;
 
-        public PushServicePushNotificationService(IOptions<PushNotificationServiceOptions> optionsAccessor, IVapidTokenCache vapidTokenCache, ILogger<PushServicePushNotificationService> logger) {
-            _options = optionsAccessor.Value;
+    _pushClient = new PushServiceClient {
+      DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey) {
+        Subject = _options.Subject,
+        TokenCache = vapidTokenCache
+      }
+    };
 
-            _pushClient = new PushServiceClient {
-                DefaultAuthentication = new VapidAuthentication(_options.PublicKey, _options.PrivateKey) {
-                    Subject = _options.Subject,
-                    TokenCache = vapidTokenCache
-                }
-            };
+    _logger = logger;
+  }
 
-            _logger = logger;
-        }
+  public string PublicKey => _options.PublicKey;
 
-        public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message, string target) {
-            try {
-                _logger.LogInformation($"Sending PushService push: {message.Content}");
-                await _pushClient.RequestPushMessageDeliveryAsync(subscription, message);
-            } catch (Exception ex) {
-                _logger?.LogError(ex, "Failed requesting push message delivery to {0}.", subscription.Endpoint);
-            }
-        }
+  public async Task SendNotificationAsync(PushSubscription subscription, PushMessage message, string target) {
+    try {
+      _logger.LogInformation($"Sending PushService push: {message.Content}");
+      await _pushClient.RequestPushMessageDeliveryAsync(subscription, message);
+    } catch (Exception ex) {
+      _logger?.LogError(ex, "Failed requesting push message delivery to {0}.", subscription.Endpoint);
     }
+  }
 }

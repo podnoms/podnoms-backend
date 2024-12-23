@@ -15,73 +15,73 @@ using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 using Slack.Webhooks;
 
-namespace PodNoms.Api.Controllers.External {
-    [Authorize(AuthenticationSchemes = "PodNomsApiKey")]
-    [Route("pub/browserextension")]
-    public class BrowserExtensionController : BaseAuthController {
-        private readonly IConfiguration _options;
-        private readonly IRepoAccessor _repo;
-        private readonly ChatSettings _chatSettings;
+namespace PodNoms.Api.Controllers.External;
 
-        public BrowserExtensionController(
-            ILogger<BrowserExtensionController> logger,
-            IHttpContextAccessor contextAccessor,
-            UserManager<ApplicationUser> userManager,
-            IConfiguration options,
-            IOptions<ChatSettings> chatSettings,
-            IRepoAccessor repo) : base(contextAccessor, userManager, logger) {
-            _options = options;
-            _chatSettings = chatSettings.Value;
-            _repo = repo;
-        }
+[Authorize(AuthenticationSchemes = "PodNomsApiKey")]
+[Route("pub/browserextension")]
+public class BrowserExtensionController : BaseAuthController {
+  private readonly ChatSettings _chatSettings;
+  private readonly IConfiguration _options;
+  private readonly IRepoAccessor _repo;
 
-        [HttpGet("podcasts")]
-        public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
-            var podcasts = await _repo.Podcasts
-                .GetAllForUserAsync(_applicationUser.Id);
+  public BrowserExtensionController(
+    ILogger<BrowserExtensionController> logger,
+    IHttpContextAccessor contextAccessor,
+    UserManager<ApplicationUser> userManager,
+    IConfiguration options,
+    IOptions<ChatSettings> chatSettings,
+    IRepoAccessor repo) : base(contextAccessor, userManager, logger) {
+    _options = options;
+    _chatSettings = chatSettings.Value;
+    _repo = repo;
+  }
 
-            var ret = podcasts
-                .Select(r => new BrowserExtensionPodcastViewModel {
-                    Id = r.Id.ToString(),
-                    Title = r.Title.ToString(),
-                    ImageUrl = r.GetImageUrl(
-                        _options.GetSection("StorageSettings")["ImageUrl"],
-                        _options.GetSection("ImageFileStorageSettings")["ContainerName"])
-                });
-            return Ok(ret);
-        }
+  [HttpGet("podcasts")]
+  public async Task<ActionResult<List<BrowserExtensionPodcastViewModel>>> Get() {
+    var podcasts = await _repo.Podcasts
+      .GetAllForUserAsync(_applicationUser.Id);
 
-        [HttpPost("flagurl")]
-        public async Task<ActionResult> FlagUrl([FromQuery] string url) {
-            var message = $"Please flag url: {url}";
+    var ret = podcasts
+      .Select(r => new BrowserExtensionPodcastViewModel {
+        Id = r.Id.ToString(),
+        Title = r.Title.ToString(),
+        ImageUrl = r.GetImageUrl(
+          _options.GetSection("StorageSettings")["ImageUrl"],
+          _options.GetSection("ImageFileStorageSettings")["ContainerName"])
+      });
+    return Ok(ret);
+  }
 
-            if (!string.IsNullOrEmpty(url)) {
-                try {
-                    var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
-                    var slackMessage = new SlackMessage {
-                        Channel = "#userrequests",
-                        Text =
-                            $"{message}\n\nFrom: {_applicationUser.GetBestGuessName()}\nFromId: {_applicationUser.Id}\nFromEmail: {_applicationUser.Email}",
-                        IconEmoji = Emoji.HearNoEvil,
-                        Username = _applicationUser.Slug
-                    };
-                    await slackClient.PostAsync(slackMessage);
-                } catch (Exception e) {
-                    _logger.LogError("Error posting user flag url to slack");
-                    _logger.LogError(e.Message);
-                }
+  [HttpPost("flagurl")]
+  public async Task<ActionResult> FlagUrl([FromQuery] string url) {
+    var message = $"Please flag url: {url}";
 
-                var request = new UserRequest {
-                    RequestText = message,
-                    FromUser = _applicationUser
-                };
-                _repo.CreateProxy<UserRequest>().AddOrUpdate(request);
-                await _repo.CompleteAsync();
+    if (!string.IsNullOrEmpty(url)) {
+      try {
+        var slackClient = new SlackClient(_chatSettings.SlackWebhookUrl);
+        var slackMessage = new SlackMessage {
+          Channel = "#userrequests",
+          Text =
+            $"{message}\n\nFrom: {_applicationUser.GetBestGuessName()}\nFromId: {_applicationUser.Id}\nFromEmail: {_applicationUser.Email}",
+          IconEmoji = Emoji.HearNoEvil,
+          Username = _applicationUser.Slug
+        };
+        await slackClient.PostAsync(slackMessage);
+      } catch (Exception e) {
+        _logger.LogError("Error posting user flag url to slack");
+        _logger.LogError(e.Message);
+      }
 
-                return Ok();
-            }
+      var request = new UserRequest {
+        RequestText = message,
+        FromUser = _applicationUser
+      };
+      await _repo.CreateProxy<UserRequest>().AddOrUpdate(request);
+      await _repo.CompleteAsync();
 
-            return BadRequest();
-        }
+      return Ok();
     }
+
+    return BadRequest();
+  }
 }

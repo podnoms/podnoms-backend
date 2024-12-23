@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
+source $HOME/.prv/env
+
 HOST=localhost
 USER=sa
-PASSWORD=H8ckMyB88lz
+PASSWORD=$MSSQLPASSWORD
 
 echo "Closing db connections"
 /opt/mssql-tools/bin/sqlcmd \
+    -C \
     -S $HOST \
     -U $USER \
     -P $PASSWORD \
@@ -13,6 +16,7 @@ echo "Closing db connections"
 
 echo "Creating dev db"
 /opt/mssql-tools/bin/sqlcmd \
+    -C \
     -S $HOST \
     -d master \
     -U $USER \

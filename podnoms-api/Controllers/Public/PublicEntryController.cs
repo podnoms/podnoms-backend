@@ -12,100 +12,102 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers.Public {
-    [Route("pub/entry")]
-    [EnableCors("DefaultCors")]
-    [ApiController]
-    public class PublicEntryController : ControllerBase {
-        private readonly IRepoAccessor _repo;
-        private readonly AkismetClient _akismet;
-        private readonly IConfiguration _config;
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IMapper _mapper;
+namespace PodNoms.Api.Controllers.Public;
 
-        public PublicEntryController(IRepoAccessor repo,
-            AkismetClient akismet,
-            IConfiguration config,
-            IHttpContextAccessor contextAccessor,
-            IMapper mapper) {
-            _repo = repo;
-            _akismet = akismet;
-            _config = config;
-            _contextAccessor = contextAccessor;
-            _mapper = mapper;
-        }
+[Route("pub/entry")]
+[EnableCors("DefaultCors")]
+[ApiController]
+public class PublicEntryController : ControllerBase {
+  private readonly AkismetClient _akismet;
+  private readonly IConfiguration _config;
+  private readonly IHttpContextAccessor _contextAccessor;
+  private readonly IMapper _mapper;
+  private readonly IRepoAccessor _repo;
 
-        [HttpGet("top100")]
-        public async Task<ActionResult<List<PodcastEntryViewModel>>> Top100(string user, string podcast, string entry) {
-            var results = await _repo.Entries
-                .GetAll()
-                .Include(e => e.Podcast)
-                .OrderByDescending(r => r.CreateDate)
-                .Take(100)
-                .ToListAsync();
+  public PublicEntryController(IRepoAccessor repo,
+    AkismetClient akismet,
+    IConfiguration config,
+    IHttpContextAccessor contextAccessor,
+    IMapper mapper) {
+    _repo = repo;
+    _akismet = akismet;
+    _config = config;
+    _contextAccessor = contextAccessor;
+    _mapper = mapper;
+  }
 
-            return _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(results);
-        }
+  [HttpGet("top100")]
+  public async Task<ActionResult<List<PodcastEntryViewModel>>> Top100(string user, string podcast, string entry) {
+    var results = await _repo.Entries
+      .GetAll()
+      .Include(e => e.Podcast)
+      .OrderByDescending(r => r.CreateDate)
+      .Take(100)
+      .ToListAsync();
 
-        [HttpGet("{user}/{podcast}/{entry}")]
-        public async Task<ActionResult<PodcastEntryViewModel>> Get(string user, string podcast, string entry) {
-            var result = await _repo.Entries.GetForUserAndPodcast(user, podcast, entry);
+    return _mapper.Map<List<PodcastEntry>, List<PodcastEntryViewModel>>(results);
+  }
 
-            if (result is null) return NotFound();
+  [HttpGet("{user}/{podcast}/{entry}")]
+  public async Task<ActionResult<PodcastEntryViewModel>> Get(string user, string podcast, string entry) {
+    var result = await _repo.Entries.GetForUserAndPodcast(user, podcast, entry);
 
-            return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
-        }
-
-        [HttpPost("postcomment/{userSlug}/{entrySlug}")]
-        public async Task<ActionResult<PodcastEntryCommentViewModel>> AddComment(
-            string userSlug, string entrySlug, [FromBody] PodcastEntryCommentViewModel comment) {
-            var entry = await _repo.Entries
-                .GetAll()
-                .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
-                .SingleOrDefaultAsync();
-
-            if (entry is null) {
-                return BadRequest($"Could not find entry");
-            }
-
-            var spamCheckComment = new AkismetComment {
-                Blog = _config["SpamFilterSettings:BlogUrl"],
-                CommentAuthorEmail = comment.FromEmail,
-                CommentContent = comment.Comment,
-                UserIp = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
-                UserAgent = Request.Headers["User-Agent"]
-            };
-
-            comment.IsSpam = (await _akismet.CheckCommentAsync(spamCheckComment)).IsSpam;
-
-            var newComment = new EntryComment() {
-                CommentText = comment.Comment,
-                FromUser = comment.FromName,
-                FromUserEmail = comment.FromEmail,
-                IsSpam = comment.IsSpam
-            };
-
-            entry.Comments.Add(newComment);
-            await _repo.CompleteAsync();
-            return Ok(comment);
-        }
-
-        [HttpGet("comment/{userSlug}/{entrySlug}")]
-        public async Task<ActionResult<List<PodcastEntryCommentViewModel>>> GetComments(string userSlug,
-            string entrySlug) {
-            var entry = await _repo.Entries
-                .GetAll()
-                .Include(r => r.Comments)
-                .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
-                .SingleOrDefaultAsync();
-            if (entry is null) {
-                return BadRequest($"Could not find entry");
-            }
-
-            return _mapper.Map<List<EntryComment>, List<PodcastEntryCommentViewModel>>(
-                entry.Comments
-                    .OrderByDescending(c => c.CreateDate)
-                    .ToList());
-        }
+    if (result is null) {
+      return NotFound();
     }
+
+    return _mapper.Map<PodcastEntry, PodcastEntryViewModel>(result);
+  }
+
+  [HttpPost("postcomment/{userSlug}/{entrySlug}")]
+  public async Task<ActionResult<PodcastEntryCommentViewModel>> AddComment(
+    string userSlug, string entrySlug, [FromBody] PodcastEntryCommentViewModel comment) {
+    var entry = await _repo.Entries
+      .GetAll()
+      .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
+      .SingleOrDefaultAsync();
+
+    if (entry is null) {
+      return BadRequest("Could not find entry");
+    }
+
+    var spamCheckComment = new AkismetComment {
+      Blog = _config["SpamFilterSettings:BlogUrl"],
+      CommentAuthorEmail = comment.FromEmail,
+      CommentContent = comment.Comment,
+      UserIp = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
+      UserAgent = Request.Headers["User-Agent"]
+    };
+
+    comment.IsSpam = (await _akismet.CheckCommentAsync(spamCheckComment)).IsSpam;
+
+    var newComment = new EntryComment {
+      CommentText = comment.Comment,
+      FromUser = comment.FromName,
+      FromUserEmail = comment.FromEmail,
+      IsSpam = comment.IsSpam
+    };
+
+    entry.Comments.Add(newComment);
+    await _repo.CompleteAsync();
+    return Ok(comment);
+  }
+
+  [HttpGet("comment/{userSlug}/{entrySlug}")]
+  public async Task<ActionResult<List<PodcastEntryCommentViewModel>>> GetComments(string userSlug,
+    string entrySlug) {
+    var entry = await _repo.Entries
+      .GetAll()
+      .Include(r => r.Comments)
+      .Where(e => e.Podcast.AppUser.Slug == userSlug && e.Slug == entrySlug)
+      .SingleOrDefaultAsync();
+    if (entry is null) {
+      return BadRequest("Could not find entry");
+    }
+
+    return _mapper.Map<List<EntryComment>, List<PodcastEntryCommentViewModel>>(
+      entry.Comments
+        .OrderByDescending(c => c.CreateDate)
+        .ToList());
+  }
 }

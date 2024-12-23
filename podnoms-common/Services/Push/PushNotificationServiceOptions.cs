@@ -1,11 +1,10 @@
-namespace PodNoms.Common.Services.Push {
-    public class PushNotificationServiceOptions {
+namespace PodNoms.Common.Services.Push;
 
-        public string Subject { get; set; }
-        public string PushUrl { get; set; }
-        public string ClickUrl { get; set; }
-        public string ImageUrl { get; set; }
-        public string PublicKey { get; set; }
-        public string PrivateKey { get; set; }
-    }
+public class PushNotificationServiceOptions {
+  public string Subject { get; set; }
+  public string PushUrl { get; set; }
+  public string ClickUrl { get; set; }
+  public string ImageUrl { get; set; }
+  public string PublicKey { get; set; }
+  public string PrivateKey { get; set; }
 }

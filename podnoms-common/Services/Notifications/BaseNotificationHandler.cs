@@ -7,29 +7,31 @@ using System.Threading.Tasks;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models.Notifications;
 
-namespace PodNoms.Common.Services.Notifications {
-    public abstract class BaseNotificationHandler : INotificationHandler {
-        private readonly IRepoAccessor _repo;
-        public abstract Notification.NotificationType Type { get; }
+namespace PodNoms.Common.Services.Notifications;
 
-        protected readonly HttpClient _httpClient;
+public abstract class BaseNotificationHandler : INotificationHandler {
+  protected readonly HttpClient _httpClient;
+  private readonly IRepoAccessor _repo;
 
-        protected BaseNotificationHandler(IRepoAccessor repo,
-            IHttpClientFactory httpClient) {
-            _repo = repo;
-            _httpClient = httpClient.CreateClient("Notifications");
-        }
+  protected BaseNotificationHandler(IRepoAccessor repo,
+    IHttpClientFactory httpClient) {
+    _repo = repo;
+    _httpClient = httpClient.CreateClient("Notifications");
+  }
 
-        public abstract Task<string> SendNotification(Guid notificationId, string userName, string title,
-            string message, string url);
+  public abstract Notification.NotificationType Type { get; }
 
-        protected async Task<Dictionary<string, string>> _getConfiguration(Guid notificationId) {
-            var notification = await _repo.Notifications.GetAsync(notificationId);
-            if (notification is null) return null;
+  public abstract Task<string> SendNotification(Guid notificationId, string userName, string title,
+    string message, string url);
 
-            var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<string, string>>>(notification.Config);
-            var dictionary = list.ToDictionary(x => x.Key, x => x.Value);
-            return dictionary;
-        }
+  protected async Task<Dictionary<string, string>> _getConfiguration(Guid notificationId) {
+    var notification = await _repo.Notifications.GetAsync(notificationId);
+    if (notification is null) {
+      return null;
     }
+
+    var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<string, string>>>(notification.Config);
+    var dictionary = list.ToDictionary(x => x.Key, x => x.Value);
+    return dictionary;
+  }
 }

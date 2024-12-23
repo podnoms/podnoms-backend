@@ -1,7 +1,8 @@
-﻿namespace PodNoms.Common.Data.Settings {
-    public class HelpersSettings {
-        public string Downloader { get; set; }
-        public string FFMPeg { get; set; }
-        public string WaveformGenerator { get; set; }
-    }
+﻿namespace PodNoms.Common.Data.Settings;
+
+public class HelpersSettings {
+  public string Downloader { get; set; }
+  public string DownloaderCookiesFile { get; set; }
+  public string FFMPeg { get; set; }
+  public string WaveformGenerator { get; set; }
 }

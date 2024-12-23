@@ -8,36 +8,37 @@ using PodNoms.Common.Persistence;
 using PodNoms.Common.Utils;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    public class BoilerplateController : BaseController {
-        private readonly IRepoAccessor _repo;
+namespace PodNoms.Api.Controllers;
 
-        public BoilerplateController(
-            IRepoAccessor repo,
-            ILogger<BoilerplateController> logger) : base(logger) {
-            _repo = repo;
-        }
+[Route("[controller]")]
+public class BoilerplateController : BaseController {
+  private readonly IRepoAccessor _repo;
 
-        [HttpGet]
-        public async Task<ActionResult<BoilerplateViewModel>> Get([FromQuery] string key) {
-            var boilerPlate = await _repo.CreateProxy<BoilerPlate>()
-                .GetAll()
-                .Where(x => x.Key == key)
-                .FirstOrDefaultAsync();
+  public BoilerplateController(
+    IRepoAccessor repo,
+    ILogger<BoilerplateController> logger) : base(logger) {
+    _repo = repo;
+  }
 
-            if (boilerPlate == null)
-                return NotFound();
+  [HttpGet]
+  public async Task<ActionResult<BoilerplateViewModel>> Get([FromQuery] string key) {
+    var boilerPlate = await _repo.CreateProxy<BoilerPlate>()
+      .GetAll()
+      .Where(x => x.Key == key)
+      .FirstOrDefaultAsync();
 
-            var response = new BoilerplateViewModel {
-                Key = key,
-                Title = boilerPlate.Title,
-                Content = boilerPlate.Content.StartsWith("resource:")
-                    ? await ResourceReader.ReadResource($"{boilerPlate.Content.Split(':')[1]}.html", true)
-                    : boilerPlate.Content
-            };
-
-            return response;
-        }
+    if (boilerPlate == null) {
+      return NotFound();
     }
+
+    var response = new BoilerplateViewModel {
+      Key = key,
+      Title = boilerPlate.Title,
+      Content = boilerPlate.Content.StartsWith("resource:")
+        ? await ResourceReader.ReadResource($"{boilerPlate.Content.Split(':')[1]}.html", true)
+        : boilerPlate.Content
+    };
+
+    return response;
+  }
 }

@@ -1,54 +1,57 @@
+using System;
+using System.Threading.Tasks;
 using Hangfire.Console;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
-namespace PodNoms.Common.Services.Jobs {
-    public abstract class AbstractHostedJob : IHostedJob {
-        private PerformContext _context;
-        private readonly ILogger<AbstractHostedJob> _logger;
+namespace PodNoms.Common.Services.Jobs;
 
-        protected AbstractHostedJob(ILogger<AbstractHostedJob> logger) {
-            _logger = logger;
-        }
+public abstract class AbstractHostedJob : IHostedJob {
+  private readonly ILogger<AbstractHostedJob> _logger;
+  private PerformContext _context;
 
-        public Task<bool> Execute() => Execute(null);
-        public abstract Task<bool> Execute(PerformContext context);
+  protected AbstractHostedJob(ILogger<AbstractHostedJob> logger) {
+    _logger = logger;
+  }
 
-        protected void _setPerformContext(PerformContext context) {
-            this._context = context;
-        }
+  public Task<bool> Execute() {
+    return Execute(null);
+  }
 
-        private void _logToContext(string message, ConsoleTextColor color) {
-            _context.WriteLine(message);
-            _context.SetTextColor(color);
-            _context.ResetTextColor();
-        }
+  public abstract Task<bool> Execute(PerformContext context);
 
-        protected void Log(string message) {
-            _logger.LogInformation("{Message}", message);
-            _logToContext(message, ConsoleTextColor.White);
-        }
+  protected void _setPerformContext(PerformContext context) {
+    _context = context;
+  }
 
-        protected void LogWarning(string message) {
-            _logger.LogWarning("{Message}", message);
-            _logToContext(message, ConsoleTextColor.Yellow);
-        }
+  private void _logToContext(string message, ConsoleTextColor color) {
+    _context.WriteLine(message);
+    _context.SetTextColor(color);
+    _context.ResetTextColor();
+  }
 
-        protected void LogError(string message) {
-            _logger.LogError("{Message}", message);
-            _logToContext(message, ConsoleTextColor.Red);
-        }
+  protected void Log(string message) {
+    _logger.LogInformation("{Message}", message);
+    _logToContext(message, ConsoleTextColor.White);
+  }
 
-        protected void LogError(string message, Exception ex) {
-            LogError(message);
-            LogError(ex.Message);
-        }
+  protected void LogWarning(string message) {
+    _logger.LogWarning("{Message}", message);
+    _logToContext(message, ConsoleTextColor.Yellow);
+  }
 
-        protected void LogDebug(string message) {
-            _logger.LogDebug("{Message}", message);
-            _logToContext(message, ConsoleTextColor.Green);
-        }
-    }
+  protected void LogError(string message) {
+    _logger.LogError("{Message}", message);
+    _logToContext(message, ConsoleTextColor.Red);
+  }
+
+  protected void LogError(string message, Exception ex) {
+    LogError(message);
+    LogError(ex.Message);
+  }
+
+  protected void LogDebug(string message) {
+    _logger.LogDebug("{Message}", message);
+    _logToContext(message, ConsoleTextColor.Green);
+  }
 }

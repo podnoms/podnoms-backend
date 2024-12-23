@@ -6,22 +6,22 @@ using PodNoms.Common.Data.ViewModels.Resources;
 using PodNoms.Common.Persistence;
 using PodNoms.Data.Models;
 
-namespace PodNoms.Common.Data.Resolvers {
-    internal class ProfileIsFluentResolver : IValueResolver<ApplicationUser, ProfileViewModel, bool> {
-        private readonly IRepoAccessor _repo;
+namespace PodNoms.Common.Data.Resolvers;
 
-        public ProfileIsFluentResolver(IRepoAccessor repo) {
-            _repo = repo;
-        }
+internal class ProfileIsFluentResolver : IValueResolver<ApplicationUser, ProfileViewModel, bool> {
+  private readonly IRepoAccessor _repo;
 
-        private async Task<bool> _runQuery(string slug) {
-            var entries = await _repo.Entries.GetAllForUserAsync(slug);
-            return entries.Count() > 5;
-        }
+  public ProfileIsFluentResolver(IRepoAccessor repo) {
+    _repo = repo;
+  }
 
-        public bool Resolve(ApplicationUser source, ProfileViewModel destination, bool destMember,
-            ResolutionContext context) {
-            return AsyncContext.Run(async () => await _runQuery(source.Id));
-        }
-    }
+  public bool Resolve(ApplicationUser source, ProfileViewModel destination, bool destMember,
+    ResolutionContext context) {
+    return AsyncContext.Run(async () => await _runQuery(source.Id));
+  }
+
+  private async Task<bool> _runQuery(string slug) {
+    var entries = await _repo.Entries.GetAllForUserAsync(slug);
+    return entries.Count() > 5;
+  }
 }

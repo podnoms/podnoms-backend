@@ -4,41 +4,43 @@ using Microsoft.Extensions.Options;
 using PodNoms.Common.Data.Settings;
 using Stripe;
 
-namespace PodNoms.Common.Services.Payments {
-    public class StripePaymentProcessor : IPaymentProcessor {
-        private readonly PaymentSettings _paymentSettings;
+namespace PodNoms.Common.Services.Payments;
 
-        public StripePaymentProcessor(IOptions<PaymentSettings> paymentSettings) {
-            this._paymentSettings = paymentSettings.Value;
-        }
-        public async Task<StripePaymentResult> ProcessPayment(string orderId, long amount, string description,
-            string idempotencyKey,
-            object[] credentials) {
-            StripeConfiguration.ApiKey = _paymentSettings.StripeSettings.PrivateKey;
+public class StripePaymentProcessor : IPaymentProcessor {
+  private readonly PaymentSettings _paymentSettings;
 
-            var service = new ChargeService();
-            var customers = new CustomerService();
-            var customer = customers.Create(new CustomerCreateOptions {
-                Email = credentials[0].ToString(),
-                Source = credentials[1].ToString()
-            });
+  public StripePaymentProcessor(IOptions<PaymentSettings> paymentSettings) {
+    _paymentSettings = paymentSettings.Value;
+  }
 
-            var options = new ChargeCreateOptions {
-                Amount = (long)(amount * 100),
-                Currency = "eur",
-                Metadata = new Dictionary<string, string> { { "OrderId", orderId }
-                },
-                Customer = customer.Id
-            };
+  public async Task<StripePaymentResult> ProcessPayment(string orderId, long amount, string description,
+    string idempotencyKey,
+    object[] credentials) {
+    StripeConfiguration.ApiKey = _paymentSettings.StripeSettings.PrivateKey;
 
-            var charge = await service.CreateAsync(options);
-            return new StripePaymentResult {
-                Id = charge.Id,
-                Paid = charge.Paid,
-                Status = charge.Status,
-                Amount = charge.Amount,
-                ReceiptURL = charge.ReceiptUrl
-            };
-        }
-    }
+    var service = new ChargeService();
+    var customers = new CustomerService();
+    var customer = customers.Create(new CustomerCreateOptions {
+      Email = credentials[0].ToString(),
+      Source = credentials[1].ToString()
+    });
+
+    var options = new ChargeCreateOptions {
+      Amount = amount * 100,
+      Currency = "eur",
+      Metadata = new Dictionary<string, string> {
+        { "OrderId", orderId }
+      },
+      Customer = customer.Id
+    };
+
+    var charge = await service.CreateAsync(options);
+    return new StripePaymentResult {
+      Id = charge.Id,
+      Paid = charge.Paid,
+      Status = charge.Status,
+      Amount = charge.Amount,
+      ReceiptURL = charge.ReceiptUrl
+    };
+  }
 }

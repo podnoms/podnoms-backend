@@ -5,23 +5,22 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+namespace PodNoms.Api.Controllers;
 
-namespace PodNoms.Api.Controllers {
-    [Route("[controller]")]
-    public class HooksController : BaseController {
-        public HooksController(ILogger<HooksController> logger) : base(logger) {
-        }
+[Route("[controller]")]
+public class HooksController : BaseController {
+  public HooksController(ILogger<HooksController> logger) : base(logger) {
+  }
 
-        [HttpPost("coinbase")]
-        public async Task<ActionResult> CoinbasePayment() {
-            using (var reader = new StreamReader(Request.Body, Encoding.UTF8)) {
-                var body = await reader.ReadToEndAsync();
-                dynamic hook = JsonSerializer.Deserialize<dynamic>(body);
-                _logger.LogDebug(body);
-                // Do something
-            }
-
-            return Ok("Hello, Coinbase!");
-        }
+  [HttpPost("coinbase")]
+  public async Task<ActionResult> CoinbasePayment() {
+    using (var reader = new StreamReader(Request.Body, Encoding.UTF8)) {
+      var body = await reader.ReadToEndAsync();
+      var hook = JsonSerializer.Deserialize<dynamic>(body);
+      _logger.LogDebug(body);
+      // Do something
     }
+
+    return Ok("Hello, Coinbase!");
+  }
 }

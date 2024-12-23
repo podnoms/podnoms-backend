@@ -6,34 +6,32 @@ using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using PodNoms.Common.Services.Processor;
 
-namespace PodNoms.Common.Services.Jobs {
-    public class UploadAudioJob : AbstractHostedJob {
-        private readonly IAudioUploadProcessService _uploadProcessService;
-        private readonly ILogger _logger;
+namespace PodNoms.Common.Services.Jobs;
 
-        public UploadAudioJob(
-            IAudioUploadProcessService uploadProcessService,
-            ILogger<UploadAudioJob> logger, IMailSender mailSender) : base(logger) {
-            _uploadProcessService = uploadProcessService;
-            _logger = logger;
-        }
+public class UploadAudioJob : AbstractHostedJob {
+  private readonly ILogger _logger;
+  private readonly IAudioUploadProcessService _uploadProcessService;
 
-        public override Task<bool> Execute(PerformContext context) {
-            throw new NotImplementedException();
-        }
+  public UploadAudioJob(
+    IAudioUploadProcessService uploadProcessService,
+    ILogger<UploadAudioJob> logger, IMailSender mailSender) : base(logger) {
+    _uploadProcessService = uploadProcessService;
+    _logger = logger;
+  }
 
-        public async Task<bool> Execute(Guid entryId, string cacheFile, PerformContext context) {
+  public override Task<bool> Execute(PerformContext context) {
+    throw new NotImplementedException();
+  }
 
-            _setPerformContext(context);
-            Log($"Starting Upload Job for {entryId} - {cacheFile}");
+  public async Task<bool> Execute(Guid entryId, string cacheFile, PerformContext context) {
+    _setPerformContext(context);
+    Log($"Starting Upload Job for {entryId} - {cacheFile}");
 
-            if (File.Exists(cacheFile)) {
-                return await _uploadProcessService.UploadAudio(entryId, cacheFile);
-            } else {
-                context.WriteLine($"Failed to cache remote file {cacheFile}");
-                return false;
-            }
-        }
-
+    if (File.Exists(cacheFile)) {
+      return await _uploadProcessService.UploadAudio(entryId, cacheFile);
     }
+
+    context.WriteLine($"Failed to cache remote file {cacheFile}");
+    return false;
+  }
 }

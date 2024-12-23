@@ -6,41 +6,42 @@ using Microsoft.Extensions.Logging;
 using PodNoms.AudioParsing.Models;
 using PodNoms.Common.Services.Realtime;
 
-namespace PodNoms.Common.Services.Processor {
-    /// <summary>
-    /// Base class for processing services 
-    /// which provide realtime updates 
-    /// /// </summary>
-    public class RealtimeUpdatingProcessService {
-        static SemaphoreSlim __lockObj = new SemaphoreSlim(1, 1);
+namespace PodNoms.Common.Services.Processor;
 
-        protected readonly ILogger _logger;
+/// <summary>
+///   Base class for processing services
+///   which provide realtime updates
+///   ///
+/// </summary>
+public class RealtimeUpdatingProcessService {
+  private static readonly SemaphoreSlim __lockObj = new(1, 1);
 
-        private readonly IRealTimeUpdater _realtime;
-        protected readonly IMapper _mapper;
+  protected readonly ILogger _logger;
+  protected readonly IMapper _mapper;
 
-        protected RealtimeUpdatingProcessService(ILogger<RealtimeUpdatingProcessService> logger,
-            IRealTimeUpdater realtimeUpdater, IMapper mapper) {
-            _logger = logger;
-            _realtime = realtimeUpdater;
-            _mapper = mapper;
-        }
+  private readonly IRealTimeUpdater _realtime;
 
-        protected async Task<bool> _sendProgressUpdate(string userId, string channelName, ProcessingProgress data) {
-            var result = false;
-            await __lockObj.WaitAsync();
-            try {
-                result = await _realtime.SendProcessUpdate(
-                    userId,
-                    channelName,
-                    data);
-            } catch (Exception e) {
-                _logger.LogError($"Error in _sendProgressUpdate{Environment.NewLine}{e.Message}");
-            } finally {
-                __lockObj.Release();
-            }
+  protected RealtimeUpdatingProcessService(ILogger<RealtimeUpdatingProcessService> logger,
+    IRealTimeUpdater realtimeUpdater, IMapper mapper) {
+    _logger = logger;
+    _realtime = realtimeUpdater;
+    _mapper = mapper;
+  }
 
-            return result;
-        }
+  protected async Task<bool> _sendProgressUpdate(string userId, string channelName, ProcessingProgress data) {
+    var result = false;
+    await __lockObj.WaitAsync();
+    try {
+      result = await _realtime.SendProcessUpdate(
+        userId,
+        channelName,
+        data);
+    } catch (Exception e) {
+      _logger.LogError($"Error in _sendProgressUpdate{Environment.NewLine}{e.Message}");
+    } finally {
+      __lockObj.Release();
     }
+
+    return result;
+  }
 }
